@@ -21,6 +21,7 @@ class Signal
   {
     value = 0;
     step = new_step;
+    LOG(INFO) << "Signal " << value << " " << new_step;
   }
   
   virtual void update()
@@ -37,17 +38,17 @@ class Signal
 class Saw : public Signal
 {
   public:
-  Saw(const float new_step=0.01) {}
+  Saw(const float new_step=0.01) : Signal(new_step) {}
 
   virtual void update()
   {
     value += step;
     if (value > 1.0) {
-      step = -step;
+      step = -abs(step);
       value = 1.0;
     }
     if (value < 0.0) {
-      step = -step;
+      step = abs(step);
       value = 0.0;
     }
     //LOG(INFO) << step << " " << value;
@@ -120,7 +121,13 @@ class Patch
   // this is sort of strange, maybe should have another object that can be many to one with the buffer?
   cv::Mat get()
   {
-    return buffer->get(signal->value);
+    cv::Mat rv = buffer->get(signal->value);
+    
+    //if (rv.empty())
+    cv::line(rv, cv::Point(0,0), cv::Point( rv.cols, 0), cv::Scalar(0,0,0), 2);
+    cv::line(rv, cv::Point(0,0), cv::Point( signal->value* rv.cols, 0), cv::Scalar(255,0,0), 2);
+    
+    return rv;
   }
 };
 
@@ -150,7 +157,7 @@ int main( int argc, char* argv[] )
   }
 
   Buffer* cam_buf = new Buffer(90);
-  Signal* ramp_sig = new Signal(0.1);
+  Signal* ramp_sig = new Saw(0.2);
   Patch* patch = new Patch(ramp_sig, cam_buf);
 
   cv::namedWindow("cam", CV_GUI_NORMAL);
