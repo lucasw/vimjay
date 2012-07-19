@@ -46,6 +46,7 @@ camthing.cpp
 target_link_libraries(${PROJECT_NAME} 
 #${SOME_LIBS} 
 ${OpenCV_LIBS}
+glog
 )
 
 
