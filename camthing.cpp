@@ -112,14 +112,14 @@ class Patch
     buffer = new_buffer;
   }
 
-  void update()
+  virtual void update()
   {
     if (signal != NULL)
       signal->update();
   }
 
   // this is sort of strange, maybe should have another object that can be many to one with the buffer?
-  cv::Mat get()
+  virtual cv::Mat get()
   {
     cv::Mat rv = buffer->get(signal->value);
     
@@ -128,6 +128,34 @@ class Patch
     cv::line(rv, cv::Point(0,0), cv::Point( signal->value* rv.cols, 0), cv::Scalar(255,0,0), 2);
     
     return rv;
+  }
+};
+
+class Add : public Patch
+{
+  public:
+  
+  // TBD make a vector?
+  Patch* p1;
+  Patch* p2;
+
+  Add(Patch* np1, Patch* np2)
+  {
+    p1 = np1;
+    p2 = np2;
+  }
+
+  virtual void update()
+  {
+    // TBD a patch might get updated many times in one step if it is connected to many places
+    p1->update();
+    p2->update();
+  }
+
+  virtual cv::Mat get()
+  { 
+    // TBD enforce size sameness
+    return p1->get() + p2->get();
   }
 };
 
@@ -157,8 +185,21 @@ int main( int argc, char* argv[] )
   }
 
   Buffer* cam_buf = new Buffer(90);
-  Signal* ramp_sig = new Saw(0.2);
-  Patch* patch = new Patch(ramp_sig, cam_buf);
+
+  Signal* s1 = new Saw(0.10);
+  Patch* p1 = new Patch(s1, cam_buf);
+  
+  // make a chain
+  for (int i = 0; i < 4; i++) {
+    p1->update();
+
+    Signal* s2 = new Saw(0.1);
+    Patch* p2 = new Patch(s2, cam_buf);
+    Add* add = new Add(p1, p2);
+
+    p1 = add;
+  }
+  
 
   cv::namedWindow("cam", CV_GUI_NORMAL);
   cv::moveWindow("cam",0,0);
@@ -192,8 +233,8 @@ int main( int argc, char* argv[] )
 
       // TBD put this in different thread 
       {
-        patch->update();
-        imshow("out", patch->get());
+        p1->update();
+        imshow("out", p1->get());
       }
     }
 
