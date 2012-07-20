@@ -58,8 +58,8 @@ class Node
 
     bool inputs_dirty = is_dirty;
     for (int i = 0; i < inputs.size(); i++) {
-      inputs[i].update();
-      if (inputs[i].is_dirty) inputs_dirty = true;
+      inputs[i]->update();
+      if (inputs[i]->is_dirty) inputs_dirty = true;
     }
 
     // the inheriting object needs to set is_dirty as appropriate?
@@ -71,6 +71,7 @@ class Node
 
 class ImageNode : public Node
 {
+protected:
   cv::Mat out;
 
 public:
@@ -84,14 +85,19 @@ public:
   virtual cv::Mat get() {
     return out;
   }
-}
+};
 
 // TBD subclasses of Node that are input/output specific, or make that general somehow?
 
 class Signal : public Node
 {
   public:
-  Signal(const float new_step=0.01, const float offset=0.0) : Node()
+  Signal() : Node()
+  {
+
+  }
+
+  void setup(const float new_step=0.01, const float offset=0.0) 
   {
     value = offset;
     step = new_step;
@@ -119,7 +125,14 @@ class Signal : public Node
 class Saw : public Signal
 {
   public:
-  Saw(const float new_step=0.01, const float offset=0.0) : Signal(new_step, offset) {}
+  Saw() : Signal()
+  {
+  }
+  
+  void setup(const float new_step=0.01, const float offset=0.0) 
+  {
+    Signal::setup(new_step, offset);
+  }
 
   virtual bool update()
   { 
@@ -149,7 +162,7 @@ class Buffer : public ImageNode
   
   public:
 
-  Buffer() : Node() {
+  Buffer() : ImageNode() {
     //this->max_size = max_size;
     //LOG(INFO) << "new buffer max_size " << this->max_size;
   }
@@ -204,7 +217,7 @@ class Tap : public ImageNode
   bool changed;
   cv::Mat out;
 
-  Tap() : Node()
+  Tap() : ImageNode()
   {
   }
 
@@ -243,22 +256,22 @@ class Tap : public ImageNode
   }*/
 };
 
-class Add : public Tap
+class Add : public ImageNode
 {
   public:
   
   // TBD make a vector?
-  Tap* p1;
+  ImageNode* p1;
   float f1;
 
-  Tap* p2;
+  ImageNode* p2;
   float f2;
   
-  cv::Mat
-
-  Add() :Node()
+  Add() : ImageNode()
+  {
+  }
   
-  void setup(Tap* np1, Tap* np2, float nf1 = 0.5, float nf2 = 0.5) 
+  void setup(ImageNode* np1, ImageNode* np2, float nf1 = 0.5, float nf2 = 0.5) 
   {
     p1 = np1;
     p2 = np2;
@@ -292,7 +305,9 @@ class CamThing
 
   // the final output 
   // TBD make this a special node type
-  Node* output;
+  ImageNode* output;
+
+  public:
 
   // conveniently create and store node
   template <class nodeType>
@@ -336,13 +351,16 @@ class CamThing
     const float advance = 0.2;
 
     cam_buf = getNode<Buffer>();  
-    cam_buf->step = (1.0/advance*5);
+    cam_buf->max_size = (1.0/advance*5);
 
     Signal* s1 = getNode<Saw>(); 
     s1->step = (advance);
 
     Tap* p1 = getNode<Tap>();
-    p1->setup(s1, cam_buf);
+    //static_cast<Tap*>
+    (p1)->setup(s1, cam_buf);
+
+    ImageNode* nd = p1;
 
     // make a chain, sort of a filter
     for (float ifr = advance; ifr <= 1.0; ifr += advance ) {
@@ -354,7 +372,7 @@ class CamThing
       p2->setup(s2, cam_buf);
 
       Add* add = getNode<Add>();
-      add->setup(p1, p2, 0.5, 0.5);
+      add->setup(nd, p2, 0.5, 0.5);
 
       /*
          Signal* s3 = new Saw(advance, ifr -advance*2.5);
@@ -362,10 +380,10 @@ class CamThing
 
          add = new Add(add, p3, 2.0, -1.0);
          */
-      p1 = add;
+      nd = add;
     }
 
-    output = p1;
+    output = nd;
 
     cv::namedWindow("cam", CV_GUI_NORMAL);
     cv::moveWindow("cam",0,0);
@@ -377,6 +395,7 @@ class CamThing
     capture.grab();
   }
 
+  cv::Mat frame;
   bool update() {
 
     if( !capture.grab() )
@@ -387,7 +406,6 @@ class CamThing
     }
     
     {
-      cv::Mat frame;
       capture.retrieve(frame); 
       if (frame.empty()) {
         cout << "bad capture" << endl;
