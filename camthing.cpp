@@ -17,7 +17,6 @@ using namespace std;
 namespace bm {
 
 // informal timer for the system
-int counter;
 
 class Node
 {
@@ -41,9 +40,12 @@ class Node
     if (do_update) return false;
 
     do_update = true;
+
+    //LOG(INFO) << "in sz " << inputs.size();
     for (int i = 0; i < inputs.size(); i++) {
       inputs[i]->setUpdate();  
     }
+
     
     return true;
   }
@@ -64,6 +66,8 @@ class Node
 
     // the inheriting object needs to set is_dirty as appropriate?
     is_dirty = inputs_dirty;
+    
+    LOG(INFO) << "in sz " << inputs.size() << " " << is_dirty;
 
     return true;
   }
@@ -329,6 +333,7 @@ class CamThing
 
   VideoCapture capture; //CV_CAP_OPENNI );
   Buffer* cam_buf;  
+  int count;
 
   CamThing() 
   {
@@ -336,7 +341,7 @@ class CamThing
     capture = VideoCapture(0); //CV_CAP_OPENNI );
     LOG(INFO) << "done.";
 
-    int count = 0;
+    count = 0;
 
     if( !capture.isOpened() )
     {
@@ -358,7 +363,7 @@ class CamThing
 
     Tap* p1 = getNode<Tap>();
     //static_cast<Tap*>
-    (p1)->setup(s1, cam_buf);
+    p1->setup(s1, cam_buf);
 
     ImageNode* nd = p1;
 
@@ -383,6 +388,8 @@ class CamThing
       nd = add;
     }
 
+    LOG(INFO) << all_nodes.size() << " nodes total";
+
     output = nd;
 
     cv::namedWindow("cam", CV_GUI_NORMAL);
@@ -397,12 +404,12 @@ class CamThing
 
   cv::Mat frame;
   bool update() {
+    count++;
 
     if( !capture.grab() )
     {
       cout << "Can not grab images." << endl;
       return true;
-      //return -1;
     }
     
     {
@@ -424,12 +431,20 @@ class CamThing
     if( waitKey( 10 ) == 'q' )
       return false;
 
+
+
     return true;
   }
   
   void draw() {
     imshow("cam",frame);
-    imshow("out", output->get());
+
+    cv::Mat out = output->get();
+    if (out.data)
+      imshow("out", out);
+    else {
+      LOG(ERROR) << "out no data";
+    }
   }
 
   };
