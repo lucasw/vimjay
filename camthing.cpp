@@ -27,6 +27,9 @@ class Node
   // is the output of this node different from the last  timestep
   bool is_dirty;
 
+  string name;
+  cv::Point2f loc;
+
   Node() {
     do_update = false;
     is_dirty = true;
@@ -67,7 +70,7 @@ class Node
     // the inheriting object needs to set is_dirty as appropriate?
     is_dirty = inputs_dirty;
     
-    LOG(INFO) << "in sz " << inputs.size() << " " << is_dirty;
+    LOG(INFO) << name << " in sz " << inputs.size() << " " << is_dirty;
 
     return true;
   }
@@ -207,6 +210,7 @@ class Buffer : public ImageNode
     return frames[ind];
   }
 
+  // TBD get(int ind), negative ind index from last
 
 };
 
@@ -219,7 +223,6 @@ class Tap : public ImageNode
   Buffer* buffer;
 
   bool changed;
-  cv::Mat out;
 
   Tap() : ImageNode()
   {
@@ -315,9 +318,13 @@ class CamThing
 
   // conveniently create and store node
   template <class nodeType>
-    nodeType* getNode()
+    nodeType* getNode(string name = "", cv::Point2f loc=cv::Point2f(0.0,0.0))
     {
       nodeType* node = new nodeType();
+
+      node->name = name;
+      node->loc = loc;
+
       all_nodes.push_back(node);
       return node;
     }
@@ -355,18 +362,19 @@ class CamThing
 
     const float advance = 0.2;
 
-    cam_buf = getNode<Buffer>();  
+    cam_buf = getNode<Buffer>("webcam");  
     cam_buf->max_size = (1.0/advance*5);
 
-    Signal* s1 = getNode<Saw>(); 
+    Signal* s1 = getNode<Saw>("saw"); 
     s1->step = (advance);
 
-    Tap* p1 = getNode<Tap>();
+    Tap* p1 = getNode<Tap>("tap");
     //static_cast<Tap*>
     p1->setup(s1, cam_buf);
 
     ImageNode* nd = p1;
 
+  #if 0
     // make a chain, sort of a filter
     for (float ifr = advance; ifr <= 1.0; ifr += advance ) {
 
@@ -387,7 +395,7 @@ class CamThing
          */
       nd = add;
     }
-
+#endif
     LOG(INFO) << all_nodes.size() << " nodes total";
 
     output = nd;
