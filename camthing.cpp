@@ -45,33 +45,51 @@ class Node
     bool inputs_dirty = false;
     for (int i = 0; i < inputs.size(); i++) {
       inputs[i].update();
-      if (inputs[i].dirty) inputs_dirty = true;
+      if (inputs[i].is_dirty) inputs_dirty = true;
     }
 
     // there inheriting object needs to set is_dirty as appropriate?
     is_dirty = inputs_dirty;
   }
+};
+
+class ImageNode : public Node
+{
+  cv::Mat out;
+
+public:
+    
+  ImageNode() : Node()
+  {
+
+  }
+
+  // TBD could there be a templated get function to be used in different node types?
+  virtual cv::Mat get() {
+    return out;
+  }
 }
-
-
 
 // TBD subclasses of Node that are input/output specific, or make that general somehow?
 
 class Signal : public Node
 {
   public:
-  Signal(const float new_step=0.01, const float offset=0.0)
+  Signal(const float new_step=0.01, const float offset=0.0) : Node()
   {
     value = offset;
     step = new_step;
     LOG(INFO) << "Signal " << value << " " << new_step;
   }
   
-  virtual void update()
+  virtual void update() 
   {
+    Node::update();
+
     value += step;
     if (value > 1.0) value = 0.0;
     if (value < 0.0) value = 1.0;
+    is_dirty = true;
   }
   
   float value;
@@ -84,7 +102,9 @@ class Saw : public Signal
   Saw(const float new_step=0.01, const float offset=0.0) : Signal(new_step, offset) {}
 
   virtual void update()
-  {
+  { 
+    Node::update();
+
     value += step;
     if (value > 1.0) {
       step = -abs(step);
@@ -94,12 +114,13 @@ class Saw : public Signal
       step = abs(step);
       value = 0.0;
     }
+    is_dirty = true;
     //LOG(INFO) << step << " " << value;
   }
 };
 
 ///
-class Buffer : public Node
+class Buffer : public ImageNode
 {
 
   deque<cv::Mat> frames;
@@ -107,11 +128,10 @@ class Buffer : public Node
   
   public:
 
-  Buffer(const int max_size=180) {
+  Buffer(const int max_size=180) : Node() {
     this->max_size = max_size;
     LOG(INFO) << "new buffer max_size " << this->max_size;
 
-    changed = true;
   }
   
 
@@ -151,7 +171,7 @@ class Buffer : public Node
 };
 
 ///////////////////////////////////////////////////////////
-class Patch
+class Tap : public ImageNode
 {
   public:
 
@@ -161,30 +181,28 @@ class Patch
   bool changed;
   cv::Mat out;
 
-  Patch(Signal* new_signal =NULL, Buffer* new_buffer=NULL)
+  Tap(Signal* new_signal =NULL, Buffer* new_buffer=NULL) : Node()
   {
     signal = new_signal;
     buffer = new_buffer;
-    changed = true;
+
+    inputs.push_back(signal);
+    inputs.push_back(buffer);
   }
 
   virtual void update()
   {
-    if (signal != NULL)
-      signal->update();
+    Node::update();
+
+    if (is_dirty) {
+      out = buffer->get(signal->value);
+    }
   }
 
   // this is sort of strange, maybe should have another object that can be many to one with the buffer?
-  virtual cv::Mat get()
+  /*
+   * virtual cv::Mat get()
   {
-    
-    cv::Mat new_out = buffer->get(signal->value);
-
-    if (new_out == out) {
-      changed = false;
-      return out;
-    } 
-     
     //if (rv.empty())
     if (VLOG_IS_ON(2)) {
     cv::line(rv, cv::Point(0,0), cv::Point( rv.cols, 0), cv::Scalar(0,0,0), 2);
@@ -192,43 +210,43 @@ class Patch
     }
 
     return out;
-  }
+  }*/
 };
 
-class Add : public Patch
+class Add : public Tap
 {
   public:
   
   // TBD make a vector?
-  Patch* p1;
+  Tap* p1;
   float f1;
 
-  Patch* p2;
+  Tap* p2;
   float f2;
+  
+  cv::Mat
 
-
-  Add(Patch* np1, Patch* np2, float nf1= 0.5, float nf2 = 0.5)
+  Add(Tap* np1, Tap* np2, float nf1 = 0.5, float nf2 = 0.5) : Node()
   {
     p1 = np1;
     p2 = np2;
+
     f1 = nf1;
     f2 = nf2;
-    
-    changed = true;
+   
+    inputs.push_back(p1);
+    inputs.push_back(p2);
   }
 
   virtual void update()
   {
-    // TBD a patch might get updated many times in one step if it is connected to many places
-    p1->update();
-    p2->update();
+    Node::update();
+
+    if (is_dirty) {
+      out = p1->get() * f1 + p2->get() * f2;
+    }
   }
 
-  virtual cv::Mat get()
-  { 
-    // TBD enforce size sameness
-    return p1->get() * f1 + p2->get() * f2;
-  }
 };
 
 
@@ -277,19 +295,19 @@ class Add : public Patch
   Buffer* cam_buf = new Buffer(1.0/advance*5);
   
   Signal* s1 = new Saw(advance);
-  Patch* p1 = new Patch(s1, cam_buf);
+  Tap* p1 = new Tap(s1, cam_buf);
    
   // make a chain, sort of a filter
   for (float ifr = advance; ifr <= 1.0; ifr += advance ) {
 
     Signal* s2 = new Saw(advance, ifr);
-    Patch* p2 = new Patch(s2, cam_buf);
+    Tap* p2 = new Tap(s2, cam_buf);
 
     Add* add = new Add(p1, p2, 0.5, 0.5);
     
     /*
     Signal* s3 = new Saw(advance, ifr -advance*2.5);
-    Patch* p3 = new Patch(s2, cam_buf);
+    Tap* p3 = new Tap(s2, cam_buf);
 
     add = new Add(add, p3, 2.0, -1.0);
     */
