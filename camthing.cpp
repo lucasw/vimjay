@@ -17,9 +17,9 @@ using namespace std;
 class Signal
 {
   public:
-  Signal(const float new_step=0.01)
+  Signal(const float new_step=0.01, const float offset=0.0)
   {
-    value = 0;
+    value = offset;
     step = new_step;
     LOG(INFO) << "Signal " << value << " " << new_step;
   }
@@ -38,7 +38,7 @@ class Signal
 class Saw : public Signal
 {
   public:
-  Saw(const float new_step=0.01) : Signal(new_step) {}
+  Saw(const float new_step=0.01, const float offset=0.0) : Signal(new_step, offset) {}
 
   virtual void update()
   {
@@ -124,9 +124,11 @@ class Patch
     cv::Mat rv = buffer->get(signal->value);
     
     //if (rv.empty())
+    if (VLOG_IS_ON(2)) {
     cv::line(rv, cv::Point(0,0), cv::Point( rv.cols, 0), cv::Scalar(0,0,0), 2);
     cv::line(rv, cv::Point(0,0), cv::Point( signal->value* rv.cols, 0), cv::Scalar(255,0,0), 2);
-    
+    }
+
     return rv;
   }
 };
@@ -137,12 +139,17 @@ class Add : public Patch
   
   // TBD make a vector?
   Patch* p1;
-  Patch* p2;
+  float f1;
 
-  Add(Patch* np1, Patch* np2)
+  Patch* p2;
+  float f2;
+
+  Add(Patch* np1, Patch* np2, float nf1= 0.5, float nf2 = 0.5)
   {
     p1 = np1;
     p2 = np2;
+    f1 = nf1;
+    f2 = nf2;
   }
 
   virtual void update()
@@ -155,7 +162,7 @@ class Add : public Patch
   virtual cv::Mat get()
   { 
     // TBD enforce size sameness
-    return p1->get() + p2->get();
+    return p1->get() * f1 + p2->get() * f2;
   }
 };
 
@@ -183,19 +190,24 @@ int main( int argc, char* argv[] )
     LOG(ERROR) << "Can not open a capture object.";
     return -1;
   }
+  bool rv1 = capture.set( CV_CAP_PROP_FRAME_WIDTH, 800);
+  bool rv2 = capture.set( CV_CAP_PROP_FRAME_HEIGHT, 600);
+  LOG(INFO) << "set res " << rv1 << " " << rv2;
 
-  Buffer* cam_buf = new Buffer(90);
-
-  Signal* s1 = new Saw(0.10);
+  
+  const float advance = 0.2;
+  
+  Buffer* cam_buf = new Buffer(1.0/advance*5);
+  
+  Signal* s1 = new Saw(advance);
   Patch* p1 = new Patch(s1, cam_buf);
   
   // make a chain
-  for (int i = 0; i < 4; i++) {
-    p1->update();
+  for (float ifr = advance; ifr <= 1.0; ifr += advance ) {
 
-    Signal* s2 = new Saw(0.1);
+    Signal* s2 = new Saw(advance, ifr);
     Patch* p2 = new Patch(s2, cam_buf);
-    Add* add = new Add(p1, p2);
+    Add* add = new Add(p1, p2, 2.0, -1.0);
 
     p1 = add;
   }
