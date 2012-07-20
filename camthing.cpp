@@ -36,20 +36,36 @@ class Node
   // TBD vector of input nodes
   vector<Node*> inputs;
 
-  virtual void update() 
+  bool setUpdate()
   {
-    if (!do_update) return;
+    if (do_update) return false;
+
+    do_update = true;
+    for (int i = 0; i < inputs.size(); i++) {
+      inputs[i]->setUpdate();  
+    }
+    
+    return true;
+  }
+
+  // the rv is so that an ineritanning function will know whether to 
+  // process or not
+  virtual bool update() 
+  {
+    if (!do_update) return false;
 
     do_update = false; 
 
-    bool inputs_dirty = false;
+    bool inputs_dirty = is_dirty;
     for (int i = 0; i < inputs.size(); i++) {
       inputs[i].update();
       if (inputs[i].is_dirty) inputs_dirty = true;
     }
 
-    // there inheriting object needs to set is_dirty as appropriate?
+    // the inheriting object needs to set is_dirty as appropriate?
     is_dirty = inputs_dirty;
+
+    return true;
   }
 };
 
@@ -82,14 +98,18 @@ class Signal : public Node
     LOG(INFO) << "Signal " << value << " " << new_step;
   }
   
-  virtual void update() 
+  virtual bool update() 
   {
-    Node::update();
+    if (!Node::update()) return false;
 
+    // it wouldn't be hard to update these
+    // even if they aren't in need of updating, but don't for now
     value += step;
     if (value > 1.0) value = 0.0;
     if (value < 0.0) value = 1.0;
     is_dirty = true;
+
+    return true;
   }
   
   float value;
@@ -101,9 +121,9 @@ class Saw : public Signal
   public:
   Saw(const float new_step=0.01, const float offset=0.0) : Signal(new_step, offset) {}
 
-  virtual void update()
+  virtual bool update()
   { 
-    Node::update();
+    if (!Node::update()) return false;
 
     value += step;
     if (value > 1.0) {
@@ -115,7 +135,9 @@ class Saw : public Signal
       value = 0.0;
     }
     is_dirty = true;
+
     //LOG(INFO) << step << " " << value;
+    return true;
   }
 };
 
@@ -124,17 +146,16 @@ class Buffer : public ImageNode
 {
 
   deque<cv::Mat> frames;
-  int max_size;
   
   public:
 
-  Buffer(const int max_size=180) : Node() {
-    this->max_size = max_size;
-    LOG(INFO) << "new buffer max_size " << this->max_size;
-
+  Buffer() : Node() {
+    //this->max_size = max_size;
+    //LOG(INFO) << "new buffer max_size " << this->max_size;
   }
   
-
+  int max_size;
+  
   void add(cv::Mat new_frame)
   {
     frames.push_back(new_frame);
@@ -145,6 +166,8 @@ class Buffer : public ImageNode
     is_dirty = true;
   }
 
+  // not the same as the inherited get on purpose
+  // many callers per time step could be calling this
   cv::Mat get(const float fr) 
   {
     if (frames.size() < 1) {
@@ -181,22 +204,29 @@ class Tap : public ImageNode
   bool changed;
   cv::Mat out;
 
-  Tap(Signal* new_signal =NULL, Buffer* new_buffer=NULL) : Node()
+  Tap() : Node()
+  {
+  }
+
+  void setup(Signal* new_signal =NULL, Buffer* new_buffer=NULL) 
   {
     signal = new_signal;
     buffer = new_buffer;
-
+    
+    inputs.clear();
     inputs.push_back(signal);
     inputs.push_back(buffer);
   }
 
-  virtual void update()
+  virtual bool update()
   {
-    Node::update();
+    if (!Node::update()) return false;
 
     if (is_dirty) {
       out = buffer->get(signal->value);
     }
+
+    return true;
   }
 
   // this is sort of strange, maybe should have another object that can be many to one with the buffer?
@@ -226,7 +256,9 @@ class Add : public Tap
   
   cv::Mat
 
-  Add(Tap* np1, Tap* np2, float nf1 = 0.5, float nf2 = 0.5) : Node()
+  Add() :Node()
+  
+  void setup(Tap* np1, Tap* np2, float nf1 = 0.5, float nf2 = 0.5) 
   {
     p1 = np1;
     p2 = np2;
@@ -238,99 +270,119 @@ class Add : public Tap
     inputs.push_back(p2);
   }
 
-  virtual void update()
+  virtual bool update()
   {
-    Node::update();
+    if (!Node::update()) return false;
 
     if (is_dirty) {
       out = p1->get() * f1 + p2->get() * f2;
     }
+
+    return true;
   }
 
 };
 
 
-  ////////////////////////////////////
-  class CamThing
-  {
-    // make sure all Nodes are stored here
-    deque<Node*> all_nodes;
+////////////////////////////////////
+class CamThing
+{
+  // make sure all Nodes are stored here
+  deque<Node*> all_nodes;
 
-    // conveniently create and store node
-    template <class nodeType>
+  // the final output 
+  // TBD make this a special node type
+  Node* output;
+
+  // conveniently create and store node
+  template <class nodeType>
     nodeType* getNode()
     {
-        nodeType* node = new nodeType();
-        all_nodes.push_back(node);
-        return node;
+      nodeType* node = new nodeType();
+      all_nodes.push_back(node);
+      return node;
     }
 
-    void clearAllNodeUpdates() 
-    {
-      for (int i = 0; i < all_nodes.size(); i++) {
-        all_nodes[i]->do_update = false;
-      }
-    }
-
-    CamThing() 
-    {
-  LOG(INFO) << "camera opening ...";
-  VideoCapture capture(0); //CV_CAP_OPENNI );
-  LOG(INFO) << "done.";
-
-  int count = 0;
-
-  if( !capture.isOpened() )
+  void clearAllNodeUpdates() 
   {
-    LOG(ERROR) << "Can not open a capture object.";
-    return;// -1;
+    for (int i = 0; i < all_nodes.size(); i++) {
+      all_nodes[i]->do_update = false;
+      // TBD for asynchronous this fails, but need buffering to make that work anyhow
+      all_nodes[i]->is_dirty = false;
+    }
   }
-  bool rv1 = capture.set( CV_CAP_PROP_FRAME_WIDTH, 800);
-  bool rv2 = capture.set( CV_CAP_PROP_FRAME_HEIGHT, 600);
-  LOG(INFO) << "set res " << rv1 << " " << rv2;
 
-  
-  const float advance = 0.2;
-  
-  Buffer* cam_buf = new Buffer(1.0/advance*5);
-  
-  Signal* s1 = new Saw(advance);
-  Tap* p1 = new Tap(s1, cam_buf);
-   
-  // make a chain, sort of a filter
-  for (float ifr = advance; ifr <= 1.0; ifr += advance ) {
+  VideoCapture capture; //CV_CAP_OPENNI );
+  Buffer* cam_buf;  
 
-    Signal* s2 = new Saw(advance, ifr);
-    Tap* p2 = new Tap(s2, cam_buf);
+  CamThing() 
+  {
+    LOG(INFO) << "camera opening ...";
+    capture = VideoCapture(0); //CV_CAP_OPENNI );
+    LOG(INFO) << "done.";
 
-    Add* add = new Add(p1, p2, 0.5, 0.5);
+    int count = 0;
+
+    if( !capture.isOpened() )
+    {
+      LOG(ERROR) << "Can not open a capture object.";
+      return;// -1;
+    }
     
-    /*
-    Signal* s3 = new Saw(advance, ifr -advance*2.5);
-    Tap* p3 = new Tap(s2, cam_buf);
+    bool rv1 = capture.set( CV_CAP_PROP_FRAME_WIDTH, 800);
+    bool rv2 = capture.set( CV_CAP_PROP_FRAME_HEIGHT, 600);
+    LOG(INFO) << "set res " << rv1 << " " << rv2;
 
-    add = new Add(add, p3, 2.0, -1.0);
-    */
-    p1 = add;
+    const float advance = 0.2;
+
+    cam_buf = getNode<Buffer>();  
+    cam_buf->step = (1.0/advance*5);
+
+    Signal* s1 = getNode<Saw>(); 
+    s1->step = (advance);
+
+    Tap* p1 = getNode<Tap>();
+    p1->setup(s1, cam_buf);
+
+    // make a chain, sort of a filter
+    for (float ifr = advance; ifr <= 1.0; ifr += advance ) {
+
+      Signal* s2 = getNode<Saw>();
+      s2->setup(advance, ifr);
+
+      Tap* p2 = getNode<Tap>();
+      p2->setup(s2, cam_buf);
+
+      Add* add = getNode<Add>();
+      add->setup(p1, p2, 0.5, 0.5);
+
+      /*
+         Signal* s3 = new Saw(advance, ifr -advance*2.5);
+         Tap* p3 = new Tap(s2, cam_buf);
+
+         add = new Add(add, p3, 2.0, -1.0);
+         */
+      p1 = add;
+    }
+
+    output = p1;
+
+    cv::namedWindow("cam", CV_GUI_NORMAL);
+    cv::moveWindow("cam",0,0);
+    cv::namedWindow("out", CV_GUI_NORMAL);
+    cv::moveWindow("out",640,0);
+
+    // get the first black frames out
+    capture.grab();
+    capture.grab();
   }
-  
 
-  cv::namedWindow("cam", CV_GUI_NORMAL);
-  cv::moveWindow("cam",0,0);
-  cv::namedWindow("out", CV_GUI_NORMAL);
-  cv::moveWindow("out",640,0);
- 
-  // get the first black frames out
-  capture.grab();
-  capture.grab();
-  }
-
-  void update() {
+  bool update() {
 
     if( !capture.grab() )
     {
       cout << "Can not grab images." << endl;
-      continue;
+      return true;
       //return -1;
     }
     
@@ -339,27 +391,27 @@ class Add : public Tap
       capture.retrieve(frame); 
       if (frame.empty()) {
         cout << "bad capture" << endl;
-        continue;
+        return true;
       }
       // I think opencv is reusing a mat within capture so have to clone it
       cam_buf->add(frame.clone());
 
       // TBD put this in different thread 
       {
-        p1->update();
+        output->setUpdate();
+        output->update();
       }
     }
 
     if( waitKey( 10 ) == 'q' )
-      break;
+      return false;
+
+    return true;
   }
-
-
   
   void draw() {
- 
     imshow("cam",frame);
-    imshow("out", p1->get());
+    imshow("out", output->get());
   }
 
   };
@@ -380,9 +432,11 @@ int main( int argc, char* argv[] )
   
   bm::CamThing* cam_thing = new bm::CamThing();
   
-  for(;;) {
-    cam_thing->update();
+  bool rv = true;
+  while(rv) {
+    rv = cam_thing->update();
     cam_thing->draw();
+    cam_thing->clearAllNodeUpdates();
   }
 
   return 0;
