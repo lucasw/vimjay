@@ -79,9 +79,9 @@ class Node
 class ImageNode : public Node
 {
 protected:
-  cv::Mat out;
 
 public:
+  cv::Mat out;
     
   ImageNode() : Node()
   {
@@ -294,7 +294,9 @@ class Add : public ImageNode
   {
     if (!Node::update()) return false;
 
+    VLOG(2) << "name " << is_dirty << " " << p1->name << " " << p2->name;
     if (is_dirty) {
+      // TBD accomodate bad mats somewhere
       out = p1->get() * f1 + p2->get() * f2;
     }
 
@@ -342,6 +344,8 @@ class CamThing
   Buffer* cam_buf;  
   int count;
 
+  cv::Mat test_im;
+
   CamThing() 
   {
     LOG(INFO) << "camera opening ...";
@@ -360,31 +364,42 @@ class CamThing
     bool rv2 = capture.set( CV_CAP_PROP_FRAME_HEIGHT, 600);
     LOG(INFO) << "set res " << rv1 << " " << rv2;
 
+    // get the first black frames out
+    capture.grab();
+    capture.retrieve(test_im); 
+    capture.grab();
+    
+    ///////////////
     const float advance = 0.2;
 
     cam_buf = getNode<Buffer>("webcam");  
     cam_buf->max_size = (1.0/advance*5);
 
     Signal* s1 = getNode<Saw>("saw"); 
-    s1->step = (advance);
+    s1->setup(advance, 0);
 
     Tap* p1 = getNode<Tap>("tap");
     //static_cast<Tap*>
     p1->setup(s1, cam_buf);
+    p1->out = test_im;
 
-    ImageNode* nd = p1;
-
+    Add* add_loop = getNode<Add>("add_loop");
+    add_loop->out = test_im;
+    ImageNode* nd = add_loop; 
+  
   #if 1
     // make a chain, sort of a filter
     for (float ifr = advance; ifr <= 1.0; ifr += advance ) {
 
-      Signal* s2 = getNode<Saw>();
+      Signal* s2 = getNode<Saw>("sawl");
       s2->setup(advance, ifr);
 
-      Tap* p2 = getNode<Tap>();
+      Tap* p2 = getNode<Tap>("tapl");
       p2->setup(s2, cam_buf);
+      p2->out = test_im;
 
-      Add* add = getNode<Add>();
+      Add* add = getNode<Add>("addl");
+      add->out = test_im;
       add->setup(nd, p2, 0.5, 0.5);
 
       /*
@@ -396,6 +411,8 @@ class CamThing
       nd = add;
     }
 #endif
+    add_loop->setup(nd, p1, -1.0, 2.0);
+
     LOG(INFO) << all_nodes.size() << " nodes total";
 
     output = nd;
@@ -405,9 +422,6 @@ class CamThing
     cv::namedWindow("out", CV_GUI_NORMAL);
     cv::moveWindow("out",640,0);
 
-    // get the first black frames out
-    capture.grab();
-    capture.grab();
   }
 
   cv::Mat frame;
