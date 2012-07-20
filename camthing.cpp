@@ -14,7 +14,50 @@
 using namespace cv;
 using namespace std;
 
-class Signal
+namespace bm {
+
+// informal timer for the system
+int counter;
+
+class Node
+{
+  public:
+  // has this node been updated this timestep, or does it need to be updated this timestep
+  // because of dependencies
+  bool do_update;
+  // is the output of this node different from the last  timestep
+  bool is_dirty;
+
+  Node() {
+    do_update = false;
+    is_dirty = true;
+  }
+  
+  // TBD vector of input nodes
+  vector<Node*> inputs;
+
+  virtual void update() 
+  {
+    if (!do_update) return;
+
+    do_update = false; 
+
+    bool inputs_dirty = false;
+    for (int i = 0; i < inputs.size(); i++) {
+      inputs[i].update();
+      if (inputs[i].dirty) inputs_dirty = true;
+    }
+
+    // there inheriting object needs to set is_dirty as appropriate?
+    is_dirty = inputs_dirty;
+  }
+}
+
+
+
+// TBD subclasses of Node that are input/output specific, or make that general somehow?
+
+class Signal : public Node
 {
   public:
   Signal(const float new_step=0.01, const float offset=0.0)
@@ -55,23 +98,31 @@ class Saw : public Signal
   }
 };
 
-class Buffer
+///
+class Buffer : public Node
 {
 
   deque<cv::Mat> frames;
   int max_size;
   
   public:
+
   Buffer(const int max_size=180) {
     this->max_size = max_size;
     LOG(INFO) << "new buffer max_size " << this->max_size;
+
+    changed = true;
   }
+  
 
   void add(cv::Mat new_frame)
   {
     frames.push_back(new_frame);
 
     while (frames.size() >= max_size) frames.pop_front();
+
+    // TBD is_dirty wouldn't be true for callers that want frames indexed from beginning if no pop_front has been done.
+    is_dirty = true;
   }
 
   cv::Mat get(const float fr) 
@@ -99,6 +150,7 @@ class Buffer
 
 };
 
+///////////////////////////////////////////////////////////
 class Patch
 {
   public:
@@ -106,10 +158,14 @@ class Patch
   Signal* signal;
   Buffer* buffer;
 
+  bool changed;
+  cv::Mat out;
+
   Patch(Signal* new_signal =NULL, Buffer* new_buffer=NULL)
   {
     signal = new_signal;
     buffer = new_buffer;
+    changed = true;
   }
 
   virtual void update()
@@ -121,15 +177,21 @@ class Patch
   // this is sort of strange, maybe should have another object that can be many to one with the buffer?
   virtual cv::Mat get()
   {
-    cv::Mat rv = buffer->get(signal->value);
     
+    cv::Mat new_out = buffer->get(signal->value);
+
+    if (new_out == out) {
+      changed = false;
+      return out;
+    } 
+     
     //if (rv.empty())
     if (VLOG_IS_ON(2)) {
     cv::line(rv, cv::Point(0,0), cv::Point( rv.cols, 0), cv::Scalar(0,0,0), 2);
     cv::line(rv, cv::Point(0,0), cv::Point( signal->value* rv.cols, 0), cv::Scalar(255,0,0), 2);
     }
 
-    return rv;
+    return out;
   }
 };
 
@@ -144,12 +206,15 @@ class Add : public Patch
   Patch* p2;
   float f2;
 
+
   Add(Patch* np1, Patch* np2, float nf1= 0.5, float nf2 = 0.5)
   {
     p1 = np1;
     p2 = np2;
     f1 = nf1;
     f2 = nf2;
+    
+    changed = true;
   }
 
   virtual void update()
@@ -166,19 +231,31 @@ class Add : public Patch
   }
 };
 
-/*
- * To work with Kinect the user must install OpenNI library and PrimeSensorModule for OpenNI and
- * configure OpenCV with WITH_OPENNI flag is ON (using CMake).
 
-TBD have a mode that takes a webcam, uses brightness as depth, and thresholds it for the valid map
+  ////////////////////////////////////
+  class CamThing
+  {
+    // make sure all Nodes are stored here
+    deque<Node*> all_nodes;
 
- */
-int main( int argc, char* argv[] )
-{
-  google::InitGoogleLogging(argv[0]);
-  google::LogToStderr();
-  // pair of rgb images and depths put together
+    // conveniently create and store node
+    template <class nodeType>
+    nodeType* getNode()
+    {
+        nodeType* node = new nodeType();
+        all_nodes.push_back(node);
+        return node;
+    }
 
+    void clearAllNodeUpdates() 
+    {
+      for (int i = 0; i < all_nodes.size(); i++) {
+        all_nodes[i]->do_update = false;
+      }
+    }
+
+    CamThing() 
+    {
   LOG(INFO) << "camera opening ...";
   VideoCapture capture(0); //CV_CAP_OPENNI );
   LOG(INFO) << "done.";
@@ -188,7 +265,7 @@ int main( int argc, char* argv[] )
   if( !capture.isOpened() )
   {
     LOG(ERROR) << "Can not open a capture object.";
-    return -1;
+    return;// -1;
   }
   bool rv1 = capture.set( CV_CAP_PROP_FRAME_WIDTH, 800);
   bool rv2 = capture.set( CV_CAP_PROP_FRAME_HEIGHT, 600);
@@ -201,14 +278,21 @@ int main( int argc, char* argv[] )
   
   Signal* s1 = new Saw(advance);
   Patch* p1 = new Patch(s1, cam_buf);
-  
-  // make a chain
+   
+  // make a chain, sort of a filter
   for (float ifr = advance; ifr <= 1.0; ifr += advance ) {
 
     Signal* s2 = new Saw(advance, ifr);
     Patch* p2 = new Patch(s2, cam_buf);
-    Add* add = new Add(p1, p2, 2.0, -1.0);
 
+    Add* add = new Add(p1, p2, 0.5, 0.5);
+    
+    /*
+    Signal* s3 = new Saw(advance, ifr -advance*2.5);
+    Patch* p3 = new Patch(s2, cam_buf);
+
+    add = new Add(add, p3, 2.0, -1.0);
+    */
     p1 = add;
   }
   
@@ -221,9 +305,9 @@ int main( int argc, char* argv[] )
   // get the first black frames out
   capture.grab();
   capture.grab();
+  }
 
-  for(;;)
-  {
+  void update() {
 
     if( !capture.grab() )
     {
@@ -239,14 +323,12 @@ int main( int argc, char* argv[] )
         cout << "bad capture" << endl;
         continue;
       }
-      imshow("cam",frame);
       // I think opencv is reusing a mat within capture so have to clone it
       cam_buf->add(frame.clone());
 
       // TBD put this in different thread 
       {
         p1->update();
-        imshow("out", p1->get());
       }
     }
 
@@ -254,5 +336,37 @@ int main( int argc, char* argv[] )
       break;
   }
 
+
+  
+  void draw() {
+ 
+    imshow("cam",frame);
+    imshow("out", p1->get());
+  }
+
+  };
+
+};
+/*
+ * To work with Kinect the user must install OpenNI library and PrimeSensorModule for OpenNI and
+ * configure OpenCV with WITH_OPENNI flag is ON (using CMake).
+
+TBD have a mode that takes a webcam, uses brightness as depth, and thresholds it for the valid map
+
+ */
+int main( int argc, char* argv[] )
+{
+  google::InitGoogleLogging(argv[0]);
+  google::LogToStderr();
+  // pair of rgb images and depths put together
+  
+  bm::CamThing* cam_thing = new bm::CamThing();
+  
+  for(;;) {
+    cam_thing->update();
+    cam_thing->draw();
+  }
+
   return 0;
 }
+
