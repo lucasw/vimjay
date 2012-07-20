@@ -70,7 +70,7 @@ class Node
     // the inheriting object needs to set is_dirty as appropriate?
     is_dirty = inputs_dirty;
     
-    LOG(INFO) << name << " in sz " << inputs.size() << " " << is_dirty;
+    VLOG(2) << name << " in sz " << inputs.size() << " " << is_dirty;
 
     return true;
   }
@@ -374,7 +374,7 @@ class CamThing
 
     ImageNode* nd = p1;
 
-  #if 0
+  #if 1
     // make a chain, sort of a filter
     for (float ifr = advance; ifr <= 1.0; ifr += advance ) {
 
