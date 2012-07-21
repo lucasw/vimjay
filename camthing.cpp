@@ -28,7 +28,7 @@ class Node
   bool is_dirty;
 
   string name;
-  cv::Point2f loc;
+  cv::Point loc;
 
   Node() {
     do_update = false;
@@ -320,7 +320,7 @@ class CamThing
 
   // conveniently create and store node
   template <class nodeType>
-    nodeType* getNode(string name = "", cv::Point2f loc=cv::Point2f(0.0,0.0))
+    nodeType* getNode(string name = "", cv::Point loc=cv::Point(0.0,0.0))
     {
       nodeType* node = new nodeType();
 
@@ -364,6 +364,9 @@ class CamThing
     bool rv2 = capture.set( CV_CAP_PROP_FRAME_HEIGHT, 600);
     LOG(INFO) << "set res " << rv1 << " " << rv2;
 
+    graph = cv::Mat(cv::Size(1000, 1000), CV_8UC3);
+    graph = cv::Scalar(0);
+
     // get the first black frames out
     capture.grab();
     capture.retrieve(test_im); 
@@ -372,33 +375,33 @@ class CamThing
     ///////////////
     const float advance = 0.2;
 
-    cam_buf = getNode<Buffer>("webcam");  
+    cam_buf = getNode<Buffer>("webcam", cv::Point(100,100) );  
     cam_buf->max_size = (1.0/advance*5);
 
-    Signal* s1 = getNode<Saw>("saw"); 
+    Signal* s1 = getNode<Saw>("saw", cv::Point(200,100) ); 
     s1->setup(advance, 0);
 
-    Tap* p1 = getNode<Tap>("tap");
+    Tap* p1 = getNode<Tap>("tap", cv::Point(300,100) );
     //static_cast<Tap*>
     p1->setup(s1, cam_buf);
     p1->out = test_im;
 
-    Add* add_loop = getNode<Add>("add_loop");
-    add_loop->out = test_im;
-    ImageNode* nd = add_loop; 
+    //Add* add_loop = getNode<Add>("add_loop", cv::Point(400,100) );
+    //add_loop->out = test_im;
+    ImageNode* nd = p1; // add_loop; 
   
   #if 1
     // make a chain, sort of a filter
     for (float ifr = advance; ifr <= 1.0; ifr += advance ) {
 
-      Signal* s2 = getNode<Saw>("sawl");
+      Signal* s2 = getNode<Saw>("sawl", cv::Point(400.0 + ifr*400.0, 200.0 + ifr*40.0) );
       s2->setup(advance, ifr);
 
-      Tap* p2 = getNode<Tap>("tapl");
+      Tap* p2 = getNode<Tap>("tapl", cv::Point(400.0 + ifr*410.0, 300.0 + ifr*30.0) );
       p2->setup(s2, cam_buf);
       p2->out = test_im;
 
-      Add* add = getNode<Add>("addl");
+      Add* add = getNode<Add>("addl", cv::Point(400.0 + ifr*430.0, 400.0 + ifr*10.0) );
       add->out = test_im;
       add->setup(nd, p2, 0.5, 0.5);
 
@@ -410,21 +413,28 @@ class CamThing
          */
       nd = add;
     }
-#endif
-    add_loop->setup(nd, p1, -1.0, 2.0);
+  #endif
+
+    //add_loop->setup(nd, p1, 0.1, 0.9);
 
     LOG(INFO) << all_nodes.size() << " nodes total";
 
     output = nd;
 
     cv::namedWindow("cam", CV_GUI_NORMAL);
-    cv::moveWindow("cam",0,0);
+    cv::moveWindow("cam", 0, 0);
+    
+    cv::namedWindow("graph", CV_GUI_NORMAL);
+    cv::moveWindow("graph", 0, 500);
+    
     cv::namedWindow("out", CV_GUI_NORMAL);
-    cv::moveWindow("out",640,0);
+    cv::moveWindow("out", 350, 0);
 
   }
 
-  cv::Mat frame;
+  cv::Mat cam_image;
+  cv::Mat graph;
+
   bool update() {
     count++;
 
@@ -435,13 +445,13 @@ class CamThing
     }
     
     {
-      capture.retrieve(frame); 
-      if (frame.empty()) {
+      capture.retrieve(cam_image); 
+      if (cam_image.empty()) {
         cout << "bad capture" << endl;
         return true;
       }
       // I think opencv is reusing a mat within capture so have to clone it
-      cam_buf->add(frame.clone());
+      cam_buf->add(cam_image.clone());
 
       // TBD put this in different thread 
       {
@@ -458,15 +468,45 @@ class CamThing
     return true;
   }
   
-  void draw() {
-    imshow("cam",frame);
+  void draw() 
+  {
+    imshow("cam", cam_image);
 
     cv::Mat out = output->get();
-    if (out.data)
+    if (out.data) {
       imshow("out", out);
-    else {
+    } else {
       LOG(ERROR) << "out no data";
     }
+
+    // loop through
+    for (int i = 0; i < all_nodes.size(); i++) {
+      
+      cv::Point loc = all_nodes[i]->loc;
+      
+      cv::circle(graph, loc, 20, cv::Scalar(255,0,0), 4);
+
+      for (int j = 0; j < all_nodes[i]->inputs.size(); j++) {
+        cv::line( graph, loc, all_nodes[i]->inputs[j]->loc, cv::Scalar(0,255,0), 3, CV_AA );
+      }
+
+      ImageNode* tmp = dynamic_cast<ImageNode*> (all_nodes[i]);
+
+      if (tmp && tmp->get().data) {
+        const int WD = 60;
+        cv::Mat thumbnail = cv::Mat(cv::Size(WD, WD), CV_8UC3);
+        //cv::resize(tmp->get(), thumbnail, thumbnail.size(), 0, 0, cv::INTER_NEAREST );
+        cv::Size sz = thumbnail.size();
+        cv::resize(tmp->get(), thumbnail, sz); //, sz, 0, 0, cv::INTER_NEAREST );
+        //cv::resize(tmp->get(), thumbnail, cv::INTER_NEAREST );
+        cv::Mat graph_roi = graph(cv::Rect(loc.x, loc.y, WD, WD));
+        graph_roi = cv::Scalar(0, 0, 255);
+        thumbnail.copyTo(graph_roi);
+      }
+
+    } 
+
+    imshow("graph", graph);
   }
 
   };
