@@ -30,10 +30,12 @@ class Node
   string name;
   cv::Point loc;
   cv::Mat graph;
+  cv::Scalar vcol; 
 
   Node() {
     do_update = false;
     is_dirty = true;
+    vcol = cv::Scalar(0,128,255);
   }
   
   // TBD vector of input nodes
@@ -77,14 +79,17 @@ class Node
 
   virtual bool draw() 
   {
-    cv::Scalar col = cv::Scalar(40, 40, 40);
+    cv::Scalar col = vcol*0.5;
     
-    if (is_dirty) col = cv::Scalar(200, 100, 100);
+    if (is_dirty) col = vcol;
 
     cv::circle(graph, loc, 20, col, 4);
-
+  
     for (int j = 0; j < inputs.size(); j++) {
-      cv::line( graph, loc, inputs[j]->loc, cv::Scalar(0, 255, 0), 3, CV_AA );
+      cv::Point src = inputs[j]->loc;
+      cv::Point mid = src + (loc -src) * 0.8;
+      cv::line( graph, src, mid, cv::Scalar(0, 128, 0), 2, 4 );
+      cv::line( graph, mid, loc, cv::Scalar(0, 255, 0), 2, CV_AA );
     }
 
   }
@@ -99,7 +104,7 @@ public:
     
   ImageNode() : Node()
   {
-
+    vcol = cv::Scalar(255,0,255);
   }
 
   // TBD could there be a templated get function to be used in different node types?
@@ -132,6 +137,7 @@ class Signal : public Node
   public:
   Signal() : Node()
   {
+    vcol = cv::Scalar(0,128,255);
 
   }
 
@@ -165,6 +171,7 @@ class Saw : public Signal
   public:
   Saw() : Signal()
   {
+    vcol = cv::Scalar(0,90,255);
   }
   
   void setup(const float new_step=0.01, const float offset=0.0) 
@@ -203,6 +210,7 @@ class Buffer : public ImageNode
   Buffer() : ImageNode() {
     //this->max_size = max_size;
     //LOG(INFO) << "new buffer max_size " << this->max_size;
+    vcol = cv::Scalar(200, 30, 200);
   }
   
   int max_size;
@@ -262,6 +270,7 @@ class Tap : public ImageNode
 
   Tap() : ImageNode()
   {
+    vcol = cv::Scalar(100, 30, 100);
   }
 
   void setup(Signal* new_signal =NULL, Buffer* new_buffer=NULL) 
@@ -312,6 +321,7 @@ class Add : public ImageNode
   
   Add() : ImageNode()
   {
+    vcol = cv::Scalar(200, 200, 50);
   }
   
   void setup(ImageNode* np1, ImageNode* np2, float nf1 = 0.5, float nf2 = 0.5) 
@@ -415,10 +425,10 @@ class CamThing
     cam_buf = getNode<Buffer>("webcam", cv::Point(100,100) );  
     cam_buf->max_size = (1.0/advance*5);
 
-    Signal* s1 = getNode<Saw>("saw", cv::Point(200,100) ); 
+    Signal* s1 = getNode<Saw>("saw", cv::Point(200,50) ); 
     s1->setup(advance, 0);
 
-    Tap* p1 = getNode<Tap>("tap", cv::Point(300,100) );
+    Tap* p1 = getNode<Tap>("tap", cv::Point(200,100) );
     //static_cast<Tap*>
     p1->setup(s1, cam_buf);
     p1->out = test_im;
