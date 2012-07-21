@@ -29,6 +29,7 @@ class Node
 
   string name;
   cv::Point loc;
+  cv::Mat graph;
 
   Node() {
     do_update = false;
@@ -48,7 +49,6 @@ class Node
     for (int i = 0; i < inputs.size(); i++) {
       inputs[i]->setUpdate();  
     }
-
     
     return true;
   }
@@ -74,6 +74,20 @@ class Node
 
     return true;
   }
+
+  virtual bool draw() 
+  {
+    cv::Scalar col = cv::Scalar(40, 40, 40);
+    
+    if (is_dirty) col = cv::Scalar(200, 100, 100);
+
+    cv::circle(graph, loc, 20, col, 4);
+
+    for (int j = 0; j < inputs.size(); j++) {
+      cv::line( graph, loc, inputs[j]->loc, cv::Scalar(0, 255, 0), 3, CV_AA );
+    }
+
+  }
 };
 
 class ImageNode : public Node
@@ -91,6 +105,23 @@ public:
   // TBD could there be a templated get function to be used in different node types?
   virtual cv::Mat get() {
     return out;
+  }
+
+  virtual bool draw() {
+    Node::draw();
+
+    if (out.data) {
+
+      cv::Size sz = cv::Size(out.size().width/8, out.size().height/8);
+
+      cv::Mat thumbnail = cv::Mat(sz, CV_8UC3);
+      //cv::resize(tmp->get(), thumbnail, thumbnail.size(), 0, 0, cv::INTER_NEAREST );
+      cv::resize(out, thumbnail, sz); //, sz, 0, 0, cv::INTER_NEAREST );
+      //cv::resize(tmp->get(), thumbnail, cv::INTER_NEAREST );
+      cv::Mat graph_roi = graph(cv::Rect(loc.x, loc.y, sz.width, sz.height));
+      graph_roi = cv::Scalar(0, 0, 255);
+      thumbnail.copyTo(graph_roi);
+    }
   }
 };
 
@@ -181,9 +212,14 @@ class Buffer : public ImageNode
     frames.push_back(new_frame);
 
     while (frames.size() >= max_size) frames.pop_front();
-
+   
+    out = new_frame;
     // TBD is_dirty wouldn't be true for callers that want frames indexed from beginning if no pop_front has been done.
     is_dirty = true;
+  }
+  
+  virtual cv::Mat get() {
+    return ImageNode::get();
   }
 
   // not the same as the inherited get on purpose
@@ -320,12 +356,13 @@ class CamThing
 
   // conveniently create and store node
   template <class nodeType>
-    nodeType* getNode(string name = "", cv::Point loc=cv::Point(0.0,0.0))
+    nodeType* getNode(string name = "", cv::Point loc=cv::Point(0.0, 0.0))
     {
       nodeType* node = new nodeType();
 
       node->name = name;
       node->loc = loc;
+      node->graph = graph;
 
       all_nodes.push_back(node);
       return node;
@@ -364,7 +401,7 @@ class CamThing
     bool rv2 = capture.set( CV_CAP_PROP_FRAME_HEIGHT, 600);
     LOG(INFO) << "set res " << rv1 << " " << rv2;
 
-    graph = cv::Mat(cv::Size(1000, 1000), CV_8UC3);
+    graph = cv::Mat(cv::Size(1280, 720), CV_8UC3);
     graph = cv::Scalar(0);
 
     // get the first black frames out
@@ -428,7 +465,7 @@ class CamThing
     cv::moveWindow("graph", 0, 500);
     
     cv::namedWindow("out", CV_GUI_NORMAL);
-    cv::moveWindow("out", 350, 0);
+    cv::moveWindow("out", 420, 0);
 
   }
 
@@ -470,7 +507,7 @@ class CamThing
   
   void draw() 
   {
-    imshow("cam", cam_image);
+    imshow("cam", cam_buf->get());
 
     cv::Mat out = output->get();
     if (out.data) {
@@ -481,29 +518,7 @@ class CamThing
 
     // loop through
     for (int i = 0; i < all_nodes.size(); i++) {
-      
-      cv::Point loc = all_nodes[i]->loc;
-      
-      cv::circle(graph, loc, 20, cv::Scalar(255,0,0), 4);
-
-      for (int j = 0; j < all_nodes[i]->inputs.size(); j++) {
-        cv::line( graph, loc, all_nodes[i]->inputs[j]->loc, cv::Scalar(0,255,0), 3, CV_AA );
-      }
-
-      ImageNode* tmp = dynamic_cast<ImageNode*> (all_nodes[i]);
-
-      if (tmp && tmp->get().data) {
-        const int WD = 60;
-        cv::Mat thumbnail = cv::Mat(cv::Size(WD, WD), CV_8UC3);
-        //cv::resize(tmp->get(), thumbnail, thumbnail.size(), 0, 0, cv::INTER_NEAREST );
-        cv::Size sz = thumbnail.size();
-        cv::resize(tmp->get(), thumbnail, sz); //, sz, 0, 0, cv::INTER_NEAREST );
-        //cv::resize(tmp->get(), thumbnail, cv::INTER_NEAREST );
-        cv::Mat graph_roi = graph(cv::Rect(loc.x, loc.y, WD, WD));
-        graph_roi = cv::Scalar(0, 0, 255);
-        thumbnail.copyTo(graph_roi);
-      }
-
+      all_nodes[i]->draw();
     } 
 
     imshow("graph", graph);
