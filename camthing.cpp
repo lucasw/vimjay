@@ -478,14 +478,17 @@ class CamThing
     cv::namedWindow("out", CV_GUI_NORMAL);
     cv::moveWindow("out", 420, 0);
 
+    do_capture = true;
   }
 
   cv::Mat cam_image;
   cv::Mat graph;
+  bool do_capture;
 
   bool update() {
     count++;
 
+    if (do_capture) {
     if( !capture.grab() )
     {
       cout << "Can not grab images." << endl;
@@ -501,16 +504,20 @@ class CamThing
       // I think opencv is reusing a mat within capture so have to clone it
       cam_buf->add(cam_image.clone());
 
-      // TBD put this in different thread 
+    }
+    }
+
+    // TBD put this in different thread 
       {
         output->setUpdate();
         output->update();
       }
-    }
-
-    if( waitKey( 10 ) == 'q' )
+    
+    const char key = waitKey(20);
+    if( key == 'q' )
       return false;
-
+    if (key == 's') 
+      do_capture = !do_capture;
 
 
     return true;
