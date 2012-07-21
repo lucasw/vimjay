@@ -433,12 +433,13 @@ class CamThing
     p1->setup(s1, cam_buf);
     p1->out = test_im;
 
-    //Add* add_loop = getNode<Add>("add_loop", cv::Point(400,100) );
-    //add_loop->out = test_im;
-    ImageNode* nd = p1; // add_loop; 
+    Add* add_loop = getNode<Add>("add_loop", cv::Point(400,100) );
+    add_loop->out = test_im;
+    ImageNode* nd = add_loop; 
   
   #if 1
     // make a chain, sort of a filter
+    bool toggle = false;
     for (float ifr = advance; ifr <= 1.0; ifr += advance ) {
 
       Signal* s2 = getNode<Saw>("sawl", cv::Point(400.0 + ifr*400.0, 200.0 + ifr*40.0) );
@@ -450,8 +451,8 @@ class CamThing
 
       Add* add = getNode<Add>("addl", cv::Point(400.0 + ifr*430.0, 400.0 + ifr*10.0) );
       add->out = test_im;
-      add->setup(nd, p2, 0.5, 0.5);
-
+      add->setup(nd, p2, toggle ? 1.5 : 0.5, toggle? -0.5 :0.5);
+      toggle = !toggle;
       /*
          Signal* s3 = new Saw(advance, ifr -advance*2.5);
          Tap* p3 = new Tap(s2, cam_buf);
@@ -462,7 +463,7 @@ class CamThing
     }
   #endif
 
-    //add_loop->setup(nd, p1, 0.1, 0.9);
+    add_loop->setup(nd, p1, 0.95, 0.05);
 
     LOG(INFO) << all_nodes.size() << " nodes total";
 
