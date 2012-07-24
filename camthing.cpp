@@ -89,7 +89,7 @@ class CamThing
     ///////////////
     const float advance = 0.2;
 
-    cam_buf = getNode<Buffer>("webcam", cv::Point(100,100) );  
+    cam_buf = getNode<Buffer>("webcam", cv::Point(5,100) );  
     cam_buf->max_size = (1.0/advance*5);
 
     Signal* s1 = getNode<Saw>("saw", cv::Point(200,50) ); 
@@ -136,15 +136,17 @@ class CamThing
 
     output = nd;
 
+/*
     cv::namedWindow("cam", CV_GUI_NORMAL);
     cv::moveWindow("cam", 0, 0);
-    
+  */  
     cv::namedWindow("graph", CV_GUI_NORMAL);
     cv::moveWindow("graph", 0, 500);
-    
+    /*
+    // Bring this back when there is a fullscreen/decoration free output window
     cv::namedWindow("out", CV_GUI_NORMAL);
     cv::moveWindow("out", 420, 0);
-
+*/
     do_capture = true;
   }
 
@@ -192,19 +194,23 @@ class CamThing
   
   void draw() 
   {
-    imshow("cam", cam_buf->get());
+    //imshow("cam", cam_buf->get());
 
     cv::Mat out = output->get();
     if (out.data) {
-      imshow("out", out);
+      //imshow("out", out);
     } else {
       LOG(ERROR) << "out no data";
     }
 
     // loop through
     for (int i = 0; i < all_nodes.size(); i++) {
-      all_nodes[i]->draw();
+      float scale = 0.125;
+      if (all_nodes[i] == output) scale = 0.5;
+      if (all_nodes[i] == cam_buf) scale = 0.5;
+      all_nodes[i]->draw(scale);
     } 
+
 
     imshow("graph", graph);
   }

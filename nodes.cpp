@@ -61,7 +61,7 @@ namespace bm {
     return true;
   }
 
-  bool Node::draw() 
+  bool Node::draw(float scale) 
   {
     cv::Scalar col = vcol*0.5;
     
@@ -89,12 +89,13 @@ namespace bm {
     return out;
   }
 
-  bool ImageNode::draw() {
-    Node::draw();
+  bool ImageNode::draw(float scale) 
+  {
+    Node::draw(scale);
 
     if (out.data) {
 
-      cv::Size sz = cv::Size(out.size().width/8, out.size().height/8);
+      cv::Size sz = cv::Size(out.size().width * scale, out.size().height * scale);
 
       cv::Mat thumbnail = cv::Mat(sz, CV_8UC3);
       //cv::resize(tmp->get(), thumbnail, thumbnail.size(), 0, 0, cv::INTER_NEAREST );

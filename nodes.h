@@ -37,7 +37,7 @@ class Node
   // process or not
   virtual bool update(); 
 
-  virtual bool draw(); 
+  virtual bool draw(float scale = 0.125); 
 
 };
 
@@ -51,7 +51,7 @@ public:
   // TBD could there be a templated get function to be used in different node types?
   virtual cv::Mat get();
  
-  virtual bool draw();
+  virtual bool draw(float scale = 0.125);
 };
 
 // TBD subclasses of Node that are input/output specific, or make that general somehow?
