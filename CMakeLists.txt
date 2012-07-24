@@ -41,6 +41,7 @@ find_package(OpenCV)
 
 add_executable(${PROJECT_NAME}
 camthing.cpp
+nodes.cpp
 )
 
 target_link_libraries(${PROJECT_NAME} 
