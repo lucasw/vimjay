@@ -54,6 +54,18 @@ public:
   virtual bool draw(float scale = 0.125);
 };
 
+class Webcam : public ImageNode
+{
+
+  cv::VideoCapture capture; //CV_CAP_OPENNI );
+  
+  public:
+  Webcam();
+
+  virtual bool update();
+
+};
+
 // TBD subclasses of Node that are input/output specific, or make that general somehow?
 
 class Signal : public Node
@@ -91,7 +103,9 @@ class Buffer : public ImageNode
   Buffer(); 
   
   int max_size;
-  
+ 
+  virtual bool update();
+
   void add(cv::Mat new_frame);
    
   virtual cv::Mat get();

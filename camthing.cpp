@@ -54,57 +54,50 @@ class CamThing
     }
   }
 
-  VideoCapture capture; //CV_CAP_OPENNI );
+  Webcam* cam_in;
   Buffer* cam_buf;  
   int count;
 
   cv::Mat test_im;
 
+  cv::Mat cam_image;
+  cv::Mat graph;
+  bool do_capture;
+  
   CamThing() 
   {
-    LOG(INFO) << "camera opening ...";
-    capture = VideoCapture(0); //CV_CAP_OPENNI );
-    LOG(INFO) << "done.";
-
     count = 0;
-
-    if( !capture.isOpened() )
-    {
-      LOG(ERROR) << "Can not open a capture object.";
-      return;// -1;
-    }
-    
-    //bool rv1 = capture.set( CV_CAP_PROP_FRAME_WIDTH, 800);
-    //bool rv2 = capture.set( CV_CAP_PROP_FRAME_HEIGHT, 600);
-    //LOG(INFO) << "set res " << rv1 << " " << rv2;
 
     graph = cv::Mat(cv::Size(1280, 720), CV_8UC3);
     graph = cv::Scalar(0);
 
-    // get the first black frames out
-    capture.grab();
-    capture.retrieve(test_im); 
-    capture.grab();
-    
     ///////////////
     const float advance = 0.2;
 
-    cam_buf = getNode<Buffer>("webcam", cv::Point(5,100) );  
-    cam_buf->max_size = (1.0/advance*5);
+    cam_in = getNode<Webcam>("webcam", cv::Point(10,400) );
+    test_im = cam_in->get();
+    
+    cam_buf = getNode<Buffer>("buffer", cv::Point(200,100) );  
+    cam_buf->max_size = ( (1.0/advance)*5 );
+    cam_buf->inputs.push_back(cam_in);
+    cam_buf->out = test_im;
 
-    Signal* s1 = getNode<Saw>("saw", cv::Point(200,50) ); 
+    //Signal* s1 = getNode<Saw>("saw", cv::Point(200,50) ); 
+    //s1->setup(advance, 0);
+    Signal* s1 = getNode<Signal>("fixed signal", cv::Point(300,50) ); 
     s1->setup(advance, 0);
 
-    Tap* p1 = getNode<Tap>("tap", cv::Point(200,100) );
+    Tap* p1 = getNode<Tap>("tap", cv::Point(300,100) );
     //static_cast<Tap*>
     p1->setup(s1, cam_buf);
     p1->out = test_im;
 
+/*
     Add* add_loop = getNode<Add>("add_loop", cv::Point(400,100) );
     add_loop->out = test_im;
     ImageNode* nd = add_loop; 
-  
-  #if 1
+  */
+  #if 0
     // make a chain, sort of a filter
     bool toggle = false;
     for (float ifr = advance; ifr <= 1.0; ifr += advance ) {
@@ -130,19 +123,21 @@ class CamThing
     }
   #endif
 
-    add_loop->setup(nd, p1, 0.95, 0.05);
+   // add_loop->setup(nd, p1, 0.95, 0.05);
 
     LOG(INFO) << all_nodes.size() << " nodes total";
 
-    output = nd;
-
+    //output = nd;
+    output = p1;
 /*
     cv::namedWindow("cam", CV_GUI_NORMAL);
     cv::moveWindow("cam", 0, 0);
-  */  
+*/
+
     cv::namedWindow("graph", CV_GUI_NORMAL);
     cv::moveWindow("graph", 0, 500);
-    /*
+
+/*
     // Bring this back when there is a fullscreen/decoration free output window
     cv::namedWindow("out", CV_GUI_NORMAL);
     cv::moveWindow("out", 420, 0);
@@ -150,35 +145,16 @@ class CamThing
     do_capture = true;
   }
 
-  cv::Mat cam_image;
-  cv::Mat graph;
-  bool do_capture;
 
   bool update() {
     count++;
+   
 
-    if (do_capture) {
-    if( !capture.grab() )
-    {
-      cout << "Can not grab images." << endl;
-      return true;
-    }
     
-    {
-      capture.retrieve(cam_image); 
-      if (cam_image.empty()) {
-        cout << "bad capture" << endl;
-        return true;
-      }
-      // I think opencv is reusing a mat within capture so have to clone it
-      cam_buf->add(cam_image.clone());
-
-    }
-    }
-
     // TBD put this in different thread 
       {
         output->setUpdate();
+        output->do_update=true;
         output->update();
       }
     
@@ -196,18 +172,19 @@ class CamThing
   {
     //imshow("cam", cam_buf->get());
 
+    /*
     cv::Mat out = output->get();
     if (out.data) {
       //imshow("out", out);
     } else {
       LOG(ERROR) << "out no data";
-    }
+    }*/
 
     // loop through
     for (int i = 0; i < all_nodes.size(); i++) {
       float scale = 0.125;
       if (all_nodes[i] == output) scale = 0.5;
-      if (all_nodes[i] == cam_buf) scale = 0.5;
+      if (all_nodes[i] == cam_in) scale = 0.5;
       all_nodes[i]->draw(scale);
     } 
 

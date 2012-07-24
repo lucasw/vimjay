@@ -63,17 +63,18 @@ namespace bm {
 
   bool Node::draw(float scale) 
   {
-    cv::Scalar col = vcol*0.5;
+    int fr = 1;
+    if (!is_dirty) fr = 5;
     
-    if (is_dirty) col = vcol;
+    cv::Scalar col = cv::Scalar(vcol/fr);
 
     cv::circle(graph, loc, 20, col, 4);
   
     for (int j = 0; j < inputs.size(); j++) {
       cv::Point src = inputs[j]->loc;
       cv::Point mid = src + (loc -src) * 0.8;
-      cv::line( graph, src, mid, cv::Scalar(0, 128, 0), 2, 4 );
-      cv::line( graph, mid, loc, cv::Scalar(0, 255, 0), 2, CV_AA );
+      cv::line( graph, src, mid, cv::Scalar(0, 128/fr, 0), 2, 4 );
+      cv::line( graph, mid, loc, cv::Scalar(0, 255/fr, 0), 2, CV_AA );
     }
 
   }
@@ -105,6 +106,49 @@ namespace bm {
       graph_roi = cv::Scalar(0, 0, 255);
       thumbnail.copyTo(graph_roi);
     }
+  }
+
+  ////////////////////////////////////////////////////////////
+  Webcam::Webcam()
+  {
+    LOG(INFO) << "camera opening ...";
+    capture = VideoCapture(0); //CV_CAP_OPENNI );
+    LOG(INFO) << "done.";
+
+    if ( !capture.isOpened() ) {
+      LOG(ERROR) << "Can not open a capture object.";
+      return;// -1;
+    }
+
+        //bool rv1 = capture.set( CV_CAP_PROP_FRAME_WIDTH, 800);
+        //    //bool rv2 = capture.set( CV_CAP_PROP_FRAME_HEIGHT, 600);
+        //        //LOG(INFO) << "set res " << rv1 << " " << rv2;
+        //
+        //
+    
+    update();
+    update();
+  }
+
+  bool Webcam::update()
+  {
+    /// TBD need to make this in separate thread
+    if( !capture.grab() )
+    {
+      cout << "Can not grab images." << endl;
+      return false;
+    }
+    
+    cv::Mat test;
+    capture.retrieve(test);
+
+    if (test.empty())  return false;
+    // I think opencv is reusing a mat within capture so have to clone it
+    out = test.clone();
+
+    is_dirty = true;
+
+    return true;
   }
 
   // TBD subclasses of Node that are input/output specific, or make that general somehow?
@@ -170,9 +214,25 @@ namespace bm {
     //LOG(INFO) << "new buffer max_size " << this->max_size;
     vcol = cv::Scalar(200, 30, 200);
   }
-  
+ 
+  bool Buffer::update()
+  {
+    bool rv = ImageNode::update();
+
+    for (int i = 0; i < inputs.size(); i++) {
+      
+      ImageNode* im_in = dynamic_cast<ImageNode*> (inputs[i]);
+      if (im_in)
+        add(im_in->get()); 
+    }
+
+    return rv;
+  }
+
   void Buffer::add(cv::Mat new_frame)
   {
+    if (frames.empty()) return;// TBD LOG(ERROR)
+
     frames.push_back(new_frame);
 
     while (frames.size() >= max_size) frames.pop_front();
@@ -196,6 +256,7 @@ namespace bm {
       tmp = cv::Scalar(128);
       return tmp;
     }
+
     int ind = (int)(fr*(float)frames.size());
     if (fr < 0) {
       ind = frames.size() - ind;
