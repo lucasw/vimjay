@@ -17,9 +17,9 @@ using namespace std;
 
 namespace bm {
 
-// informal timer for the system
 
-Node::Node() {
+  ////////////////////////////////////////////////
+  Node::Node() {
     do_update = false;
     is_dirty = true;
     vcol = cv::Scalar(0,128,255);
@@ -78,6 +78,7 @@ Node::Node() {
 
   }
 
+  //////////////////////////////////
   ImageNode::ImageNode() : Node()
   {
     vcol = cv::Scalar(255,0,255);
@@ -105,7 +106,7 @@ Node::Node() {
     }
   }
 
-// TBD subclasses of Node that are input/output specific, or make that general somehow?
+  // TBD subclasses of Node that are input/output specific, or make that general somehow?
   Signal::Signal() : Node()
   {
     vcol = cv::Scalar(0,128,255);
@@ -162,7 +163,7 @@ Node::Node() {
     return true;
   }
 
-///
+  //////////////////////////////////
   Buffer::Buffer() : ImageNode() {
     //this->max_size = max_size;
     //LOG(INFO) << "new buffer max_size " << this->max_size;

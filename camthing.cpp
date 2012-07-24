@@ -20,6 +20,8 @@ namespace bm {
 
 class CamThing
 {
+  // TBD informal timer for the system
+  
   // make sure all Nodes are stored here
   deque<Node*> all_nodes;
 
@@ -72,9 +74,9 @@ class CamThing
       return;// -1;
     }
     
-    bool rv1 = capture.set( CV_CAP_PROP_FRAME_WIDTH, 800);
-    bool rv2 = capture.set( CV_CAP_PROP_FRAME_HEIGHT, 600);
-    LOG(INFO) << "set res " << rv1 << " " << rv2;
+    //bool rv1 = capture.set( CV_CAP_PROP_FRAME_WIDTH, 800);
+    //bool rv2 = capture.set( CV_CAP_PROP_FRAME_HEIGHT, 600);
+    //LOG(INFO) << "set res " << rv1 << " " << rv2;
 
     graph = cv::Mat(cv::Size(1280, 720), CV_8UC3);
     graph = cv::Scalar(0);
