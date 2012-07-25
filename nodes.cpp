@@ -292,14 +292,16 @@ namespace bm {
   {
     bool rv = ImageNode::update();
 
+    if (!rv) return false;
+
     for (int i = 0; i < inputs.size(); i++) {
       
       ImageNode* im_in = dynamic_cast<ImageNode*> (inputs[i]);
-      if (im_in)
+      if (im_in) // && im_in->is_dirty) // TBD this produces flickering
         add(im_in->get()); 
     }
 
-    return rv;
+    return true;
   }
 
   void Buffer::add(cv::Mat new_frame)
