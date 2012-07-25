@@ -98,11 +98,23 @@ namespace bm {
     if (inputs.size() > 0) {
       ImageNode* im_in = dynamic_cast<ImageNode*> (inputs[0]);
       if (im_in) {
+        
         //out_old = out;//.clone(); // TBD need to clone this?  It doesn't work
-        out = im_in->get(); 
-      }
-    }
-    VLOG(2) << name << " update: " <<  &out.data << " " << &out_old.data;
+        cv::Mat new_out = im_in->get(); 
+
+        out_old = out;
+        if (new_out.refcount == out.refcount) {
+          VLOG(2) << "dirty input is identical with old image " << new_out.refcount << " " << out.refcount;
+          out = new_out.clone();
+        } else {
+          out = new_out;
+        }
+
+      } // im_in
+    }  // inputs
+    VLOG(3) << name << " update: " <<  out.refcount << " " << out_old.refcount;
+  
+    return true;
   }
 
   bool ImageNode::draw(float scale) 
@@ -147,6 +159,8 @@ namespace bm {
 
   bool Webcam::update()
   {
+    ImageNode::update();
+
     /// TBD need to make this in separate thread
     if( !capture.grab() )
     {
@@ -154,12 +168,19 @@ namespace bm {
       return false;
     }
     
-    cv::Mat test;
-    capture.retrieve(test);
+    cv::Mat new_out;
+    capture.retrieve(new_out);
 
-    if (test.empty())  return false;
+    if (new_out.empty())  return false;
     // I think opencv is reusing a mat within capture so have to clone it
-    out = test.clone();
+    
+    //if (&new_out.data == &out.data) {
+      out = new_out.clone();
+    //} else {
+    //  VLOG(3) << name << " dissimilar capture";
+    //  out = new_out;
+    //}
+    
     // TBD out is the same address every time, why doesn't clone produce a new one?
     //VLOG(3) << 
     is_dirty = true;
@@ -247,13 +268,18 @@ namespace bm {
 
   void Buffer::add(cv::Mat new_frame)
   {
-    if (frames.empty()) return;// TBD LOG(ERROR)
-
+    if (new_frame.empty()) {
+      LOG(ERROR) << name << " new_frame is empty";
+      return;// TBD LOG(ERROR)
+    }
+    // TBD do clone here if frame is same
     frames.push_back(new_frame);
+    out = frames[0];
 
     while (frames.size() >= max_size) frames.pop_front();
    
-    out = new_frame;
+    VLOG(3) << name << " sz " << frames.size();
+    
     // TBD is_dirty wouldn't be true for callers that want frames indexed from beginning if no pop_front has been done.
     is_dirty = true;
   }
@@ -522,7 +548,7 @@ class CamThing
     imshow("cam", cam_buf->get());
 
     cv::Mat out = output->get();
-    if (out.data) {
+    if (!out.empty()) {
       imshow("out", out);
     } else {
       LOG(ERROR) << "out no data";

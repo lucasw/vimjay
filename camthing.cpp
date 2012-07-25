@@ -78,27 +78,33 @@ class CamThing
 
     cam_in = getNode<Webcam>("webcam", cv::Point(20, 20) );
     test_im = cv::Mat(cam_in->get().size(), cam_in->get().type());
-    test_im = cv::Scalar(200);
+    test_im = cv::Scalar(200,200,200);
 
     ImageNode* passthrough = getNode<ImageNode>("image_node_passthrough", cv::Point(400, 50) );
     passthrough->inputs.push_back(cam_in);
     passthrough->out = test_im;
     passthrough->out_old = test_im;
+    output = passthrough;
 
+    if (false) {
+    // test dead branch (shouldn't be updated)
     ImageNode* passthrough2 = getNode<ImageNode>("image_node_passthrough2", cv::Point(400, 450) );
-    passthrough2->inputs.push_back(passthrough);
+    passthrough2->inputs.push_back(cam_in);
     passthrough2->out = test_im;
     passthrough2->out_old = test_im;
-
-
-
+    
     output = passthrough2;
-/*
-    cam_buf = getNode<Buffer>("buffer", cv::Point(200,100) );  
-    cam_buf->max_size = ( (1.0/advance)*5 );
-    cam_buf->inputs.push_back(cam_in);
-    cam_buf->out = test_im;
+    }
 
+    if (true){
+    // buffer test
+    cam_buf = getNode<Buffer>("buffer", cv::Point(450,50) );  
+    cam_buf->max_size = ( 20 );
+    cam_buf->inputs.push_back(passthrough);
+    cam_buf->out = test_im;
+    
+    output = cam_buf;
+    /*
     //Signal* s1 = getNode<Saw>("saw", cv::Point(200,50) ); 
     //s1->setup(advance, 0);
     Signal* s1 = getNode<Signal>("fixed signal", cv::Point(300,50) ); 
@@ -108,8 +114,9 @@ class CamThing
     //static_cast<Tap*>
     p1->setup(s1, cam_buf);
     p1->out = test_im;
-*/
-/*
+    */
+    }
+/*  
     Add* add_loop = getNode<Add>("add_loop", cv::Point(400,100) );
     add_loop->out = test_im;
     ImageNode* nd = add_loop; 
@@ -167,7 +174,8 @@ class CamThing
     count++;
     
     // TBD put this in different thread 
-      {
+      { 
+        VLOG(3) << "";
         output->setUpdate();
         output->do_update=true;
         output->update();
