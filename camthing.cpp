@@ -79,7 +79,12 @@ class CamThing
     cam_in = getNode<Webcam>("webcam", cv::Point(20, 20) );
     test_im = cam_in->get();
   
-    output = cam_in; 
+    ImageNode* passthrough = getNode<ImageNode>("image_node_passthrough", cv::Point(400, 50) );
+    passthrough->inputs.push_back(cam_in);
+    passthrough->out = test_im;
+    passthrough->out_old = test_im;
+    output = passthrough;
+
     /*
     cam_buf = getNode<Buffer>("buffer", cv::Point(200,100) );  
     cam_buf->max_size = ( (1.0/advance)*5 );
@@ -152,8 +157,6 @@ class CamThing
 
   bool update() {
     count++;
-   
-
     
     // TBD put this in different thread 
       {
@@ -209,6 +212,7 @@ TBD have a mode that takes a webcam, uses brightness as depth, and thresholds it
  */
 int main( int argc, char* argv[] )
 {
+ // google::ParseCommandLineFlags(&argc, &argv, true);
   google::InitGoogleLogging(argv[0]);
   google::LogToStderr();
   // pair of rgb images and depths put together

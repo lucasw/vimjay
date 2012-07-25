@@ -44,7 +44,6 @@ namespace bm {
   bool Node::update() 
   {
     if (!do_update) return false;
-
     do_update = false; 
 
     bool inputs_dirty = is_dirty;
@@ -87,14 +86,30 @@ namespace bm {
 
   // TBD could there be a templated get function to be used in different node types?
   cv::Mat ImageNode::get() {
-    return out;
+    return out;//_old;
+  }
+  
+  bool ImageNode::update() 
+  {
+    const bool rv = Node::update();
+    
+    if (!rv) return false;
+
+    if (inputs.size() > 0) {
+      ImageNode* im_in = dynamic_cast<ImageNode*> (inputs[0]);
+      if (im_in) {
+        //out_old = out;//.clone(); // TBD need to clone this?  It doesn't work
+        out = im_in->get(); 
+      }
+    }
+    VLOG(2) << name << " update: " <<  &out.data << " " << &out_old.data;
   }
 
   bool ImageNode::draw(float scale) 
   {
     Node::draw(scale);
 
-    if (out.data) {
+    if (!out.empty()) {
 
       cv::Size sz = cv::Size(out.size().width * scale, out.size().height * scale);
 

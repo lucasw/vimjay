@@ -45,12 +45,15 @@ class ImageNode : public Node
 {
 public:
   cv::Mat out;
+  cv::Mat out_old;
     
   ImageNode();// : Node()
 
+  virtual bool update();
   // TBD could there be a templated get function to be used in different node types?
   virtual cv::Mat get();
- 
+
+
   virtual bool draw(float scale = 0.125);
 };
 
