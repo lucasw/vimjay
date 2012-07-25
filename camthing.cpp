@@ -41,6 +41,8 @@ class CamThing
       node->loc = loc;
       node->graph = graph;
 
+      LOG(INFO) << "new node " << name << " " << loc.x << ", " << loc.y;
+
       all_nodes.push_back(node);
       return node;
     }
@@ -74,9 +76,11 @@ class CamThing
     ///////////////
     const float advance = 0.2;
 
-    cam_in = getNode<Webcam>("webcam", cv::Point(10,400) );
+    cam_in = getNode<Webcam>("webcam", cv::Point(20, 20) );
     test_im = cam_in->get();
-    
+  
+    output = cam_in; 
+    /*
     cam_buf = getNode<Buffer>("buffer", cv::Point(200,100) );  
     cam_buf->max_size = ( (1.0/advance)*5 );
     cam_buf->inputs.push_back(cam_in);
@@ -91,7 +95,7 @@ class CamThing
     //static_cast<Tap*>
     p1->setup(s1, cam_buf);
     p1->out = test_im;
-
+*/
 /*
     Add* add_loop = getNode<Add>("add_loop", cv::Point(400,100) );
     add_loop->out = test_im;
@@ -128,7 +132,7 @@ class CamThing
     LOG(INFO) << all_nodes.size() << " nodes total";
 
     //output = nd;
-    output = p1;
+    //output = p1;
 /*
     cv::namedWindow("cam", CV_GUI_NORMAL);
     cv::moveWindow("cam", 0, 0);
