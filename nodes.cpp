@@ -160,7 +160,8 @@ namespace bm {
     if (test.empty())  return false;
     // I think opencv is reusing a mat within capture so have to clone it
     out = test.clone();
-
+    // TBD out is the same address every time, why doesn't clone produce a new one?
+    //VLOG(3) << 
     is_dirty = true;
 
     return true;

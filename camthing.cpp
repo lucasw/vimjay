@@ -77,15 +77,23 @@ class CamThing
     const float advance = 0.2;
 
     cam_in = getNode<Webcam>("webcam", cv::Point(20, 20) );
-    test_im = cam_in->get();
-  
+    test_im = cv::Mat(cam_in->get().size(), cam_in->get().type());
+    test_im = cv::Scalar(200);
+
     ImageNode* passthrough = getNode<ImageNode>("image_node_passthrough", cv::Point(400, 50) );
     passthrough->inputs.push_back(cam_in);
     passthrough->out = test_im;
     passthrough->out_old = test_im;
-    output = passthrough;
 
-    /*
+    ImageNode* passthrough2 = getNode<ImageNode>("image_node_passthrough2", cv::Point(400, 450) );
+    passthrough2->inputs.push_back(passthrough);
+    passthrough2->out = test_im;
+    passthrough2->out_old = test_im;
+
+
+
+    output = passthrough2;
+/*
     cam_buf = getNode<Buffer>("buffer", cv::Point(200,100) );  
     cam_buf->max_size = ( (1.0/advance)*5 );
     cam_buf->inputs.push_back(cam_in);
