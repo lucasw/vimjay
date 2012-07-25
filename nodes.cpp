@@ -2,6 +2,7 @@
 #include <iostream>
 #include <stdio.h>
 
+#include <boost/thread.hpp>
 #include "opencv2/highgui/highgui.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
 
@@ -153,41 +154,76 @@ namespace bm {
         //
         //
     
-    update();
-    update();
+
+    //update();
+    //update();
+    is_thread_dirty = false;
+    boost::thread cam_thread(&Webcam::runThread,this);
+
+    // wait for single frame so there is a sample with the correct size
+    while(!is_thread_dirty) {}
   }
+
+  void Webcam::runThread()
+  {
+    do_capture = true;
+    while(true) {
+      if (do_capture) {
+        /// TBD need to make this in separate thread
+        if( !capture.grab() )
+        {
+          LOG(ERROR) << name << " Can not grab images." << endl;
+          //return false;
+        } 
+
+        cv::Mat new_out;
+        capture.retrieve(new_out);
+
+        if (new_out.empty()) {
+          LOG(ERROR) << name << " new image empty";
+          //return false;
+        }
+        // I think opencv is reusing a mat within capture so have to clone it
+
+        //if (&new_out.data == &out.data) {
+        //
+        cv::Mat tmp = new_out.clone();
+        //out_lock.lock();
+        out = tmp;
+        is_thread_dirty = true;
+        //out_lock.unlock();
+        //} else {
+        //  VLOG(3) << name << " dissimilar capture";
+        //  out = new_out;
+        //}
+
+        // TBD out is the same address every time, why doesn't clone produce a new one?
+        //VLOG(3) << 
+
+      } else {
+        usleep(1000);
+      }
+    }
+  } // runThread
+
+/*
+  cv::Mat get()
+  {
+
+  }
+  */
 
   bool Webcam::update()
   {
     ImageNode::update();
 
-    /// TBD need to make this in separate thread
-    if( !capture.grab() )
-    {
-      cout << "Can not grab images." << endl;
-      return false;
-    }
-    
-    cv::Mat new_out;
-    capture.retrieve(new_out);
-
-    if (new_out.empty())  return false;
-    // I think opencv is reusing a mat within capture so have to clone it
-    
-    //if (&new_out.data == &out.data) {
-      out = new_out.clone();
-    //} else {
-    //  VLOG(3) << name << " dissimilar capture";
-    //  out = new_out;
-    //}
-    
-    // TBD out is the same address every time, why doesn't clone produce a new one?
-    //VLOG(3) << 
-    is_dirty = true;
+      is_dirty = is_thread_dirty;
+      is_thread_dirty = false;
 
     return true;
   }
 
+  //////////////////////////////////////////////////////////////////////////////////////////
   // TBD subclasses of Node that are input/output specific, or make that general somehow?
   Signal::Signal() : Node()
   {

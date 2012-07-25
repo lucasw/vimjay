@@ -61,7 +61,10 @@ class Webcam : public ImageNode
 {
 
   cv::VideoCapture capture; //CV_CAP_OPENNI );
-  
+  void runThread();
+  bool is_thread_dirty;
+  bool do_capture;
+
   public:
   Webcam();
 
