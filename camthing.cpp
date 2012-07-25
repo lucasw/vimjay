@@ -158,6 +158,8 @@ class CamThing
     cv::moveWindow("cam", 0, 0);
 */
 
+    output->loc = cv::Point(graph.cols - (test_im.cols/2+10), 20);
+    
     cv::namedWindow("graph", CV_GUI_NORMAL);
     cv::moveWindow("graph", 0, 500);
 
