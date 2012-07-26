@@ -70,7 +70,7 @@ class CamThing
   {
     count = 0;
 
-    graph = cv::Mat(cv::Size(1280, 720), CV_8UC3);
+    graph = cv::Mat(cv::Size(1280, 720), CV_32FC3);
     graph = cv::Scalar(0);
 
     ///////////////

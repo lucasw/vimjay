@@ -194,7 +194,10 @@ namespace bm {
 
         //if (&new_out.data == &out.data) {
         //
-        cv::Mat tmp = new_out.clone();
+        cv::Mat tmp; // new_out.clone();
+        
+        new_out.convertTo(tmp, CV_32F, 1.0/(255.0));//*255.0*255.0*255.0));
+
         //out_lock.lock();
         out = tmp;
         is_thread_dirty = true;
