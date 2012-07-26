@@ -65,17 +65,18 @@ namespace bm {
   {
     int fr = 1;
     if (!is_dirty) fr = 5;
-    
     cv::Scalar col = cv::Scalar(vcol/fr);
 
     cv::circle(graph, loc, 20, col, 4);
   
     for (int j = 0; j < inputs.size(); j++) {
-      cv::Point src = inputs[j]->loc;
+      cv::Point src = inputs[j]->loc + cv::Point(20,0);
       cv::Point mid = src + (loc -src) * 0.8;
       cv::line( graph, src, mid, cv::Scalar(0, 128/fr, 0), 2, 4 );
-      cv::line( graph, mid, loc, cv::Scalar(0, 255/fr, 0), 2, CV_AA );
+      cv::line( graph, mid, loc + cv::Point(-20, j*5), cv::Scalar(0, 255/fr, 0), 2, CV_AA );
     }
+
+    cv::putText(graph, name, loc, 1, 1, cv::Scalar(255,255,245));
 
   }
 
@@ -128,8 +129,14 @@ namespace bm {
 
       cv::Mat thumbnail = cv::Mat(sz, CV_8UC3);
       //cv::resize(tmp->get(), thumbnail, thumbnail.size(), 0, 0, cv::INTER_NEAREST );
-      cv::resize(out, thumbnail, sz); //, sz, 0, 0, cv::INTER_NEAREST );
+      cv::resize(out, thumbnail, sz, 0, 0, cv::INTER_NEAREST );
       //cv::resize(tmp->get(), thumbnail, cv::INTER_NEAREST );
+       
+      int fr = 1;
+      if (!is_dirty) fr = 5;
+      cv::Scalar col = cv::Scalar(vcol/fr);
+
+      cv::rectangle(graph, loc - cv::Point(4,4), loc + cv::Point(sz.width,sz.height) + cv::Point(4,4), col, CV_FILLED );
       cv::Mat graph_roi = graph(cv::Rect(loc.x, loc.y, sz.width, sz.height));
       graph_roi = cv::Scalar(0, 0, 255);
       thumbnail.copyTo(graph_roi);
@@ -304,6 +311,25 @@ namespace bm {
     return true;
   }
 
+  bool Buffer::draw(float scale) 
+  {
+    ImageNode::draw(scale);
+
+    int count = 0;
+    // draw some grabs of the beginning frame, and other partway through the buffer 
+    for (int i = 0; i < frames.size(); i += (frames.size()/4 + 1) ) {
+      cv::Size sz = cv::Size(out.size().width * scale * 0.25, out.size().height * scale * 0.25);
+
+      cv::Mat thumbnail = cv::Mat(sz, CV_8UC3);
+      cv::resize(frames[i], thumbnail, sz, 0, 0, cv::INTER_NEAREST );
+      //cv::resize(tmp->get(), thumbnail, cv::INTER_NEAREST );
+      cv::Mat graph_roi = graph(cv::Rect(loc.x + count * out.cols*scale*0.25, loc.y + out.rows*scale, sz.width, sz.height));
+      graph_roi = cv::Scalar(0, 0, 255);
+      thumbnail.copyTo(graph_roi);
+      count++;
+    }
+  }
+
   void Buffer::add(cv::Mat new_frame)
   {
     if (new_frame.empty()) {
@@ -311,11 +337,10 @@ namespace bm {
       is_dirty = false;
       return;// TBD LOG(ERROR)
     }
-    // TBD do clone here if frame is same?
-    if (false) { //((frames.size() > 0) && new_frame.refcount == frames[frames.size()-1].refcount) {
-      LOG(INFO) << name << " skipping identical frame " << new_frame.refcount << " " << frames[frames.size()-1].refcount;
-      is_dirty = false;
-      return;
+    
+    if ((frames.size() > 0) && new_frame.refcount == frames[frames.size()-1].refcount) {
+      new_frame = new_frame.clone();
+      LOG(INFO) << name << " cloning identical frame " << new_frame.refcount << " " << frames[frames.size()-1].refcount;
     }
 
     frames.push_back(new_frame);

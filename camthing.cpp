@@ -76,7 +76,7 @@ class CamThing
     ///////////////
     const float advance = 0.2;
 
-    cam_in = getNode<Webcam>("webcam", cv::Point(20, 20) );
+    cam_in = getNode<Webcam>("webcam", cv::Point(50, 20) );
     test_im = cv::Mat(cam_in->get().size(), cam_in->get().type());
     test_im = cv::Scalar(200,200,200);
 
@@ -100,16 +100,21 @@ class CamThing
 
     // buffer test
     cam_buf = getNode<Buffer>("buffer", cv::Point(500,50) );  
-    cam_buf->max_size = ( 20 );
+    cam_buf->max_size = ( 100 );
     cam_buf->out = test_im;
     
     output = cam_buf;
 
-    Add* add = getNode<Add>("addloop", cv::Point(10,500) );
+    if (false) {
+    Add* add = getNode<Add>("addloop", cv::Point(50,500) );
     add->out = test_im;
-    add->setup(passthrough, cam_buf, 0.05, 0.95);
+    add->setup(passthrough, cam_buf, 0.8, 0.2);
     
-    cam_buf->inputs.push_back(add);
+      cam_buf->inputs.push_back(add);
+    } else {
+      cam_buf->inputs.push_back(passthrough);
+
+    }
 
     /*
     //Signal* s1 = getNode<Saw>("saw", cv::Point(200,50) ); 
@@ -165,7 +170,7 @@ class CamThing
     cv::moveWindow("cam", 0, 0);
 */
 
-    output->loc = cv::Point(graph.cols - (test_im.cols/2+10), 20);
+    output->loc = cv::Point(graph.cols - (test_im.cols/2+100), 20);
     
     cv::namedWindow("graph", CV_GUI_NORMAL);
     cv::moveWindow("graph", 0, 500);
