@@ -258,6 +258,15 @@ namespace bm {
     return true;
   }
 
+  bool Signal::draw(float scale)
+  {
+    Node::draw(scale);
+
+    cv::rectangle(graph, loc, loc + cv::Point( value * 100 , 5), cv::Scalar(255, 255, 100), CV_FILLED);
+
+    return true;
+  }
+
   //////////////////////////////////////////////////
   Saw::Saw() : Signal()
   {
@@ -298,7 +307,6 @@ namespace bm {
   bool Buffer::update()
   {
     bool rv = ImageNode::update();
-
     if (!rv) return false;
 
     for (int i = 0; i < inputs.size(); i++) {
@@ -416,20 +424,8 @@ namespace bm {
     return true;
   }
 
-  // this is sort of strange, maybe should have another object that can be many to one with the buffer?
-  /*
-   * cv::Mat get()
-  {
-    //if (rv.empty())
-    if (VLOG_IS_ON(2)) {
-    cv::line(rv, cv::Point(0,0), cv::Point( rv.cols, 0), cv::Scalar(0,0,0), 2);
-    cv::line(rv, cv::Point(0,0), cv::Point( signal->value* rv.cols, 0), cv::Scalar(255,0,0), 2);
-    }
 
-    return out;
-  }*/
-
- 
+  ///////////////////////////////////////////
   Add::Add() : ImageNode()
   {
     vcol = cv::Scalar(200, 200, 50);

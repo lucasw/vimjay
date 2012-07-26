@@ -74,7 +74,7 @@ class CamThing
     graph = cv::Scalar(0);
 
     ///////////////
-    const float advance = 0.2;
+    const float advance = 0.1;
 
     cam_in = getNode<Webcam>("webcam", cv::Point(50, 20) );
     test_im = cv::Mat(cam_in->get().size(), cam_in->get().type());
@@ -96,37 +96,38 @@ class CamThing
     output = passthrough2;
     }
 
-    if (true){
+    if (true) {
 
-    // buffer test
-    cam_buf = getNode<Buffer>("buffer", cv::Point(500,50) );  
-    cam_buf->max_size = ( 100 );
-    cam_buf->out = test_im;
-    
-    output = cam_buf;
+      // buffer test
+      cam_buf = getNode<Buffer>("buffer", cv::Point(500,50) );  
+      cam_buf->max_size = ( 60 );
+      cam_buf->out = test_im;
 
-    if (false) {
-      Add* add = getNode<Add>("addloop", cv::Point(50,500) );
-      add->out = test_im;
-      add->setup(passthrough, cam_buf, 0.8, 0.2);
+      output = cam_buf;
 
-      cam_buf->inputs.push_back(add);
-    } else {
-      cam_buf->inputs.push_back(passthrough);
+      if (false) {
+        Add* add = getNode<Add>("addloop", cv::Point(50,500) );
+        add->out = test_im;
+        add->setup(passthrough, cam_buf, 0.8, 0.2);
+
+        cam_buf->inputs.push_back(add);
+      } else {
+        cam_buf->inputs.push_back(passthrough);
 
     }
 
-    /*
-    //Signal* s1 = getNode<Saw>("saw", cv::Point(200,50) ); 
-    //s1->setup(advance, 0);
-    Signal* s1 = getNode<Signal>("fixed signal", cv::Point(300,50) ); 
+    
+    Signal* s1 = getNode<Saw>("saw", cv::Point(500,400) ); 
     s1->setup(advance, 0);
+    //Signal* s1 = getNode<Signal>("fixed signal", cv::Point(300,50) ); 
+    //s1->setup(advance, 0);
 
-    Tap* p1 = getNode<Tap>("tap", cv::Point(300,100) );
+    Tap* p1 = getNode<Tap>("tap", cv::Point(500,450) );
     //static_cast<Tap*>
     p1->setup(s1, cam_buf);
     p1->out = test_im;
-    */
+
+    output = p1;
     }
 /*  
     Add* add_loop = getNode<Add>("add_loop", cv::Point(400,100) );
@@ -207,9 +208,12 @@ class CamThing
   
   void draw() 
   {
-    //imshow("cam", cam_buf->get());
-
+    graph = cv::Scalar(0,0,0);
+   
+    // draw input and outputs
     /*
+    imshow("cam", cam_buf->get());
+
     cv::Mat out = output->get();
     if (out.data) {
       //imshow("out", out);
@@ -224,7 +228,6 @@ class CamThing
       if (all_nodes[i] == cam_in) scale = 0.5;
       all_nodes[i]->draw(scale);
     } 
-
 
     imshow("graph", graph);
   }

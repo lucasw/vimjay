@@ -82,6 +82,7 @@ class Signal : public Node
   void setup(const float new_step=0.01, const float offset=0.0); 
  
   virtual bool update();
+  virtual bool draw(float scale);
   
   float value;
   float step;
@@ -101,20 +102,19 @@ class Saw : public Signal
 ////////////////////////////////
 class Buffer : public ImageNode
 {
-
+  protected: 
   std::deque<cv::Mat> frames;
   
   public:
 
   Buffer(); 
   
-  virtual bool draw(float scale); 
-  
   int max_size;
  
   virtual bool update();
 
   void add(cv::Mat new_frame);
+  virtual bool draw(float scale); 
    
   virtual cv::Mat get();
 
@@ -136,6 +136,7 @@ class Tap : public ImageNode
 
   Tap();// : ImageNode()
   
+
   void setup(Signal* new_signal =NULL, Buffer* new_buffer=NULL); 
   
   virtual bool update();
