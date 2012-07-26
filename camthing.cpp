@@ -70,6 +70,7 @@ class CamThing
   {
     count = 0;
 
+    // TBD make internal type a gflag
     graph = cv::Mat(cv::Size(1280, 720), CV_32FC3);
     graph = cv::Scalar(0);
 
@@ -131,8 +132,8 @@ class CamThing
       FilterFIR* fir = getNode<FilterFIR>("fir_filter", cv::Point(500,50));
 
       // http://www-users.cs.york.ac.uk/~fisher/cgi-bin/mkfscript
-      static float arr[] = //{ 0.85, -0.35, 0.55, -0.05, };
-        {
+      static float arr[] =  { -1.0, 3.0, -3.0, 1.0, }; //{ 0.85, -0.35, 0.55, -0.05, };
+       /* {
           0.2, -0.1,
           0.2, -0.1,
           0.2, -0.1,
@@ -145,7 +146,7 @@ class CamThing
           0.2, -0.1,
           0.2, -0.1,
           0.2, -0.1,
-          };
+          };*/
       /*  { +0.0000000000, -0.0025983155, +0.0000000000, +0.0057162941,
           +0.0000000000, +0.0171488822, +0.0000000000, -0.1200421755,
           -0.0000000000, +0.6002108774, +1.0000000000, +0.6002108774,
@@ -159,7 +160,23 @@ class CamThing
       fir->setup(vec);
       fir->inputs.push_back(passthrough);
 
-      output = fir;
+      // IIR denominator
+      FilterFIR* denom = getNode<FilterFIR>("iir_denom", cv::Point(500,350));
+      static float arr2[] =  { 
+                 1.7600418803, // y[n-1]
+                -1.1828932620, // * y[n- 2])
+                0.2780599176, // * y[n- 3])
+                }; 
+
+      vector<float> vec2 (arr2, arr2 + sizeof(arr2) / sizeof(arr2[0]) );
+      denom->setup(vec2);
+      denom->inputs.push_back(fir);
+       
+      Add* add_iir = getNode<Add>("add_iir", cv::Point(400,100) );
+      add_iir->out = test_im;
+      add_iir->setup(fir, denom, 1.0, 1.0);
+      
+      output = add_iir;
     }
 /*  
     Add* add_loop = getNode<Add>("add_loop", cv::Point(400,100) );
