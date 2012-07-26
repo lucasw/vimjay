@@ -297,7 +297,7 @@ namespace bm {
     for (int i = 0; i < inputs.size(); i++) {
       
       ImageNode* im_in = dynamic_cast<ImageNode*> (inputs[i]);
-      if (im_in) // && im_in->is_dirty) // TBD this produces flickering
+      if (im_in && im_in->is_dirty) // TBD this produces flickering
         add(im_in->get()); 
     }
 
@@ -308,9 +308,16 @@ namespace bm {
   {
     if (new_frame.empty()) {
       LOG(ERROR) << name << " new_frame is empty";
+      is_dirty = false;
       return;// TBD LOG(ERROR)
     }
-    // TBD do clone here if frame is same
+    // TBD do clone here if frame is same?
+    if (false) { //((frames.size() > 0) && new_frame.refcount == frames[frames.size()-1].refcount) {
+      LOG(INFO) << name << " skipping identical frame " << new_frame.refcount << " " << frames[frames.size()-1].refcount;
+      is_dirty = false;
+      return;
+    }
+
     frames.push_back(new_frame);
     out = frames[0];
 

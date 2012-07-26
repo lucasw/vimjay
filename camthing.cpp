@@ -97,13 +97,20 @@ class CamThing
     }
 
     if (true){
+
     // buffer test
-    cam_buf = getNode<Buffer>("buffer", cv::Point(450,50) );  
+    cam_buf = getNode<Buffer>("buffer", cv::Point(500,50) );  
     cam_buf->max_size = ( 20 );
-    cam_buf->inputs.push_back(passthrough);
     cam_buf->out = test_im;
     
     output = cam_buf;
+
+    Add* add = getNode<Add>("addloop", cv::Point(10,500) );
+    add->out = test_im;
+    add->setup(passthrough, cam_buf, 0.05, 0.95);
+    
+    cam_buf->inputs.push_back(add);
+
     /*
     //Signal* s1 = getNode<Saw>("saw", cv::Point(200,50) ); 
     //s1->setup(advance, 0);
