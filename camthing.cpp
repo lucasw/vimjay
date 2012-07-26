@@ -106,10 +106,10 @@ class CamThing
     output = cam_buf;
 
     if (false) {
-    Add* add = getNode<Add>("addloop", cv::Point(50,500) );
-    add->out = test_im;
-    add->setup(passthrough, cam_buf, 0.8, 0.2);
-    
+      Add* add = getNode<Add>("addloop", cv::Point(50,500) );
+      add->out = test_im;
+      add->setup(passthrough, cam_buf, 0.8, 0.2);
+
       cam_buf->inputs.push_back(add);
     } else {
       cam_buf->inputs.push_back(passthrough);

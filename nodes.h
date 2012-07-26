@@ -108,6 +108,8 @@ class Buffer : public ImageNode
 
   Buffer(); 
   
+  virtual bool draw(float scale); 
+  
   int max_size;
  
   virtual bool update();

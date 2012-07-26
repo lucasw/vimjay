@@ -304,9 +304,11 @@ namespace bm {
     for (int i = 0; i < inputs.size(); i++) {
       
       ImageNode* im_in = dynamic_cast<ImageNode*> (inputs[i]);
-      if (im_in && im_in->is_dirty) // TBD this produces flickering
+      if (im_in && im_in->is_dirty) 
         add(im_in->get()); 
     }
+    
+    out = frames[0];
 
     return true;
   }
@@ -315,18 +317,20 @@ namespace bm {
   {
     ImageNode::draw(scale);
 
-    int count = 0;
     // draw some grabs of the beginning frame, and other partway through the buffer 
-    for (int i = 0; i < frames.size(); i += (frames.size()/4 + 1) ) {
+    for (int i = 1; i < 4; i++) {
+      int ind = i * frames.size() / 3;
+      if (i == 3) ind = frames.size() - 1;
+      if (ind >= frames.size())  continue;
+
       cv::Size sz = cv::Size(out.size().width * scale * 0.25, out.size().height * scale * 0.25);
 
       cv::Mat thumbnail = cv::Mat(sz, CV_8UC3);
-      cv::resize(frames[i], thumbnail, sz, 0, 0, cv::INTER_NEAREST );
+      cv::resize(frames[ind], thumbnail, sz, 0, 0, cv::INTER_NEAREST );
       //cv::resize(tmp->get(), thumbnail, cv::INTER_NEAREST );
-      cv::Mat graph_roi = graph(cv::Rect(loc.x + count * out.cols*scale*0.25, loc.y + out.rows*scale, sz.width, sz.height));
+      cv::Mat graph_roi = graph(cv::Rect(loc.x + i * out.cols*scale*0.25, loc.y + out.rows*scale, sz.width, sz.height));
       graph_roi = cv::Scalar(0, 0, 255);
       thumbnail.copyTo(graph_roi);
-      count++;
     }
   }
 
@@ -344,7 +348,6 @@ namespace bm {
     }
 
     frames.push_back(new_frame);
-    out = frames[0];
 
     while (frames.size() >= max_size) frames.pop_front();
    
