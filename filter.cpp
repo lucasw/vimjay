@@ -31,6 +31,8 @@ bool FilterFIR::update()
     }
   }
 
+  out = new_out;
+
   return true;
 }
 

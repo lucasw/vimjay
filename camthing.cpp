@@ -12,6 +12,7 @@
 //#include <pair>
 
 #include "nodes.h" 
+#include "filter.h"
 
 using namespace cv;
 using namespace std;
@@ -57,7 +58,6 @@ class CamThing
   }
 
   Webcam* cam_in;
-  Buffer* cam_buf;  
   int count;
 
   cv::Mat test_im;
@@ -96,10 +96,10 @@ class CamThing
     output = passthrough2;
     }
 
-    if (true) {
+    if (false) {
 
       // buffer test
-      cam_buf = getNode<Buffer>("buffer", cv::Point(500,50) );  
+      Buffer* cam_buf = getNode<Buffer>("buffer", cv::Point(500,50) );  
       cam_buf->max_size = ( 60 );
       cam_buf->out = test_im;
 
@@ -113,8 +113,7 @@ class CamThing
         cam_buf->inputs.push_back(add);
       } else {
         cam_buf->inputs.push_back(passthrough);
-
-    }
+      }
 
     
     Signal* s1 = getNode<Saw>("saw", cv::Point(500,400) ); 
@@ -128,6 +127,39 @@ class CamThing
     p1->out = test_im;
 
     output = p1;
+    } else {
+      FilterFIR* fir = getNode<FilterFIR>("fir_filter", cv::Point(500,50));
+
+      // http://www-users.cs.york.ac.uk/~fisher/cgi-bin/mkfscript
+      static float arr[] = //{ 0.85, -0.35, 0.55, -0.05, };
+        {
+          0.2, -0.1,
+          0.2, -0.1,
+          0.2, -0.1,
+          0.2, -0.1,
+          0.2, -0.1,
+          0.2, -0.1,
+          0.2, -0.1,
+          0.2, -0.1,
+          0.2, -0.1,
+          0.2, -0.1,
+          0.2, -0.1,
+          0.2, -0.1,
+          };
+      /*  { +0.0000000000, -0.0025983155, +0.0000000000, +0.0057162941,
+          +0.0000000000, +0.0171488822, +0.0000000000, -0.1200421755,
+          -0.0000000000, +0.6002108774, +1.0000000000, +0.6002108774,
+          -0.0000000000, -0.1200421755, +0.0000000000, +0.0171488822,
+          +0.0000000000, +0.0057162941, +0.0000000000, -0.0025983155,
+          +0.0000000000,
+        };*/
+
+      vector<float> vec (arr, arr + sizeof(arr) / sizeof(arr[0]) );
+
+      fir->setup(vec);
+      fir->inputs.push_back(passthrough);
+
+      output = fir;
     }
 /*  
     Add* add_loop = getNode<Add>("add_loop", cv::Point(400,100) );
@@ -192,7 +224,6 @@ class CamThing
       { 
         VLOG(3) << "";
         output->setUpdate();
-        output->do_update=true;
         output->update();
       }
     

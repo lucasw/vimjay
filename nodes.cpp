@@ -76,7 +76,7 @@ namespace bm {
       cv::line( graph, mid, loc + cv::Point(-20, j*5), cv::Scalar(0, 255/fr, 0), 2, CV_AA );
     }
 
-    cv::putText(graph, name, loc, 1, 1, cv::Scalar(255,255,245));
+    cv::putText(graph, name, loc - cv::Point(0,5), 1, 1, cv::Scalar(255,255,245));
 
   }
 
@@ -136,7 +136,7 @@ namespace bm {
       if (!is_dirty) fr = 5;
       cv::Scalar col = cv::Scalar(vcol/fr);
 
-      cv::rectangle(graph, loc - cv::Point(4,4), loc + cv::Point(sz.width,sz.height) + cv::Point(4,4), col, CV_FILLED );
+      cv::rectangle(graph, loc - cv::Point(2,2), loc + cv::Point(sz.width,sz.height) + cv::Point(2,2), col, CV_FILLED );
       cv::Mat graph_roi = graph(cv::Rect(loc.x, loc.y, sz.width, sz.height));
       graph_roi = cv::Scalar(0, 0, 255);
       thumbnail.copyTo(graph_roi);
@@ -400,7 +400,7 @@ namespace bm {
 ///////////////////////////////////////////////////////////
   Tap::Tap() : ImageNode()
   {
-    vcol = cv::Scalar(100, 30, 100);
+    vcol = cv::Scalar(100, 30, 250);
   }
 
   void Tap::setup(Signal* new_signal, Buffer* new_buffer) 
