@@ -25,9 +25,11 @@ namespace bm {
     is_dirty = true;
     vcol = cv::Scalar(0,128,255);
   }
-  
+
+  // this finds all the nodes that are connected to this node and sets them to be updated
   bool Node::setUpdate()
   {
+    // if do_update is already set return, this prevents infinite loops
     if (do_update) return false;
 
     do_update = true;
@@ -40,7 +42,7 @@ namespace bm {
     return true;
   }
 
-  // the rv is so that an ineritanning function will know whether to 
+  // the rv is so that an inheriting function will know whether to 
   // process or not
   bool Node::update() 
   {
@@ -90,11 +92,11 @@ namespace bm {
   cv::Mat ImageNode::get() {
     return out;//_old;
   }
-  
+ 
+  /// Probably don't want to call this in most inheriting functions, skip back to Node::update()
   bool ImageNode::update() 
   {
     const bool rv = Node::update();
-    
     if (!rv) return false;
 
     if (inputs.size() > 0) {
@@ -141,6 +143,34 @@ namespace bm {
       graph_roi = cv::Scalar(0, 0, 255);
       thumbnail.copyTo(graph_roi);
     }
+  }
+
+  ////////////////////////////////////////////////////////////
+  
+  Rot2D::Rot2D()
+  {
+    angle = 0;
+    scale = 1.0;
+    center = cv::Point2f(0,0);
+  }
+
+  bool Rot2D::update()
+  {
+    if (!Node::update()) return false;
+
+    if (inputs.size() < 1) return false;
+    
+    ImageNode* im_in = dynamic_cast<ImageNode*> (inputs[0]);
+    if (!im_in) return false;
+     
+    VLOG(1) << name << " " << is_dirty << " " << im_in->name << " " << im_in->is_dirty;
+
+    cv::Mat rot = cv::getRotationMatrix2D(center, angle, scale);
+
+    cv::Mat tmp;
+    cv::warpAffine(im_in->get(), tmp, rot, im_in->get().size(), INTER_NEAREST);
+
+    out = tmp;
   }
 
   ////////////////////////////////////////////////////////////
@@ -454,7 +484,7 @@ namespace bm {
   {
     if (!Node::update()) return false;
 
-    VLOG(2) << "name " << is_dirty << " " << p1->name << " " << p2->name;
+    VLOG(1) << "name " << is_dirty << " " << p1->name << " " << p1->is_dirty << ", " << p2->name << " " << p2->is_dirty ;
     if (is_dirty) {
       // TBD accomodate bad mats somewhere
       out = p1->get() * f1 + p2->get() * f2;

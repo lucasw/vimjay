@@ -61,7 +61,22 @@ public:
   virtual cv::Mat get();
 
 
-  virtual bool draw(float scale = 0.125);
+  virtual bool draw(float scale = 0.2);
+};
+
+class Rot2D : public ImageNode
+{
+  public:
+ 
+  // TBD these need to be Node inputs?
+  double angle;
+  double scale;
+  cv::Point2f center;
+
+  Rot2D();
+
+  virtual bool update();
+
 };
 
 class Webcam : public ImageNode
@@ -78,6 +93,7 @@ class Webcam : public ImageNode
   virtual bool update();
 
 };
+
 
 // TBD subclasses of Node that are input/output specific, or make that general somehow?
 

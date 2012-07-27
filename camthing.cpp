@@ -87,6 +87,18 @@ class CamThing
     passthrough->out_old = test_im;
     output = passthrough;
 
+    Add* add_loop = getNode<Add>("add_loop", cv::Point(600,100) );
+    add_loop->out = test_im;
+
+    Rot2D* rotate = getNode<Rot2D>("rotation", cv::Point(400,400));
+    rotate->inputs.push_back(add_loop);
+    rotate->out = test_im;
+    rotate->out_old = test_im;
+    rotate->angle = 50.0;
+    rotate->center = cv::Point2f(test_im.cols/2, test_im.rows/2);
+    output = rotate;
+
+    add_loop->setup(passthrough, rotate, -0.2, 1.1);
     #if 0
     if (false) {
     // test dead branch (shouldn't be updated)
@@ -131,6 +143,8 @@ class CamThing
     output = p1;
     } else
     #endif
+
+    #if MAKE_FIR
     {
       FilterFIR* fir = getNode<FilterFIR>("fir_filter", cv::Point(500,150));
 
@@ -181,12 +195,9 @@ class CamThing
       
       output = add_iir;
     }
-/*  
-    Add* add_loop = getNode<Add>("add_loop", cv::Point(400,100) );
-    add_loop->out = test_im;
-    ImageNode* nd = add_loop; 
-  */
-  #if 0
+    #endif
+
+    #if 0
     // make a chain, sort of a filter
     bool toggle = false;
     for (float ifr = advance; ifr <= 1.0; ifr += advance ) {
@@ -212,7 +223,6 @@ class CamThing
     }
   #endif
 
-   // add_loop->setup(nd, p1, 0.95, 0.05);
 
     LOG(INFO) << all_nodes.size() << " nodes total";
 
@@ -274,7 +284,7 @@ class CamThing
 
     // loop through
     for (int i = 0; i < all_nodes.size(); i++) {
-      float scale = 0.125;
+      float scale = 0.2;
       if (all_nodes[i] == output) scale = 0.5;
       if (all_nodes[i] == cam_in) scale = 0.5;
       all_nodes[i]->draw(scale);
