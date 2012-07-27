@@ -8,6 +8,7 @@
 #include "opencv2/imgproc/imgproc.hpp"
 
 #include <deque>
+#include <map>
 
 #define MAT_FORMAT_C3 CV_8UC3
 #define MAT_FORMAT CV_8U
@@ -22,12 +23,18 @@ namespace bm {
 
 class Node
 {
+  std::map<void*, bool> dirty_hash;  
   public:
   // has this node been updated this timestep, or does it need to be updated this timestep
   // because of dependencies
   bool do_update;
+  
   // is the output of this node different from the last  timestep
-  bool is_dirty;
+  //bool is_dirty;
+  // has the node changed since the last time the pointer parameter supplied has called this function (and cleared it)
+  bool isDirty(void* caller, bool clear_dirty =true);
+  
+  bool setDirty();
 
   std::string name;
   cv::Point loc;

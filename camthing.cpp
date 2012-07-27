@@ -53,7 +53,7 @@ class CamThing
     for (int i = 0; i < all_nodes.size(); i++) {
       all_nodes[i]->do_update = false;
       // TBD for asynchronous this fails, but need buffering to make that work anyhow
-      all_nodes[i]->is_dirty = false;
+      //all_nodes[i]->is_dirty = false;
     }
   }
 
@@ -98,7 +98,7 @@ class CamThing
     rotate->center = cv::Point2f(test_im.cols/2, test_im.rows/2);
     output = rotate;
 
-    add_loop->setup(passthrough, rotate, -0.2, 1.1);
+    add_loop->setup(passthrough, rotate, 0.1, 0.89);
     #if 0
     if (false) {
     // test dead branch (shouldn't be updated)

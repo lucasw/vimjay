@@ -22,7 +22,8 @@ namespace bm {
   ////////////////////////////////////////////////
   Node::Node() {
     do_update = false;
-    is_dirty = true;
+
+    //is_dirty = true;
     vcol = cv::Scalar(0,128,255);
   }
 
@@ -42,6 +43,28 @@ namespace bm {
     return true;
   }
 
+  bool Node::isDirty(void* caller, bool clear) 
+  {
+    std::map<void*, bool>::iterator is_dirty;  
+    is_dirty = dirty_hash.find(caller);
+
+    if (is_dirty == dirty_hash.end()) {
+      dirty_hash[caller] = false;
+      return true;
+    }
+
+    const bool rv = is_dirty->second;
+    if (clear) {
+      dirty_hash[caller] = false;
+    }
+    return rv;
+  }
+
+  bool Node::setDirty()
+  {
+    for (map<void*,bool>::iterator it = dirty_hash.begin() ; it != dirty_hash.end(); it++ ) it->second = true;
+  }
+
   // the rv is so that an inheriting function will know whether to 
   // process or not
   bool Node::update() 
@@ -49,16 +72,19 @@ namespace bm {
     if (!do_update) return false;
     do_update = false; 
 
-    bool inputs_dirty = is_dirty;
+    bool inputs_dirty = false;
     for (int i = 0; i < inputs.size(); i++) {
       inputs[i]->update();
-      if (inputs[i]->is_dirty) inputs_dirty = true;
+      if (inputs[i]->isDirty(this)) inputs_dirty = true;
     }
 
-    // the inheriting object needs to set is_dirty as appropriate?
-    is_dirty = inputs_dirty;
+    // the inheriting object needs to set is_dirty as appropriate if it
+    // isn't sufficient to have inputs determine it(e.g. it is sourcing change)
+    if ( inputs_dirty ) {
+      setDirty();
+    }
     
-    VLOG(2) << name << " in sz " << inputs.size() << " " << is_dirty;
+    VLOG(2) << name << " in sz " << inputs.size() << " inputs dirty" << inputs_dirty;
 
     return true;
   }
@@ -66,7 +92,7 @@ namespace bm {
   bool Node::draw(float scale) 
   {
     int fr = 1;
-    if (!is_dirty) fr = 5;
+    if (!isDirty(this)) fr = 5;
     cv::Scalar col = cv::Scalar(vcol/fr);
 
     cv::circle(graph, loc, 20, col, 4);
@@ -135,7 +161,7 @@ namespace bm {
       //cv::resize(tmp->get(), thumbnail, cv::INTER_NEAREST );
        
       int fr = 1;
-      if (!is_dirty) fr = 5;
+      if (!isDirty(this)) fr = 5;
       cv::Scalar col = cv::Scalar(vcol/fr);
 
       cv::rectangle(graph, loc - cv::Point(2,2), loc + cv::Point(sz.width,sz.height) + cv::Point(2,2), col, CV_FILLED );
@@ -163,7 +189,7 @@ namespace bm {
     ImageNode* im_in = dynamic_cast<ImageNode*> (inputs[0]);
     if (!im_in) return false;
      
-    VLOG(1) << name << " " << is_dirty << " " << im_in->name << " " << im_in->is_dirty;
+    //VLOG(1) << name << " " << is_dirty << " " << im_in->name << " " << im_in->is_dirty;
 
     cv::Mat rot = cv::getRotationMatrix2D(center, angle, scale);
 
@@ -261,7 +287,7 @@ namespace bm {
   {
     ImageNode::update();
 
-      is_dirty = is_thread_dirty;
+      if ( is_thread_dirty ) setDirty();
       is_thread_dirty = false;
 
     return true;
@@ -290,7 +316,8 @@ namespace bm {
     value += step;
     if (value > 1.0) value = 0.0;
     if (value < 0.0) value = 1.0;
-    is_dirty = true;
+    //is_dirty = true;
+    setDirty();
 
     return true;
   }
@@ -328,7 +355,8 @@ namespace bm {
       step = abs(step);
       value = 0.0;
     }
-    is_dirty = true;
+    setDirty();
+    //is_dirty = true;
 
     //LOG(INFO) << step << " " << value;
     return true;
@@ -349,7 +377,7 @@ namespace bm {
     for (int i = 0; i < inputs.size(); i++) {
       
       ImageNode* im_in = dynamic_cast<ImageNode*> (inputs[i]);
-      if (im_in && im_in->is_dirty) 
+      if (im_in && im_in->isDirty(this)) 
         add(im_in->get()); 
     }
     
@@ -383,7 +411,7 @@ namespace bm {
   {
     if (new_frame.empty()) {
       LOG(ERROR) << name << " new_frame is empty";
-      is_dirty = false;
+      //is_dirty = false;
       return;// TBD LOG(ERROR)
     }
     
@@ -399,7 +427,7 @@ namespace bm {
     VLOG(3) << name << " sz " << frames.size();
     
     // TBD is_dirty wouldn't be true for callers that want frames indexed from beginning if no pop_front has been done.
-    is_dirty = true;
+    setDirty();
   }
   
   cv::Mat Buffer::get() {
@@ -454,7 +482,7 @@ namespace bm {
   {
     if (!Node::update()) return false;
 
-    if (is_dirty) {
+    if (isDirty(this)) {
       out = buffer->get(signal->value);
     }
 
@@ -484,8 +512,8 @@ namespace bm {
   {
     if (!Node::update()) return false;
 
-    VLOG(1) << "name " << is_dirty << " " << p1->name << " " << p1->is_dirty << ", " << p2->name << " " << p2->is_dirty ;
-    if (is_dirty) {
+    //VLOG(1) << "name " << is_dirty << " " << p1->name << " " << p1->is_dirty << ", " << p2->name << " " << p2->is_dirty ;
+    if (isDirty(this)) {
       // TBD accomodate bad mats somewhere
       out = p1->get() * f1 + p2->get() * f2;
     }
