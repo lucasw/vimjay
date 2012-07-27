@@ -9,6 +9,13 @@
 
 #include <deque>
 
+#define MAT_FORMAT_C3 CV_8UC3
+#define MAT_FORMAT CV_8U
+//#define MAT_FORMAT_C3 CV_16SC3
+//#define MAT_FORMAT CV_16S
+//#define MAT_FORMAT_C3 CV_32FC3
+//#define MAT_FORMAT CV_32F
+
 namespace bm {
 
 // informal timer for the system

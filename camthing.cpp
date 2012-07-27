@@ -7,7 +7,6 @@
 
 #include <glog/logging.h>
 
-
 #include <deque>
 //#include <pair>
 
@@ -16,6 +15,7 @@
 
 using namespace cv;
 using namespace std;
+
 
 namespace bm {
 
@@ -71,7 +71,7 @@ class CamThing
     count = 0;
 
     // TBD make internal type a gflag
-    graph = cv::Mat(cv::Size(1280, 720), CV_32FC3);
+    graph = cv::Mat(cv::Size(1280, 720), MAT_FORMAT_C3);
     graph = cv::Scalar(0);
 
     ///////////////
@@ -87,6 +87,7 @@ class CamThing
     passthrough->out_old = test_im;
     output = passthrough;
 
+    #if 0
     if (false) {
     // test dead branch (shouldn't be updated)
     ImageNode* passthrough2 = getNode<ImageNode>("image_node_passthrough2", cv::Point(400, 450) );
@@ -128,8 +129,10 @@ class CamThing
     p1->out = test_im;
 
     output = p1;
-    } else {
-      FilterFIR* fir = getNode<FilterFIR>("fir_filter", cv::Point(500,50));
+    } else
+    #endif
+    {
+      FilterFIR* fir = getNode<FilterFIR>("fir_filter", cv::Point(500,150));
 
       // http://www-users.cs.york.ac.uk/~fisher/cgi-bin/mkfscript
       static float arr[] =  { -1.0, 3.0, -3.0, 1.0, }; //{ 0.85, -0.35, 0.55, -0.05, };

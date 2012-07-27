@@ -195,8 +195,12 @@ namespace bm {
         //if (&new_out.data == &out.data) {
         //
         cv::Mat tmp; // new_out.clone();
-        
-        new_out.convertTo(tmp, CV_32F, 1.0/(255.0));//*255.0*255.0*255.0));
+       
+        float scale = 1.0;
+        if (MAT_FORMAT == CV_16S) scale = 255;
+        if (MAT_FORMAT == CV_32F) scale = 1.0/255.0;
+        if (MAT_FORMAT == CV_8U) scale = 1.0;
+        new_out.convertTo(tmp, MAT_FORMAT,scale); //, 1.0/(255.0));//*255.0*255.0*255.0));
 
         //out_lock.lock();
         out = tmp;
