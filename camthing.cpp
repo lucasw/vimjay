@@ -276,10 +276,12 @@ class CamThing
     if( key == 'q' )
       return false;
 
+    // TBD look for /, then make next letters type search for nodes with names container the following string
+    
     if (key == 's') {
       if (selected_node) selected_node->enable = !selected_node->enable;
     }
-
+    
     if (key == 'j') {
       selected_ind--;
       if (selected_ind < 0) selected_ind = all_nodes.size()-1;

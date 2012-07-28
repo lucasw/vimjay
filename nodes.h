@@ -19,8 +19,21 @@
 
 namespace bm {
 
-// informal timer for the system
+// TBD need threshold filter
+// resize (or build resizing into input/output
+// image directory loading- just a no input buffer after finished (need to resize every loaded image)
 
+// more advanced:
+// Buffer inventory- make it easy to put any buffer into the inventory (deepish copy)
+// then make them easy to swap it into place where any other buffer exists
+// the idea is to navigate to a buffer on input or output, save it to inventory, then swap it into a buffer sourcing
+// some patch 
+
+// nesting, keys for moving up or down
+//
+// yaml loading/saving
+//
+//kinect support
 class Node
 {
   // this structure tracks arbitrary numbers of callers to see if there have been
