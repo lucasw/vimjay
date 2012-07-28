@@ -127,7 +127,7 @@ namespace bm {
   {
     vcol = cv::Scalar(255,0,255);
   }
-
+   
   // TBD could there be a templated get function to be used in different node types?
   cv::Mat ImageNode::get() {
     return out;//_old;
@@ -194,15 +194,36 @@ namespace bm {
     center = cv::Point2f(0,0);
   }
 
+  bool getValue(std::vector<Node*>& inputs, const int ind, float& val)
+  {
+    if (inputs.size() > ind) {
+      Signal* sig = dynamic_cast<Signal*> (inputs[ind]);
+      if (sig) {
+        val = sig->value;
+        return true;
+      }
+    }
+    return false;
+  }
+
   bool Rot2D::update()
   {
     if (!Node::update()) return false;
 
+    // anything to rotate?
     if (inputs.size() < 1) return false;
     
     ImageNode* im_in = dynamic_cast<ImageNode*> (inputs[0]);
     if (!im_in) return false;
-     
+
+    getValue(inputs, 1, angle);     
+    
+    //float x = center.x;
+    //float y = center.y;
+    getValue(inputs, 2, center.x);     
+    getValue(inputs, 3, center.y);
+    //center = cv::Point2f(x,y);
+
     //VLOG(1) << name << " " << is_dirty << " " << im_in->name << " " << im_in->is_dirty;
 
     cv::Mat rot = cv::getRotationMatrix2D(center, angle, scale);
@@ -314,10 +335,12 @@ namespace bm {
     vcol = cv::Scalar(0,128,255);
   }
 
-  void Signal::setup(const float new_step, const float offset) 
+  void Signal::setup(const float new_step, const float offset, const float min, const float max) 
   {
     value = offset;
     step = new_step;
+    this->min = min;
+    this->max = max;
     LOG(INFO) << "Signal " << value << " " << new_step;
   }
   
@@ -340,7 +363,9 @@ namespace bm {
   {
     Node::draw(scale);
 
-    cv::rectangle(graph, loc, loc + cv::Point( value * 100 , 5), cv::Scalar(255, 255, 100), CV_FILLED);
+    cv::rectangle(graph, loc, 
+        loc + cv::Point( (value - (max+min)/2.0)/(max-min) * 50.0 , 5), 
+        cv::Scalar(255, 255, 100), CV_FILLED);
 
     return true;
   }
@@ -351,9 +376,9 @@ namespace bm {
     vcol = cv::Scalar(0,90,255);
   }
   
-  void Saw::setup(const float new_step, const float offset) 
+  void Saw::setup(const float new_step, const float offset, const float min, const float max) 
   {
-    Signal::setup(new_step, offset);
+    Signal::setup(new_step, offset, min, max);
   }
 
   bool Saw::update()
@@ -361,13 +386,13 @@ namespace bm {
     if (!Node::update()) return false;
 
     value += step;
-    if (value > 1.0) {
+    if (value > max) {
       step = -abs(step);
-      value = 1.0;
+      value = max;
     }
-    if (value < 0.0) {
+    if (value < min) {
       step = abs(step);
-      value = 0.0;
+      value = min;
     }
     setDirty();
     //is_dirty = true;

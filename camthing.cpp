@@ -98,6 +98,19 @@ class CamThing
     rotate->center = cv::Point2f(test_im.cols/2, test_im.rows/2);
     output = rotate;
 
+    Signal* sr = getNode<Saw>("saw", cv::Point(350,400) ); 
+    sr->setup(0.02, -5.0, -5.0, 5.0);
+    rotate->inputs.push_back(sr);
+
+    Signal* scx = getNode<Saw>("saw", cv::Point(350,450) ); 
+    scx->setup(5, test_im.cols/2, test_im.cols/2 - 55.0, test_im.cols/2 + 55.0);
+    rotate->inputs.push_back(scx);
+    
+    Signal* scy = getNode<Saw>("saw", cv::Point(350,500) ); 
+    scy->setup(6, test_im.rows/2, test_im.rows/2 - 55.0, test_im.rows/2 + 55.0);
+    rotate->inputs.push_back(scy);
+
+
     add_loop->setup(passthrough, rotate, 0.1, 0.89);
     #if 0
     if (false) {

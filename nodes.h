@@ -78,8 +78,8 @@ class Rot2D : public ImageNode
   public:
  
   // TBD these need to be Node inputs?
-  double angle;
-  double scale;
+  float angle;
+  float scale;
   cv::Point2f center;
 
   Rot2D();
@@ -111,21 +111,25 @@ class Signal : public Node
   public:
   Signal(); // : Node()
 
-  void setup(const float new_step=0.01, const float offset=0.0); 
+  void setup(const float new_step=0.01, const float offset=0.0, const float min = 0.0, const float max=1.0); 
  
   virtual bool update();
   virtual bool draw(float scale);
-  
+
+  float min;
+  float max;
   float value;
   float step;
 };
+
+bool getValue(std::vector<Node*>& inputs, const int ind, float& val);
 
 class Saw : public Signal
 {
   public:
   Saw(); // : Signal()
   
-  void setup(const float new_step=0.01, const float offset=0.0); 
+  void setup(const float new_step=0.01, const float offset=0.0, const float min =0.0, const float max=1.0); 
   
   virtual bool update();
   
