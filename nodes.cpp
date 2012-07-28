@@ -43,26 +43,40 @@ namespace bm {
     return true;
   }
 
-  bool Node::isDirty(void* caller, bool clear) 
+  bool Node::isDirty(void* caller, int ind, bool clear) 
   {
-    std::map<void*, bool>::iterator is_dirty;  
-    is_dirty = dirty_hash.find(caller);
+    // first stage
+    std::map<void*, std::map<int, bool> >::iterator caller_map;  
+    caller_map = dirty_hash.find(caller);
 
-    if (is_dirty == dirty_hash.end()) {
-      dirty_hash[caller] = false;
+    if (caller_map == dirty_hash.end()) {
+      dirty_hash[caller][ind] = false;
+      return true;
+    }
+    
+    // second stage
+    std::map<int, bool>::iterator is_dirty;  
+    is_dirty = caller_map->second.find(ind);
+    if (is_dirty == caller_map->second.end()) {
+      dirty_hash[caller][ind] = false;
       return true;
     }
 
     const bool rv = is_dirty->second;
     if (clear) {
-      dirty_hash[caller] = false;
+      dirty_hash[caller][ind] = false;
     }
     return rv;
   }
 
   bool Node::setDirty()
   {
-    for (map<void*,bool>::iterator it = dirty_hash.begin() ; it != dirty_hash.end(); it++ ) it->second = true;
+    for (map<void*, std::map<int, bool> >::iterator it = dirty_hash.begin(); it != dirty_hash.end(); it++) {
+      for (map<int,bool>::iterator it2 = it->second.begin(); it2 != it->second.end(); it2++) {
+        it2->second = true;
+      }
+    }
+
   }
 
   // the rv is so that an inheriting function will know whether to 
@@ -75,7 +89,7 @@ namespace bm {
     bool inputs_dirty = false;
     for (int i = 0; i < inputs.size(); i++) {
       inputs[i]->update();
-      if (inputs[i]->isDirty(this)) inputs_dirty = true;
+      if (inputs[i]->isDirty(this,0)) inputs_dirty = true;
     }
 
     // the inheriting object needs to set is_dirty as appropriate if it
@@ -92,7 +106,7 @@ namespace bm {
   bool Node::draw(float scale) 
   {
     int fr = 1;
-    if (!isDirty(this)) fr = 5;
+    if (!isDirty(this,1)) fr = 5;
     cv::Scalar col = cv::Scalar(vcol/fr);
 
     cv::circle(graph, loc, 20, col, 4);
@@ -161,7 +175,7 @@ namespace bm {
       //cv::resize(tmp->get(), thumbnail, cv::INTER_NEAREST );
        
       int fr = 1;
-      if (!isDirty(this)) fr = 5;
+      if (!isDirty(this,2)) fr = 5;
       cv::Scalar col = cv::Scalar(vcol/fr);
 
       cv::rectangle(graph, loc - cv::Point(2,2), loc + cv::Point(sz.width,sz.height) + cv::Point(2,2), col, CV_FILLED );
@@ -377,7 +391,7 @@ namespace bm {
     for (int i = 0; i < inputs.size(); i++) {
       
       ImageNode* im_in = dynamic_cast<ImageNode*> (inputs[i]);
-      if (im_in && im_in->isDirty(this)) 
+      if (im_in && im_in->isDirty(this,3)) 
         add(im_in->get()); 
     }
     
@@ -482,7 +496,7 @@ namespace bm {
   {
     if (!Node::update()) return false;
 
-    if (isDirty(this)) {
+    if (isDirty(this,4)) {
       out = buffer->get(signal->value);
     }
 
@@ -513,7 +527,7 @@ namespace bm {
     if (!Node::update()) return false;
 
     //VLOG(1) << "name " << is_dirty << " " << p1->name << " " << p1->is_dirty << ", " << p2->name << " " << p2->is_dirty ;
-    if (isDirty(this)) {
+    if (isDirty(this,5)) {
       // TBD accomodate bad mats somewhere
       out = p1->get() * f1 + p2->get() * f2;
     }
