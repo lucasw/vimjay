@@ -20,7 +20,7 @@ namespace bm {
 
 
   ////////////////////////////////////////////////
-  Node::Node() {
+  Node::Node() : enable(true) {
     do_update = false;
 
     //is_dirty = true;
@@ -86,11 +86,15 @@ namespace bm {
     if (!do_update) return false;
     do_update = false; 
 
+    // TBD should this occur before updating the inputs?
+    if (!enable) return false;
+    
     bool inputs_dirty = false;
     for (int i = 0; i < inputs.size(); i++) {
       inputs[i]->update();
       if (inputs[i]->isDirty(this,0)) inputs_dirty = true;
     }
+
 
     // the inheriting object needs to set is_dirty as appropriate if it
     // isn't sufficient to have inputs determine it(e.g. it is sourcing change)
@@ -108,6 +112,8 @@ namespace bm {
     int fr = 1;
     if (!isDirty(this,1)) fr = 5;
     cv::Scalar col = cv::Scalar(vcol/fr);
+
+    if (!enable) cv::circle(graph, loc, 10, cv::Scalar(0,0,100),-1);
 
     cv::circle(graph, loc, 20, col, 4);
   
@@ -165,13 +171,14 @@ namespace bm {
   {
     Node::draw(scale);
 
-    if (!out.empty()) {
+    cv::Mat tmp = out;
+    if (!tmp.empty()) {
 
-      cv::Size sz = cv::Size(out.size().width * scale, out.size().height * scale);
+      cv::Size sz = cv::Size(tmp.size().width * scale, tmp.size().height * scale);
 
       cv::Mat thumbnail = cv::Mat(sz, CV_8UC3);
       //cv::resize(tmp->get(), thumbnail, thumbnail.size(), 0, 0, cv::INTER_NEAREST );
-      cv::resize(out, thumbnail, sz, 0, 0, cv::INTER_NEAREST );
+      cv::resize(tmp, thumbnail, sz, 0, 0, cv::INTER_NEAREST );
       //cv::resize(tmp->get(), thumbnail, cv::INTER_NEAREST );
        
       int fr = 1;

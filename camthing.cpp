@@ -64,7 +64,6 @@ class CamThing
 
   cv::Mat cam_image;
   cv::Mat graph;
-  bool do_capture;
  
   int selected_ind;
   Node* selected_node;
@@ -260,7 +259,6 @@ class CamThing
     cv::namedWindow("out", CV_GUI_NORMAL);
     cv::moveWindow("out", 420, 0);
 */
-    do_capture = true;
   }
 
 
@@ -278,8 +276,9 @@ class CamThing
     if( key == 'q' )
       return false;
 
-    if (key == 's') 
-      do_capture = !do_capture;
+    if (key == 's') {
+      if (selected_node) selected_node->enable = !selected_node->enable;
+    }
 
     if (key == 'j') {
       selected_ind--;

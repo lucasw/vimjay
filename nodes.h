@@ -31,7 +31,7 @@ class Node
   // because of dependencies
   bool do_update;
   
-  bool enabled;
+  bool enable;
 
   // is the output of this node different from the last  timestep
   //bool is_dirty;
