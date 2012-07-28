@@ -65,8 +65,11 @@ class CamThing
   cv::Mat cam_image;
   cv::Mat graph;
   bool do_capture;
+ 
+  int selected_ind;
+  Node* selected_node;
   
-  CamThing() 
+  CamThing() : selected_ind(0), selected_node(NULL) 
   {
     count = 0;
 
@@ -274,9 +277,20 @@ class CamThing
     const char key = waitKey(20);
     if( key == 'q' )
       return false;
+
     if (key == 's') 
       do_capture = !do_capture;
 
+    if (key == 'j') {
+      selected_ind--;
+      if (selected_ind < 0) selected_ind = all_nodes.size()-1;
+      selected_node = all_nodes[selected_ind];
+    }
+    if (key == 'k') {
+      selected_ind++;
+      if (selected_ind >= all_nodes.size()) selected_ind = 0;
+      selected_node = all_nodes[selected_ind];
+    }
 
     return true;
   }
@@ -284,7 +298,9 @@ class CamThing
   void draw() 
   {
     graph = cv::Scalar(0,0,0);
-   
+  
+    // TBD could all_nodes size have
+    if (selected_node) cv::circle(graph, selected_node->loc, 18, cv::Scalar(0,220,1), -1);
     // draw input and outputs
     /*
     imshow("cam", cam_buf->get());

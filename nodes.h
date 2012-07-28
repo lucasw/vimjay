@@ -31,10 +31,12 @@ class Node
   // because of dependencies
   bool do_update;
   
+  bool enabled;
+
   // is the output of this node different from the last  timestep
   //bool is_dirty;
   // has the node changed since the last time the pointer parameter supplied has called this function (and cleared it)
-  bool isDirty(void* caller, int ind=0,  bool clear_dirty =true);
+  bool isDirty(void* caller, int ind=0,  bool clear_dirty=true);
   
   bool setDirty();
 
