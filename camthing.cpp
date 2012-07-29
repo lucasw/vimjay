@@ -68,6 +68,12 @@ class CamThing
 
     return -1;
   }
+  
+  string getId(Node* ptr) 
+  {
+    int status; 
+    return (abi::__cxa_demangle(typeid(*ptr).name(), 0, 0, &status));
+  }
 
   /// save the graph to an output yaml file
   bool saveGraph() 
@@ -80,21 +86,64 @@ class CamThing
     
     fs << "nodes" << "[";
     for (int i = 0; i < all_nodes.size(); i++) {
+      
+      Node* p = all_nodes[i];
+      std::string type = getId(p);
+
       fs << "{";
-      int status; 
-      fs << "typeid" << abi::__cxa_demangle(typeid(*all_nodes[i]).name(),0,0,&status);
+      fs << "typeid" << type;
       //fs << "typeid_mangled" << typeid(*all_nodes[i]).name();
       fs << "ind" << i; //(int64_t)all_nodes[i];   // 
-      fs << "name" << all_nodes[i]->name; 
-      fs << "loc" << all_nodes[i]->loc; 
+      fs << "name" << p->name; 
+      fs << "loc" << p->loc; 
+      fs << "enable" << p->enable;
+      //fs << "vcol" << p->vcol  ; 
       fs << "inputs" << "[:";
-      for (int j = 0; j < all_nodes[i]->inputs.size(); j++) {
-        fs << getIndFromPointer(all_nodes[i]->inputs[j]);   
+      for (int j = 0; j < p->inputs.size(); j++) {
+        fs << getIndFromPointer(p->inputs[j]);   
       }
       fs << "]";
-      fs << "}";
-      // TBD get node type
+
       // TBD switch() based on node type
+      {
+        // node type specific values
+        {
+          ImageNode t;
+
+          if (type.compare(getId(&t)) == 0) {
+            // TBD save the entire current out mat?
+            // fs << 
+            // don't really need anything here
+          }
+        }
+
+        {
+          Rot2D t;
+          if (type.compare(getId(&t)) == 0) {
+            //fs << 
+            // don't really need anything here
+            // if signals are always feeding the angle, etc values
+          }
+        }
+
+        { 
+          Signal p1;
+          Saw p2;
+          string t = getId(&p1);
+          string t2 = getId(&p2);
+          if ((type.compare(t) == 0) ||
+              (type.compare(t2) == 0)) {
+            Signal* p2 = dynamic_cast<Signal*>(p);
+            fs << "min" << p2->min; 
+            fs << "max" << p2->max; 
+            fs << "value" << p2->value; 
+            fs << "step" << p2->step; 
+          }
+           
+        }
+      }
+
+      fs << "}";
     }
     fs << "]";
     fs.release();
