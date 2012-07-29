@@ -1,6 +1,7 @@
 
 #include <iostream>
 #include <stdio.h>
+#include <time.h>
 
 #include "opencv2/highgui/highgui.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
@@ -55,6 +56,41 @@ class CamThing
       // TBD for asynchronous this fails, but need buffering to make that work anyhow
       //all_nodes[i]->is_dirty = false;
     }
+  }
+
+  int getIndFromPointer(Node* node)
+  {
+    for (int i = 0; i < all_nodes.size(); i++) {
+      if (all_nodes[i] == node) return i; 
+    }
+
+    return -1;
+  }
+
+  /// save the graph to an output yaml file
+  bool saveGraph() 
+  {
+    cv::FileStorage fs("graph.yml", cv::FileStorage::WRITE);
+
+    // TBD save date and time
+    time_t rawtime; time(&rawtime);
+    fs << "date" << asctime(localtime(&rawtime)); 
+    
+    fs << "nodes" << "[";
+    for (int i = 0; i < all_nodes.size(); i++) {
+      fs << "ind" << i; //(int64_t)all_nodes[i];   // 
+      
+      fs << "inputs" << "[";
+      for (int j = 0; j < all_nodes[i]->inputs.size(); j++) {
+        fs << "ind" << getIndFromPointer(all_nodes[i]->inputs[j]);   
+      }
+      fs << "]";
+      // TBD get node type
+      // TBD switch() based on node type
+    }
+    fs << "]";
+    fs.release();
+    return true;
   }
 
   Webcam* cam_in;
@@ -250,7 +286,9 @@ class CamThing
 */
 
     output->loc = cv::Point(graph.cols - (test_im.cols/2+100), 20);
-    
+   
+    saveGraph();
+
     cv::namedWindow("graph", CV_GUI_NORMAL);
     cv::moveWindow("graph", 0, 500);
 
