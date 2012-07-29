@@ -78,13 +78,16 @@ class CamThing
     
     fs << "nodes" << "[";
     for (int i = 0; i < all_nodes.size(); i++) {
+      fs << "{";
       fs << "ind" << i; //(int64_t)all_nodes[i];   // 
-      
-      fs << "inputs" << "[";
+      fs << "name" << all_nodes[i]->name; 
+      fs << "loc" << all_nodes[i]->loc; 
+      fs << "inputs" << "[:";
       for (int j = 0; j < all_nodes[i]->inputs.size(); j++) {
-        fs << "ind" << getIndFromPointer(all_nodes[i]->inputs[j]);   
+        fs << getIndFromPointer(all_nodes[i]->inputs[j]);   
       }
       fs << "]";
+      fs << "}";
       // TBD get node type
       // TBD switch() based on node type
     }
