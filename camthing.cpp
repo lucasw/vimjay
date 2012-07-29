@@ -2,6 +2,8 @@
 #include <iostream>
 #include <stdio.h>
 #include <time.h>
+#include <typeinfo>
+#include <cxxabi.h> // non portable
 
 #include "opencv2/highgui/highgui.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
@@ -79,6 +81,9 @@ class CamThing
     fs << "nodes" << "[";
     for (int i = 0; i < all_nodes.size(); i++) {
       fs << "{";
+      int status; 
+      fs << "typeid" << abi::__cxa_demangle(typeid(*all_nodes[i]).name(),0,0,&status);
+      //fs << "typeid_mangled" << typeid(*all_nodes[i]).name();
       fs << "ind" << i; //(int64_t)all_nodes[i];   // 
       fs << "name" << all_nodes[i]->name; 
       fs << "loc" << all_nodes[i]->loc; 
@@ -139,19 +144,18 @@ class CamThing
     rotate->center = cv::Point2f(test_im.cols/2, test_im.rows/2);
     output = rotate;
 
-    Signal* sr = getNode<Saw>("saw", cv::Point(350,400) ); 
+    Signal* sr = getNode<Saw>("saw_rotate", cv::Point(350,400) ); 
     sr->setup(0.02, -5.0, -5.0, 5.0);
     rotate->inputs.push_back(sr);
 
-    Signal* scx = getNode<Saw>("saw", cv::Point(350,450) ); 
+    Signal* scx = getNode<Saw>("saw_center_x", cv::Point(350,450) ); 
     scx->setup(5, test_im.cols/2, 0, test_im.cols);
     rotate->inputs.push_back(scx);
     
-    Signal* scy = getNode<Saw>("saw", cv::Point(350,500) ); 
+    Signal* scy = getNode<Saw>("saw_center_y", cv::Point(350,500) ); 
     //scy->setup(6, test_im.rows/2, test_im.rows/2 - 55.0, test_im.rows/2 + 55.0);
     scy->setup(6, test_im.rows/2, 0, test_im.rows);
     rotate->inputs.push_back(scy);
-
 
     add_loop->setup(passthrough, rotate, 0.1, 0.89);
     #if 0
