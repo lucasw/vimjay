@@ -70,6 +70,7 @@ class Node
 
   virtual bool draw(float scale = 0.125); 
 
+  virtual bool save(cv::FileStorage& fs);
 };
 
 class ImageNode : public Node
@@ -130,6 +131,8 @@ class Signal : public Node
  
   virtual bool update();
   virtual bool draw(float scale);
+
+  virtual bool save(cv::FileStorage& fs);
 
   float min;
   float max;

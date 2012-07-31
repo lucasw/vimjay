@@ -12,6 +12,7 @@
 //#include <pair>
 
 #include "nodes.h"
+#include "camthing.h"
 
 using namespace cv;
 using namespace std;
@@ -128,6 +129,19 @@ namespace bm {
 
   }
 
+  bool Node::save(cv::FileStorage& fs)
+  {
+    std::string type = getId(this);
+
+    fs << "typeid" << type;
+    //fs << "typeid_mangled" << typeid(*all_nodes[i]).name();
+    fs << "name" << name; 
+    fs << "loc" << loc; 
+    fs << "enable" << enable;
+    //fs << "vcol" << p->vcol  ; 
+    
+  }
+
   //////////////////////////////////
   ImageNode::ImageNode() : Node()
   {
@@ -201,6 +215,7 @@ namespace bm {
     center = cv::Point2f(0,0);
   }
 
+  /// TBD
   bool getValue(std::vector<Node*>& inputs, const int ind, float& val)
   {
     if (inputs.size() > ind) {
@@ -375,6 +390,16 @@ namespace bm {
         cv::Scalar(255, 255, 100), CV_FILLED);
 
     return true;
+  }
+
+  bool Signal::save(cv::FileStorage& fs) 
+  {
+    Node::save(fs);
+
+    fs << "min" << min;
+    fs << "max" << max;
+    fs << "value" << value;
+    fs << "step" << step;
   }
 
   //////////////////////////////////////////////////
