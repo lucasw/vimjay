@@ -19,6 +19,9 @@ class FilterFIR : public Buffer
 
   void setup(const std::vector<float> new_xi);
   virtual bool update();
+  
+  virtual bool save(cv::FileStorage& fs);
+ 
 
 };
 

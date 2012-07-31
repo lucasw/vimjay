@@ -35,6 +35,17 @@ bool FilterFIR::update()
 
   return true;
 }
+ 
+bool FilterFIR::save(cv::FileStorage& fs) 
+{
+  Buffer::save(fs);
+
+  fs << "xi" << "[:";
+  for (int j = 0; j < xi.size(); j++) {
+    fs << xi[j];
+  }
+  fs << "]";
+}
 
 } // namespace bm
 

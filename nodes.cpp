@@ -532,6 +532,12 @@ namespace bm {
 
   // TBD get(int ind), negative ind index from last
 
+  bool Buffer::save(cv::FileStorage& fs) 
+  {
+    ImageNode::save(fs);
+
+    fs << "max_size" << max_size;
+  }
 
 ///////////////////////////////////////////////////////////
   Tap::Tap() : ImageNode()
@@ -592,6 +598,14 @@ namespace bm {
     return true;
   }
 
+  bool Add::save(cv::FileStorage& fs)
+  {
+    ImageNode::save(fs);
+
+    fs << "f1" << f1;
+    fs << "f2" << f2;
+
+  }
 
 }  // namespace bm
 

@@ -73,6 +73,8 @@ class Node
   virtual bool save(cv::FileStorage& fs);
 };
 
+bool getValue(std::vector<Node*>& inputs, const int ind, float& val);
+
 class ImageNode : public Node
 {
 public:
@@ -102,6 +104,7 @@ class Rot2D : public ImageNode
 
   virtual bool update();
 
+  //virtual bool save(cv::FileStorage& fs);
 };
 
 class Webcam : public ImageNode
@@ -140,7 +143,6 @@ class Signal : public Node
   float step;
 };
 
-bool getValue(std::vector<Node*>& inputs, const int ind, float& val);
 
 class Saw : public Signal
 {
@@ -175,6 +177,7 @@ class Buffer : public ImageNode
   cv::Mat get(const float fr);
 
   // TBD get(int ind), negative ind index from last
+  virtual bool save(cv::FileStorage& fs);
 
 };
 
@@ -183,13 +186,13 @@ class Tap : public ImageNode
 {
   public:
 
+  // TBD cast these from inputs[] instead?
   Signal* signal;
   Buffer* buffer;
 
   bool changed;
 
   Tap();// : ImageNode()
-  
 
   void setup(Signal* new_signal =NULL, Buffer* new_buffer=NULL); 
   
@@ -212,48 +215,9 @@ class Add : public ImageNode
   void setup(ImageNode* np1, ImageNode* np2, float nf1 = 0.5, float nf2 = 0.5);
 
   virtual bool update();
+  
+  virtual bool save(cv::FileStorage& fs);
 };
-
-
-#if 0
-////////////////////////////////////
-class CamThing
-{
-  // make sure all Nodes are stored here
-  deque<Node*> all_nodes;
-
-  // the final output 
-  // TBD make this a special node type
-  ImageNode* output;
-
-  public:
-
-  // conveniently create and store node
-  template <class nodeType>
-    nodeType* getNode(string name = "", cv::Point loc=cv::Point(0.0, 0.0));
- 
-  void clearAllNodeUpdates(); 
-
-  VideoCapture capture; //CV_CAP_OPENNI );
-  Buffer* cam_buf;  
-  int count;
-
-  cv::Mat test_im;
-
-  CamThing();
-  
-  cv::Mat cam_image;
-  cv::Mat graph;
-  bool do_capture;
-
-  bool update();
-  
-  void draw();
-  
-  };
-
-
-#endif
 
 };
 #endif // ifdef __NODES_H__
