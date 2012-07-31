@@ -142,6 +142,14 @@ namespace bm {
     
   }
 
+  
+  bool Node::load(cv::FileStorage& fs)
+  {
+    name = (string)fs["name"];// >> name;
+    //fs["loc"] >> loc;
+    //fs["enable"] >> enable;
+  }
+
   //////////////////////////////////
   ImageNode::ImageNode() : Node()
   {

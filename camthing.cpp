@@ -5,13 +5,14 @@
 #include <typeinfo>
 #include <cxxabi.h> // non portable
 
+#include <deque>
+//#include <pair>
+
 #include "opencv2/highgui/highgui.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
 
 #include <glog/logging.h>
-
-#include <deque>
-//#include <pair>
+#include <gflags/gflags.h>
 
 #include "nodes.h" 
 #include "filter.h"
@@ -19,6 +20,7 @@
 using namespace cv;
 using namespace std;
 
+DEFINE_string(graph_file, "graph.yml", "yaml file to load with graph in it");
 
 namespace bm {
 
@@ -125,7 +127,53 @@ class CamThing
     // TBD make internal type a gflag
     graph = cv::Mat(cv::Size(1280, 720), MAT_FORMAT_C3);
     graph = cv::Scalar(0);
+ 
+    loadGraph(FLAGS_graph_file);
+   
+    LOG(INFO) << all_nodes.size() << " nodes total";
+    output->loc = cv::Point(graph.cols - (test_im.cols/2+100), 20);
+    
+    exit(0);
+     
 
+    cv::namedWindow("graph", CV_GUI_NORMAL);
+    cv::moveWindow("graph", 0, 500);
+
+/*
+    // Bring this back when there is a fullscreen/decoration free output window
+    cv::namedWindow("out", CV_GUI_NORMAL);
+    cv::moveWindow("out", 420, 0);
+*/
+
+  }
+
+  bool loadGraph(const std::string graph_file)
+  {
+    LOG(INFO) << "loading " << graph_file;
+    FileStorage fs; 
+    fs.open(graph_file, FileStorage::READ);
+    
+    if (!fs.isOpened()) {
+      LOG(ERROR) << "couldn't open " << graph_file;
+      return false;
+    }
+  
+    FileNode nd = fs["nodes"]; 
+    if (nd.type() != FileNode::SEQ) {
+      LOG(ERROR) << "no nodes";
+
+      return false;
+    }
+
+    FileNodeIterator it = nd.begin(), it_end = nd.end(); // Go through the node
+    for (; it != it_end; ++it) {
+      string type_id = (*it)["typeid"];
+      LOG(INFO) << type_id;
+    }
+  }
+
+  void defaultGraph() 
+  {
     ///////////////
     const float advance = 0.1;
 
@@ -137,7 +185,7 @@ class CamThing
     passthrough->inputs.push_back(cam_in);
     passthrough->out = test_im;
     passthrough->out_old = test_im;
-    output = passthrough;
+    //output = passthrough;
 
     Add* add_loop = getNode<Add>("add_loop", cv::Point(600,100) );
     add_loop->out = test_im;
@@ -148,7 +196,7 @@ class CamThing
     rotate->out_old = test_im;
     rotate->angle = 50.0;
     rotate->center = cv::Point2f(test_im.cols/2, test_im.rows/2);
-    output = rotate;
+    //output = rotate;
 
     Signal* sr = getNode<Saw>("saw_rotate", cv::Point(350,400) ); 
     sr->setup(0.02, -5.0, -5.0, 5.0);
@@ -258,7 +306,7 @@ class CamThing
       add_iir->out = test_im;
       add_iir->setup(fir, denom, 1.0, 1.0);
       
-      output = add_iir;
+      //output = add_iir;
     }
     #endif
 
@@ -289,7 +337,6 @@ class CamThing
   #endif
 
 
-    LOG(INFO) << all_nodes.size() << " nodes total";
 
     //output = nd;
     //output = p1;
@@ -298,19 +345,9 @@ class CamThing
     cv::moveWindow("cam", 0, 0);
 */
 
-    output->loc = cv::Point(graph.cols - (test_im.cols/2+100), 20);
-   
     saveGraph();
-
-    cv::namedWindow("graph", CV_GUI_NORMAL);
-    cv::moveWindow("graph", 0, 500);
-
-/*
-    // Bring this back when there is a fullscreen/decoration free output window
-    cv::namedWindow("out", CV_GUI_NORMAL);
-    cv::moveWindow("out", 420, 0);
-*/
   }
+   
 
 
   bool update() {

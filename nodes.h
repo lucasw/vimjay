@@ -71,6 +71,7 @@ class Node
   virtual bool draw(float scale = 0.125); 
 
   virtual bool save(cv::FileStorage& fs);
+  virtual bool load(cv::FileStorage& fs);
 };
 
 bool getValue(std::vector<Node*>& inputs, const int ind, float& val);
@@ -89,6 +90,14 @@ public:
 
 
   virtual bool draw(float scale = 0.2);
+};
+
+// TBD allow multiple?
+class Output : public ImageNode
+{
+  Output() {}
+
+  // doesn't have anything special, just a class to be detected with a dynamic_cast upon loading
 };
 
 class Rot2D : public ImageNode
