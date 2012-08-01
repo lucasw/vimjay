@@ -39,7 +39,7 @@ class CamThing
 
   // the final output 
   // TBD make this a special node type
-  ImageNode* output;
+  Output* output;
 
   public:
 
@@ -120,7 +120,7 @@ class CamThing
   int selected_ind;
   Node* selected_node;
   
-  CamThing() : selected_ind(0), selected_node(NULL) 
+  CamThing() : selected_ind(0), selected_node(NULL), output(NULL) 
   {
     count = 0;
 
@@ -129,13 +129,12 @@ class CamThing
     graph = cv::Scalar(0);
  
     loadGraph(FLAGS_graph_file);
-   
+    
+    if (output == NULL) output = (Output*) all_nodes[all_nodes.size() - 1];
+
     LOG(INFO) << all_nodes.size() << " nodes total";
     output->loc = cv::Point(graph.cols - (test_im.cols/2+100), 20);
     
-    exit(0);
-     
-
     cv::namedWindow("graph", CV_GUI_NORMAL);
     cv::moveWindow("graph", 0, 500);
 
@@ -165,8 +164,7 @@ class CamThing
       return false;
     }
 
-    FileNodeIterator it = nd.begin(), it_end = nd.end(); // Go through the node
-    for (; it != it_end; ++it) {
+    for (FileNodeIterator it = nd.begin(); it != nd.end(); ++it) {
       string type_id = (*it)["typeid"];
       string name;
       (*it)["name"] >> name;
@@ -177,28 +175,54 @@ class CamThing
       (*it)["enable"] >> enable;
       LOG(INFO) << type_id << " " << name << " " << loc << " " << enable;
       
-
+      Node* nd;
       if (type_id.compare("bm::Webcam") == 0) {
         // TBD make a version of getNode that takes a type_id string
-        Webcam* nd = getNode<Webcam>(name, loc);
+        Webcam* cam_in = getNode<Webcam>(name, loc);
+        nd = cam_in;
+
+        test_im = cv::Mat(cam_in->get().size(), cam_in->get().type());
+        test_im = cv::Scalar(200,200,200);
       }
       else if (type_id.compare("bm::ImageNode") == 0) {
-        ImageNode* nd = getNode<ImageNode>(name, loc);
+        nd = getNode<ImageNode>(name, loc);
       }
       else if (type_id.compare("bm::Add") == 0) {
-        Add* nd = getNode<Add>(name, loc);
+        nd = getNode<Add>(name, loc);
       }
       else if (type_id.compare("bm::Rot2D") == 0) {
-        Rot2D* nd = getNode<Rot2D>(name, loc);
+        nd = getNode<Rot2D>(name, loc);
       }
       else if (type_id.compare("bm::Signal") == 0) {
-        Signal* nd = getNode<Signal>(name, loc);
+        nd = getNode<Signal>(name, loc);
       }
       else if (type_id.compare("bm::Saw") == 0) {
-        Saw* nd = getNode<Saw>(name, loc);
+        nd = getNode<Saw>(name, loc);
       }
+      else if (type_id.compare("bm::Output") == 0) {
+        nd = getNode<Saw>(name, loc);
+        output = (Output*)nd;
+      }
+
+      if (dynamic_cast<ImageNode*>(nd)) {
+        (dynamic_cast<ImageNode*> (nd))->out = test_im;
+      }
+      nd->load(it);
+
     }
-  }
+
+    // second pass for inputs
+    for (FileNodeIterator it = nd.begin(); it != nd.end(); ++it) {
+      int ind;
+      (*it)["ind"] >> ind;
+      for (int i = 0; i < (*it)["inputs"].size(); i++) {
+        int input_ind;
+        (*it)["inputs"][i] >> input_ind;
+        all_nodes[ind]->inputs.push_back(all_nodes[input_ind]);
+      }
+    } // second input pass
+
+  } // loadGraph
 
   void defaultGraph() 
   {

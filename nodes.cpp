@@ -143,11 +143,9 @@ namespace bm {
   }
 
   
-  bool Node::load(cv::FileStorage& fs)
+  bool Node::load(cv::FileNodeIterator nd)
   {
-    name = (string)fs["name"];// >> name;
-    //fs["loc"] >> loc;
-    //fs["enable"] >> enable;
+    (*nd)["enable"] >> enable;
   }
 
   //////////////////////////////////

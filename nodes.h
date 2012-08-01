@@ -71,7 +71,7 @@ class Node
   virtual bool draw(float scale = 0.125); 
 
   virtual bool save(cv::FileStorage& fs);
-  virtual bool load(cv::FileStorage& fs);
+  virtual bool load(cv::FileNodeIterator nd);
 };
 
 bool getValue(std::vector<Node*>& inputs, const int ind, float& val);
