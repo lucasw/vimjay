@@ -168,7 +168,35 @@ class CamThing
     FileNodeIterator it = nd.begin(), it_end = nd.end(); // Go through the node
     for (; it != it_end; ++it) {
       string type_id = (*it)["typeid"];
-      LOG(INFO) << type_id;
+      string name;
+      (*it)["name"] >> name;
+      cv::Point loc;
+      loc.x = (*it)["loc"][0];
+      loc.y = (*it)["loc"][1];
+      bool enable;
+      (*it)["enable"] >> enable;
+      LOG(INFO) << type_id << " " << name << " " << loc << " " << enable;
+      
+
+      if (type_id.compare("bm::Webcam") == 0) {
+        // TBD make a version of getNode that takes a type_id string
+        Webcam* nd = getNode<Webcam>(name, loc);
+      }
+      else if (type_id.compare("bm::ImageNode") == 0) {
+        ImageNode* nd = getNode<ImageNode>(name, loc);
+      }
+      else if (type_id.compare("bm::Add") == 0) {
+        Add* nd = getNode<Add>(name, loc);
+      }
+      else if (type_id.compare("bm::Rot2D") == 0) {
+        Rot2D* nd = getNode<Rot2D>(name, loc);
+      }
+      else if (type_id.compare("bm::Signal") == 0) {
+        Signal* nd = getNode<Signal>(name, loc);
+      }
+      else if (type_id.compare("bm::Saw") == 0) {
+        Saw* nd = getNode<Saw>(name, loc);
+      }
     }
   }
 
@@ -428,8 +456,9 @@ int main( int argc, char* argv[] )
  // google::ParseCommandLineFlags(&argc, &argv, true);
   google::InitGoogleLogging(argv[0]);
   google::LogToStderr();
-  // pair of rgb images and depths put together
+  google::ParseCommandLineFlags(&argc, &argv, false);
   
+
   bm::CamThing* cam_thing = new bm::CamThing();
   
   bool rv = true;
