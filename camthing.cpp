@@ -39,7 +39,7 @@ class CamThing
 
   // the final output 
   // TBD make this a special node type
-  Output* output;
+  Output* output_node;
 
   public:
 
@@ -53,9 +53,10 @@ class CamThing
       node->loc = loc;
       node->graph = graph;
 
-      LOG(INFO) << "new node " << name << " " << loc.x << ", " << loc.y;
-
       all_nodes.push_back(node);
+      
+      LOG(INFO) << all_nodes.size() << " new node " << name << " " << loc.x << ", " << loc.y;
+
       return node;
     }
 
@@ -120,7 +121,7 @@ class CamThing
   int selected_ind;
   Node* selected_node;
   
-  CamThing() : selected_ind(0), selected_node(NULL), output(NULL) 
+  CamThing() : selected_ind(0), selected_node(NULL), output_node(NULL) 
   {
     count = 0;
 
@@ -131,10 +132,14 @@ class CamThing
     loadGraph(FLAGS_graph_file);
     saveGraph("graph_load_test.yml");
 
-    if (output == NULL) output = (Output*) all_nodes[all_nodes.size() - 1];
+    if (output_node == NULL) {
+      LOG(WARNING) << "No output node found, setting it to " << all_nodes[all_nodes.size() - 1]->name;
+      // TBD could make sure that this node is an output node
+      output_node = (Output*) all_nodes[all_nodes.size() - 1];
+    }
 
     LOG(INFO) << all_nodes.size() << " nodes total";
-    output->loc = cv::Point(graph.cols - (test_im.cols/2+100), 20);
+    output_node->loc = cv::Point(graph.cols - (test_im.cols/2+100), 20);
     
     cv::namedWindow("graph", CV_GUI_NORMAL);
     cv::moveWindow("graph", 0, 500);
@@ -202,7 +207,10 @@ class CamThing
       }
       else if (type_id.compare("bm::Output") == 0) {
         nd = getNode<Saw>(name, loc);
-        output = (Output*)nd;
+        output_node = (Output*)nd;
+      } else{
+        LOG(WARNING) << "unknown node type " << type_id << ", assuming imageNode";
+        nd = getNode<ImageNode>(name, loc);
       }
 
       if (dynamic_cast<ImageNode*>(nd)) {
@@ -421,8 +429,8 @@ class CamThing
     // TBD put this in different thread 
       { 
         VLOG(3) << "";
-        output->setUpdate();
-        output->update();
+        output_node->setUpdate();
+        output_node->update();
       }
     
     const char key = waitKey(20);
@@ -469,7 +477,7 @@ class CamThing
     // loop through
     for (int i = 0; i < all_nodes.size(); i++) {
       float scale = 0.2;
-      if (all_nodes[i] == output) scale = 0.5;
+      if (all_nodes[i] == output_node) scale = 0.5;
       if (all_nodes[i] == cam_in) scale = 0.5;
       all_nodes[i]->draw(scale);
     } 
