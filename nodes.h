@@ -144,6 +144,7 @@ class Signal : public Node
   virtual bool update();
   virtual bool draw(float scale);
 
+  virtual bool load(cv::FileNodeIterator nd);
   virtual bool save(cv::FileStorage& fs);
 
   float min;
@@ -186,6 +187,8 @@ class Buffer : public ImageNode
   cv::Mat get(const float fr);
 
   // TBD get(int ind), negative ind index from last
+  
+  virtual bool load(cv::FileNodeIterator nd);
   virtual bool save(cv::FileStorage& fs);
 
 };
@@ -212,19 +215,17 @@ class Add : public ImageNode
 {
   public:
   
-  // TBD make a vector?
-  ImageNode* p1;
-  float f1;
-
-  ImageNode* p2;
-  float f2;
+  // TBD make a vector of ImageNodes so dynamic_casts don't need to be used?
+  std::vector<float> nf;
   
   Add(); // : ImageNode()
   
-  void setup(ImageNode* np1, ImageNode* np2, float nf1 = 0.5, float nf2 = 0.5);
+  // TBD could require pair be passed in to enforce size
+  void setup(std::vector<ImageNode*> np, std::vector<float> nf); 
 
   virtual bool update();
   
+  virtual bool load(cv::FileNodeIterator nd);
   virtual bool save(cv::FileStorage& fs);
 };
 

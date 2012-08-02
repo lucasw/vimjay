@@ -80,9 +80,9 @@ class CamThing
   
 
   /// save the graph to an output yaml file
-  bool saveGraph() 
+  bool saveGraph(std::string graph_file="graph.yml") 
   {
-    cv::FileStorage fs("graph.yml", cv::FileStorage::WRITE);
+    cv::FileStorage fs(graph_file, cv::FileStorage::WRITE);
 
     // TBD save date and time
     time_t rawtime; time(&rawtime);
@@ -129,7 +129,8 @@ class CamThing
     graph = cv::Scalar(0);
  
     loadGraph(FLAGS_graph_file);
-    
+    saveGraph("graph_load_test.yml");
+
     if (output == NULL) output = (Output*) all_nodes[all_nodes.size() - 1];
 
     LOG(INFO) << all_nodes.size() << " nodes total";
@@ -263,7 +264,13 @@ class CamThing
     scy->setup(6, test_im.rows/2, 0, test_im.rows);
     rotate->inputs.push_back(scy);
 
-    add_loop->setup(passthrough, rotate, 0.1, 0.89);
+    vector<ImageNode*> in;
+    in.push_back(passthrough);
+    in.push_back(rotate);
+    vector<float> nf;
+    nf.push_back(0.1);
+    nf.push_back(0.89);
+    add_loop->setup(in, nf);
     #if 0
     if (false) {
     // test dead branch (shouldn't be updated)
@@ -356,7 +363,13 @@ class CamThing
        
       Add* add_iir = getNode<Add>("add_iir", cv::Point(400,100) );
       add_iir->out = test_im;
-      add_iir->setup(fir, denom, 1.0, 1.0);
+      vector<ImageNode*> add_in;
+      add_in.push_back(fir);
+      add_in.push_back(denom);
+      vector<float> nf;
+      nf.push_back(1.0);
+      nf.push_back(1.0);
+      add_iir->setup(add_in, nf);
       
       //output = add_iir;
     }

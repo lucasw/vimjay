@@ -129,6 +129,13 @@ namespace bm {
 
   }
 
+
+  bool Node::load(cv::FileNodeIterator nd)
+  {
+    // TBD name, loc?
+    (*nd)["enable"] >> enable;
+  }
+
   bool Node::save(cv::FileStorage& fs)
   {
     std::string type = getId(this);
@@ -141,12 +148,7 @@ namespace bm {
     //fs << "vcol" << p->vcol  ; 
     
   }
-
   
-  bool Node::load(cv::FileNodeIterator nd)
-  {
-    (*nd)["enable"] >> enable;
-  }
 
   //////////////////////////////////
   ImageNode::ImageNode() : Node()
@@ -398,6 +400,17 @@ namespace bm {
     return true;
   }
 
+  bool Signal::load(cv::FileNodeIterator nd)
+  {
+    Node::load(nd);
+
+    (*nd)["min"] >> min;
+    (*nd)["max"] >> max;
+    (*nd)["value"] >> value;
+    (*nd)["step"] >> step;
+
+  }
+
   bool Signal::save(cv::FileStorage& fs) 
   {
     Node::save(fs);
@@ -538,6 +551,13 @@ namespace bm {
 
   // TBD get(int ind), negative ind index from last
 
+  bool Buffer::load(cv::FileNodeIterator nd)
+  {
+    ImageNode::load(nd);
+    
+    (*nd)["max_size"] >> max_size;
+  }
+
   bool Buffer::save(cv::FileStorage& fs) 
   {
     ImageNode::save(fs);
@@ -579,16 +599,18 @@ namespace bm {
     vcol = cv::Scalar(200, 200, 50);
   }
   
-  void Add::setup(ImageNode* np1, ImageNode* np2, float nf1, float nf2) 
+  void Add::setup(vector<ImageNode*> np, vector<float> nf) 
   {
-    p1 = np1;
-    p2 = np2;
-
-    f1 = nf1;
-    f2 = nf2;
-   
-    inputs.push_back(p1);
-    inputs.push_back(p2);
+    if (inputs.size() != nf.size()) {
+      LOG(ERROR) << "mismatched inputs and coefficients";
+      return; 
+    }
+    this->nf = nf; 
+    
+    inputs.resize(np.size());
+    for (int i = 0; i < np.size(); i++) {
+      inputs[0] = np[0];
+    }
   }
 
   bool Add::update()
@@ -596,21 +618,48 @@ namespace bm {
     if (!Node::update()) return false;
 
     //VLOG(1) << "name " << is_dirty << " " << p1->name << " " << p1->is_dirty << ", " << p2->name << " " << p2->is_dirty ;
-    if (isDirty(this,5)) {
+    if (isDirty(this, 5)) {
       // TBD accomodate bad mats somewhere
-      out = p1->get() * f1 + p2->get() * f2;
+      for (int i = 0; i < inputs.size() && i < nf.size(); i++) { 
+        ImageNode* in = dynamic_cast<ImageNode*>( inputs[i] );
+        if (!in) continue; // TBD error
+        if (i == 0)
+          out = in->get() * nf[i];
+        else 
+          out += in->get() * nf[i];
+      }
     }
 
     return true;
+  }
+
+  bool Add::load(cv::FileNodeIterator nd)
+  {
+    ImageNode::load(nd);
+    /*
+    FileNode nd2 = nd["nf"];
+    if (nd2.type() != FileNode::SEQ) {
+      LOG(ERROR) << "no nodes";
+      return false;
+    }
+    */
+
+    for (int i = 0; i < (*nd)["nf"].size(); i++) {
+      float new_coeff;
+      (*nd)["nf"][i] >> new_coeff;
+      nf.push_back(new_coeff);
+    }
   }
 
   bool Add::save(cv::FileStorage& fs)
   {
     ImageNode::save(fs);
 
-    fs << "f1" << f1;
-    fs << "f2" << f2;
-
+    fs << "nf" << "[:";
+    for (int i = 0; i < nf.size(); i++) { 
+      fs << nf[i]; 
+    }
+    fs << "]";
   }
 
 }  // namespace bm

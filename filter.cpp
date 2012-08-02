@@ -36,6 +36,17 @@ bool FilterFIR::update()
   return true;
 }
  
+  bool FilterFIR::load(cv::FileNodeIterator nd)
+  {
+    Buffer::load(nd);
+
+    for (int i = 0; i < (*nd)["xi"].size(); i++) {
+      float new_coeff;
+      (*nd)["xi"][i] >> new_coeff;
+      xi.push_back(new_coeff);
+    }
+  }
+
 bool FilterFIR::save(cv::FileStorage& fs) 
 {
   Buffer::save(fs);
