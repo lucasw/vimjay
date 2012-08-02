@@ -95,6 +95,7 @@ public:
 // TBD allow multiple?
 class Output : public ImageNode
 {
+  public:
   Output() {}
 
   // doesn't have anything special, just a class to be detected with a dynamic_cast upon loading

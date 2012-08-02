@@ -206,7 +206,7 @@ class CamThing
         nd = getNode<Saw>(name, loc);
       }
       else if (type_id.compare("bm::Output") == 0) {
-        nd = getNode<Saw>(name, loc);
+        nd = getNode<Output>(name, loc);
         output_node = (Output*)nd;
       } else{
         LOG(WARNING) << "unknown node type " << type_id << ", assuming imageNode";
