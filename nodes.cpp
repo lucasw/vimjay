@@ -193,7 +193,7 @@ namespace bm {
   {
     Node::draw(scale);
 
-    cv::Mat tmp = out;
+    tmp = out;
     if (!tmp.empty()) {
 
       cv::Size sz = cv::Size(tmp.size().width * scale, tmp.size().height * scale);
@@ -315,7 +315,7 @@ namespace bm {
 
         //if (&new_out.data == &out.data) {
         //
-        cv::Mat tmp; // new_out.clone();
+        //cv::Mat tmp; // new_out.clone();
        
         float scale = 1.0;
         if (MAT_FORMAT == CV_16S) scale = 255;

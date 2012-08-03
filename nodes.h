@@ -81,6 +81,7 @@ class ImageNode : public Node
 public:
   cv::Mat out;
   cv::Mat out_old;
+  cv::Mat tmp; // scratch image
     
   ImageNode();// : Node()
 

@@ -9,8 +9,8 @@ nodes:
       ind: 0
       inputs: []
    -
-      typeid: "bm::ImageNode"
-      name: image_node_passthrough
+      typeid: "bm::Sobel"
+      name: sobel
       loc: [ 400, 50 ]
       enable: 1
       ind: 1

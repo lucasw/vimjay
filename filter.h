@@ -25,6 +25,20 @@ class FilterFIR : public Buffer
 
 };
 
+class Sobel : public ImageNode
+{
+  
+  public:
+  Sobel();
+
+  virtual bool update();
+ 
+  //virtual bool load(cv::FileNodeIterator nd);
+  //virtual bool save(cv::FileStorage& fs);
+
+};
+
+
 // TBD an IIR could be generated from a FIR chained to another FIR with an add block at the end
 // but it would be nice to be able to capture that inside a single Node- how to correctly handle 
 // hierarchical nodes?

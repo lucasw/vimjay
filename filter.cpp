@@ -58,5 +58,29 @@ bool FilterFIR::save(cv::FileStorage& fs)
   fs << "]";
 }
 
+Sobel::Sobel()
+{
+
+}
+
+bool Sobel::update()
+{
+  if (!ImageNode::update()) return false;
+ 
+  if (out.empty()) return false;
+
+  // TBD check for mismatches later
+  if (tmp.empty()) { 
+    tmp = out.clone(); 
+  }
+
+  cv::Sobel(out, tmp, out.depth(), 1, 1, 3, 8);
+
+  out = tmp;
+
+  return true;
+}
+
+
 } // namespace bm
 
