@@ -20,7 +20,7 @@
 using namespace cv;
 using namespace std;
 
-DEFINE_string(graph_file, "graph.yml", "yaml file to load with graph in it");
+DEFINE_string(graph_file, "../graph.yml", "yaml file to load with graph in it");
 
 namespace bm {
 
@@ -83,6 +83,7 @@ class CamThing
   /// save the graph to an output yaml file
   bool saveGraph(std::string graph_file="graph.yml") 
   {
+    LOG(INFO) << "saving graph " << graph_file;
     cv::FileStorage fs(graph_file, cv::FileStorage::WRITE);
 
     // TBD save date and time
@@ -154,7 +155,8 @@ class CamThing
 
   bool loadGraph(const std::string graph_file)
   {
-    LOG(INFO) << "loading " << graph_file;
+    LOG(INFO) << "loading graph " << graph_file;
+    
     FileStorage fs; 
     fs.open(graph_file, FileStorage::READ);
     
@@ -421,9 +423,12 @@ class CamThing
     saveGraph();
   }
    
+  char key;
+  bool valid_key;
 
-
-  bool update() {
+  bool update() 
+  {
+    // TBD capture key input in separate thread?
     count++;
     
     // TBD put this in different thread 
@@ -433,34 +438,63 @@ class CamThing
         output_node->update();
       }
     
-    const char key = waitKey(20);
-    if( key == 'q' )
-      return false;
+    key = waitKey(20);
 
+    valid_key = true;
+    if( key == 'q' ) {
+      return false;
+    }
     // TBD look for /, then make next letters type search for nodes with names container the following string
     
-    if (key == 's') {
+    else if( key == 'e' ) {
+      // TBD follow with file name
+      // TBD load the graph in a temp object, then copy it over only if successful
+      loadGraph(FLAGS_graph_file);
+    }
+    else if( key == 'w' ) {
+      saveGraph("temp_graph.yml");
+    }
+
+    else if (key == 's') {
       if (selected_node) selected_node->enable = !selected_node->enable;
     }
     
-    if (key == 'j') {
+    else if (key == 'j') {
       selected_ind--;
       if (selected_ind < 0) selected_ind = all_nodes.size()-1;
       selected_node = all_nodes[selected_ind];
     }
-    if (key == 'k') {
+    else if (key == 'k') {
       selected_ind++;
       if (selected_ind >= all_nodes.size()) selected_ind = 0;
       selected_node = all_nodes[selected_ind];
     }
+    else {
+      valid_key = false;
+    }
+
+    if (valid_key) {
+      command_text.append(&key);
+    }
+
+    if (count %= 100) {
+      if (command_text.size() > 0);
+      command_text = command_text.erase(0,1);
+    } else {
+      //command_text = "";
+    }
 
     return true;
   }
-  
+ 
+  string command_text;
+
   void draw() 
   {
     graph = cv::Scalar(0,0,0);
   
+    cv::putText(graph, command_text, cv::Point(10, graph.rows-40), 1, 1, cv::Scalar(200,205,195));
+
     // TBD could all_nodes size have
     if (selected_node) cv::circle(graph, selected_node->loc, 18, cv::Scalar(0,220,1), -1);
     // draw input and outputs
