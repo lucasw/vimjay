@@ -506,6 +506,8 @@ namespace bm {
       if (im_in && im_in->isDirty(this,3)) 
         add(im_in->get()); 
     }
+
+    if (frames.size() <= 0) return false;
     
     out = frames[0];
 
@@ -604,9 +606,16 @@ namespace bm {
 ///////////////////////////////////////////////////////////
   bool ImageDir::loadImages()
   {
-    boost::filesystem::path image_path(dir);
-    if (!is_directory(image_path)) return false;
+    LOG(INFO) << name << " loading " << dir;
 
+    boost::filesystem::path image_path(dir);
+    if (!is_directory(image_path)) {
+      LOG(ERROR) << name << " not a directory " << dir; 
+      return false;
+    }
+
+    // TBD clear frames first?
+    //
     boost::filesystem::directory_iterator end_itr; // default construction yields past-the-end
     for (boost::filesystem::directory_iterator itr( image_path );
         itr != end_itr;
@@ -616,9 +625,16 @@ namespace bm {
       
       std::stringstream ss;
       ss << *itr;
-      cv::Mat tmp0 = imread( ss.str() );
+      std::string next_im = ( ss.str() );
+      next_im = next_im.substr(1, next_im.size()-2);
+      cv::Mat tmp0 = cv::imread( next_im );
      
-      if (tmp0.empty()) continue;
+      if (tmp0.data == NULL) { //.empty()) {
+        LOG(WARNING) << name << " not an image? " << next_im;
+        continue;
+      }
+      
+      LOG(INFO) << name << " loaded image " << next_im;
 
       cv::Size sz = cv::Size(640,480);
       cv::resize(tmp0, tmp, sz, 0, 0, cv::INTER_NEAREST );
@@ -627,7 +643,30 @@ namespace bm {
 
       add(tmp);
     }
+    
+    /// TBD or has sized increased since beginning of function?
+    if (frames.size() == 0) {
+      LOG(ERROR) << name << " no images loaded";
+      return false;
+    }
+
     return true;
+  }
+
+  bool ImageDir::load(cv::FileNodeIterator nd)
+  {
+    Buffer::load(nd);
+    
+    (*nd)["dir"] >> dir;
+
+    loadImages();
+  }
+
+  bool ImageDir::save(cv::FileStorage& fs) 
+  {
+    Buffer::save(fs);
+
+    fs << "dir" << dir;
   }
 
 ///////////////////////////////////////////////////////////

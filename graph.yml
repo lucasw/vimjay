@@ -3,7 +3,10 @@ date: "Mon Jul 30 22:23:23 2012\n"
 nodes:
    -
       #typeid: "bm::Webcam"
-      typeid: "bm::ScreenCap"
+      #typeid: "bm::ScreenCap"
+      typeid: "bm::ImageDir"
+      dir: "../data"
+      #dir: "/home/lucasw/own/binarymillenium/opencv/camthing/data"
       name: image_input
       loc: [ 50, 20 ]
       enable: 1

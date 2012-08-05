@@ -208,6 +208,12 @@ class CamThing
       else if (type_id.compare("bm::Sobel") == 0) {
         nd = getNode<Sobel>(name, loc);
       }
+      else if (type_id.compare("bm::Buffer") == 0) {
+        nd = getNode<Buffer>(name, loc);
+      }
+      else if (type_id.compare("bm::ImageDir") == 0) {
+        nd = getNode<ImageDir>(name, loc);
+      }
       else if (type_id.compare("bm::Add") == 0) {
         nd = getNode<Add>(name, loc);
       }
@@ -563,8 +569,7 @@ int main( int argc, char* argv[] )
   google::InitGoogleLogging(argv[0]);
   google::LogToStderr();
   google::ParseCommandLineFlags(&argc, &argv, false);
-  
-
+ 
   bm::CamThing* cam_thing = new bm::CamThing();
   
   bool rv = true;

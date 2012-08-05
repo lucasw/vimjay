@@ -70,7 +70,7 @@ bool Sobel::update()
   if (!ImageNode::update()) return false;
  
   if (out.empty()) {
-    LOG(ERROR) << name << " out is empty";
+    VLOG(2) << name << " out is empty";
     return false;
   }
 
