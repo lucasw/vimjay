@@ -4,6 +4,8 @@
 #include <iostream>
 #include <stdio.h>
 
+#include <boost/thread.hpp>
+
 #include "opencv2/highgui/highgui.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
 
@@ -61,6 +63,7 @@ class Node
   std::vector<Node*> inputs;
   
   Node();
+  virtual ~Node() {}
     
   bool setUpdate();
   
@@ -125,9 +128,14 @@ class Webcam : public ImageNode
   void runThread();
   bool is_thread_dirty;
   bool do_capture;
+  bool run_thread;
+  boost::thread cam_thread;
+
+  int error_count;
 
   public:
   Webcam();
+  virtual ~Webcam();
 
   virtual bool update();
 

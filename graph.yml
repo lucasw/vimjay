@@ -35,10 +35,10 @@ nodes:
       name: saw_rotate
       loc: [ 350, 400 ]
       enable: 1
-      min: -5.
-      max: 5.
-      value: -5.
-      step: 1.9999999552965164e-02
+      min: -2.
+      max: 2.
+      value: 0.
+      step: 1.4999999552965164e-02
       ind: 4
       inputs: []
    -

@@ -30,7 +30,7 @@ string getId(Node* ptr)
     return (abi::__cxa_demangle(typeid(*ptr).name(), 0, 0, &status));
   }
 
-class CamThing
+class CamThing : output_node(NULL)
 {
   // TBD informal timer for the system
   
@@ -59,6 +59,20 @@ class CamThing
 
       return node;
     }
+
+  // delete all the nodes
+  bool clearNodes()
+  {
+    LOG(INFO) << "clearing nodes";
+    for (int i = 0; i < all_nodes.size(); i++) {
+      // TBD use smart pointers
+      delete all_nodes[i];
+    }
+
+    all_nodes.resize(0);
+    
+    output_node = NULL;
+  }
 
   void clearAllNodeUpdates() 
   {
@@ -133,15 +147,6 @@ class CamThing
     loadGraph(FLAGS_graph_file);
     saveGraph("graph_load_test.yml");
 
-    if (output_node == NULL) {
-      LOG(WARNING) << "No output node found, setting it to " << all_nodes[all_nodes.size() - 1]->name;
-      // TBD could make sure that this node is an output node
-      output_node = (Output*) all_nodes[all_nodes.size() - 1];
-    }
-
-    LOG(INFO) << all_nodes.size() << " nodes total";
-    output_node->loc = cv::Point(graph.cols - (test_im.cols/2+100), 20);
-    
     cv::namedWindow("graph", CV_GUI_NORMAL);
     cv::moveWindow("graph", 0, 500);
 
@@ -235,6 +240,17 @@ class CamThing
         all_nodes[ind]->inputs.push_back(all_nodes[input_ind]);
       }
     } // second input pass
+
+
+    if (output_node == NULL) {
+      LOG(WARNING) << "No output node found, setting it to " << all_nodes[all_nodes.size() - 1]->name;
+      // TBD could make sure that this node is an output node
+      output_node = (Output*) all_nodes[all_nodes.size() - 1];
+    }
+
+    LOG(INFO) << all_nodes.size() << " nodes total";
+    output_node->loc = cv::Point(graph.cols - (test_im.cols/2+100), 20);
+    
 
   } // loadGraph
 
@@ -452,9 +468,12 @@ class CamThing
     else if( key == 'e' ) {
       // TBD follow with file name
       // TBD load the graph in a temp object, then copy it over only if successful
+      LOG(INFO) << "reloading graph file";
+      clearNodes();
       loadGraph(FLAGS_graph_file);
     }
     else if( key == 'w' ) {
+      // TBD increment a count so old saves aren't overwritten?
       saveGraph("temp_graph.yml");
     }
 

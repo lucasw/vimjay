@@ -265,7 +265,7 @@ namespace bm {
   }
 
   ////////////////////////////////////////////////////////////
-  Webcam::Webcam()
+  Webcam::Webcam() : error_count(0)
   {
     LOG(INFO) << "camera opening ...";
     capture = VideoCapture(0); //CV_CAP_OPENNI );
@@ -286,21 +286,37 @@ namespace bm {
     //update();
     //update();
     is_thread_dirty = false;
-    boost::thread cam_thread(&Webcam::runThread,this);
+    cam_thread = boost::thread(&Webcam::runThread,this);
 
     // wait for single frame so there is a sample with the correct size
-    while(!is_thread_dirty) {}
+    // TBD or time out
+    while(!is_thread_dirty && (error_count < 20)) {}
+  }
+  
+  Webcam::~Webcam()
+  {
+    LOG(INFO) << name << " stopping camera capture thread";
+    do_capture = false;
+    run_thread = false;
+    cam_thread.join();
+
+    LOG(INFO) << name << " releasing the camera";
+    capture.release();
   }
 
   void Webcam::runThread()
   {
     do_capture = true;
-    while(true) {
-      if (do_capture) {
+    run_thread = true;
+
+    while(run_thread) {
+      if (do_capture && error_count < 20) {
         /// TBD need to make this in separate thread
         if( !capture.grab() )
         {
           LOG(ERROR) << name << " Can not grab images." << endl;
+          error_count++;
+          continue;
           //return false;
         } 
 
@@ -309,8 +325,13 @@ namespace bm {
 
         if (new_out.empty()) {
           LOG(ERROR) << name << " new image empty";
+          error_count++;
+          continue;
           //return false;
         }
+
+        error_count--;
+        if (error_count < 0) error_count = 0;
         // I think opencv is reusing a mat within capture so have to clone it
 
         //if (&new_out.data == &out.data) {
