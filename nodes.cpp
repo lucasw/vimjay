@@ -3,6 +3,8 @@
 #include <stdio.h>
 
 #include <boost/thread.hpp>
+#include "boost/filesystem/operations.hpp"
+
 #include "opencv2/highgui/highgui.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
 
@@ -597,6 +599,35 @@ namespace bm {
     ImageNode::save(fs);
 
     fs << "max_size" << max_size;
+  }
+
+///////////////////////////////////////////////////////////
+  bool ImageDir::loadImages()
+  {
+    boost::filesystem::path image_path(dir);
+    if (!is_directory(image_path)) return false;
+
+    boost::filesystem::directory_iterator end_itr; // default construction yields past-the-end
+    for (boost::filesystem::directory_iterator itr( image_path );
+        itr != end_itr;
+        ++itr )
+    {
+      if ( is_directory( *itr ) ) continue;
+      
+      std::stringstream ss;
+      ss << *itr;
+      cv::Mat tmp0 = imread( ss.str() );
+     
+      if (tmp0.empty()) continue;
+
+      cv::Size sz = cv::Size(640,480);
+      cv::resize(tmp0, tmp, sz, 0, 0, cv::INTER_NEAREST );
+      
+      max_size = frames.size() + 1;
+
+      add(tmp);
+    }
+    return true;
   }
 
 ///////////////////////////////////////////////////////////

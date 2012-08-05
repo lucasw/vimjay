@@ -52,6 +52,8 @@ ${OpenCV_LIBS}
 glog
 gflags
 boost_thread
+boost_filesystem
+boost_system
 )
 
 

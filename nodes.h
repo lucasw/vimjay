@@ -203,6 +203,19 @@ class Buffer : public ImageNode
 
 };
 
+/////////////////////////////////
+class ImageDir : public Buffer
+{
+  public:
+
+  ImageDir() {}
+
+  std::string dir;
+  
+  bool loadImages();
+
+};
+
 ///////////////////////////////////////////////////////////
 class Tap : public ImageNode
 {
