@@ -43,6 +43,7 @@ add_executable(${PROJECT_NAME}
 camthing.cpp
 nodes.cpp
 filter.cpp
+screencap.cpp
 )
 
 target_link_libraries(${PROJECT_NAME} 

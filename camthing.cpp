@@ -16,6 +16,7 @@
 
 #include "nodes.h" 
 #include "filter.h"
+#include "screencap.h"
 
 using namespace cv;
 using namespace std;
@@ -30,7 +31,7 @@ string getId(Node* ptr)
     return (abi::__cxa_demangle(typeid(*ptr).name(), 0, 0, &status));
   }
 
-class CamThing : output_node(NULL)
+class CamThing 
 {
   // TBD informal timer for the system
   
@@ -197,6 +198,10 @@ class CamThing : output_node(NULL)
         test_im = cv::Mat(cam_in->get().size(), cam_in->get().type());
         test_im = cv::Scalar(200,200,200);
       }
+      else if (type_id.compare("bm::ScreenCap") == 0) {
+        nd = getNode<ScreenCap>(name, loc);
+        nd->update();
+      }
       else if (type_id.compare("bm::ImageNode") == 0) {
         nd = getNode<ImageNode>(name, loc);
       }
@@ -249,7 +254,7 @@ class CamThing : output_node(NULL)
     }
 
     LOG(INFO) << all_nodes.size() << " nodes total";
-    output_node->loc = cv::Point(graph.cols - (test_im.cols/2+100), 20);
+    //output_node->loc = cv::Point(graph.cols - (test_im.cols/2+100), 20);
     
 
   } // loadGraph

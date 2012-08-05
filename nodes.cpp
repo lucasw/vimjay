@@ -208,6 +208,15 @@ namespace bm {
       cv::Scalar col = cv::Scalar(vcol/fr);
 
       cv::rectangle(graph, loc - cv::Point(2,2), loc + cv::Point(sz.width,sz.height) + cv::Point(2,2), col, CV_FILLED );
+      if (loc.x + sz.width >= graph.cols) {
+        LOG(ERROR) << name << " bad subregion " << loc.x << " " << sz.width << " " << graph.cols;
+        return false;
+      }
+      if (loc.y + sz.height >= graph.rows) {
+        LOG(ERROR) << name << " bad subregion " << loc.y << " " << sz.height << " " << graph.rows;
+        return false;
+      }
+
       cv::Mat graph_roi = graph(cv::Rect(loc.x, loc.y, sz.width, sz.height));
       graph_roi = cv::Scalar(0, 0, 255);
       thumbnail.copyTo(graph_roi);
@@ -258,7 +267,11 @@ namespace bm {
 
     cv::Mat rot = cv::getRotationMatrix2D(center, angle, scale);
 
-    cv::Mat tmp;
+    //cv::Mat tmp;
+
+    cv::Mat tmp_in = im_in->get();
+    if (tmp_in.empty()) return false;
+
     cv::warpAffine(im_in->get(), tmp, rot, im_in->get().size(), INTER_NEAREST);
 
     out = tmp;
@@ -641,13 +654,31 @@ namespace bm {
     //VLOG(1) << "name " << is_dirty << " " << p1->name << " " << p1->is_dirty << ", " << p2->name << " " << p2->is_dirty ;
     if (isDirty(this, 5)) {
       // TBD accomodate bad mats somewhere
+
+      cv::Size sz;
+
+      bool done_something = false;
+
       for (int i = 0; i < inputs.size() && i < nf.size(); i++) { 
         ImageNode* in = dynamic_cast<ImageNode*>( inputs[i] );
         if (!in) continue; // TBD error
-        if (i == 0)
+      
+        if (in->get().empty()) continue; // TBD error
+
+        if (!done_something) {
           out = in->get() * nf[i];
-        else 
+          sz = in->get().size();
+          done_something = true;
+        } else { 
+
+          if (sz != in->get().size()) {
+            LOG(ERROR) << name << " size mismatch " << sz.width << " " << sz.height << " != " << in->get().size().width << " " << in->get().size().height ;
+            continue;
+          }
+
           out += in->get() * nf[i];
+
+        }
       }
     }
 

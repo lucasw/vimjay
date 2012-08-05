@@ -1,5 +1,7 @@
 #include "filter.h"
 
+#include <glog/logging.h>
+
 // filter Node objects
 namespace bm {
 
@@ -67,7 +69,10 @@ bool Sobel::update()
 {
   if (!ImageNode::update()) return false;
  
-  if (out.empty()) return false;
+  if (out.empty()) {
+    LOG(ERROR) << name << " out is empty";
+    return false;
+  }
 
   // TBD check for mismatches later
   if (tmp.empty()) { 
