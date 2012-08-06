@@ -584,7 +584,7 @@ namespace bm {
       ind = frames.size() - ind;
     }
     
-    if (ind > frames.size() -1) ind = frames.size()-1;
+    if (ind > frames.size() - 1) ind = frames.size() - 1;
     if (ind < 0) ind = 0;
     //ind %= frames.size();
    
@@ -684,12 +684,10 @@ namespace bm {
 
   void Tap::setup(Signal* new_signal, Buffer* new_buffer) 
   {
-    signal = new_signal;
-    buffer = new_buffer;
     
     inputs.clear();
-    inputs.push_back(signal);
-    inputs.push_back(buffer);
+    inputs.push_back(new_signal);
+    inputs.push_back(new_buffer);
   }
 
   bool Tap::update()
@@ -697,7 +695,17 @@ namespace bm {
     if (!Node::update()) return false;
 
     if (isDirty(this,4)) {
-      out = buffer->get(signal->value);
+      float val = 0;
+      getValue(inputs, 0, val);     
+
+      const int ind = 1;
+      if (inputs.size() <= ind) return false;
+
+      Buffer* buffer = dynamic_cast<Buffer*> (inputs[ind]);
+      
+      if (!buffer) { return false; }
+      
+      out = buffer->get(val);
     }
 
     return true;

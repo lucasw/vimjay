@@ -223,10 +223,6 @@ class Tap : public ImageNode
 {
   public:
 
-  // TBD cast these from inputs[] instead?
-  Signal* signal;
-  Buffer* buffer;
-
   bool changed;
 
   Tap();// : ImageNode()
