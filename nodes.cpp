@@ -489,7 +489,7 @@ namespace bm {
   }
 
   //////////////////////////////////
-  Buffer::Buffer() : ImageNode() {
+  Buffer::Buffer() : ImageNode(), max_size(100) {
     //this->max_size = max_size;
     //LOG(INFO) << "new buffer max_size " << this->max_size;
     vcol = cv::Scalar(200, 30, 200);
@@ -535,27 +535,33 @@ namespace bm {
     }
   }
 
-  void Buffer::add(cv::Mat new_frame)
+  bool Buffer::add(cv::Mat new_frame, bool restrict_size)
   {
     if (new_frame.empty()) {
       LOG(ERROR) << name << " new_frame is empty";
       //is_dirty = false;
-      return;// TBD LOG(ERROR)
+      return false;// TBD LOG(ERROR)
     }
     
-    if ((frames.size() > 0) && new_frame.refcount == frames[frames.size()-1].refcount) {
+    if ((frames.size() > 0) && 
+        (new_frame.refcount == frames[frames.size()-1].refcount)) {
       new_frame = new_frame.clone();
-      LOG(INFO) << name << " cloning identical frame " << new_frame.refcount << " " << frames[frames.size()-1].refcount;
+      LOG(INFO) << name << " cloning identical frame " 
+          << new_frame.refcount << " " << frames[frames.size()-1].refcount;
     }
 
     frames.push_back(new_frame);
+    
+    if (restrict_size) {
+      while (frames.size() >= max_size) frames.pop_front();
+    }
 
-    while (frames.size() >= max_size) frames.pop_front();
-   
     VLOG(3) << name << " sz " << frames.size();
     
     // TBD is_dirty wouldn't be true for callers that want frames indexed from beginning if no pop_front has been done.
     setDirty();
+
+    return true;
   }
   
   cv::Mat Buffer::get() {
@@ -638,10 +644,8 @@ namespace bm {
 
       cv::Size sz = cv::Size(640,480);
       cv::resize(tmp0, tmp, sz, 0, 0, cv::INTER_NEAREST );
-      
-      max_size = frames.size() + 1;
 
-      add(tmp);
+      const bool rv = add(tmp,false);
     }
     
     /// TBD or has sized increased since beginning of function?
@@ -649,7 +653,10 @@ namespace bm {
       LOG(ERROR) << name << " no images loaded";
       return false;
     }
-
+    
+    LOG(INFO) << name << " " << frames.size() << " image loaded";
+    //max_size = frames.size() + 1;
+    
     return true;
   }
 

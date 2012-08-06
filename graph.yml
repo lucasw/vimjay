@@ -11,14 +11,14 @@ nodes:
       loc: [ 50, 20 ]
       enable: 1
       ind: 0
-      inputs: []
+      inputs: [ ]
    -
       typeid: "bm::Sobel"
       name: sobel
       loc: [ 400, 50 ]
       enable: 1
       ind: 1
-      inputs: [ 0 ]
+      inputs: [ 9 ]
    -
       typeid: "bm::Add"
       name: add_loop
@@ -74,4 +74,22 @@ nodes:
       enable: 1
       ind: 7
       inputs: [ 2 ]
+   -
+      typeid: "bm::Signal"
+      name: image_dir_sig
+      loc: [ 20, 100 ]
+      enable: 1
+      min: 0.
+      max: 1.
+      value: 0.
+      step: 0.05
+      ind: 8
+      inputs: []
+   -
+      typeid: "bm::Tap"
+      name: image_dir_tap
+      loc: [ 20, 150 ]
+      enable: 1
+      ind: 9
+      inputs: [8,0]
 

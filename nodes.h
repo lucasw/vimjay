@@ -189,7 +189,7 @@ class Buffer : public ImageNode
  
   virtual bool update();
 
-  void add(cv::Mat new_frame);
+  bool add(cv::Mat new_frame, bool restrict_size = true);
   virtual bool draw(float scale); 
    
   virtual cv::Mat get();
