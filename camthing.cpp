@@ -126,6 +126,33 @@ class CamThing
     return true;
   }
 
+  // organize all the nodes, for now based on index but later perhaps based on connectivity
+  bool gridGraph() 
+  {
+    const int wd = (sqrt(all_nodes.size()) + 0.5);
+    
+    float dx = graph.cols / (wd + 1.5);
+    float dy = graph.rows / (wd + 1.5);
+    
+    LOG(INFO) << "making " << all_nodes.size() << " graph items into grid " << wd << " " << dx << " " << dy;
+
+    for (int y = 0; y <= wd; y++) {
+    for (int x = 0; x <= wd; x++) {
+      const int ind = y*(wd+1) + x;
+      if (ind >= all_nodes.size()) continue;
+      
+      cv::Point loc = cv::Point( x*dx + dx/4.0, y*dy + dy/4.0 );
+      
+      LOG(INFO) << ind << " " << all_nodes[ind]->name << " " 
+          << all_nodes[ind]->loc.x << " " << all_nodes[ind]->loc.y 
+          << " -> " << loc.x << " " << loc.y ;
+      
+      all_nodes[ind]->loc = loc;
+
+    }}
+  }
+
+
   Webcam* cam_in;
   int count;
 
@@ -490,7 +517,9 @@ class CamThing
       // TBD increment a count so old saves aren't overwritten?
       saveGraph("temp_graph.yml");
     }
-
+    else if (key == 'g') {
+      gridGraph();
+    }
     else if (key == 's') {
       if (selected_node) selected_node->enable = !selected_node->enable;
     }

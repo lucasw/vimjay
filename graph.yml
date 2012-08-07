@@ -1,28 +1,26 @@
 %YAML:1.0
-date: "Mon Jul 30 22:23:23 2012\n"
+date: "Mon Aug  6 21:19:24 2012\n"
 nodes:
    -
-      #typeid: "bm::Webcam"
-      #typeid: "bm::ScreenCap"
       typeid: "bm::ImageDir"
-      dir: "../data"
-      #dir: "/home/lucasw/own/binarymillenium/opencv/camthing/data"
       name: image_input
-      loc: [ 50, 20 ]
+      loc: [ 71, 40 ]
       enable: 1
+      max_size: 0
+      dir: "../data"
       ind: 0
-      inputs: [ ]
+      inputs: []
    -
       typeid: "bm::Sobel"
       name: sobel
-      loc: [ 400, 50 ]
+      loc: [ 355, 40 ]
       enable: 1
       ind: 1
       inputs: [ 9 ]
    -
       typeid: "bm::Add"
       name: add_loop
-      loc: [ 600, 100 ]
+      loc: [ 640, 40 ]
       enable: 1
       nf: [ 1.0000000149011612e-01, 8.8999998569488525e-01 ]
       ind: 2
@@ -30,66 +28,65 @@ nodes:
    -
       typeid: "bm::Rot2D"
       name: rotation
-      loc: [ 860, 420 ]
+      loc: [ 924, 40 ]
       enable: 1
       ind: 3
       inputs: [ 2, 4, 5, 6 ]
    -
       typeid: "bm::Saw"
       name: saw_rotate
-      loc: [ 350, 400 ]
+      loc: [ 71, 200 ]
       enable: 1
       min: -2.
       max: 2.
-      value: 0.
-      step: 1.4999999552965164e-02
+      value: 1.0850008726119995e+00
+      step: -1.4999999664723873e-02
       ind: 4
       inputs: []
    -
       typeid: "bm::Saw"
       name: saw_center_x
-      loc: [ 350, 450 ]
+      loc: [ 355, 200 ]
       enable: 1
       min: 0.
       max: 640.
-      value: 320.
+      value: 95.
       step: 5.
       ind: 5
       inputs: []
    -
       typeid: "bm::Saw"
       name: saw_center_y
-      loc: [ 350, 500 ]
+      loc: [ 640, 200 ]
       enable: 1
       min: 0.
       max: 480.
       value: 240.
-      step: 6.
+      step: -6.
       ind: 6
       inputs: []
    -
       typeid: "bm::Output"
       name: output
-      loc: [ 600, 250 ]
+      loc: [ 924, 200 ]
       enable: 1
       ind: 7
       inputs: [ 2 ]
    -
       typeid: "bm::Signal"
       name: image_dir_sig
-      loc: [ 20, 100 ]
+      loc: [ 71, 360 ]
       enable: 1
       min: 0.
       max: 1.
-      value: 0.
-      step: 0.01
+      value: 2.2000002861022949e-01
+      step: 9.9999997764825821e-03
       ind: 8
       inputs: []
    -
       typeid: "bm::Tap"
       name: image_dir_tap
-      loc: [ 20, 150 ]
+      loc: [ 355, 360 ]
       enable: 1
       ind: 9
-      inputs: [8,0]
-
+      inputs: [ 8, 0 ]
