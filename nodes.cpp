@@ -524,6 +524,8 @@ namespace bm {
       if (i == 3) ind = frames.size() - 1;
       if (ind >= frames.size())  continue;
 
+      if (frames[ind].empty()) { LOG(ERROR) << "frames " << i << " is empty";  continue; }
+
       cv::Size sz = cv::Size(out.size().width * scale * 0.25, out.size().height * scale * 0.25);
 
       cv::Mat thumbnail = cv::Mat(sz, CV_8UC3);

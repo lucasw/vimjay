@@ -52,7 +52,7 @@ class CamThing
 
       node->name = name;
       node->loc = loc;
-      node->graph = graph;
+      node->graph = graph_im;
 
       all_nodes.push_back(node);
       
@@ -129,10 +129,11 @@ class CamThing
   // organize all the nodes, for now based on index but later perhaps based on connectivity
   bool gridGraph() 
   {
-    const int wd = (sqrt(all_nodes.size()) + 0.5);
+    const int wd = (sqrt(all_nodes.size()));
+    const int ht = all_nodes.size()/wd + 0.5;
     
-    float dx = graph.cols / (wd + 1.5);
-    float dy = graph.rows / (wd + 1.5);
+    float dx = graph_im.cols / (wd + 1.5);
+    float dy = graph_im.rows / (ht);
     
     LOG(INFO) << "making " << all_nodes.size() << " graph items into grid " << wd << " " << dx << " " << dy;
 
@@ -159,7 +160,7 @@ class CamThing
   cv::Mat test_im;
 
   cv::Mat cam_image;
-  cv::Mat graph;
+  cv::Mat graph_im;
  
   int selected_ind;
   Node* selected_node;
@@ -169,8 +170,8 @@ class CamThing
     count = 0;
 
     // TBD make internal type a gflag
-    graph = cv::Mat(cv::Size(1280, 720), MAT_FORMAT_C3);
-    graph = cv::Scalar(0);
+    graph_im = cv::Mat(cv::Size(1280, 720), MAT_FORMAT_C3);
+    graph_im = cv::Scalar(0);
  
     loadGraph(FLAGS_graph_file);
     saveGraph("graph_load_test.yml");
@@ -576,8 +577,8 @@ class CamThing
     // loop through
     for (int i = 0; i < all_nodes.size(); i++) {
       float scale = 0.2;
-      if (all_nodes[i] == output_node) scale = 0.5;
-      if (all_nodes[i] == cam_in) scale = 0.5;
+      if (all_nodes[i] == output_node) scale = 0.3;
+      if (i == 0) scale = 0.3;
       all_nodes[i]->draw(scale);
     } 
 

@@ -1,10 +1,10 @@
 %YAML:1.0
-date: "Mon Aug  6 21:19:24 2012\n"
+date: "Mon Aug  6 21:26:46 2012\n"
 nodes:
    -
       typeid: "bm::ImageDir"
       name: image_input
-      loc: [ 71, 40 ]
+      loc: [ 71, 60 ]
       enable: 1
       max_size: 0
       dir: "../data"
@@ -13,14 +13,14 @@ nodes:
    -
       typeid: "bm::Sobel"
       name: sobel
-      loc: [ 355, 40 ]
+      loc: [ 355, 60 ]
       enable: 1
       ind: 1
       inputs: [ 9 ]
    -
       typeid: "bm::Add"
       name: add_loop
-      loc: [ 640, 40 ]
+      loc: [ 640, 60 ]
       enable: 1
       nf: [ 1.0000000149011612e-01, 8.8999998569488525e-01 ]
       ind: 2
@@ -28,65 +28,65 @@ nodes:
    -
       typeid: "bm::Rot2D"
       name: rotation
-      loc: [ 924, 40 ]
+      loc: [ 924, 60 ]
       enable: 1
       ind: 3
       inputs: [ 2, 4, 5, 6 ]
    -
       typeid: "bm::Saw"
       name: saw_rotate
-      loc: [ 71, 200 ]
+      loc: [ 71, 300 ]
       enable: 1
       min: -2.
       max: 2.
-      value: 1.0850008726119995e+00
+      value: -1.2999974489212036e+00
       step: -1.4999999664723873e-02
       ind: 4
       inputs: []
    -
       typeid: "bm::Saw"
       name: saw_center_x
-      loc: [ 355, 200 ]
+      loc: [ 355, 300 ]
       enable: 1
       min: 0.
       max: 640.
-      value: 95.
-      step: 5.
+      value: 395.
+      step: -5.
       ind: 5
       inputs: []
    -
       typeid: "bm::Saw"
       name: saw_center_y
-      loc: [ 640, 200 ]
+      loc: [ 640, 300 ]
       enable: 1
       min: 0.
       max: 480.
-      value: 240.
+      value: 258.
       step: -6.
       ind: 6
       inputs: []
    -
       typeid: "bm::Output"
       name: output
-      loc: [ 924, 200 ]
+      loc: [ 924, 300 ]
       enable: 1
       ind: 7
       inputs: [ 2 ]
    -
       typeid: "bm::Signal"
       name: image_dir_sig
-      loc: [ 71, 360 ]
+      loc: [ 71, 540 ]
       enable: 1
       min: 0.
       max: 1.
-      value: 2.2000002861022949e-01
+      value: 7.9999953508377075e-01
       step: 9.9999997764825821e-03
       ind: 8
       inputs: []
    -
       typeid: "bm::Tap"
       name: image_dir_tap
-      loc: [ 355, 360 ]
+      loc: [ 355, 540 ]
       enable: 1
       ind: 9
       inputs: [ 8, 0 ]
