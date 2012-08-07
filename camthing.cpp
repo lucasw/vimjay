@@ -176,8 +176,8 @@ class CamThing
     loadGraph(FLAGS_graph_file);
     saveGraph("graph_load_test.yml");
 
-    cv::namedWindow("graph", CV_GUI_NORMAL);
-    cv::moveWindow("graph", 0, 500);
+    cv::namedWindow("graph_im", CV_GUI_NORMAL);
+    cv::moveWindow("graph_im", 0, 500);
 
 /*
     // Bring this back when there is a fullscreen/decoration free output window
@@ -487,18 +487,8 @@ class CamThing
   char key;
   bool valid_key;
 
-  bool update() 
+  bool handleInput() 
   {
-    // TBD capture key input in separate thread?
-    count++;
-    
-    // TBD put this in different thread 
-      { 
-        VLOG(3) << "";
-        output_node->setUpdate();
-        output_node->update();
-      }
-    
     key = waitKey(20);
 
     valid_key = true;
@@ -552,17 +542,35 @@ class CamThing
 
     return true;
   }
+
+  bool update() 
+  {
+    // TBD capture key input in separate thread?
+    count++;
+   
+    // have to do this before update to avoid some crashes
+    if (!handleInput()) return false;
+ 
+    // TBD put this in different thread 
+      { 
+        VLOG(3) << "";
+        output_node->setUpdate();
+        output_node->update();
+      }
+
+    return true;
+  }
  
   string command_text;
 
   void draw() 
   {
-    graph = cv::Scalar(0,0,0);
+    graph_im = cv::Scalar(0,0,0);
   
-    cv::putText(graph, command_text, cv::Point(10, graph.rows-40), 1, 1, cv::Scalar(200,205,195));
+    cv::putText(graph_im, command_text, cv::Point(10, graph_im.rows-40), 1, 1, cv::Scalar(200,205,195));
 
     // TBD could all_nodes size have
-    if (selected_node) cv::circle(graph, selected_node->loc, 18, cv::Scalar(0,220,1), -1);
+    if (selected_node) cv::circle(graph_im, selected_node->loc, 18, cv::Scalar(0,220,1), -1);
     // draw input and outputs
     /*
     imshow("cam", cam_buf->get());
@@ -582,7 +590,7 @@ class CamThing
       all_nodes[i]->draw(scale);
     } 
 
-    imshow("graph", graph);
+    imshow("graph_im", graph_im);
   }
 
   };
