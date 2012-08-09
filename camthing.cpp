@@ -164,8 +164,17 @@ class CamThing
  
   int selected_ind;
   Node* selected_node;
+
+  // store a node to be connected to a different selected node
+  int source_ind;
+  Node* source_node;
   
-  CamThing() : selected_ind(0), selected_node(NULL), output_node(NULL) 
+  CamThing() : 
+      selected_ind(0), 
+      selected_node(NULL),
+      source_ind(0),
+      source_node(NULL),
+      output_node(NULL) 
   {
     count = 0;
 
@@ -516,21 +525,61 @@ class CamThing
     }
     
     else if (key == 'j') {
-      selected_ind--;
-      if (selected_ind < 0) selected_ind = all_nodes.size()-1;
-      selected_node = all_nodes[selected_ind];
-    }
-    else if (key == 'k') {
+      // move forward in selection
       selected_ind++;
       if (selected_ind >= all_nodes.size()) selected_ind = 0;
       selected_node = all_nodes[selected_ind];
     }
+    else if (key == 'k') {
+      // move backward in selection
+      selected_ind--;
+      if (selected_ind < 0) selected_ind = all_nodes.size()-1;
+      selected_node = all_nodes[selected_ind];
+    }
+    else if (key == 'r') {
+      // select source node
+      source_ind = selected_ind;
+      source_node = all_nodes[source_ind];
+    } 
+    else if (key == 't') {
+      // select the target node
+      // connect to source node in best way possible, replacing the current input
+      // TBD need to be able to select specific inputs
+      if (source_node) {
+      Node* target = all_nodes[selected_ind];
+
+      bool src_image = false;
+      bool src_sig = false;
+
+      if (dynamic_cast<ImageNode*> (source_node)) src_image = true;
+      if (dynamic_cast<Signal*> (source_node)) src_sig = true;
+
+      if (target->inputs.size() == 0) { 
+        target->inputs.push_back(source_node); // maybe will work, TBD need to have more preset input slots
+      } else {
+        for (int i = 0; i < target->inputs.size(); i++) { 
+          if (src_image && (dynamic_cast<ImageNode*>(target->inputs[i]))) {
+            target->inputs[i] = (source_node);
+            break;
+          }
+          if (src_sig && (dynamic_cast<Signal*>(target->inputs[i]))) {
+            target->inputs[i] = (source_node);
+            break;
+          }
+        }
+      }
+
+      }  // legit source_node
+    } // set source_node to target input
     else {
       valid_key = false;
     }
 
     if (valid_key) {
-      command_text.append(&key);
+      string tmp;
+      tmp.resize(1);
+      tmp[0] = key;
+      command_text.append(tmp);
     }
 
     if (count %= 100) {
@@ -571,6 +620,7 @@ class CamThing
 
     // TBD could all_nodes size have
     if (selected_node) cv::circle(graph_im, selected_node->loc, 18, cv::Scalar(0,220,1), -1);
+    if (source_node) cv::circle(graph_im, source_node->loc, 10, cv::Scalar(129,181,51), -1);
     // draw input and outputs
     /*
     imshow("cam", cam_buf->get());
