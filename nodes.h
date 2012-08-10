@@ -33,9 +33,20 @@ namespace bm {
 
 // nesting, keys for moving up or down
 //
-// yaml loading/saving
-//
 //kinect support
+
+// Basic nodes are ImageNodes, Signals (numerical), and image Buffers (TBD signal Buffers?)
+// second types are vectors of image nodes and signals (probably required to be the same size,
+// maybe they could be bundled into std::pairs)
+//
+// most nodes need to have dedicated input locations for those types so incoming connections know where to go
+// each input also might want a string name?
+// 
+// it was nice to lump all types together in one inputs vector, but that doesn't scale right- should that
+// be maintained (where disconnections are managed across both the vector of inputs and the dedicated input
+// type connetions?)  Or use pointers to pointers?
+//  what about having a map of maps for the inputs - inputs[SIGNAL]["min"]
+
 class Node
 {
   // this structure tracks arbitrary numbers of callers to see if there have been
@@ -60,7 +71,8 @@ class Node
   cv::Mat graph;
   cv::Scalar vcol; 
   
-  std::vector<Node*> inputs;
+  //std::vector<Node*> inputs;
+  std::map<std::string, std::map< std::string, Node*> > inputs;
   
   Node();
   virtual ~Node() {}
@@ -77,11 +89,27 @@ class Node
   virtual bool load(cv::FileNodeIterator nd);
 };
 
-bool getValue(std::vector<Node*>& inputs, const int ind, float& val);
+/////////////////////////////////////////////////
+bool getNodeByNames(
+      map<string, map< string, Node*> >& inputs,
+      const string type, const string name,
+      Node* rv);
+
+bool getImage(
+    map<string, map< string, Node*> >& inputs,
+    const string name,
+    cv::Mat& image);
+  
+bool getSignal(
+    map<string, map< string, Node*> >& inputs,
+    const string name, 
+    float& val);
+//////////////////////////////////////////////////
 
 class ImageNode : public Node
 {
 public:
+  // TBD make all three private
   cv::Mat out;
   cv::Mat out_old;
   cv::Mat tmp; // scratch image

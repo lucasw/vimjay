@@ -38,9 +38,15 @@ namespace bm {
 
     do_update = true;
 
-    //LOG(INFO) << "in sz " << inputs.size();
-    for (int i = 0; i < inputs.size(); i++) {
-      inputs[i]->setUpdate();  
+    for (map<string, map<string, Node*> >::iterator it = inputs.begin(); 
+        it != inputs.end(); it++) 
+    {
+      for (map<string, Node*>::iterator it2 = it->second.begin(); 
+          it2 != it->second.end(); it2++) 
+        {
+          if (it2->second)
+            it2->second->setUpdate(); 
+        }
     }
     
     return true;
@@ -49,7 +55,7 @@ namespace bm {
   bool Node::isDirty(void* caller, int ind, bool clear) 
   {
     // first stage
-    std::map<void*, std::map<int, bool> >::iterator caller_map;  
+    map<void*, map<int, bool> >::iterator caller_map;  
     caller_map = dirty_hash.find(caller);
 
     if (caller_map == dirty_hash.end()) {
@@ -58,7 +64,7 @@ namespace bm {
     }
     
     // second stage
-    std::map<int, bool>::iterator is_dirty;  
+    map<int, bool>::iterator is_dirty;  
     is_dirty = caller_map->second.find(ind);
     if (is_dirty == caller_map->second.end()) {
       dirty_hash[caller][ind] = false;
@@ -74,7 +80,7 @@ namespace bm {
 
   bool Node::setDirty()
   {
-    for (map<void*, std::map<int, bool> >::iterator it = dirty_hash.begin(); it != dirty_hash.end(); it++) {
+    for (map<void*, map<int, bool> >::iterator it = dirty_hash.begin(); it != dirty_hash.end(); it++) {
       for (map<int,bool>::iterator it2 = it->second.begin(); it2 != it->second.end(); it2++) {
         it2->second = true;
       }
@@ -93,10 +99,21 @@ namespace bm {
     if (!enable) return false;
     
     bool inputs_dirty = false;
-    for (int i = 0; i < inputs.size(); i++) {
-      inputs[i]->update();
-      if (inputs[i]->isDirty(this,0)) inputs_dirty = true;
-    }
+
+
+    for (map<string, map<string, Node*> >::iterator it = inputs.begin(); 
+        it != inputs.end(); it++) 
+    {
+      for (map<string, Node*>::iterator it2 = it->second.begin(); 
+          it2 != it->second.end(); it2++) 
+        {
+
+        if (it2->second) {
+          it2->second->update();
+          if (it2->second->isDirty(this,0)) inputs_dirty = true;
+        }
+
+    }}
 
 
     // the inheriting object needs to set is_dirty as appropriate if it
@@ -119,12 +136,31 @@ namespace bm {
     if (!enable) cv::circle(graph, loc, 10, cv::Scalar(0,0,100),-1);
 
     cv::circle(graph, loc, 20, col, 4);
-  
-    for (int j = 0; j < inputs.size(); j++) {
-      cv::Point src = inputs[j]->loc + cv::Point(20,0);
-      cv::Point mid = src + (loc -src) * 0.8;
-      cv::line( graph, src, mid, cv::Scalar(0, 128/fr, 0), 2, 4 );
-      cv::line( graph, mid, loc + cv::Point(-20, j*5), cv::Scalar(0, 255/fr, 0), 2, CV_AA );
+
+    const int ht = 10;
+
+    int j = 0;
+
+    for (map<string, map<string, Node*> >::iterator it = inputs.begin(); 
+        it != inputs.end(); it++) 
+    {
+      cv::putText(graph, it->name, loc - cv::Point(20,-ht*j), 1, 1, cv::Scalar(100,255,245));
+      j++;
+      for (map<string, Node*>::iterator it2 = it->second.begin(); 
+          it2 != it->second.end(); it2++) 
+      {
+        cv::putText(graph, it2->name, loc - cv::Point(20,-ht*j), 1, 1, cv::Scalar(255,100,245));
+        j++;
+
+        if (!it2->second) continue;
+        
+        cv::Point src = it2->second->loc + cv::Point(20,0);
+        cv::Point dst = loc - cv::Point(20, -ht*j);
+        cv::Point mid = src + (dst - src) * 0.8;
+        cv::line( graph, src, mid, cv::Scalar(0, 128/fr, 0), 2, 4 );
+        cv::line( graph, mid, dst, cv::Scalar(0, 255/fr, 0), 2, CV_AA );
+
+      }
     }
 
     cv::putText(graph, name, loc - cv::Point(0,5), 1, 1, cv::Scalar(255,255,245));
@@ -140,7 +176,7 @@ namespace bm {
 
   bool Node::save(cv::FileStorage& fs)
   {
-    std::string type = getId(this);
+    string type = getId(this);
 
     fs << "typeid" << type;
     //fs << "typeid_mangled" << typeid(*all_nodes[i]).name();
@@ -151,6 +187,85 @@ namespace bm {
     
   }
   
+  //////////////////////////////////////////////////////
+
+  /// TBD
+  bool getNodeByNames(
+      map<string, map< string, Node*> >& inputs,
+      const string type, const string name,
+      Node* rv)
+  {
+    map<string, map<string, Node*> >::iterator image_map;  
+    image_map = inputs.find(type);
+    if (image_map == inputs.end()) return false;
+     
+    map<string, Node*>::iterator image_map2;  
+    image_map2 = inputs[type].find(name);
+    if (image_map2 == inputs[type].end()) return false;
+
+    rv = image_map2->second;
+    
+    if (!image_map2->second) return false;
+
+    return true;
+  }
+
+  bool getImage(
+    map<string, map< string, Node*> >& inputs,
+    const string name,
+    cv::Mat& image)
+  {
+    
+    Node* nd;
+
+    if (!getNodeByNames(inputs, "ImageNode", name, nd)) return false;
+
+    ImageNode* im_in = dynamic_cast<ImageNode*> (nd);
+
+    if (!im_in) return false;
+
+    image = im_in->get();
+
+    return true;
+  }
+
+  bool getSignal(
+    map<string, map< string, Node*> >& inputs,
+    const string name, 
+    float& val)
+  {
+    Node* nd;
+
+    if (!getNodeByNames(inputs, "Signal", name, nd)) return false;
+
+    Signal* im_in = dynamic_cast<Signal*> (nd);
+
+    if (!im_in) return false;
+
+    image = im_in->value;
+
+    return true;
+  }
+
+  bool getBuffer(
+    map<string, map< string, Node*> >& inputs,
+    const string name,
+    const float val,
+    cv::Mat& image)
+  {
+    
+    Node* nd;
+
+    if (!getNodeByNames(inputs, "Buffer", name, nd)) return false;
+
+    Buffer* im_in = dynamic_cast<Buffer*> (nd);
+
+    if (!im_in) return false;
+
+    image = im_in->get(val);
+
+    return true;
+  }
 
   //////////////////////////////////
   ImageNode::ImageNode() : Node()
@@ -169,23 +284,31 @@ namespace bm {
     const bool rv = Node::update();
     if (!rv) return false;
 
-    if (inputs.size() > 0) {
-      ImageNode* im_in = dynamic_cast<ImageNode*> (inputs[0]);
-      if (im_in) {
-        
-        //out_old = out;//.clone(); // TBD need to clone this?  It doesn't work
-        cv::Mat new_out = im_in->get(); 
+    map<string, map<string, Node*> >::iterator image_map;  
+    image_map = inputs.find("ImageNode");
+    if (image_map == inputs.end()) return true;
+     
+    if (!image_map.begin()->second) return true;
 
-        out_old = out;
-        if (new_out.refcount == out.refcount) {
-          VLOG(2) << "dirty input is identical with old image " << new_out.refcount << " " << out.refcount;
-          out = new_out.clone();
-        } else {
-          out = new_out;
-        }
+    ImageNode* im_in = dynamic_cast<ImageNode*> (image_map.begin()->second);
 
-      } // im_in
-    }  // inputs
+    // this 
+    if (!im_in) {
+      LOG(ERROR) << "wrong node attached to ImageNode input" << image_map.begin()->second->name;
+      return true;
+    }
+
+    //out_old = out;//.clone(); // TBD need to clone this?  It doesn't work
+    cv::Mat new_out = im_in->get(); 
+
+    out_old = out;
+    if (new_out.refcount == out.refcount) {
+      VLOG(2) << "dirty input is identical with old image " << new_out.refcount << " " << out.refcount;
+      out = new_out.clone();
+    } else {
+      out = new_out;
+    }
+    
     VLOG(3) << name << " update: " <<  out.refcount << " " << out_old.refcount;
   
     return true;
@@ -234,18 +357,7 @@ namespace bm {
     center = cv::Point2f(0,0);
   }
 
-  /// TBD
-  bool getValue(std::vector<Node*>& inputs, const int ind, float& val)
-  {
-    if (inputs.size() > ind) {
-      Signal* sig = dynamic_cast<Signal*> (inputs[ind]);
-      if (sig) {
-        val = sig->value;
-        return true;
-      }
-    }
-    return false;
-  }
+  
 
   bool Rot2D::update()
   {
@@ -254,27 +366,19 @@ namespace bm {
     // anything to rotate?
     if (inputs.size() < 1) return false;
     
-    ImageNode* im_in = dynamic_cast<ImageNode*> (inputs[0]);
-    if (!im_in) return false;
+    cv::Mat tmp_in;
+    // "image" is the default image input name
+    if (!getImage(inputs, "image", tmp_in)) return false;
+    if (tmp_in.empty()) return false;
 
-    getValue(inputs, 1, angle);     
-    
-    //float x = center.x;
-    //float y = center.y;
-    getValue(inputs, 2, center.x);     
-    getValue(inputs, 3, center.y);
-    //center = cv::Point2f(x,y);
+    getSignal(inputs, "angle", angle);     
+    getSignal(inputs, "center_x", center.x);     
+    getSignal(inputs, "center_y", center.y);
 
     //VLOG(1) << name << " " << is_dirty << " " << im_in->name << " " << im_in->is_dirty;
 
     cv::Mat rot = cv::getRotationMatrix2D(center, angle, scale);
-
-    //cv::Mat tmp;
-
-    cv::Mat tmp_in = im_in->get();
-    if (tmp_in.empty()) return false;
-
-    cv::warpAffine(im_in->get(), tmp, rot, im_in->get().size(), INTER_NEAREST);
+    cv::warpAffine(tmp_in, tmp, rot, im_in->get().size(), INTER_NEAREST);
 
     out = tmp;
   }
@@ -631,9 +735,9 @@ namespace bm {
     {
       if ( is_directory( *itr ) ) continue;
       
-      std::stringstream ss;
+      stringstream ss;
       ss << *itr;
-      std::string next_im = ( ss.str() );
+      string next_im = ( ss.str() );
       next_im = next_im.substr(1, next_im.size()-2);
       cv::Mat tmp0 = cv::imread( next_im );
      
@@ -698,16 +802,11 @@ namespace bm {
 
     if (isDirty(this,4)) {
       float val = 0;
-      getValue(inputs, 0, val);     
+      getSignal(inputs, "val", val);     
 
-      const int ind = 1;
-      if (inputs.size() <= ind) return false;
-
-      Buffer* buffer = dynamic_cast<Buffer*> (inputs[ind]);
+      if (!getBuffer(inputs, "buf", val, tmp)) return false;
       
-      if (!buffer) { return false; }
-      
-      out = buffer->get(val);
+      out = tmp;
     }
 
     return true;
