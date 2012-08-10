@@ -844,7 +844,10 @@ namespace bm {
       cv::Size sz;
 
       bool done_something = false;
-
+      
+      // TBD should these vectors just be stored with some incrementing string?
+      // TBD loop through all input ImageNodes and input signals (or vector values, need to be able
+      // to handle either)
       for (int i = 0; i < inputs.size() && i < nf.size(); i++) { 
         ImageNode* in = dynamic_cast<ImageNode*>( inputs[i] );
         if (!in) continue; // TBD error
