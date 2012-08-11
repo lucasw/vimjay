@@ -87,22 +87,26 @@ class Node
 
   virtual bool save(cv::FileStorage& fs);
   virtual bool load(cv::FileNodeIterator nd);
+
+  std::vector<Node*> getInputVector();
 };
 
 /////////////////////////////////////////////////
 bool getNodeByNames(
-      map<string, map< string, Node*> >& inputs,
-      const string type, const string name,
+      std::map<std::string, std::map< std::string, Node*> >& inputs,
+      const std::string type, const std::string name,
       Node* rv);
 
 bool getImage(
-    map<string, map< string, Node*> >& inputs,
-    const string name,
-    cv::Mat& image);
+    std::map<std::string, std::map< std::string, Node*> >& inputs,
+    const std::string name,
+    cv::Mat& image,
+    bool& is_dirty);
+    //const bool require_dirty= false);
   
 bool getSignal(
-    map<string, map< string, Node*> >& inputs,
-    const string name, 
+    std::map<std::string, std::map< std::string, Node*> >& inputs,
+    const std::string name, 
     float& val);
 //////////////////////////////////////////////////
 
@@ -264,7 +268,7 @@ class Add : public ImageNode
 {
   public:
   
-  // TBD make a vector of ImageNodes so dynamic_casts don't need to be used?
+  // TBD make a std::vector of ImageNodes so dynamic_casts don't need to be used?
   std::vector<float> nf;
   
   Add(); // : ImageNode()

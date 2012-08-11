@@ -38,16 +38,9 @@ namespace bm {
 
     do_update = true;
 
-    for (map<string, map<string, Node*> >::iterator it = inputs.begin(); 
-        it != inputs.end(); it++) 
-    {
-      for (map<string, Node*>::iterator it2 = it->second.begin(); 
-          it2 != it->second.end(); it2++) 
-        {
-          if (it2->second)
-            it2->second->setUpdate(); 
-        }
-    }
+    vector<Node*> input_vec = getInputVector();
+    for (int i = 0; i < input_vec.size(); i++)
+      input_vec[i]->setUpdate(); 
     
     return true;
   }
@@ -100,21 +93,12 @@ namespace bm {
     
     bool inputs_dirty = false;
 
-
-    for (map<string, map<string, Node*> >::iterator it = inputs.begin(); 
-        it != inputs.end(); it++) 
+    vector<Node*> input_vec = getInputVector();
+    for (int i = 0; i < input_vec.size(); i++)
     {
-      for (map<string, Node*>::iterator it2 = it->second.begin(); 
-          it2 != it->second.end(); it2++) 
-        {
-
-        if (it2->second) {
-          it2->second->update();
-          if (it2->second->isDirty(this,0)) inputs_dirty = true;
-        }
-
-    }}
-
+      input_vec[i]->update();
+      if (input_vec[i]->isDirty(this, 0)) inputs_dirty = true;
+    }
 
     // the inheriting object needs to set is_dirty as appropriate if it
     // isn't sufficient to have inputs determine it(e.g. it is sourcing change)
@@ -144,6 +128,7 @@ namespace bm {
     for (map<string, map<string, Node*> >::iterator it = inputs.begin(); 
         it != inputs.end(); it++) 
     {
+      // can't use getInputVector because of this, and reference to strings
       cv::putText(graph, it->name, loc - cv::Point(20,-ht*j), 1, 1, cv::Scalar(100,255,245));
       j++;
       for (map<string, Node*>::iterator it2 = it->second.begin(); 
@@ -213,12 +198,16 @@ namespace bm {
   bool getImage(
     map<string, map< string, Node*> >& inputs,
     const string name,
-    cv::Mat& image)
+    cv::Mat& image,
+    bool& is_dirty)
   {
     
     Node* nd;
 
     if (!getNodeByNames(inputs, "ImageNode", name, nd)) return false;
+
+    //if (require_dirty && !nd->isDirty()) return false;
+    is_dirty = nd->isDirty();
 
     ImageNode* im_in = dynamic_cast<ImageNode*> (nd);
 
@@ -265,6 +254,26 @@ namespace bm {
     image = im_in->get(val);
 
     return true;
+  }
+
+  // turn the double map inputs into a simple vector
+  vector<Node*> Node::getInputVector()
+  {
+    vector<Node*> rv;
+
+    for (map<string, map<string, Node*> >::iterator it = inputs.begin();
+          it != inputs.end(); it++)
+    {
+      for (map<string, Node*>::iterator it2 = it->second.begin();
+            it2 != it->second.end(); it2++)
+      {
+          if (!it->second) continue;
+          
+          rv->push_back(it->second);
+      }
+    }
+
+    return rv;
   }
 
   //////////////////////////////////
@@ -365,10 +374,11 @@ namespace bm {
 
     // anything to rotate?
     if (inputs.size() < 1) return false;
-    
+   
+    bool im_dirty;
     cv::Mat tmp_in;
     // "image" is the default image input name
-    if (!getImage(inputs, "image", tmp_in)) return false;
+    if (!getImage(inputs, "image", tmp_in, im_dirty)) return false;
     if (tmp_in.empty()) return false;
 
     getSignal(inputs, "angle", angle);     
@@ -603,13 +613,13 @@ namespace bm {
   {
     bool rv = ImageNode::update();
     if (!rv) return false;
+    
+    bool im_dirty;
+    if (!getImage(inputs, "image", tmp, im_dirty)) return false;
+    if (tmp.empty()) return false; 
+    if (!im_dirty) return true;
 
-    for (int i = 0; i < inputs.size(); i++) {
-      
-      ImageNode* im_in = dynamic_cast<ImageNode*> (inputs[i]);
-      if (im_in && im_in->isDirty(this,3)) 
-        add(im_in->get()); 
-    }
+    add(tmp); 
 
     if (frames.size() <= 0) return false;
     
@@ -790,10 +800,9 @@ namespace bm {
 
   void Tap::setup(Signal* new_signal, Buffer* new_buffer) 
   {
-    
     inputs.clear();
-    inputs.push_back(new_signal);
-    inputs.push_back(new_buffer);
+    inputs["Signal"]["value"] = new_signal;
+    inputs["Buffer"]["buffer"] = new_buffer;
   }
 
   bool Tap::update()
@@ -802,9 +811,9 @@ namespace bm {
 
     if (isDirty(this,4)) {
       float val = 0;
-      getSignal(inputs, "val", val);     
+      getSignal(inputs, "value", val);     
 
-      if (!getBuffer(inputs, "buf", val, tmp)) return false;
+      if (!getBuffer(inputs, "buffer", val, tmp)) return false;
       
       out = tmp;
     }
@@ -821,15 +830,14 @@ namespace bm {
   
   void Add::setup(vector<ImageNode*> np, vector<float> nf) 
   {
-    if (inputs.size() != nf.size()) {
+    if (np.size() != nf.size()) {
       LOG(ERROR) << "mismatched inputs and coefficients";
-      return; 
+      //return; 
     }
     this->nf = nf; 
     
-    inputs.resize(np.size());
     for (int i = 0; i < np.size(); i++) {
-      inputs[0] = np[0];
+      inputs["ImageNode"][itoa(i)] = np[0];
     }
   }
 
@@ -848,24 +856,26 @@ namespace bm {
       // TBD should these vectors just be stored with some incrementing string?
       // TBD loop through all input ImageNodes and input signals (or vector values, need to be able
       // to handle either)
-      for (int i = 0; i < inputs.size() && i < nf.size(); i++) { 
-        ImageNode* in = dynamic_cast<ImageNode*>( inputs[i] );
-        if (!in) continue; // TBD error
-      
-        if (in->get().empty()) continue; // TBD error
+      for (int i = 0; i < nf.size(); i++) {
+        // TBD instead of strictly requiring the name to be itoa(i), just loop through all ImageNode inputs
+        cv::Mat tmp_in;
+        bool im_dirty;
+        if (!getImage(inputs, itoa(i), tmp_in, im_dirty)) continue;
+        if (tmp.empty()) continue;
 
         if (!done_something) {
-          out = in->get() * nf[i];
-          sz = in->get().size();
+          out = tmp_in * nf[i];
+          sz = tmp_in.size();
           done_something = true;
         } else { 
 
-          if (sz != in->get().size()) {
-            LOG(ERROR) << name << " size mismatch " << sz.width << " " << sz.height << " != " << in->get().size().width << " " << in->get().size().height ;
+          if (sz != tmp_in.size()) {
+            LOG(ERROR) << name << " size mismatch " << sz.width << " " << sz.height 
+                << " != " << tmp_in.size().width << " " << tmp_in.size().height ;
             continue;
           }
 
-          out += in->get() * nf[i];
+          out += tmp_in * nf[i];
 
         }
       }

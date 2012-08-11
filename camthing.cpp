@@ -112,12 +112,25 @@ class CamThing
       
       all_nodes[i]->save(fs);
       fs << "ind" << i; //(int64_t)all_nodes[i];   // 
-      fs << "inputs" << "[:";
-      for (int j = 0; j < all_nodes[i]->inputs.size(); j++) {
-        fs << getIndFromPointer(all_nodes[i]->inputs[j]);   
+      fs << "inputs" << "[";
+
+      // TBD put in Node::load method
+      for (map<string, map<string, Node*> >::iterator it = all_nodes[i]->inputs.begin();
+          it != all_nodes[i]->inputs.end(); it++)
+      {
+        for (map<string, Node*>::iterator it2 = it->second.begin();
+            it2 != it->second.end(); it2++)
+        {
+          if (!it2->second) continue;
+
+          fs << "{";
+          fs << "type" << it->first;
+          fs << "port" << it2->first;
+          fs << "ind" << getIndFromPointer(it2->second);   
+          fs << "}";
+        }
       }
       fs << "]";
-
 
       fs << "}";
     }
@@ -181,8 +194,9 @@ class CamThing
     // TBD make internal type a gflag
     graph_im = cv::Mat(cv::Size(1280, 720), MAT_FORMAT_C3);
     graph_im = cv::Scalar(0);
- 
-    loadGraph(FLAGS_graph_file);
+
+    defaultGraph();
+    //loadGraph(FLAGS_graph_file);
     saveGraph("graph_load_test.yml");
 
     cv::namedWindow("graph_im", CV_GUI_NORMAL);
@@ -196,6 +210,7 @@ class CamThing
 
   }
 
+  ///////////////////////////////////////////////
   bool loadGraph(const std::string graph_file)
   {
     LOG(INFO) << "loading graph " << graph_file;
@@ -287,11 +302,15 @@ class CamThing
       (*it)["ind"] >> ind;
       for (int i = 0; i < (*it)["inputs"].size(); i++) {
         int input_ind;
-        (*it)["inputs"][i] >> input_ind;
-        all_nodes[ind]->inputs.push_back(all_nodes[input_ind]);
+        string type;
+        string port;
+        (*it)["inputs"][i]["type"] >> type;
+        (*it)["inputs"][i]["port"] >> port;
+        (*it)["inputs"][i]["ind"] >> input_ind;
+        
+        all_nodes[ind]->inputs[type][port] = all_nodes[input_ind];
       }
     } // second input pass
-
 
     if (output_node == NULL) {
       LOG(WARNING) << "No output node found, setting it to " << all_nodes[all_nodes.size() - 1]->name;
@@ -315,7 +334,7 @@ class CamThing
     test_im = cv::Scalar(200,200,200);
 
     ImageNode* passthrough = getNode<ImageNode>("image_node_passthrough", cv::Point(400, 50) );
-    passthrough->inputs.push_back(cam_in);
+    passthrough->inputs["ImageNode"]["image"] = cam_in;
     passthrough->out = test_im;
     passthrough->out_old = test_im;
     //output = passthrough;
@@ -324,7 +343,7 @@ class CamThing
     add_loop->out = test_im;
 
     Rot2D* rotate = getNode<Rot2D>("rotation", cv::Point(400,400));
-    rotate->inputs.push_back(add_loop);
+    rotate->inputs["ImageNode"]["image"] = add_loop;
     rotate->out = test_im;
     rotate->out_old = test_im;
     rotate->angle = 50.0;
@@ -333,16 +352,16 @@ class CamThing
 
     Signal* sr = getNode<Saw>("saw_rotate", cv::Point(350,400) ); 
     sr->setup(0.02, -5.0, -5.0, 5.0);
-    rotate->inputs.push_back(sr);
+    rotate->inputs["Signal"]["angle"] = (sr);
 
     Signal* scx = getNode<Saw>("saw_center_x", cv::Point(350,450) ); 
     scx->setup(5, test_im.cols/2, 0, test_im.cols);
-    rotate->inputs.push_back(scx);
+    rotate->inputs["Signal"]["center_x"] = (scx);
     
     Signal* scy = getNode<Saw>("saw_center_y", cv::Point(350,500) ); 
     //scy->setup(6, test_im.rows/2, test_im.rows/2 - 55.0, test_im.rows/2 + 55.0);
     scy->setup(6, test_im.rows/2, 0, test_im.rows);
-    rotate->inputs.push_back(scy);
+    rotate->inputs["Signal"]["center_y"] = (scy);
 
     vector<ImageNode*> in;
     in.push_back(passthrough);
@@ -427,7 +446,7 @@ class CamThing
       vector<float> vec (arr, arr + sizeof(arr) / sizeof(arr[0]) );
 
       fir->setup(vec);
-      fir->inputs.push_back(passthrough);
+      fir->inputs["ImageNode"]["image"] = (passthrough);
 
       // IIR denominator
       FilterFIR* denom = getNode<FilterFIR>("iir_denom", cv::Point(500,350));
@@ -439,7 +458,7 @@ class CamThing
 
       vector<float> vec2 (arr2, arr2 + sizeof(arr2) / sizeof(arr2[0]) );
       denom->setup(vec2);
-      denom->inputs.push_back(fir);
+      denom->inputs["ImageNode"]["image"] = (fir);
        
       Add* add_iir = getNode<Add>("add_iir", cv::Point(400,100) );
       add_iir->out = test_im;
@@ -553,7 +572,9 @@ class CamThing
 
       if (dynamic_cast<ImageNode*> (source_node)) src_image = true;
       if (dynamic_cast<Signal*> (source_node)) src_sig = true;
+      
 
+      /// TBD fix this next
       if (target->inputs.size() == 0) { 
         target->inputs.push_back(source_node); // maybe will work, TBD need to have more preset input slots
       } else {
