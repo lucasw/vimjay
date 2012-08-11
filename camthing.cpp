@@ -347,7 +347,7 @@ class CamThing
     Add* add_loop = getNode<Add>("add_loop", cv::Point(600,100) );
     add_loop->out = test_im;
 
-    Rot2D* rotate = getNode<Rot2D>("rotation", cv::Point(400,400));
+    Rot2D* rotate = getNode<Rot2D>("rotate", cv::Point(400,400));
     rotate->inputs["ImageNode"]["image"] = add_loop;
     rotate->out = test_im;
     rotate->out_old = test_im;

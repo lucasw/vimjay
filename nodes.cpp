@@ -840,7 +840,7 @@ namespace bm {
     this->nf = nf; 
     
     for (int i = 0; i < np.size(); i++) {
-      inputs["ImageNode"][boost::lexical_cast<string>(i)] = np[0];
+      inputs["ImageNode"][boost::lexical_cast<string>(i)] = np[i];
     }
   }
 
