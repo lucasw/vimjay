@@ -513,7 +513,8 @@ class CamThing
     cv::namedWindow("cam", CV_GUI_NORMAL);
     cv::moveWindow("cam", 0, 0);
 */
-
+    
+    output_node = (Output*)add_loop;
     saveGraph();
   }
 
@@ -661,6 +662,10 @@ class CamThing
     // TBD put this in different thread 
       { 
         VLOG(3) << "";
+        if (!output_node) {
+          LOG(ERROR) <<"no output_node";
+          return false;
+        }
         output_node->setUpdate();
         output_node->update();
       }
