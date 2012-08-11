@@ -1,9 +1,11 @@
 
 #include <iostream>
 #include <stdio.h>
+#include <stdlib.h>
 
 #include <boost/thread.hpp>
-#include "boost/filesystem/operations.hpp"
+#include <boost/filesystem/operations.hpp>
+#include <boost/lexical_cast.hpp>
 
 #include "opencv2/highgui/highgui.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
@@ -207,7 +209,7 @@ namespace bm {
     if (!getNodeByNames(inputs, "ImageNode", name, nd)) return false;
 
     //if (require_dirty && !nd->isDirty()) return false;
-    is_dirty = nd->isDirty();
+    is_dirty = nd->isDirty(nd,20);
 
     ImageNode* im_in = dynamic_cast<ImageNode*> (nd);
 
@@ -231,7 +233,7 @@ namespace bm {
 
     if (!im_in) return false;
 
-    image = im_in->value;
+    val = im_in->value;
 
     return true;
   }
@@ -267,9 +269,9 @@ namespace bm {
       for (map<string, Node*>::iterator it2 = it->second.begin();
             it2 != it->second.end(); it2++)
       {
-          if (!it->second) continue;
+        if (it2->second == NULL) continue;
           
-          rv->push_back(it->second);
+        rv.push_back(it2->second);
       }
     }
 
@@ -297,13 +299,14 @@ namespace bm {
     image_map = inputs.find("ImageNode");
     if (image_map == inputs.end()) return true;
      
-    if (!image_map.begin()->second) return true;
+    if (image_map->second.begin()->second == NULL) return true;
 
-    ImageNode* im_in = dynamic_cast<ImageNode*> (image_map.begin()->second);
+    ImageNode* im_in = dynamic_cast<ImageNode*> (image_map->second.begin()->second);
 
     // this 
     if (!im_in) {
-      LOG(ERROR) << "wrong node attached to ImageNode input" << image_map.begin()->second->name;
+      LOG(ERROR) << "wrong node attached to ImageNode input" 
+          << image_map->second.begin()->second->name;
       return true;
     }
 
@@ -388,7 +391,7 @@ namespace bm {
     //VLOG(1) << name << " " << is_dirty << " " << im_in->name << " " << im_in->is_dirty;
 
     cv::Mat rot = cv::getRotationMatrix2D(center, angle, scale);
-    cv::warpAffine(tmp_in, tmp, rot, im_in->get().size(), INTER_NEAREST);
+    cv::warpAffine(tmp_in, tmp, rot, tmp_in.size(), INTER_NEAREST);
 
     out = tmp;
   }
@@ -837,7 +840,7 @@ namespace bm {
     this->nf = nf; 
     
     for (int i = 0; i < np.size(); i++) {
-      inputs["ImageNode"][itoa(i)] = np[0];
+      inputs["ImageNode"][boost::lexical_cast<string>(i)] = np[0];
     }
   }
 
@@ -860,7 +863,7 @@ namespace bm {
         // TBD instead of strictly requiring the name to be itoa(i), just loop through all ImageNode inputs
         cv::Mat tmp_in;
         bool im_dirty;
-        if (!getImage(inputs, itoa(i), tmp_in, im_dirty)) continue;
+        if (!getImage(inputs, boost::lexical_cast<string>(i), tmp_in, im_dirty)) continue;
         if (tmp.empty()) continue;
 
         if (!done_something) {
