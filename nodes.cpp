@@ -129,12 +129,12 @@ namespace bm {
         it != inputs.end(); it++) 
     {
       // can't use getInputVector because of this, and reference to strings
-      cv::putText(graph, it->name, loc - cv::Point(20,-ht*j), 1, 1, cv::Scalar(100,255,245));
+      cv::putText(graph, it->first, loc - cv::Point(20,-ht*j), 1, 1, cv::Scalar(100,255,245));
       j++;
       for (map<string, Node*>::iterator it2 = it->second.begin(); 
           it2 != it->second.end(); it2++) 
       {
-        cv::putText(graph, it2->name, loc - cv::Point(20,-ht*j), 1, 1, cv::Scalar(255,100,245));
+        cv::putText(graph, it2->first, loc - cv::Point(20,-ht*j), 1, 1, cv::Scalar(255,100,245));
         j++;
 
         if (!it2->second) continue;

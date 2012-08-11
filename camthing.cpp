@@ -177,16 +177,21 @@ class CamThing
  
   int selected_ind;
   Node* selected_node;
+  string selected_port;
 
   // store a node to be connected to a different selected node
   int source_ind;
   Node* source_node;
+  // ImageNode, Signal, or Buffer for now- TBD use enums instead of strings
+  string source_type;
   
   CamThing() : 
       selected_ind(0), 
       selected_node(NULL),
+      selected_port(""),
       source_ind(0),
       source_node(NULL),
+      source_type(""),
       output_node(NULL) 
   {
     count = 0;
@@ -511,7 +516,44 @@ class CamThing
 
     saveGraph();
   }
-   
+
+  bool selectPort()
+  {
+    if (!selected_node) return false;
+    if (source_type == "") return false;
+    
+    if (selected_node->inputs.find(source_type) == selected_node->inputs.end()) {
+      LOG(INFO) << "no matching inputs of type " << source_type;
+      return false;
+    }
+
+    // start at beginning if uninitialized
+    const string first_port = selected_node->inputs[source_type].begin()->first;
+
+    if ((selected_port == "") || 
+        (selected_node->inputs[source_type].find(selected_port) == 
+         selected_node->inputs[source_type].end())) {
+      selected_port = first_port;
+      return true;
+    } 
+
+    // next look for match with current 
+    map<string, Node*>::iterator it2 = selected_node->inputs[source_type].find(selected_port);
+    map<string, Node*>::iterator it2_end = selected_node->inputs[source_type].end();
+    
+    if (it2 == it2_end) {
+      selected_port = first_port;
+      return true;
+    }
+
+    it2++;
+    if (it2 == it2_end) selected_port = first_port;
+    // now finally set the port to the next available port
+    else selected_port = it2->first;
+    
+    return true;
+  }// selectPort()
+
   char key;
   bool valid_key;
 
@@ -548,47 +590,42 @@ class CamThing
       selected_ind++;
       if (selected_ind >= all_nodes.size()) selected_ind = 0;
       selected_node = all_nodes[selected_ind];
+      
+      selectPort();
     }
     else if (key == 'k') {
       // move backward in selection
       selected_ind--;
       if (selected_ind < 0) selected_ind = all_nodes.size()-1;
       selected_node = all_nodes[selected_ind];
+      
+      selectPort();
     }
+    else if (key == 'u') {
+     
+      selectPort();
+      
+    } // key = u
+    //else if (key == 'i') {
+    //}
     else if (key == 'r') {
       // select source node
       source_ind = selected_ind;
       source_node = all_nodes[source_ind];
+
+      // TBD can't be both at once?
+      if (dynamic_cast<ImageNode*> (source_node)) source_type = "ImageNode";
+      if (dynamic_cast<Signal*> (source_node)) source_type = "Signal";
+      if (dynamic_cast<Buffer*> (source_node)) source_type = "Buffer";
+
     } 
     else if (key == 't') {
       // select the target node
       // connect to source node in best way possible, replacing the current input
       // TBD need to be able to select specific inputs
-      if (source_node) {
-      Node* target = all_nodes[selected_ind];
-
-      bool src_image = false;
-      bool src_sig = false;
-
-      if (dynamic_cast<ImageNode*> (source_node)) src_image = true;
-      if (dynamic_cast<Signal*> (source_node)) src_sig = true;
+      if (source_node && selected_node && (source_type != "") && (selected_port != "")) {
       
-
-      /// TBD fix this next
-      if (target->inputs.size() == 0) { 
-        target->inputs.push_back(source_node); // maybe will work, TBD need to have more preset input slots
-      } else {
-        for (int i = 0; i < target->inputs.size(); i++) { 
-          if (src_image && (dynamic_cast<ImageNode*>(target->inputs[i]))) {
-            target->inputs[i] = (source_node);
-            break;
-          }
-          if (src_sig && (dynamic_cast<Signal*>(target->inputs[i]))) {
-            target->inputs[i] = (source_node);
-            break;
-          }
-        }
-      }
+        selected_node->inputs[source_type][selected_port] = source_node;
 
       }  // legit source_node
     } // set source_node to target input
