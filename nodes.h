@@ -89,6 +89,14 @@ class Node
   virtual bool load(cv::FileNodeIterator nd);
 
   std::vector<Node*> getInputVector();
+
+  bool getImage(
+    //std::map<std::string, std::map< std::string, Node*> >& inputs,
+    const std::string name,
+    cv::Mat& image,
+    bool& is_dirty);
+    //const bool require_dirty= false);
+  
 };
 
 /////////////////////////////////////////////////
@@ -97,13 +105,6 @@ bool getNodeByNames(
       const std::string type, const std::string name,
       Node* rv);
 
-bool getImage(
-    std::map<std::string, std::map< std::string, Node*> >& inputs,
-    const std::string name,
-    cv::Mat& image,
-    bool& is_dirty);
-    //const bool require_dirty= false);
-  
 bool getSignal(
     std::map<std::string, std::map< std::string, Node*> >& inputs,
     const std::string name, 

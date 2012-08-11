@@ -200,8 +200,8 @@ class CamThing
     graph_im = cv::Mat(cv::Size(1280, 720), MAT_FORMAT_C3);
     graph_im = cv::Scalar(0);
 
-    defaultGraph();
-    //loadGraph(FLAGS_graph_file);
+    //defaultGraph();
+    loadGraph(FLAGS_graph_file);
     saveGraph("graph_load_test.yml");
 
     cv::namedWindow("graph_im", CV_GUI_NORMAL);

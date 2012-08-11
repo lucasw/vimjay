@@ -182,6 +182,7 @@ namespace bm {
       const string type, const string name,
       Node* rv)
   {
+    rv = NULL;
     map<string, map<string, Node*> >::iterator image_map;  
     image_map = inputs.find(type);
     if (image_map == inputs.end()) return false;
@@ -192,13 +193,13 @@ namespace bm {
 
     rv = image_map2->second;
     
-    if (!image_map2->second) return false;
+    if (!rv) return false;
 
     return true;
   }
 
-  bool getImage(
-    map<string, map< string, Node*> >& inputs,
+  bool Node::getImage(
+    //map<string, map< string, Node*> >& inputs,
     const string name,
     cv::Mat& image,
     bool& is_dirty)
@@ -209,7 +210,7 @@ namespace bm {
     if (!getNodeByNames(inputs, "ImageNode", name, nd)) return false;
 
     //if (require_dirty && !nd->isDirty()) return false;
-    is_dirty = nd->isDirty(nd,20);
+    is_dirty = nd->isDirty(this, 20, false);
 
     ImageNode* im_in = dynamic_cast<ImageNode*> (nd);
 
@@ -381,7 +382,7 @@ namespace bm {
     bool im_dirty;
     cv::Mat tmp_in;
     // "image" is the default image input name
-    if (!getImage(inputs, "image", tmp_in, im_dirty)) return false;
+    if (!getImage("image", tmp_in, im_dirty)) return false;
     if (tmp_in.empty()) return false;
 
     getSignal(inputs, "angle", angle);     
@@ -618,7 +619,7 @@ namespace bm {
     if (!rv) return false;
     
     bool im_dirty;
-    if (!getImage(inputs, "image", tmp, im_dirty)) return false;
+    if (!getImage("image", tmp, im_dirty)) return false;
     if (tmp.empty()) return false; 
     if (!im_dirty) return true;
 
@@ -642,6 +643,8 @@ namespace bm {
       if (ind >= frames.size())  continue;
 
       if (frames[ind].empty()) { LOG(ERROR) << "frames " << i << " is empty";  continue; }
+
+      if (out.empty()) out = frames[ind].clone();
 
       cv::Size sz = cv::Size(out.size().width * scale * 0.25, out.size().height * scale * 0.25);
 
@@ -863,7 +866,7 @@ namespace bm {
         // TBD instead of strictly requiring the name to be itoa(i), just loop through all ImageNode inputs
         cv::Mat tmp_in;
         bool im_dirty;
-        if (!getImage(inputs, boost::lexical_cast<string>(i), tmp_in, im_dirty)) continue;
+        if (!getImage(boost::lexical_cast<string>(i), tmp_in, im_dirty)) continue;
         if (tmp.empty()) continue;
 
         if (!done_something) {
