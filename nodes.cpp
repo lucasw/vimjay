@@ -184,12 +184,14 @@ namespace bm {
       //map<string, map< string, Node*> >& inputs,
       const string type, 
       const string port,
-      Node* rv)
+      Node*& rv)
   {
     rv = NULL;
     map<string, map<string, Node*> >::iterator image_map;  
     image_map = inputs.find(type);
-    if (image_map == inputs.end()) return false;
+    if (image_map == inputs.end()) {
+      return false;
+    }
      
     map<string, Node*>::iterator image_map2;  
     image_map2 = inputs[type].find(port);

@@ -111,7 +111,7 @@ class Node
       //std::map<std::string, std::map< std::string, Node*> >& inputs,
       const std::string type, 
       const std::string port,
-      Node* rv);
+      Node*& rv);
       
   bool getSignal(
       const std::string port, 
