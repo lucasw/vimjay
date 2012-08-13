@@ -179,7 +179,8 @@ namespace bm {
   /// TBD
   bool getNodeByNames(
       map<string, map< string, Node*> >& inputs,
-      const string type, const string name,
+      const string type, 
+      const string name,
       Node* rv)
   {
     rv = NULL;

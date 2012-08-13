@@ -96,3 +96,15 @@ nodes:
       ind: 6
       inputs:
          []
+   -
+      typeid: "bm::Output"
+      name: output
+      loc: [ 400, 50 ]
+      enable: 1
+      ind: 7
+      inputs:
+         -
+            type: ImageNode
+            port: image
+            ind: 2
+

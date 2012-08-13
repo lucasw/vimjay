@@ -56,7 +56,8 @@ class CamThing
 
       all_nodes.push_back(node);
       
-      LOG(INFO) << all_nodes.size() << " new node " << name << " " << loc.x << ", " << loc.y;
+      LOG(INFO) << CLVAL << all_nodes.size() - 1 << CLNRM 
+          << " new node " << name << " " << loc.x << ", " << loc.y;
 
       return node;
     }
@@ -244,7 +245,7 @@ class CamThing
       loc.y = (*it)["loc"][1];
       bool enable;
       (*it)["enable"] >> enable;
-      LOG(INFO) << type_id << " " << name << " " << loc << " " << enable;
+      LOG(INFO) << type_id << " " << CLTXT << name << CLVAL << " " << loc << " " << enable << CLNRM;
       
       Node* nd;
       if (type_id.compare("bm::Webcam") == 0) {
@@ -318,7 +319,7 @@ class CamThing
     } // second input pass
 
     if (output_node == NULL) {
-      LOG(WARNING) << "No output node found, setting it to " << all_nodes[all_nodes.size() - 1]->name;
+      LOG(WARNING) << CLWRN << "No output node found, setting it to " << all_nodes[all_nodes.size() - 1]->name << CLNRM;
       // TBD could make sure that this node is an output node
       output_node = (Output*) all_nodes[all_nodes.size() - 1];
     }
