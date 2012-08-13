@@ -1,11 +1,10 @@
 %YAML:1.0
-date: "Sun Aug 12 21:58:08 2012\n"
+date: "Sun Aug 12 22:14:26 2012\n"
 nodes:
    -
-      #typeid: "bm::ImageDir"
-      typeid: "bm::Webcam"
+      typeid: "bm::ImageDir"
       name: webcam
-      loc: [ 91, 45 ]
+      loc: [ 71, 60 ]
       enable: 1
       max_size: 0
       dir: "../data"
@@ -15,7 +14,7 @@ nodes:
    -
       typeid: "bm::ImageNode"
       name: image_node_passthrough
-      loc: [ 457, 45 ]
+      loc: [ 355, 60 ]
       enable: 1
       ind: 1
       inputs:
@@ -26,7 +25,7 @@ nodes:
    -
       typeid: "bm::Add"
       name: add_loop
-      loc: [ 822, 45 ]
+      loc: [ 640, 60 ]
       enable: 1
       nf: [ 1.0000000149011612e-01, 8.8999998569488525e-01 ]
       ind: 2
@@ -42,7 +41,7 @@ nodes:
    -
       typeid: "bm::Rot2D"
       name: rotate
-      loc: [ 91, 225 ]
+      loc: [ 924, 60 ]
       enable: 1
       ind: 3
       inputs:
@@ -65,7 +64,7 @@ nodes:
    -
       typeid: "bm::Saw"
       name: saw_rotate
-      loc: [ 457, 225 ]
+      loc: [ 71, 300 ]
       enable: 1
       min: -5.
       max: 5.
@@ -77,7 +76,7 @@ nodes:
    -
       typeid: "bm::Saw"
       name: saw_center_x
-      loc: [ 822, 225 ]
+      loc: [ 355, 300 ]
       enable: 1
       min: 0.
       max: 640.
@@ -89,7 +88,7 @@ nodes:
    -
       typeid: "bm::Saw"
       name: saw_center_y
-      loc: [ 91, 405 ]
+      loc: [ 640, 300 ]
       enable: 1
       min: 0.
       max: 480.
@@ -99,13 +98,40 @@ nodes:
       inputs:
          []
    -
+      typeid: "bm::Saw"
+      name: dir_tap_sig
+      loc: [ 924, 300 ]
+      enable: 1
+      min: 0.
+      max: 1.
+      value: 6.9999992847442627e-01
+      step: -1.0000000149011612e-01
+      ind: 7
+      inputs:
+         []
+   -
+      typeid: "bm::Tap"
+      name: dir_tap
+      loc: [ 71, 540 ]
+      enable: 1
+      ind: 8
+      inputs:
+         -
+            type: Buffer
+            port: buffer
+            ind: 0
+         -
+            type: Signal
+            port: value
+            ind: 7
+   -
       typeid: "bm::Output"
       name: output
-      loc: [ 457, 405 ]
+      loc: [ 355, 540 ]
       enable: 1
-      ind: 7
+      ind: 9
       inputs:
          -
             type: ImageNode
             port: image
-            ind: 1
+            ind: 8
