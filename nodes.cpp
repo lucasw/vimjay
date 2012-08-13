@@ -642,7 +642,8 @@ namespace bm {
       if (i == 3) ind = frames.size() - 1;
       if (ind >= frames.size())  continue;
 
-      if (frames[ind].empty()) { LOG(ERROR) << "frames " << i << " is empty";  continue; }
+      if (frames[ind].empty()) { 
+        LOG(ERROR) << "frames " << i << CLERR << " is empty" << CLNRM;  continue; }
 
       if (out.empty()) out = frames[ind].clone();
 
@@ -660,7 +661,7 @@ namespace bm {
   bool Buffer::add(cv::Mat new_frame, bool restrict_size)
   {
     if (new_frame.empty()) {
-      LOG(ERROR) << name << " new_frame is empty";
+      LOG(ERROR) << name << CLERR << " new_frame is empty" << CLNRM;
       //is_dirty = false;
       return false;// TBD LOG(ERROR)
     }
@@ -738,7 +739,7 @@ namespace bm {
 
     boost::filesystem::path image_path(dir);
     if (!is_directory(image_path)) {
-      LOG(ERROR) << name << " not a directory " << dir; 
+      LOG(ERROR) << name << CLERR << " not a directory " << CLNRM << dir; 
       return false;
     }
 
@@ -772,7 +773,7 @@ namespace bm {
     
     /// TBD or has sized increased since beginning of function?
     if (frames.size() == 0) {
-      LOG(ERROR) << name << " no images loaded";
+      LOG(ERROR) << name << CLERR << " no images loaded" << CLNRM;
       return false;
     }
     
@@ -837,7 +838,7 @@ namespace bm {
   void Add::setup(vector<ImageNode*> np, vector<float> nf) 
   {
     if (np.size() != nf.size()) {
-      LOG(ERROR) << "mismatched inputs and coefficients";
+      LOG(ERROR) << CLWRN << "mismatched inputs and coefficients" << CLNRM;
       //return; 
     }
     this->nf = nf; 

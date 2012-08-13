@@ -12,6 +12,13 @@
 #include <deque>
 #include <map>
 
+// bash color codes
+#define CLNRM "\e[0m"
+#define CLWRN "\e[0;43m"
+#define CLERR "\e[1;41m"
+#define CLVAL "\e[1;36m"
+#define CLTXT "\e[1;35m"
+
 #define MAT_FORMAT_C3 CV_8UC3
 #define MAT_FORMAT CV_8U
 //#define MAT_FORMAT_C3 CV_16SC3
