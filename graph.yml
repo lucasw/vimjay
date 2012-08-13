@@ -1,20 +1,21 @@
 %YAML:1.0
-date: "Fri Aug 10 22:38:05 2012\n"
+date: "Sun Aug 12 21:58:08 2012\n"
 nodes:
    -
-      typeid: "bm::ImageDir"
+      #typeid: "bm::ImageDir"
+      typeid: "bm::Webcam"
       name: webcam
-      loc: [ 50, 20 ]
+      loc: [ 91, 45 ]
       enable: 1
-      dir: "../data"
       max_size: 0
+      dir: "../data"
       ind: 0
       inputs:
          []
    -
       typeid: "bm::ImageNode"
       name: image_node_passthrough
-      loc: [ 400, 50 ]
+      loc: [ 457, 45 ]
       enable: 1
       ind: 1
       inputs:
@@ -25,7 +26,7 @@ nodes:
    -
       typeid: "bm::Add"
       name: add_loop
-      loc: [ 600, 100 ]
+      loc: [ 822, 45 ]
       enable: 1
       nf: [ 1.0000000149011612e-01, 8.8999998569488525e-01 ]
       ind: 2
@@ -41,7 +42,7 @@ nodes:
    -
       typeid: "bm::Rot2D"
       name: rotate
-      loc: [ 400, 400 ]
+      loc: [ 91, 225 ]
       enable: 1
       ind: 3
       inputs:
@@ -64,23 +65,23 @@ nodes:
    -
       typeid: "bm::Saw"
       name: saw_rotate
-      loc: [ 350, 400 ]
+      loc: [ 457, 225 ]
       enable: 1
       min: -5.
       max: 5.
-      value: -5.
-      step: 1.9999999552965164e-02
+      value: 4.0200009346008301e+00
+      step: -1.9999999552965164e-02
       ind: 4
       inputs:
          []
    -
       typeid: "bm::Saw"
       name: saw_center_x
-      loc: [ 350, 450 ]
+      loc: [ 822, 225 ]
       enable: 1
       min: 0.
       max: 640.
-      value: 320.
+      value: 490.
       step: 5.
       ind: 5
       inputs:
@@ -88,24 +89,23 @@ nodes:
    -
       typeid: "bm::Saw"
       name: saw_center_y
-      loc: [ 350, 500 ]
+      loc: [ 91, 405 ]
       enable: 1
       min: 0.
       max: 480.
-      value: 240.
-      step: 6.
+      value: 342.
+      step: -6.
       ind: 6
       inputs:
          []
    -
       typeid: "bm::Output"
       name: output
-      loc: [ 400, 50 ]
+      loc: [ 457, 405 ]
       enable: 1
       ind: 7
       inputs:
          -
             type: ImageNode
             port: image
-            ind: 2
-
+            ind: 1

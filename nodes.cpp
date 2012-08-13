@@ -49,7 +49,7 @@ namespace bm {
 
   bool Node::isDirty(const void* caller, const int ind, const bool clear) 
   {
-    LOG(INFO) << name << " " << this << " isDirty " << caller 
+    VLOG(3) << name << " " << this << " isDirty " << caller 
         << " " << ind << " " << clear;
 
     // first stage
