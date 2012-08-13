@@ -58,7 +58,7 @@ class Node
 {
   // this structure tracks arbitrary numbers of callers to see if there have been
   // change since the last call
-  std::map<void*, std::map<int, bool> > dirty_hash;  
+  std::map<const void*, std::map<int, bool> > dirty_hash;  
   public:
   // has this node been updated this timestep, or does it need to be updated this timestep
   // because of dependencies
@@ -69,7 +69,9 @@ class Node
   // is the output of this node different from the last  timestep
   //bool is_dirty;
   // has the node changed since the last time the pointer parameter supplied has called this function (and cleared it)
-  bool isDirty(void* caller, int ind=0,  bool clear_dirty=true);
+  bool isDirty(const void* caller, 
+      const int ind=0, 
+      const bool clear_dirty=true);
   
   bool setDirty();
 
@@ -95,27 +97,33 @@ class Node
   virtual bool save(cv::FileStorage& fs);
   virtual bool load(cv::FileNodeIterator nd);
 
+  void printInputVector();
   std::vector<Node*> getInputVector();
 
   bool getImage(
     //std::map<std::string, std::map< std::string, Node*> >& inputs,
-    const std::string name,
+    const std::string port,
     cv::Mat& image,
     bool& is_dirty);
     //const bool require_dirty= false);
-  
+ 
+  bool getInputPort(
+      //std::map<std::string, std::map< std::string, Node*> >& inputs,
+      const std::string type, 
+      const std::string port,
+      Node* rv);
+      
+  bool getSignal(
+      const std::string port, 
+      float& val);
+
+  bool getBuffer(
+    const std::string port,
+    const float val,
+    cv::Mat& image);
 };
 
 /////////////////////////////////////////////////
-bool getNodeByNames(
-      std::map<std::string, std::map< std::string, Node*> >& inputs,
-      const std::string type, const std::string name,
-      Node* rv);
-
-bool getSignal(
-    std::map<std::string, std::map< std::string, Node*> >& inputs,
-    const std::string name, 
-    float& val);
 //////////////////////////////////////////////////
 
 class ImageNode : public Node
@@ -131,7 +139,6 @@ public:
   virtual bool update();
   // TBD could there be a templated get function to be used in different node types?
   virtual cv::Mat get();
-
 
   virtual bool draw(float scale = 0.2);
 };

@@ -47,10 +47,13 @@ namespace bm {
     return true;
   }
 
-  bool Node::isDirty(void* caller, int ind, bool clear) 
+  bool Node::isDirty(const void* caller, const int ind, const bool clear) 
   {
+    LOG(INFO) << name << " " << this << " isDirty " << caller 
+        << " " << ind << " " << clear;
+
     // first stage
-    map<void*, map<int, bool> >::iterator caller_map;  
+    map<const void*, map<int, bool> >::iterator caller_map;  
     caller_map = dirty_hash.find(caller);
 
     if (caller_map == dirty_hash.end()) {
@@ -75,7 +78,7 @@ namespace bm {
 
   bool Node::setDirty()
   {
-    for (map<void*, map<int, bool> >::iterator it = dirty_hash.begin(); it != dirty_hash.end(); it++) {
+    for (map<const void*, map<int, bool> >::iterator it = dirty_hash.begin(); it != dirty_hash.end(); it++) {
       for (map<int,bool>::iterator it2 = it->second.begin(); it2 != it->second.end(); it2++) {
         it2->second = true;
       }
@@ -177,10 +180,10 @@ namespace bm {
   //////////////////////////////////////////////////////
 
   /// TBD
-  bool getNodeByNames(
-      map<string, map< string, Node*> >& inputs,
+  bool Node::getInputPort(
+      //map<string, map< string, Node*> >& inputs,
       const string type, 
-      const string name,
+      const string port,
       Node* rv)
   {
     rv = NULL;
@@ -189,7 +192,7 @@ namespace bm {
     if (image_map == inputs.end()) return false;
      
     map<string, Node*>::iterator image_map2;  
-    image_map2 = inputs[type].find(name);
+    image_map2 = inputs[type].find(port);
     if (image_map2 == inputs[type].end()) return false;
 
     rv = image_map2->second;
@@ -199,17 +202,20 @@ namespace bm {
     return true;
   }
 
+  // get an imagenode image from this nodes imagenode inputs
   bool Node::getImage(
     //map<string, map< string, Node*> >& inputs,
-    const string name,
+    const string port,
     cv::Mat& image,
     bool& is_dirty)
   {
     
-    Node* nd;
+    Node* nd = NULL;
 
-    if (!getNodeByNames(inputs, "ImageNode", name, nd)) return false;
-
+    if (!getInputPort("ImageNode", port, nd)) 
+      return false;
+    
+    VLOG(2) << name << " " << port << " " << nd;
     //if (require_dirty && !nd->isDirty()) return false;
     is_dirty = nd->isDirty(this, 20, false);
 
@@ -222,14 +228,13 @@ namespace bm {
     return true;
   }
 
-  bool getSignal(
-    map<string, map< string, Node*> >& inputs,
-    const string name, 
+  bool Node::getSignal(
+    const string port, 
     float& val)
   {
     Node* nd;
 
-    if (!getNodeByNames(inputs, "Signal", name, nd)) return false;
+    if (!getInputPort("Signal", port, nd)) return false;
 
     Signal* im_in = dynamic_cast<Signal*> (nd);
 
@@ -240,16 +245,15 @@ namespace bm {
     return true;
   }
 
-  bool getBuffer(
-    map<string, map< string, Node*> >& inputs,
-    const string name,
+  bool Node::getBuffer(
+    const string port,
     const float val,
     cv::Mat& image)
   {
     
     Node* nd;
 
-    if (!getNodeByNames(inputs, "Buffer", name, nd)) return false;
+    if (!getInputPort("Buffer", port, nd)) return false;
 
     Buffer* im_in = dynamic_cast<Buffer*> (nd);
 
@@ -258,6 +262,19 @@ namespace bm {
     image = im_in->get(val);
 
     return true;
+  }
+
+  void Node::printInputVector() 
+  {
+
+    for (map<string, map<string, Node*> >::iterator it = inputs.begin();
+          it != inputs.end(); it++)
+    {
+      for (map<string, Node*>::iterator it2 = it->second.begin();
+            it2 != it->second.end(); it2++)
+      {
+        LOG(INFO) << name << " inputVector " << it->first << " " << it2->first << " " << it2->second;
+    }}
   }
 
   // turn the double map inputs into a simple vector
@@ -386,9 +403,9 @@ namespace bm {
     if (!getImage("image", tmp_in, im_dirty)) return false;
     if (tmp_in.empty()) return false;
 
-    getSignal(inputs, "angle", angle);     
-    getSignal(inputs, "center_x", center.x);     
-    getSignal(inputs, "center_y", center.y);
+    getSignal("angle", angle);     
+    getSignal("center_x", center.x);     
+    getSignal("center_y", center.y);
 
     //VLOG(1) << name << " " << is_dirty << " " << im_in->name << " " << im_in->is_dirty;
 
@@ -819,9 +836,9 @@ namespace bm {
 
     if (isDirty(this,4)) {
       float val = 0;
-      getSignal(inputs, "value", val);     
+      getSignal("value", val);     
 
-      if (!getBuffer(inputs, "buffer", val, tmp)) return false;
+      if (!getBuffer("buffer", val, tmp)) return false;
       
       out = tmp;
     }

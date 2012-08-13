@@ -6,8 +6,9 @@ nodes:
       name: webcam
       loc: [ 50, 20 ]
       enable: 1
-      ind: 0
       dir: "../data"
+      max_size: 0
+      ind: 0
       inputs:
          []
    -

@@ -245,7 +245,6 @@ class CamThing
       loc.y = (*it)["loc"][1];
       bool enable;
       (*it)["enable"] >> enable;
-      LOG(INFO) << type_id << " " << CLTXT << name << CLVAL << " " << loc << " " << enable << CLNRM;
       
       Node* nd;
       if (type_id.compare("bm::Webcam") == 0) {
@@ -299,6 +298,9 @@ class CamThing
         (dynamic_cast<ImageNode*> (nd))->out = test_im;
       }
       nd->load(it);
+      
+      LOG(INFO) << type_id << " " << CLTXT << name << CLVAL << " " 
+          << nd  << " " << loc << " " << enable << CLNRM;
 
     }
 
@@ -313,7 +315,10 @@ class CamThing
         (*it)["inputs"][i]["type"] >> type;
         (*it)["inputs"][i]["port"] >> port;
         (*it)["inputs"][i]["ind"] >> input_ind;
-        
+      
+        LOG(INFO) << "input " << ind << " " << all_nodes[ind]->name 
+            << " " << input_ind << " " << type << " " << port << " " << input_ind;
+
         all_nodes[ind]->inputs[type][port] = all_nodes[input_ind];
       }
     } // second input pass
