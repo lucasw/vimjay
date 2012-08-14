@@ -1,10 +1,10 @@
 %YAML:1.0
-date: "Sun Aug 12 22:14:26 2012\n"
+date: "Mon Aug 13 22:09:11 2012\n"
 nodes:
    -
       typeid: "bm::ImageDir"
       name: webcam
-      loc: [ 71, 60 ]
+      loc: [ 71, 45 ]
       enable: 1
       max_size: 0
       dir: "../data"
@@ -14,7 +14,7 @@ nodes:
    -
       typeid: "bm::ImageNode"
       name: image_node_passthrough
-      loc: [ 355, 60 ]
+      loc: [ 355, 45 ]
       enable: 1
       ind: 1
       inputs:
@@ -25,7 +25,7 @@ nodes:
    -
       typeid: "bm::Add"
       name: add_loop
-      loc: [ 640, 60 ]
+      loc: [ 640, 45 ]
       enable: 1
       nf: [ 1.0000000149011612e-01, 8.8999998569488525e-01 ]
       ind: 2
@@ -33,7 +33,7 @@ nodes:
          -
             type: ImageNode
             port: "0"
-            ind: 1
+            ind: 8
          -
             type: ImageNode
             port: "1"
@@ -41,7 +41,7 @@ nodes:
    -
       typeid: "bm::Rot2D"
       name: rotate
-      loc: [ 924, 60 ]
+      loc: [ 924, 45 ]
       enable: 1
       ind: 3
       inputs:
@@ -60,15 +60,15 @@ nodes:
          -
             type: Signal
             port: center_y
-            ind: 6
+            ind: 7
    -
       typeid: "bm::Saw"
       name: saw_rotate
-      loc: [ 71, 300 ]
+      loc: [ 71, 225 ]
       enable: 1
       min: -5.
       max: 5.
-      value: 4.0200009346008301e+00
+      value: -1.9999945163726807e+00
       step: -1.9999999552965164e-02
       ind: 4
       inputs:
@@ -76,19 +76,19 @@ nodes:
    -
       typeid: "bm::Saw"
       name: saw_center_x
-      loc: [ 355, 300 ]
+      loc: [ 355, 225 ]
       enable: 1
       min: 0.
       max: 640.
-      value: 490.
-      step: 5.
+      value: 580.
+      step: -5.
       ind: 5
       inputs:
          []
    -
       typeid: "bm::Saw"
       name: saw_center_y
-      loc: [ 640, 300 ]
+      loc: [ 640, 225 ]
       enable: 1
       min: 0.
       max: 480.
@@ -100,19 +100,19 @@ nodes:
    -
       typeid: "bm::Saw"
       name: dir_tap_sig
-      loc: [ 924, 300 ]
+      loc: [ 924, 225 ]
       enable: 1
       min: 0.
       max: 1.
-      value: 6.9999992847442627e-01
-      step: -1.0000000149011612e-01
+      value: 1.9999997317790985e-01
+      step: 1.9999999552965164e-02
       ind: 7
       inputs:
          []
    -
       typeid: "bm::Tap"
       name: dir_tap
-      loc: [ 71, 540 ]
+      loc: [ 71, 405 ]
       enable: 1
       ind: 8
       inputs:
@@ -127,11 +127,47 @@ nodes:
    -
       typeid: "bm::Output"
       name: output
-      loc: [ 355, 540 ]
+      loc: [ 355, 405 ]
       enable: 1
       ind: 9
       inputs:
          -
             type: ImageNode
             port: image
-            ind: 8
+            ind: 3
+   -
+      typeid: "bm::Buffer"
+      name: output_buffer
+      loc: [ 640, 405 ]
+      enable: 1
+      max_size: 100
+      ind: 10
+      inputs:
+         []
+   -
+      typeid: "bm::Tap"
+      name: buf_tap
+      loc: [ 924, 405 ]
+      enable: 1
+      ind: 11
+      inputs:
+         -
+            type: Buffer
+            port: buffer
+            ind: 10
+         -
+            type: Signal
+            port: value
+            ind: 7
+   -
+      typeid: "bm::Saw"
+      name: buf_tap_sig
+      loc: [ 71, 585 ]
+      enable: 1
+      min: 0.
+      max: 1.
+      value: 0.
+      step: 1.9999999552965164e-02
+      ind: 12
+      inputs:
+         []

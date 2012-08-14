@@ -652,6 +652,8 @@ namespace bm {
     //this->max_size = max_size;
     //LOG(INFO) << "new buffer max_size " << this->max_size;
     vcol = cv::Scalar(200, 30, 200);
+
+    inputs["ImageNode"]["image"] = NULL;
   }
  
   bool Buffer::update()
