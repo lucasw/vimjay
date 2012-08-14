@@ -78,7 +78,13 @@ class Node
   std::string name;
   cv::Point loc;
   cv::Mat graph;
-  cv::Scalar vcol; 
+  cv::Scalar vcol;
+
+  // these are for ui display purposes, shows the current potential connection
+  std::string selected_type; 
+  std::string selected_port;
+  bool draw_selected_port;
+  //void drawSelectedPort();
   
   //std::vector<Node*> inputs;
   std::map<std::string, std::map< std::string, Node*> > inputs;

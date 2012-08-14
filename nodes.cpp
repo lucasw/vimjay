@@ -139,21 +139,28 @@ namespace bm {
       for (map<string, Node*>::iterator it2 = it->second.begin(); 
           it2 != it->second.end(); it2++) 
       {
+        
+        cv::Point dst = loc - cv::Point(20, -ht*j - ht/2);
+
+        if (draw_selected_port && (selected_type == it->first) && (selected_port == it2->first)) {
+          // TBD need to draw a line from the selected node to this point too
+          cv::line( graph, dst, dst + cv::Point(20,0), cv::Scalar(0, 121, 100), 2, 4 );
+        }
+
         cv::putText(graph, it2->first, loc - cv::Point(20,-ht*j), 1, 1, cv::Scalar(255,100,245));
         j++;
-
+        
         if (!it2->second) continue;
         
         cv::Point src = it2->second->loc + cv::Point(20,0);
-        cv::Point dst = loc - cv::Point(20, -ht*j);
         cv::Point mid = src + (dst - src) * 0.8;
         cv::line( graph, src, mid, cv::Scalar(0, 128/fr, 0), 2, 4 );
         cv::line( graph, mid, dst, cv::Scalar(0, 255/fr, 0), 2, CV_AA );
 
-      }
-    }
+      } // for
+    } // for
 
-    cv::putText(graph, name, loc - cv::Point(0,5), 1, 1, cv::Scalar(255,255,245));
+    cv::putText(graph, name, loc - cv::Point(10, ht), 1, 1, cv::Scalar(255,255,245));
 
   }
 
@@ -349,8 +356,7 @@ namespace bm {
 
   bool ImageNode::draw(float scale) 
   {
-    Node::draw(scale);
-
+    
     tmp = out;
     if (!tmp.empty()) {
 
@@ -366,19 +372,27 @@ namespace bm {
       cv::Scalar col = cv::Scalar(vcol/fr);
 
       cv::rectangle(graph, loc - cv::Point(2,2), loc + cv::Point(sz.width,sz.height) + cv::Point(2,2), col, CV_FILLED );
+
+      bool draw_thumb = true;
       if (loc.x + sz.width >= graph.cols) {
         LOG(ERROR) << name << " bad subregion " << loc.x << " " << sz.width << " " << graph.cols;
-        return false;
+        draw_thumb = false;
       }
       if (loc.y + sz.height >= graph.rows) {
         LOG(ERROR) << name << " bad subregion " << loc.y << " " << sz.height << " " << graph.rows;
-        return false;
+        draw_thumb = false;
       }
 
-      cv::Mat graph_roi = graph(cv::Rect(loc.x, loc.y, sz.width, sz.height));
-      graph_roi = cv::Scalar(0, 0, 255);
-      thumbnail.copyTo(graph_roi);
+      if (draw_thumb) {
+        cv::Mat graph_roi = graph(cv::Rect(loc.x, loc.y, sz.width, sz.height));
+        graph_roi = cv::Scalar(0, 0, 255);
+        thumbnail.copyTo(graph_roi);
+      }
     }
+    
+    bool rv = Node::draw(scale);
+
+    return rv;
   }
 
   ////////////////////////////////////////////////////////////
@@ -565,13 +579,11 @@ namespace bm {
 
   bool Signal::draw(float scale)
   {
-    Node::draw(scale);
-
     cv::rectangle(graph, loc, 
         loc + cv::Point( (value - (max+min)/2.0)/(max-min) * 50.0 , 5), 
         cv::Scalar(255, 255, 100), CV_FILLED);
 
-    return true;
+    return Node::draw(scale);
   }
 
   bool Signal::load(cv::FileNodeIterator nd)
@@ -654,7 +666,6 @@ namespace bm {
 
   bool Buffer::draw(float scale) 
   {
-    ImageNode::draw(scale);
 
     // draw some grabs of the beginning frame, and other partway through the buffer 
     for (int i = 1; i < 4; i++) {
@@ -676,6 +687,8 @@ namespace bm {
       graph_roi = cv::Scalar(0, 0, 255);
       thumbnail.copyTo(graph_roi);
     }
+    
+    return ImageNode::draw(scale);
   }
 
   bool Buffer::add(cv::Mat new_frame, bool restrict_size)

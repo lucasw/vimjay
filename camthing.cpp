@@ -524,15 +524,21 @@ class CamThing
     saveGraph();
   }
 
+  // TBD move into Node?
   bool selectPort()
   {
     if (!selected_node) return false;
+    
+    selected_node->draw_selected_port = true;
+
     if (source_type == "") return false;
     
     if (selected_node->inputs.find(source_type) == selected_node->inputs.end()) {
       LOG(INFO) << "no matching inputs of type " << source_type;
       return false;
     }
+
+    //selected_node->draw_selected_port = true;
 
     // start at beginning if uninitialized
     const string first_port = selected_node->inputs[source_type].begin()->first;
@@ -541,6 +547,9 @@ class CamThing
         (selected_node->inputs[source_type].find(selected_port) == 
          selected_node->inputs[source_type].end())) {
       selected_port = first_port;
+      // TBD double book keeping is ugly
+      selected_node->selected_type = source_type;
+      selected_node->selected_port = selected_port;
       return true;
     } 
 
@@ -550,6 +559,9 @@ class CamThing
     
     if (it2 == it2_end) {
       selected_port = first_port;
+      
+      selected_node->selected_type = source_type;
+      selected_node->selected_port = selected_port;
       return true;
     }
 
@@ -558,6 +570,9 @@ class CamThing
     // now finally set the port to the next available port
     else selected_port = it2->first;
     
+    selected_node->selected_type = source_type;
+    selected_node->selected_port = selected_port;
+
     return true;
   }// selectPort()
 
@@ -593,6 +608,7 @@ class CamThing
     }
     
     else if (key == 'j') {
+      if (selected_node) selected_node->draw_selected_port = false;
       // move forward in selection
       selected_ind++;
       if (selected_ind >= all_nodes.size()) selected_ind = 0;
@@ -601,6 +617,7 @@ class CamThing
       selectPort();
     }
     else if (key == 'k') {
+      if (selected_node) selected_node->draw_selected_port = false;
       // move backward in selection
       selected_ind--;
       if (selected_ind < 0) selected_ind = all_nodes.size()-1;
@@ -689,7 +706,7 @@ class CamThing
 
     // TBD could all_nodes size have
     if (selected_node) cv::circle(graph_im, selected_node->loc, 18, cv::Scalar(0,220,1), -1);
-    if (source_node) cv::circle(graph_im, source_node->loc, 10, cv::Scalar(129,181,51), -1);
+    if (source_node) cv::circle(graph_im, source_node->loc, 14, cv::Scalar(229,151,51), -1);
     // draw input and outputs
     /*
     imshow("cam", cam_buf->get());
