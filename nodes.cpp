@@ -134,25 +134,34 @@ namespace bm {
         it != inputs.end(); it++) 
     {
       // can't use getInputVector because of this, and reference to strings
-      cv::putText(graph, it->first, loc - cv::Point(20,-ht*j), 1, 1, cv::Scalar(100,255,245));
+      cv::putText(graph, it->first, loc - cv::Point(-10,-ht*j - ht/2), 1, 1, cv::Scalar(100,255,245));
       j++;
       for (map<string, Node*>::iterator it2 = it->second.begin(); 
           it2 != it->second.end(); it2++) 
       {
         
-        cv::Point dst = loc - cv::Point(20, -ht*j - ht/2);
+        const string type = it->first;
+        const string port = it2->first;
 
-        if (draw_selected_port && (selected_type == it->first) && (selected_port == it2->first)) {
+        cv::Point dst = loc - cv::Point(-10, -ht*j - ht/2);
+
+        if (draw_selected_port && (selected_type == type) && (selected_port == port)) {
+
+          VLOG(3) << name << " port " << draw_selected_port << " " << selected_type << " " << type << ", " 
+            << selected_port << " " << port;
+
           // TBD need to draw a line from the selected node to this point too
-          cv::line( graph, dst, dst + cv::Point(20,0), cv::Scalar(0, 121, 100), 2, 4 );
+          cv::rectangle(graph, dst, dst + cv::Point(port.size()*8, -ht), 
+              cv::Scalar(80,80,80), CV_FILLED );
+          //cv::line( graph, dst, dst + cv::Point(20,0), cv::Scalar(0, 121, 100), 2, 4 );
         }
 
-        cv::putText(graph, it2->first, loc - cv::Point(20,-ht*j), 1, 1, cv::Scalar(255,100,245));
+        cv::putText(graph, port, dst, 1, 1, cv::Scalar(255,100,245));
         j++;
         
         if (!it2->second) continue;
         
-        cv::Point src = it2->second->loc + cv::Point(20,0);
+        cv::Point src = it2->second->loc + cv::Point(30,0);
         cv::Point mid = src + (dst - src) * 0.8;
         cv::line( graph, src, mid, cv::Scalar(0, 128/fr, 0), 2, 4 );
         cv::line( graph, mid, dst, cv::Scalar(0, 255/fr, 0), 2, CV_AA );

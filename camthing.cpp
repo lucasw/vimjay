@@ -534,7 +534,7 @@ class CamThing
     if (source_type == "") return false;
     
     if (selected_node->inputs.find(source_type) == selected_node->inputs.end()) {
-      LOG(INFO) << "no matching inputs of type " << source_type;
+      VLOG(3) << "no matching inputs of type " << source_type;
       return false;
     }
 
