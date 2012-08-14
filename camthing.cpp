@@ -702,11 +702,16 @@ class CamThing
   {
     graph_im = cv::Scalar(0,0,0);
   
+    if (source_node && selected_node) {
+      cv::line( graph_im, source_node->loc, selected_node->loc, cv::Scalar(70, 70, 70), 8, 4 );
+    }
+
     cv::putText(graph_im, command_text, cv::Point(10, graph_im.rows-40), 1, 1, cv::Scalar(200,205,195));
 
     // TBD could all_nodes size have
     if (selected_node) cv::circle(graph_im, selected_node->loc, 18, cv::Scalar(0,220,1), -1);
     if (source_node) cv::circle(graph_im, source_node->loc, 14, cv::Scalar(229,151,51), -1);
+
     // draw input and outputs
     /*
     imshow("cam", cam_buf->get());

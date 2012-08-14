@@ -150,9 +150,9 @@ namespace bm {
           VLOG(3) << name << " port " << draw_selected_port << " " << selected_type << " " << type << ", " 
             << selected_port << " " << port;
 
-          // TBD need to draw a line from the selected node to this point too
+          // TBD need to draw a line from the source node to this point too
           cv::rectangle(graph, dst, dst + cv::Point(port.size()*8, -ht), 
-              cv::Scalar(80,80,80), CV_FILLED );
+              cv::Scalar(80, 80, 80), CV_FILLED );
           //cv::line( graph, dst, dst + cv::Point(20,0), cv::Scalar(0, 121, 100), 2, 4 );
         }
 
@@ -895,7 +895,10 @@ namespace bm {
     if (!Node::update()) return false;
 
     //VLOG(1) << "name " << is_dirty << " " << p1->name << " " << p1->is_dirty << ", " << p2->name << " " << p2->is_dirty ;
-    if (isDirty(this, 5)) {
+    if (!isDirty(this, 5)) { 
+      VLOG(1) << name << " not dirty ";
+      return true; 
+    }
       // TBD accomodate bad mats somewhere
 
       cv::Size sz;
@@ -909,8 +912,14 @@ namespace bm {
         // TBD instead of strictly requiring the name to be itoa(i), just loop through all ImageNode inputs
         cv::Mat tmp_in;
         bool im_dirty;
-        if (!getImage(boost::lexical_cast<string>(i), tmp_in, im_dirty)) continue;
-        if (tmp.empty()) continue;
+        if (!getImage(boost::lexical_cast<string>(i), tmp_in, im_dirty)) {  
+          VLOG(1) << name << " " << i << " couldn't be gotten from inputs"; 
+          continue;
+        }
+        if (tmp_in.empty()) {
+          VLOG(1) << name << " " << i << " image is empty"; 
+          continue;
+        }
 
         if (!done_something) {
           out = tmp_in * nf[i];
@@ -927,8 +936,7 @@ namespace bm {
           out += tmp_in * nf[i];
 
         }
-      }
-    }
+      } // nf loop
 
     return true;
   }
