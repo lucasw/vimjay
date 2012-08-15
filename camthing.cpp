@@ -577,7 +577,7 @@ class CamThing
       selected_port = first_port;
       // TBD double book keeping is ugly
       selected_type = source_type;
-      selected_node->selected_type = source_type;
+      selected_node->selected_type = selected_type;
       selected_node->selected_port = selected_port;
       return true;
     } 
@@ -590,7 +590,7 @@ class CamThing
       selected_port = first_port;
       // TBD selected_type used anywhere? Yes Nodes uses it. 
       selected_type = source_type;
-      selected_node->selected_type = source_type;
+      selected_node->selected_type = selected_type;
       selected_node->selected_port = selected_port;
       return true;
     }
@@ -696,8 +696,8 @@ class CamThing
     } // set source_node to target input
     else if (key == 'd') {
       // disconnect current input
-      if (source_node && selected_node && (source_type != "") && (selected_port != "")) {
-        selected_node->inputs[source_type][selected_port] = NULL;
+      if (selected_node && (selected_type != "") && (selected_port != "")) {
+        selected_node->inputs[selected_type][selected_port] = NULL;
       }
     }
     //else if (key == 'c') {
