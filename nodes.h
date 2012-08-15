@@ -105,6 +105,7 @@ class Node
 
   void printInputVector();
   std::vector<Node*> getInputVector();
+  std::vector<std::pair< std::string, std::string > > getInputStrings();
 
   bool getImage(
     //std::map<std::string, std::map< std::string, Node*> >& inputs,

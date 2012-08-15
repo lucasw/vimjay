@@ -179,6 +179,7 @@ class CamThing
  
   int selected_ind;
   Node* selected_node;
+  string selected_type;
   string selected_port;
 
   // store a node to be connected to a different selected node
@@ -190,6 +191,7 @@ class CamThing
   CamThing() : 
       selected_ind(0), 
       selected_node(NULL),
+      selected_type(""),
       selected_port(""),
       source_ind(0),
       source_node(NULL),
@@ -528,13 +530,36 @@ class CamThing
   // TBD move into Node?
   bool selectPort()
   {
-    selected_port = "";
-    
     if (!selected_node) return false;
     
     selected_node->draw_selected_port = true;
 
-    if (source_type == "") return false;
+    if (source_type == "") {
+      // loop through all inputs, unconstrained by source_type
+      vector<pair<string, string> > strn = selected_node->getInputStrings();
+
+      if (strn.size() == 0) return false;
+
+      for (int i = 0; i < strn.size()-1; i++) {
+        if ((strn[i].first == selected_type) &&
+            (strn[i].second == selected_port)) {
+          // select next one
+          selected_type = strn[i+1].first;
+          selected_port = strn[i+1].second;
+          selected_node->selected_type = selected_type;
+          selected_node->selected_port = selected_port;
+          return true;
+        }
+      }
+  
+      selected_type = strn[0].first;
+      selected_port = strn[0].second;
+      selected_node->selected_type = selected_type;
+      selected_node->selected_port = selected_port;
+      return true;
+    }
+   
+    // loop through inputs of a specific source_type, if any
     
     if (selected_node->inputs.find(source_type) == selected_node->inputs.end()) {
       VLOG(3) << "no matching inputs of type " << source_type;
@@ -551,6 +576,7 @@ class CamThing
          selected_node->inputs[source_type].end())) {
       selected_port = first_port;
       // TBD double book keeping is ugly
+      selected_type = source_type;
       selected_node->selected_type = source_type;
       selected_node->selected_port = selected_port;
       return true;
@@ -562,7 +588,8 @@ class CamThing
     
     if (it2 == it2_end) {
       selected_port = first_port;
-      
+      // TBD selected_type used anywhere? Yes Nodes uses it. 
+      selected_type = source_type;
       selected_node->selected_type = source_type;
       selected_node->selected_port = selected_port;
       return true;
@@ -573,6 +600,7 @@ class CamThing
     // now finally set the port to the next available port
     else selected_port = it2->first;
     
+    selected_type = source_type;
     selected_node->selected_type = source_type;
     selected_node->selected_port = selected_port;
 
@@ -618,6 +646,7 @@ class CamThing
       if (selected_ind >= all_nodes.size()) selected_ind = 0;
       selected_node = all_nodes[selected_ind];
      
+      selected_port = "";
       selectPort();
     }
     else if (key == 'k') {
@@ -627,6 +656,7 @@ class CamThing
       if (selected_ind < 0) selected_ind = all_nodes.size()-1;
       selected_node = all_nodes[selected_ind];
       
+      selected_port = "";
       selectPort();
     }
     else if (key == 'u') {
@@ -635,15 +665,22 @@ class CamThing
       
     } // key = u
     else if (key == 'r') {
-      // select source node
-      source_ind = selected_ind;
-      source_node = all_nodes[source_ind];
+      
+      if (source_node != all_nodes[selected_ind]) {
+        // select source node
+        source_ind = selected_ind;
+        source_node = all_nodes[source_ind];
 
-      // TBD can't be both at once?
-      if (dynamic_cast<ImageNode*> (source_node)) source_type = "ImageNode";
-      if (dynamic_cast<Signal*> (source_node)) source_type = "Signal";
-      if (dynamic_cast<Buffer*> (source_node)) source_type = "Buffer";
-
+        // TBD can't be both at once?
+        if (dynamic_cast<ImageNode*> (source_node)) source_type = "ImageNode";
+        if (dynamic_cast<Signal*> (source_node)) source_type = "Signal";
+        if (dynamic_cast<Buffer*> (source_node)) source_type = "Buffer";
+      } else {
+        // select no source port, allows cycling through all inputs
+        source_ind = 0;
+        source_node = NULL;
+        source_type = "";
+      }
     } 
     else if (key == 't') {
       // select the target node

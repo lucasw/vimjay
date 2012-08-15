@@ -294,6 +294,25 @@ namespace bm {
     }}
   }
 
+  vector<pair< string, string > > Node::getInputStrings()
+  {
+    vector<pair< string, string > > rv;
+    for (map<string, map<string, Node*> >::iterator it = inputs.begin();
+          it != inputs.end(); it++)
+    {
+      for (map<string, Node*>::iterator it2 = it->second.begin();
+            it2 != it->second.end(); it2++)
+      {
+        if (it2->second == NULL) continue;
+          
+        rv.push_back(pair<string,string> (it->first, it2->first));
+      }
+    }
+
+    return rv;
+
+  }
+
   // turn the double map inputs into a simple vector
   vector<Node*> Node::getInputVector()
   {
@@ -535,7 +554,7 @@ namespace bm {
     if ((frames.size() > 0) && 
         (new_frame.refcount == frames[frames.size()-1].refcount)) {
       new_frame = new_frame.clone();
-      LOG(INFO) << name << " cloning identical frame " 
+      LOG_FIRST_N(INFO,10) << name << " cloning identical frame " 
           << new_frame.refcount << " " << frames[frames.size()-1].refcount;
     }
 
