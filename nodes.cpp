@@ -403,6 +403,10 @@ namespace bm {
     return rv;
   }
 
+  bool Node::handleKey(char key)
+  {
+    return false;
+  } 
   //////////////////////////////////////////////////////////////////////////////////////////
   // TBD subclasses of Node that are input/output specific, or make that general somehow?
   Signal::Signal() : Node()

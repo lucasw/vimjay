@@ -127,6 +127,8 @@ class Node
     const std::string port,
     const float val,
     cv::Mat& image);
+
+  bool handleKey(char key);
 };
 
 /////////////////////////////////////////////////

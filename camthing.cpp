@@ -528,6 +528,8 @@ class CamThing
   // TBD move into Node?
   bool selectPort()
   {
+    selected_port = "";
+    
     if (!selected_node) return false;
     
     selected_node->draw_selected_port = true;
@@ -601,20 +603,21 @@ class CamThing
       // TBD increment a count so old saves aren't overwritten?
       saveGraph("temp_graph.yml");
     }
-    else if (key == 'g') {
+    else if (key == 'z') {
       gridGraph();
     }
     else if (key == 's') {
       if (selected_node) selected_node->enable = !selected_node->enable;
     }
     
+    // Connection manipulation
     else if (key == 'j') {
       if (selected_node) selected_node->draw_selected_port = false;
       // move forward in selection
       selected_ind++;
       if (selected_ind >= all_nodes.size()) selected_ind = 0;
       selected_node = all_nodes[selected_ind];
-      
+     
       selectPort();
     }
     else if (key == 'k') {
@@ -631,8 +634,6 @@ class CamThing
       selectPort();
       
     } // key = u
-    //else if (key == 'i') {
-    //}
     else if (key == 'r') {
       // select source node
       source_ind = selected_ind;
@@ -649,13 +650,29 @@ class CamThing
       // connect to source node in best way possible, replacing the current input
       // TBD need to be able to select specific inputs
       if (source_node && selected_node && (source_type != "") && (selected_port != "")) {
-      
+         
+        // TBD a Buffer should act as an ImageNode if that is the only
+        // input available
         selected_node->inputs[source_type][selected_port] = source_node;
 
       }  // legit source_node
     } // set source_node to target input
+    else if (key == 'd') {
+      // disconnect current input
+      if (source_node && selected_node && (source_type != "") && (selected_port != "")) {
+        selected_node->inputs[source_type][selected_port] = NULL;
+      }
+    }
+    //else if (key == 'c') {
+      // swap selected node input with source node input- TBD this doesn't work since  
+      // outputs can be one-to-many
+    //}
     else {
       valid_key = false;
+
+      // see if node can work with the key
+      if (selected_node) 
+        valid_key = selected_node->handleKey(key);
     }
 
     if (valid_key) {
