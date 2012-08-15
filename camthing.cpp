@@ -15,6 +15,7 @@
 #include <gflags/gflags.h>
 
 #include "nodes.h" 
+#include "misc_nodes.h" 
 #include "filter.h"
 #include "screencap.h"
 

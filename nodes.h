@@ -149,52 +149,6 @@ public:
   virtual bool draw(float scale = 0.2);
 };
 
-// TBD allow multiple?
-class Output : public ImageNode
-{
-  public:
-  Output() {}
-
-  // doesn't have anything special, just a class to be detected with a dynamic_cast upon loading
-};
-
-class Rot2D : public ImageNode
-{
-  public:
- 
-  // TBD these need to be Node inputs?
-  float angle;
-  float scale;
-  cv::Point2f center;
-
-  Rot2D();
-
-  virtual bool update();
-
-  //virtual bool save(cv::FileStorage& fs);
-};
-
-class Webcam : public ImageNode
-{
-
-  cv::VideoCapture capture; //CV_CAP_OPENNI );
-  void runThread();
-  bool is_thread_dirty;
-  bool do_capture;
-  bool run_thread;
-  boost::thread cam_thread;
-
-  int error_count;
-
-  public:
-  Webcam();
-  virtual ~Webcam();
-
-  virtual bool update();
-
-};
-
-
 // TBD subclasses of Node that are input/output specific, or make that general somehow?
 
 class Signal : public Node
@@ -216,17 +170,6 @@ class Signal : public Node
   float step;
 };
 
-
-class Saw : public Signal
-{
-  public:
-  Saw(); // : Signal()
-  
-  void setup(const float new_step=0.01, const float offset=0.0, const float min =0.0, const float max=1.0); 
-  
-  virtual bool update();
-  
-};
 
 ////////////////////////////////
 class Buffer : public ImageNode
@@ -254,53 +197,6 @@ class Buffer : public ImageNode
   virtual bool load(cv::FileNodeIterator nd);
   virtual bool save(cv::FileStorage& fs);
 
-};
-
-/////////////////////////////////
-class ImageDir : public Buffer
-{
-  public:
-
-  ImageDir() {}
-
-  std::string dir;
-  
-  bool loadImages();
-
-  virtual bool load(cv::FileNodeIterator nd);
-  virtual bool save(cv::FileStorage& fs);
-};
-
-///////////////////////////////////////////////////////////
-class Tap : public ImageNode
-{
-  public:
-
-  bool changed;
-
-  Tap();// : ImageNode()
-
-  void setup(Signal* new_signal =NULL, Buffer* new_buffer=NULL); 
-  
-  virtual bool update();
-};
-
-class Add : public ImageNode
-{
-  public:
-  
-  // TBD make a std::vector of ImageNodes so dynamic_casts don't need to be used?
-  std::vector<float> nf;
-  
-  Add(); // : ImageNode()
-  
-  // TBD could require pair be passed in to enforce size
-  void setup(std::vector<ImageNode*> np, std::vector<float> nf); 
-
-  virtual bool update();
-  
-  virtual bool load(cv::FileNodeIterator nd);
-  virtual bool save(cv::FileStorage& fs);
 };
 
 };
