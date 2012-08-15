@@ -739,7 +739,7 @@ class CamThing
  
     // TBD put this in different thread 
       { 
-        VLOG(3) << "";
+        VLOG(4) << "";
         if (!output_node) {
           LOG(ERROR) <<"no output_node";
           return false;

@@ -48,7 +48,7 @@ namespace bm {
 
   bool Node::isDirty(const void* caller, const int ind, const bool clear) 
   {
-    VLOG(3) << name << " " << this << " isDirty " << caller 
+    VLOG(4) << name << " " << this << " isDirty " << caller 
         << " " << ind << " " << clear;
 
     // first stage
@@ -110,7 +110,7 @@ namespace bm {
       setDirty();
     }
     
-    VLOG(2) << name << " in sz " << inputs.size() << " inputs dirty" << inputs_dirty;
+    VLOG(4) << name << " in sz " << inputs.size() << " inputs dirty" << inputs_dirty;
 
     return true;
   }
@@ -232,7 +232,7 @@ namespace bm {
     if (!getInputPort("ImageNode", port, nd)) 
       return false;
     
-    VLOG(2) << name << " " << port << " " << nd;
+    VLOG(4) << name << " " << port << " " << nd;
     //if (require_dirty && !nd->isDirty()) return false;
     is_dirty = nd->isDirty(this, 20, false);
 
@@ -370,13 +370,13 @@ namespace bm {
 
     out_old = out;
     if (new_out.refcount == out.refcount) {
-      VLOG(2) << "dirty input is identical with old image " << new_out.refcount << " " << out.refcount;
+      VLOG(4) << "dirty input is identical with old image " << new_out.refcount << " " << out.refcount;
       out = new_out.clone();
     } else {
       out = new_out;
     }
     
-    VLOG(3) << name << " update: " <<  out.refcount << " " << out_old.refcount;
+    VLOG(4) << name << " update: " <<  out.refcount << " " << out_old.refcount;
   
     return true;
   }
@@ -451,6 +451,8 @@ namespace bm {
     value += step;
     if (value > 1.0) value = 0.0;
     if (value < 0.0) value = 1.0;
+
+    VLOG(3) << "Signal " << name << " " << value;
     //is_dirty = true;
     setDirty();
 
@@ -459,8 +461,16 @@ namespace bm {
 
   bool Signal::draw(float scale)
   {
+    float x = (value)/(max-min);
+    if ((max > 0) && (min > 0)) {
+      x -= min/(max-min) + 0.1;
+    }
+    if ((max < 0) && (min < 0)) {
+      x += max/(max-min) - 0.1;
+    }
+
     cv::rectangle(graph, loc, 
-        loc + cv::Point( (value - (max+min)/2.0)/(max-min) * 50.0 , 5), 
+        loc + cv::Point( x * 50.0 , 5), 
         cv::Scalar(255, 255, 100), CV_FILLED);
 
     return Node::draw(scale);
@@ -556,6 +566,7 @@ namespace bm {
       new_frame = new_frame.clone();
       LOG_FIRST_N(INFO,10) << name << " cloning identical frame " 
           << new_frame.refcount << " " << frames[frames.size()-1].refcount;
+      //return false;
     }
 
     frames.push_back(new_frame);
@@ -564,7 +575,7 @@ namespace bm {
       while (frames.size() >= max_size) frames.pop_front();
     }
 
-    VLOG(3) << name << " sz " << frames.size();
+    VLOG(4) << name << " sz " << frames.size();
     
     // TBD is_dirty wouldn't be true for callers that want frames indexed from beginning if no pop_front has been done.
     setDirty();

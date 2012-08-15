@@ -31,7 +31,8 @@ namespace bm {
   }
 
   bool Saw::update()
-  { 
+  {
+    // don't call Signal::update because it will contradict this update
     if (!Node::update()) return false;
 
     value += step;
@@ -46,7 +47,7 @@ namespace bm {
     setDirty();
     //is_dirty = true;
 
-    //LOG(INFO) << step << " " << value;
+    VLOG(3) << "Signal " << name << " " << value;
     return true;
   }
 
