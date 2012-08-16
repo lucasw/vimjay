@@ -1,5 +1,6 @@
 
 #include <iostream>
+#include <sstream>
 #include <stdio.h>
 #include <time.h>
 #include <typeinfo>
@@ -607,8 +608,9 @@ class CamThing
     return true;
   }// selectPort()
 
-  char key;
+  int key;
   bool valid_key;
+  string command_text;
 
   bool handleInput() 
   {
@@ -706,20 +708,23 @@ class CamThing
     //}
     else {
       valid_key = false;
-
       // see if node can work with the key
       if (selected_node) 
         valid_key = selected_node->handleKey(key);
     }
 
     if (valid_key) {
-      string tmp;
-      tmp.resize(1);
-      tmp[0] = key;
-      command_text.append(tmp);
+      stringstream tmp;
+      tmp << (char) key;
+      //tmp.resize(1);
+      //tmp[0] = key;
+      command_text.append(tmp.str());
+      VLOG(1) << tmp.str() << " " << command_text;
+    } else if (key >= 0) {
+      LOG(INFO) << "unused keypress:" << key;
     }
 
-    if (count %= 100) {
+    if (count % 20 == 0) {
       if (command_text.size() > 0);
       command_text = command_text.erase(0,1);
     } else {
@@ -751,7 +756,6 @@ class CamThing
     return true;
   }
  
-  string command_text;
 
   void draw() 
   {
@@ -762,6 +766,9 @@ class CamThing
     }
 
     cv::putText(graph_im, command_text, cv::Point(10, graph_im.rows-40), 1, 1, cv::Scalar(200,205,195));
+    if (command_text.size() > 0) { 
+      VLOG(5) << "command_text " << command_text;
+    }
 
     // TBD could all_nodes size have
     if (selected_node) cv::circle(graph_im, selected_node->loc, 18, cv::Scalar(0,220,1), -1);

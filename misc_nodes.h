@@ -40,6 +40,7 @@ class Saw : public Signal
   
   virtual bool update();
   
+  virtual bool handleKey(int key);
 };
 
 // TBD allow multiple?

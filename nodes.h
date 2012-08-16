@@ -129,7 +129,7 @@ class Node
     const float val,
     cv::Mat& image);
 
-  bool handleKey(char key);
+  virtual bool handleKey(int key);
 };
 
 /////////////////////////////////////////////////

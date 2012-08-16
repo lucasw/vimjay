@@ -30,6 +30,12 @@ namespace bm {
     Signal::setup(new_step, offset, min, max);
   }
 
+  bool Saw::handleKey(int key)
+  {
+    
+    return false;
+  }
+
   bool Saw::update()
   {
     // don't call Signal::update because it will contradict this update

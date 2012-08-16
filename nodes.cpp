@@ -422,7 +422,7 @@ namespace bm {
     return rv;
   }
 
-  bool Node::handleKey(char key)
+  bool Node::handleKey(int key)
   {
     return false;
   } 
