@@ -724,7 +724,11 @@ class CamThing
       LOG(INFO) << "unused keypress:" << (char)key << " " << key;
     }
 
-    if (count % 20 == 0) {
+    int max_count = 24;
+    if (command_text.size() > 100) max_count /= 2;
+    if (command_text.size() > 200) max_count /= 2;
+    if (command_text.size() > 300) max_count = 1;
+    if (count % max_count == 0) {
       if (command_text.size() > 0);
       command_text = command_text.erase(0,1);
     } else {

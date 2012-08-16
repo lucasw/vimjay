@@ -1,5 +1,5 @@
 %YAML:1.0
-date: "Tue Aug 14 22:45:41 2012\n"
+date: "Wed Aug 15 20:44:55 2012\n"
 nodes:
    -
       typeid: "bm::ImageDir"
@@ -68,8 +68,8 @@ nodes:
       enable: 1
       min: -5.
       max: 5.
-      value: -7.1999567747116089e-01
-      step: -1.9999999552965164e-02
+      value: -3.4600014686584473e+00
+      step: 1.9999999552965164e-02
       ind: 4
       inputs:
          []
@@ -80,7 +80,7 @@ nodes:
       enable: 1
       min: 0.
       max: 640.
-      value: 235.
+      value: 405.
       step: 5.
       ind: 5
       inputs:
@@ -104,7 +104,7 @@ nodes:
       enable: 1
       min: 0.
       max: 1.
-      value: 6.0000038146972656e-01
+      value: 8.8000011444091797e-01
       step: -1.9999999552965164e-02
       ind: 7
       inputs:
@@ -123,7 +123,7 @@ nodes:
          -
             type: Signal
             port: value
-            ind: 7
+            ind: 12
    -
       typeid: "bm::Output"
       name: output
@@ -169,8 +169,8 @@ nodes:
       enable: 1
       min: 0.
       max: 1.
-      value: 0.
-      step: 1.9999999552965164e-02
+      value: 5.0000047683715820e-01
+      step: -1.9999999552965164e-02
       ind: 12
       inputs:
          []

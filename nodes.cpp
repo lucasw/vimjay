@@ -449,7 +449,7 @@ namespace bm {
     
     valid_key = true;
 
-    if (key == 'n') {
+    if (key == ',') {
       value += abs(step);   
     }
     else if (key == 'm') {
@@ -624,9 +624,9 @@ namespace bm {
       ind = frames.size() - ind;
     }
     
-    if (ind > frames.size() - 1) ind = frames.size() - 1;
-    if (ind < 0) ind = 0;
-    //ind %= frames.size();
+    //if (ind > frames.size() - 1) ind = frames.size() - 1;
+    //if (ind < 0) ind = 0;
+    ind %= frames.size();
    
     //VLOG_EVERY_N(1,10) 
     //LOG_EVERY_N(INFO, 10) << ind << " " << frames.size();
