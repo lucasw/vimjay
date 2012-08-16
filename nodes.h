@@ -54,6 +54,7 @@ namespace bm {
 // type connetions?)  Or use pointers to pointers?
 //  what about having a map of maps for the inputs - inputs[SIGNAL]["min"]
 
+
 class Node
 {
   // this structure tracks arbitrary numbers of callers to see if there have been
@@ -129,6 +130,13 @@ class Node
     const float val,
     cv::Mat& image);
 
+  bool getBuffer(
+    const std::string port,
+    const int val,
+    cv::Mat& image);
+
+
+
   virtual bool handleKey(int key);
 };
 
@@ -195,6 +203,7 @@ class Buffer : public ImageNode
   virtual cv::Mat get();
 
   cv::Mat get(const float fr);
+  cv::Mat get(int ind);
 
   // TBD get(int ind), negative ind index from last
   
@@ -202,6 +211,8 @@ class Buffer : public ImageNode
   virtual bool save(cv::FileStorage& fs);
 
 };
+
+  
 
 };
 #endif // ifdef __NODES_H__

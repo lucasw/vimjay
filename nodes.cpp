@@ -263,7 +263,7 @@ namespace bm {
   }
 
   bool Node::getBuffer(
-    const string port,
+    const std::string port,
     const float val,
     cv::Mat& image)
   {
@@ -280,6 +280,27 @@ namespace bm {
 
     return true;
   }
+
+
+  bool Node::getBuffer(
+    const std::string port,
+    const int val,
+    cv::Mat& image)
+  {
+    
+    Node* nd;
+
+    if (!getInputPort("Buffer", port, nd)) return false;
+
+    Buffer* im_in = dynamic_cast<Buffer*> (nd);
+
+    if (!im_in) return false;
+
+    image = im_in->get(val);
+
+    return true;
+  }
+
 
   void Node::printInputVector() 
   {
@@ -453,12 +474,15 @@ namespace bm {
       value += abs(step);   
     }
     else if (key == 'm') {
-      value -= abs(step*0.9);
+      value -= abs(step);
     } else {
       valid_key = false;
     }
-
-    if (valid_key) setDirty();
+    
+    if (valid_key) {
+      VLOG(2) << value;
+      setDirty();
+    }
     
     return valid_key;
   }
@@ -612,18 +636,22 @@ namespace bm {
   // many callers per time step could be calling this
   cv::Mat Buffer::get(const float fr) 
   {
+    const int ind = (int)(fr * (float)frames.size());
+    //if (fr < 0) {
+    //  ind = frames.size() - ind;
+    //}
+    
+    return get(ind);
+  }
+
+  cv::Mat Buffer::get(int ind)
+  {
     if (frames.size() < 1) {
       VLOG(1) << "no frames returning gray";
       cv::Mat tmp = cv::Mat(640, 480, CV_8UC3);
       tmp = cv::Scalar(128);
       return tmp;
     }
-
-    int ind = (int)(fr*(float)frames.size());
-    if (fr < 0) {
-      ind = frames.size() - ind;
-    }
-    
     //if (ind > frames.size() - 1) ind = frames.size() - 1;
     //if (ind < 0) ind = 0;
     ind %= frames.size();

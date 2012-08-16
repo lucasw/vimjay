@@ -103,14 +103,14 @@ nodes:
       loc: [ 924, 225 ]
       enable: 1
       min: 0.
-      max: 1.
-      value: 8.8000011444091797e-01
-      step: -1.9999999552965164e-02
+      max: 1000.
+      value: 0
+      step: 1
       ind: 7
       inputs:
          []
    -
-      typeid: "bm::Tap"
+      typeid: "bm::TapInd"
       name: dir_tap
       loc: [ 71, 405 ]
       enable: 1
@@ -148,7 +148,7 @@ nodes:
             port: image
             ind: 3
    -
-      typeid: "bm::Tap"
+      typeid: "bm::TapInd"
       name: buf_tap
       loc: [ 924, 405 ]
       enable: 1
@@ -163,14 +163,14 @@ nodes:
             port: value
             ind: 7
    -
-      typeid: "bm::Saw"
-      name: buf_tap_sig
+      typeid: "bm::Signal"
+      name: buf_tap_ind_sig
       loc: [ 71, 585 ]
       enable: 1
       min: 0.
-      max: 1.
-      value: 5.0000047683715820e-01
-      step: -1.9999999552965164e-02
+      max: 1000.
+      value: 0
+      step: 1
       ind: 12
       inputs:
          []

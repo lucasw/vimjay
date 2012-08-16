@@ -310,6 +310,22 @@ namespace bm {
     return true;
   }
 
+  bool TapInd::update()
+  {
+    if (!Node::update()) return false;
+
+    if (isDirty(this,4)) {
+      float val = 0;
+      getSignal("value", val);     
+      int ind = val;
+
+      if (!getBuffer("buffer", ind, tmp)) return false;
+      
+      out = tmp;
+    }
+
+    return true;
+  }
 
   ///////////////////////////////////////////
   Add::Add() : ImageNode()

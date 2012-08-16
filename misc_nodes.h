@@ -118,6 +118,15 @@ class Tap : public ImageNode
   virtual bool update();
 };
 
+class TapInd : public Tap
+{
+  public:
+
+  TapInd() {}// : ImageNode()
+
+  virtual bool update();
+};
+
 class Add : public ImageNode
 {
   public:

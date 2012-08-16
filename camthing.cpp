@@ -290,6 +290,9 @@ class CamThing
       else if (type_id.compare("bm::Tap") == 0) {
         nd = getNode<Tap>(name, loc);
       }
+      else if (type_id.compare("bm::TapInd") == 0) {
+        nd = getNode<TapInd>(name, loc);
+      }
       else if (type_id.compare("bm::Output") == 0) {
         nd = getNode<Output>(name, loc);
         output_node = (Output*)nd;
