@@ -388,8 +388,11 @@ namespace bm {
                 << " != " << tmp_in.size().width << " " << tmp_in.size().height ;
             continue;
           }
-
-          out += tmp_in * nf[i];
+          
+          if (nf[i] > 0)
+            out += tmp_in * nf[i];
+          else 
+            out -= tmp_in * -nf[i];
 
         }
       } // nf loop

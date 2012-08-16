@@ -1,5 +1,5 @@
 %YAML:1.0
-date: "Wed Aug 15 20:44:55 2012\n"
+date: "Wed Aug 15 21:55:14 2012\n"
 nodes:
    -
       typeid: "bm::ImageDir"
@@ -27,7 +27,7 @@ nodes:
       name: add_loop
       loc: [ 640, 45 ]
       enable: 1
-      nf: [ 1.0000000149011612e-01, 8.8999998569488525e-01 ]
+      nf: [ 1.8, -1.0 ]
       ind: 2
       inputs:
          -
@@ -68,8 +68,8 @@ nodes:
       enable: 1
       min: -5.
       max: 5.
-      value: -3.4600014686584473e+00
-      step: 1.9999999552965164e-02
+      value: -4.0199928283691406e+00
+      step: -1.0999999552965164e-02
       ind: 4
       inputs:
          []
@@ -80,8 +80,8 @@ nodes:
       enable: 1
       min: 0.
       max: 640.
-      value: 405.
-      step: 5.
+      value: 375.
+      step: -5.
       ind: 5
       inputs:
          []
@@ -104,8 +104,8 @@ nodes:
       enable: 1
       min: 0.
       max: 1000.
-      value: 0
-      step: 1
+      value: 875.
+      step: 1.
       ind: 7
       inputs:
          []
@@ -166,11 +166,11 @@ nodes:
       typeid: "bm::Signal"
       name: buf_tap_ind_sig
       loc: [ 71, 585 ]
-      enable: 1
+      enable: 0
       min: 0.
       max: 1000.
-      value: 0
-      step: 1
+      value: 2.
+      step: 1.
       ind: 12
       inputs:
          []

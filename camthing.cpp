@@ -197,7 +197,8 @@ class CamThing
       source_ind(0),
       source_node(NULL),
       source_type(""),
-      output_node(NULL) 
+      output_node(NULL),
+      draw_nodes(true)
   {
     count = 0;
 
@@ -614,6 +615,7 @@ class CamThing
   int key;
   bool valid_key;
   string command_text;
+  bool draw_nodes;
 
   bool handleInput() 
   {
@@ -636,8 +638,11 @@ class CamThing
       // TBD increment a count so old saves aren't overwritten?
       saveGraph("temp_graph.yml");
     }
-    else if (key == 'z') {
+    else if (key == 'a') {
       gridGraph();
+    }
+    else if (key == 'z') {
+      draw_nodes = !draw_nodes;
     }
     else if (key == 's') {
       if (selected_node) selected_node->enable = !selected_node->enable;
@@ -767,7 +772,12 @@ class CamThing
   void draw() 
   {
     graph_im = cv::Scalar(0,0,0);
-  
+    if (!output_node->get().empty())
+      cv::resize(output_node->get(), graph_im, graph_im.size(), 0, 0, cv::INTER_NEAREST );
+    else
+      graph_im = cv::Scalar(0,0,0);
+
+    if (draw_nodes) {
     if (source_node && selected_node) {
       cv::line( graph_im, source_node->loc, selected_node->loc, cv::Scalar(70, 70, 70), 8, 4 );
     }
@@ -799,6 +809,7 @@ class CamThing
       if (i == 0) scale = 0.3;
       all_nodes[i]->draw(scale);
     } 
+    }
 
     imshow("graph_im", graph_im);
   }
