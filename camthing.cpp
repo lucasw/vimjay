@@ -211,7 +211,7 @@ class CamThing
 
     cv::namedWindow("graph_im", CV_GUI_NORMAL);
     cv::moveWindow("graph_im", 0, 500);
-
+    cv::resizeWindow("graph_im", 1280, 720);
 /*
     // Bring this back when there is a fullscreen/decoration free output window
     cv::namedWindow("out", CV_GUI_NORMAL);
@@ -721,7 +721,7 @@ class CamThing
       command_text.append(tmp.str());
       VLOG(1) << tmp.str() << " " << command_text;
     } else if (key >= 0) {
-      LOG(INFO) << "unused keypress:" << key;
+      LOG(INFO) << "unused keypress:" << (char)key << " " << key;
     }
 
     if (count % 20 == 0) {

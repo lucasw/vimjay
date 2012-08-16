@@ -442,6 +442,27 @@ namespace bm {
     LOG(INFO) << "Signal " << value << " " << new_step;
   }
   
+  bool Signal::handleKey(int key)
+  {
+    bool valid_key = Node::handleKey(key);
+    if (valid_key) return true;
+    
+    valid_key = true;
+
+    if (key == 'n') {
+      value += abs(step);   
+    }
+    else if (key == 'm') {
+      value -= abs(step*0.9);
+    } else {
+      valid_key = false;
+    }
+
+    if (valid_key) setDirty();
+    
+    return valid_key;
+  }
+
   bool Signal::update() 
   {
     if (!Node::update()) return false;

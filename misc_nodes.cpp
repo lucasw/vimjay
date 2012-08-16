@@ -32,8 +32,15 @@ namespace bm {
 
   bool Saw::handleKey(int key)
   {
+    bool valid_key = Signal::handleKey(key);
+    if (valid_key) return true;
     
-    return false;
+    //valid_key = true;
+
+    // TBD 
+    if (valid_key) setDirty();
+    
+    return valid_key;
   }
 
   bool Saw::update()

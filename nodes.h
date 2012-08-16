@@ -161,6 +161,7 @@ class Signal : public Node
 
   void setup(const float new_step=0.01, const float offset=0.0, const float min = 0.0, const float max=1.0); 
  
+  virtual bool handleKey(int key);
   virtual bool update();
   virtual bool draw(float scale);
 
