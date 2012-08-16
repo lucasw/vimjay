@@ -1,6 +1,6 @@
 /*
   
-  Lucas Walter August 2012
+  Copyright 2012 Lucas Walter
 
      This file is part of Camthing.
 
