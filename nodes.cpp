@@ -564,8 +564,8 @@ namespace bm {
     // it wouldn't be hard to update these
     // even if they aren't in need of updating, but don't for now
     value += step;
-    if (value > 1.0) value = 0.0;
-    if (value < 0.0) value = 1.0;
+    if (value > max) value = max;
+    if (value < min) value = min;
 
     VLOG(3) << "Signal " << name << " " << value;
     //is_dirty = true;
