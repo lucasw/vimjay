@@ -1,5 +1,5 @@
 %YAML:1.0
-date: "Wed Aug 15 21:55:14 2012\n"
+date: "Thu Aug 16 21:22:51 2012\n"
 nodes:
    -
       typeid: "bm::ImageDir"
@@ -27,7 +27,7 @@ nodes:
       name: add_loop
       loc: [ 640, 45 ]
       enable: 1
-      nf: [ 1.8, -1.0 ]
+      nf: [ 1.7999999523162842e+00, -1. ]
       ind: 2
       inputs:
          -
@@ -48,7 +48,7 @@ nodes:
          -
             type: ImageNode
             port: image
-            ind: 2
+            ind: 8
          -
             type: Signal
             port: angle
@@ -66,10 +66,10 @@ nodes:
       name: saw_rotate
       loc: [ 71, 225 ]
       enable: 1
-      min: -5.
-      max: 5.
-      value: -4.0199928283691406e+00
-      step: -1.0999999552965164e-02
+      min: -15.
+      max: 15.
+      value: -1.4890000343322754e+01
+      step: 1.0999999195337296e-01
       ind: 4
       inputs:
          []
@@ -80,8 +80,8 @@ nodes:
       enable: 1
       min: 0.
       max: 640.
-      value: 375.
-      step: -5.
+      value: 125.
+      step: 5.
       ind: 5
       inputs:
          []
@@ -104,7 +104,7 @@ nodes:
       enable: 1
       min: 0.
       max: 1000.
-      value: 875.
+      value: 976.
       step: 1.
       ind: 7
       inputs:
@@ -113,7 +113,7 @@ nodes:
       typeid: "bm::TapInd"
       name: dir_tap
       loc: [ 71, 405 ]
-      enable: 1
+      enable: 0
       ind: 8
       inputs:
          -
@@ -123,7 +123,7 @@ nodes:
          -
             type: Signal
             port: value
-            ind: 12
+            ind: 7
    -
       typeid: "bm::Output"
       name: output
@@ -161,7 +161,7 @@ nodes:
          -
             type: Signal
             port: value
-            ind: 7
+            ind: 12
    -
       typeid: "bm::Signal"
       name: buf_tap_ind_sig

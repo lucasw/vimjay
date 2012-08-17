@@ -639,7 +639,10 @@ class CamThing
 
   bool handleInput() 
   {
-    key = waitKey(20);
+    if (VLOG_IS_ON(10)) 
+      key = waitKey(0);
+    else 
+      key = waitKey(20);
 
     valid_key = true;
     if( key == 'q' ) {

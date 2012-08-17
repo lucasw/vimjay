@@ -321,7 +321,8 @@ namespace bm {
     if (isDirty(this,4)) {
       float val = 0;
       getSignal("value", val);     
-
+      
+      VLOG(1) << name << " update " << val;
       if (!getBuffer("buffer", val, tmp)) return false;
       
       out = tmp;
@@ -339,6 +340,7 @@ namespace bm {
       getSignal("value", val);     
       int ind = val;
 
+      VLOG(5) << name << " update " << val;
       if (!getBuffer("buffer", ind, tmp)) return false;
       
       out = tmp;

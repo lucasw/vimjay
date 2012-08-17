@@ -397,6 +397,17 @@ namespace bm {
     const bool rv = Node::update();
     if (!rv) return false;
 
+    bool im_dirty;
+    if (!getImage("image", tmp, im_dirty)) return false;
+    if (tmp.empty()) return false; 
+    if (!im_dirty) return true;
+
+    out_old = out;
+    
+    out = tmp;
+   
+    //setDirty();
+  #if 0
     map<string, map<string, Node*> >::iterator image_map;  
     image_map = inputs.find("ImageNode");
     if (image_map == inputs.end()) return true;
@@ -422,7 +433,8 @@ namespace bm {
     } else {
       out = new_out;
     }
-    
+    #endif
+
     VLOG(4) << name << " update: " <<  out.refcount << " " << out_old.refcount;
   
     return true;
@@ -613,17 +625,19 @@ namespace bm {
   {
     bool rv = ImageNode::update();
     if (!rv) return false;
-    
-    bool im_dirty;
-    if (!getImage("image", tmp, im_dirty)) return false;
-    if (tmp.empty()) return false; 
-    if (!im_dirty) return true;
-
-    add(tmp); 
+   
+    if (isDirty(this,21)) {
+    add(out); 
 
     if (frames.size() <= 0) return false;
     
     out = frames[0];
+
+    if (VLOG_IS_ON(5)) {
+      VLOG(15) << frames.size();
+      imshow(name, out);
+    }
+    }
 
     return true;
   }
@@ -640,7 +654,7 @@ namespace bm {
       if (frames[ind].empty()) { 
         LOG(ERROR) << "frames " << i << CLERR << " is empty" << CLNRM;  continue; }
 
-      if (out.empty()) out = frames[ind].clone();
+      if (out.empty()) out = frames[0];//.clone();
 
       cv::Size sz = cv::Size(out.size().width * scale * 0.25, out.size().height * scale * 0.25);
 
@@ -651,6 +665,11 @@ namespace bm {
       graph_roi = cv::Scalar(0, 0, 255);
       thumbnail.copyTo(graph_roi);
     }
+    
+    if (frames.size() < max_size)
+      vcol = cv::Scalar(200, 30, 200);
+    else
+      vcol = cv::Scalar(55, 255, 90);
     
     return ImageNode::draw(scale);
   }
@@ -673,8 +692,10 @@ namespace bm {
 
     frames.push_back(new_frame);
     
+     
+
     if (restrict_size) {
-      while (frames.size() >= max_size) frames.pop_front();
+      while (frames.size() > max_size) frames.pop_front();
     }
 
     VLOG(4) << name << " sz " << frames.size();
@@ -686,7 +707,7 @@ namespace bm {
   }
   
   cv::Mat Buffer::get() {
-    return ImageNode::get();
+    return get(0);
   }
 
   // not the same as the inherited get on purpose
