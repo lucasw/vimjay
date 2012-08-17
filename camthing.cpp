@@ -798,8 +798,10 @@ class CamThing
   void draw() 
   {
     graph_im = cv::Scalar(0,0,0);
-    if (!output_node->get().empty())
-      cv::resize(output_node->get(), graph_im, graph_im.size(), 0, 0, cv::INTER_NEAREST );
+    if (!output_node->get().empty()) {
+      cv::resize(output_node->get() * (draw_nodes ? 0.35 : 1.0),  graph_im,
+          graph_im.size(), 0, 0, cv::INTER_NEAREST );
+    }
     else
       graph_im = cv::Scalar(0,0,0);
 

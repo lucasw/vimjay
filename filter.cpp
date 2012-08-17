@@ -83,6 +83,8 @@ bool FilterFIR::save(cv::FileStorage& fs)
 
 Sobel::Sobel()
 {
+    
+  inputs["ImageNode"]["image"] = NULL;
 
 }
 

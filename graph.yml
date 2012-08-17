@@ -1,13 +1,13 @@
 %YAML:1.0
-date: "Thu Aug 16 22:35:45 2012\n"
+date: "Thu Aug 16 22:42:54 2012\n"
 nodes:
    -
       typeid: "bm::ImageDir"
-      name: webcam
+      name: image_dir
       loc: [ 71, 45 ]
       enable: 1
       max_size: 0
-      dir: "../data/numbers"
+      dir: "../data"
       ind: 0
       inputs:
          []
@@ -48,7 +48,7 @@ nodes:
          -
             type: ImageNode
             port: image
-            ind: 8
+            ind: 2
          -
             type: Signal
             port: angle
@@ -68,7 +68,7 @@ nodes:
       enable: 1
       min: -15.
       max: 15.
-      value: -1.4890000343322754e+01
+      value: -3.3400173187255859e+00
       step: 1.0999999195337296e-01
       ind: 4
       inputs:
@@ -80,8 +80,8 @@ nodes:
       enable: 1
       min: 0.
       max: 640.
-      value: 125.
-      step: 5.
+      value: 185.
+      step: -5.
       ind: 5
       inputs:
          []
@@ -104,8 +104,8 @@ nodes:
       enable: 1
       min: 0.
       max: 1000.
-      value: 730.
-      step: 1.
+      value: 923.
+      step: -1.
       ind: 7
       inputs:
          []
@@ -113,7 +113,7 @@ nodes:
       typeid: "bm::TapInd"
       name: dir_tap
       loc: [ 71, 405 ]
-      enable: 1
+      enable: 0
       ind: 8
       inputs:
          -
@@ -146,7 +146,7 @@ nodes:
          -
             type: ImageNode
             port: image
-            ind: 8
+            ind: 3
    -
       typeid: "bm::TapInd"
       name: buf_tap
@@ -166,11 +166,19 @@ nodes:
       typeid: "bm::Signal"
       name: buf_tap_ind_sig
       loc: [ 71, 585 ]
-      enable: 0
+      enable: 1
       min: 0.
       max: 1000.
-      value: 0.
+      value: 1000.
       step: 1.
       ind: 12
+      inputs:
+         []
+   -
+      typeid: "bm::Sobel"
+      name: edges
+      loc: [ 271, 585 ]
+      enable: 1
+      ind: 13
       inputs:
          []
