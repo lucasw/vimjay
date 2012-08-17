@@ -2,6 +2,7 @@
 #define __NODES_H__
 
 #include <iostream>
+#include <sstream>
 #include <stdio.h>
 
 #include <boost/thread.hpp>
@@ -158,6 +159,12 @@ public:
   virtual cv::Mat get();
 
   virtual bool draw(float scale = 0.2);
+  
+  virtual bool handleKey(int key);
+  
+  int write_count;
+  std::stringstream dir_name;
+  virtual bool writeImage();
 };
 
 // TBD subclasses of Node that are input/output specific, or make that general somehow?
@@ -210,6 +217,7 @@ class Buffer : public ImageNode
   virtual bool load(cv::FileNodeIterator nd);
   virtual bool save(cv::FileStorage& fs);
 
+  virtual bool writeImage();
 };
 
   

@@ -22,6 +22,7 @@
 #include <iostream>
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 
 #include <boost/thread.hpp>
 #include <boost/filesystem/operations.hpp>
@@ -37,6 +38,7 @@
 
 #include "nodes.h"
 #include "camthing.h"
+
 
 using namespace cv;
 using namespace std;
@@ -192,7 +194,6 @@ namespace bm {
 
   }
 
-
   bool Node::load(cv::FileNodeIterator nd)
   {
     // TBD name, loc?
@@ -212,6 +213,11 @@ namespace bm {
     
   }
   
+  bool Node::handleKey(int key)
+  {
+    return false;
+  }
+
   //////////////////////////////////////////////////////
 
   /// TBD
@@ -375,7 +381,7 @@ namespace bm {
   }
 
   //////////////////////////////////////////////////////////////////////////////////////////
-  ImageNode::ImageNode() : Node()
+  ImageNode::ImageNode() : Node(), write_count(0)
   {
     vcol = cv::Scalar(255,0,255);
   }
@@ -463,9 +469,40 @@ namespace bm {
     return rv;
   }
 
-  bool Node::handleKey(int key)
+  bool ImageNode::writeImage()
   {
-    return false;
+    LOG(INFO) << name << " writing ImageNode image to disk";
+
+    if (dir_name.str() == "") {
+      time_t t1 = time(NULL);
+
+      // TBD define path to data somewhere to be reused by all
+      dir_name << "../data/" << t1 << "_" << name;
+      LOG(INFO) << name << " creating directory" << dir_name.str();
+    }
+    
+    boost::filesystem::create_directories(dir_name.str());
+
+    stringstream file_name;
+    file_name << dir_name.str() << "/image_" << (write_count + 1000000) << ".png";
+    cv::imwrite(file_name.str(), out);
+    write_count++;
+    // TBD register that these frames have been saved somewhere so it is easy to load
+    // them up again?
+  }
+
+  bool ImageNode::handleKey(int key)
+  {
+    bool valid_key = true;
+    
+    if (key == 'p') {
+      writeImage(); 
+    } 
+    else {
+      valid_key = false;
+    }
+
+    return valid_key;
   } 
   //////////////////////////////////////////////////////////////////////////////////////////
   // TBD subclasses of Node that are input/output specific, or make that general somehow?
@@ -682,6 +719,32 @@ namespace bm {
   }
 
   // TBD get(int ind), negative ind index from last
+ 
+  /*
+   * Write all the frames to disk
+   */
+  bool Buffer::writeImage()
+  {
+    time_t t1 = time(NULL);
+
+    stringstream dir_name;
+    // TBD define path to data somewhere to be reused by all
+    dir_name << "../data/" << t1 << "_" << name;
+    
+    boost::filesystem::create_directories(dir_name.str());
+    LOG(INFO) << name << " writing Buffer images to disk " << CLTXT << dir_name.str() << CLNRM;
+
+    // TBD move to another thread
+    for (int i = 0; i < frames.size(); i++) {
+      stringstream file_name;
+      file_name << dir_name.str() << "/buffer_" << (i + 1000000) << ".jpg";
+      cv::imwrite(file_name.str(), frames[i]);
+      
+      write_count++;
+    }
+    // TBD register that these frames have been saved somewhere so it is easy to load
+    // them up again?
+  }
 
   bool Buffer::load(cv::FileNodeIterator nd)
   {
