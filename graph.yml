@@ -7,7 +7,7 @@ nodes:
       loc: [ 71, 45 ]
       enable: 1
       max_size: 0
-      dir: "../data"
+      dir: "../data/numbers"
       ind: 0
       inputs:
          []
