@@ -587,6 +587,11 @@ namespace bm {
         loc + cv::Point( x * 50.0 , 5), 
         cv::Scalar(255, 255, 100), CV_FILLED);
 
+    stringstream sstr;
+    sstr << value;
+    cv::putText(graph, sstr.str(), loc - cv::Point(-20,-20), 1, 1, cv::Scalar(200,200,200));
+    
+    
     return Node::draw(scale);
   }
 
@@ -665,6 +670,12 @@ namespace bm {
       graph_roi = cv::Scalar(0, 0, 255);
       thumbnail.copyTo(graph_roi);
     }
+
+    if (VLOG_IS_ON(9)) {
+      for (int i = 0; i < frames.size() ; i++) {
+        imshow(name + boost::lexical_cast<string>(i), frames[i]);
+      }
+    }
     
     if (frames.size() < max_size)
       vcol = cv::Scalar(200, 30, 200);
@@ -733,7 +744,9 @@ namespace bm {
     //if (ind > frames.size() - 1) ind = frames.size() - 1;
     //if (ind < 0) ind = 0;
     ind %= frames.size();
-   
+  
+    VLOG(1) << name << " ind " << ind;
+
     //VLOG_EVERY_N(1,10) 
     //LOG_EVERY_N(INFO, 10) << ind << " " << frames.size();
     return frames[ind];

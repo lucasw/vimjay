@@ -110,12 +110,15 @@ class Tap : public ImageNode
   public:
 
   bool changed;
+  float value;
 
   Tap();// : ImageNode()
 
   void setup(Signal* new_signal =NULL, Buffer* new_buffer=NULL); 
   
   virtual bool update();
+  
+  virtual bool draw();
 };
 
 class TapInd : public Tap
@@ -123,8 +126,11 @@ class TapInd : public Tap
   public:
 
   TapInd() {}// : ImageNode()
-
+  
+  int ind;
   virtual bool update();
+
+  virtual bool draw();
 };
 
 class Add : public ImageNode

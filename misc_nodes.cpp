@@ -246,7 +246,8 @@ namespace bm {
     }
 
     // TBD clear frames first?
-    //
+    
+    vector<string> files;
     boost::filesystem::directory_iterator end_itr; // default construction yields past-the-end
     for (boost::filesystem::directory_iterator itr( image_path );
         itr != end_itr;
@@ -257,7 +258,15 @@ namespace bm {
       stringstream ss;
       ss << *itr;
       string next_im = ( ss.str() );
+      // strip off "" at beginning/end
       next_im = next_im.substr(1, next_im.size()-2);
+      files.push_back(next_im);
+   }
+
+   sort(files.begin(), files.end());
+  
+   for (int i=0; i < files.size(); i++) {
+      const string next_im = files[i];
       cv::Mat tmp0 = cv::imread( next_im );
      
       if (tmp0.data == NULL) { //.empty()) {
@@ -265,12 +274,13 @@ namespace bm {
         continue;
       }
       
-      LOG(INFO) << name << " loaded image " << next_im;
+      LOG(INFO) << name << " " << i << " loaded image " << next_im;
 
       cv::Size sz = cv::Size(640,480);
       cv::resize(tmp0, tmp, sz, 0, 0, cv::INTER_NEAREST );
 
-      const bool rv = add(tmp,false);
+      const bool restrict_size = false;
+      const bool rv = add(tmp, restrict_size);
     }
     
     /// TBD or has sized increased since beginning of function?
@@ -319,11 +329,11 @@ namespace bm {
     if (!Node::update()) return false;
 
     if (isDirty(this,4)) {
-      float val = 0;
-      getSignal("value", val);     
+      value = 0;
+      getSignal("value", value);     
       
-      VLOG(1) << name << " update " << val;
-      if (!getBuffer("buffer", val, tmp)) return false;
+      VLOG(1) << name << " update " << value;
+      if (!getBuffer("buffer", value, tmp)) return false;
       
       out = tmp;
     }
@@ -331,22 +341,40 @@ namespace bm {
     return true;
   }
 
+  bool Tap::draw() 
+  {
+    ImageNode::draw();
+
+    stringstream sstr;
+    sstr << value;
+    cv::putText(graph, sstr.str(), loc - cv::Point(-20,-20), 1, 1, cv::Scalar(200,200,200));
+  }
+  
   bool TapInd::update()
   {
     if (!Node::update()) return false;
 
     if (isDirty(this,4)) {
-      float val = 0;
-      getSignal("value", val);     
-      int ind = val;
+      value = 0;
+      getSignal("value", value);     
+      ind = value;
 
-      VLOG(5) << name << " update " << val;
+      VLOG(1) << name << " update " << ind;
       if (!getBuffer("buffer", ind, tmp)) return false;
       
       out = tmp;
     }
 
     return true;
+  }
+  
+  bool TapInd::draw() 
+  {
+    Tap::draw();
+
+    stringstream sstr;
+    sstr << ind;
+    cv::putText(graph, sstr.str(), loc - cv::Point(-20,-30), 1, 1, cv::Scalar(200,200,200));
   }
 
   ///////////////////////////////////////////

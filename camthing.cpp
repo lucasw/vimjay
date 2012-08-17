@@ -636,10 +636,11 @@ class CamThing
   bool valid_key;
   string command_text;
   bool draw_nodes;
+  bool paused;
 
   bool handleInput() 
   {
-    if (VLOG_IS_ON(10)) 
+    if (VLOG_IS_ON(10) || paused) 
       key = waitKey(0);
     else 
       key = waitKey(20);
@@ -649,7 +650,9 @@ class CamThing
       return false;
     }
     // TBD look for /, then make next letters type search for nodes with names container the following string
-    
+    else if (key == 'x' ) {
+      paused = !paused;
+    }
     else if( key == 'e' ) {
       // TBD follow with file name
       // TBD load the graph in a temp object, then copy it over only if successful

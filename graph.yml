@@ -104,7 +104,7 @@ nodes:
       enable: 1
       min: 0.
       max: 1000.
-      value: 976.
+      value: 0.
       step: 1.
       ind: 7
       inputs:
@@ -140,8 +140,8 @@ nodes:
       name: output_buffer
       loc: [ 640, 405 ]
       enable: 1
-      max_size: 100
-      ind: 10
+      max_size: 10
+      ind: 0
       inputs:
          -
             type: ImageNode
@@ -169,7 +169,7 @@ nodes:
       enable: 0
       min: 0.
       max: 1000.
-      value: 2.
+      value: 0.
       step: 1.
       ind: 12
       inputs:
