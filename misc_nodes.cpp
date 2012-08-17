@@ -113,6 +113,7 @@ namespace bm {
     //VLOG(1) << name << " " << is_dirty << " " << im_in->name << " " << im_in->is_dirty;
 
     cv::Mat rot = cv::getRotationMatrix2D(center, angle, scale);
+    cv::Mat tmp;
     cv::warpAffine(tmp_in, tmp, rot, tmp_in.size(), INTER_NEAREST);
 
     out = tmp;
@@ -196,6 +197,7 @@ namespace bm {
         if (MAT_FORMAT == CV_16S) scale = 255;
         if (MAT_FORMAT == CV_32F) scale = 1.0/255.0;
         if (MAT_FORMAT == CV_8U) scale = 1.0;
+        cv::Mat tmp;
         new_out.convertTo(tmp, MAT_FORMAT,scale); //, 1.0/(255.0));//*255.0*255.0*255.0));
 
         //out_lock.lock();
@@ -277,10 +279,11 @@ namespace bm {
       LOG(INFO) << name << " " << i << " loaded image " << next_im;
 
       cv::Size sz = cv::Size(640,480);
-      cv::resize(tmp0, tmp, sz, 0, 0, cv::INTER_NEAREST );
+      cv::Mat tmp1;
+      cv::resize(tmp0, tmp1, sz, 0, 0, cv::INTER_NEAREST );
 
       const bool restrict_size = false;
-      const bool rv = add(tmp, restrict_size);
+      const bool rv = add(tmp1, restrict_size);
     }
     
     /// TBD or has sized increased since beginning of function?
@@ -333,6 +336,7 @@ namespace bm {
       getSignal("value", value);     
       
       VLOG(1) << name << " update " << value;
+      cv::Mat tmp;
       if (!getBuffer("buffer", value, tmp)) return false;
       
       out = tmp;
@@ -360,6 +364,7 @@ namespace bm {
       ind = value;
 
       VLOG(1) << name << " update " << ind;
+      cv::Mat tmp;
       if (!getBuffer("buffer", ind, tmp)) return false;
       
       out = tmp;

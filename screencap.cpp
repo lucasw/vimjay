@@ -157,7 +157,7 @@ bool ScreenCap::update()
   }
 
   //    col.pixel = XGetPixel(image, x, y); // Get pixel at x,y
-  tmp = XImage2OpenCVImage(*xImageSample, *display, *screen);
+  cv::Mat tmp = XImage2OpenCVImage(*xImageSample, *display, *screen);
 
   // To get the color values of the (sub-)image (can be slow, there are alternatives)
   //    XQueryColor(display, DefaultColormap(display, DefaultScreen(display)), &col); 

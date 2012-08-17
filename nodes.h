@@ -150,7 +150,7 @@ public:
   // TBD make all three private
   cv::Mat out;
   cv::Mat out_old;
-  cv::Mat tmp; // scratch image
+  //cv::Mat tmp; // scratch image
     
   ImageNode();// : Node()
 
@@ -204,7 +204,7 @@ class Buffer : public ImageNode
  
   virtual bool update();
 
-  bool add(cv::Mat new_frame, bool restrict_size = true);
+  bool add(cv::Mat& new_frame, bool restrict_size = true);
   virtual bool draw(float scale); 
    
   virtual cv::Mat get();

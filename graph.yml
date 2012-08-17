@@ -1,5 +1,5 @@
 %YAML:1.0
-date: "Thu Aug 16 21:22:51 2012\n"
+date: "Thu Aug 16 22:35:45 2012\n"
 nodes:
    -
       typeid: "bm::ImageDir"
@@ -104,7 +104,7 @@ nodes:
       enable: 1
       min: 0.
       max: 1000.
-      value: 0.
+      value: 730.
       step: 1.
       ind: 7
       inputs:
@@ -113,7 +113,7 @@ nodes:
       typeid: "bm::TapInd"
       name: dir_tap
       loc: [ 71, 405 ]
-      enable: 0
+      enable: 1
       ind: 8
       inputs:
          -
@@ -141,12 +141,12 @@ nodes:
       loc: [ 640, 405 ]
       enable: 1
       max_size: 10
-      ind: 0
+      ind: 10
       inputs:
          -
             type: ImageNode
             port: image
-            ind: 3
+            ind: 8
    -
       typeid: "bm::TapInd"
       name: buf_tap

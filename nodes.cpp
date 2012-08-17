@@ -398,6 +398,7 @@ namespace bm {
     if (!rv) return false;
 
     bool im_dirty;
+    cv::Mat tmp;
     if (!getImage("image", tmp, im_dirty)) return false;
     if (tmp.empty()) return false; 
     if (!im_dirty) return true;
@@ -443,7 +444,7 @@ namespace bm {
   bool ImageNode::draw(float scale) 
   {
     
-    tmp = out;
+    cv::Mat tmp = out;
     if (!tmp.empty()) {
 
       cv::Size sz = cv::Size(tmp.size().width * scale, tmp.size().height * scale);
@@ -685,7 +686,7 @@ namespace bm {
     return ImageNode::draw(scale);
   }
 
-  bool Buffer::add(cv::Mat new_frame, bool restrict_size)
+  bool Buffer::add(cv::Mat& new_frame, bool restrict_size)
   {
     if (new_frame.empty()) {
       LOG(ERROR) << name << CLERR << " new_frame is empty" << CLNRM;
@@ -696,7 +697,7 @@ namespace bm {
     if ((frames.size() > 0) && 
         (new_frame.refcount == frames[frames.size()-1].refcount)) {
       new_frame = new_frame.clone();
-      LOG_FIRST_N(INFO,10) << name << " cloning identical frame " 
+      LOG_FIRST_N(INFO,15) << name << " cloning identical frame " 
           << new_frame.refcount << " " << frames[frames.size()-1].refcount;
       //return false;
     }

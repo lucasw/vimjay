@@ -96,9 +96,10 @@ bool Sobel::update()
   }
 
   // TBD check for mismatches later
-  if (tmp.empty()) { 
-    tmp = out.clone(); 
-  }
+  cv::Mat tmp;
+  //if (tmp.empty()) { 
+  //  tmp = out.clone(); 
+  //}
 
   cv::Sobel(out, tmp, out.depth(), 1, 1, 3, 8);
 
