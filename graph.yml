@@ -12,8 +12,8 @@ nodes:
       inputs:
          []
    -
-      typeid: "bm::ImageNode"
-      name: image_node_passthrough
+      typeid: "bm::Resize"
+      name: resize
       loc: [ 355, 45 ]
       enable: 1
       ind: 1
@@ -38,6 +38,14 @@ nodes:
             type: ImageNode
             port: "1"
             ind: 3
+         -
+            type: Signal
+            port: "0"
+            ind: -1
+         -
+            type: Signal
+            port: "1"
+            ind: -1
    -
       typeid: "bm::Rot2D"
       name: rotate
@@ -113,7 +121,7 @@ nodes:
       typeid: "bm::TapInd"
       name: dir_tap
       loc: [ 71, 405 ]
-      enable: 0
+      enable: 1
       ind: 8
       inputs:
          -

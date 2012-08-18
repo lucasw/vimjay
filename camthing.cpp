@@ -299,6 +299,9 @@ class CamThing
       else if (type_id.compare("bm::Add") == 0) {
         nd = getNode<Add>(name, loc);
       }
+      else if (type_id.compare("bm::Resize") == 0) {
+        nd = getNode<Resize>(name, loc);
+      }
       else if (type_id.compare("bm::Rot2D") == 0) {
         nd = getNode<Rot2D>(name, loc);
       }
@@ -346,8 +349,11 @@ class CamThing
       
         LOG(INFO) << "input " << ind << " " << all_nodes[ind]->name 
             << " " << input_ind << " " << type << " " << port << " " << input_ind;
-
-        all_nodes[ind]->inputs[type][port] = all_nodes[input_ind];
+        
+        if (input_ind >= 0)
+          all_nodes[ind]->inputs[type][port] = all_nodes[input_ind];
+        else 
+          all_nodes[ind]->inputs[type][port] = NULL;
       }
     } // second input pass
 

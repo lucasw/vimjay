@@ -363,7 +363,7 @@ namespace bm {
       getSignal("value", value);     
       ind = value;
 
-      VLOG(1) << name << " update " << ind;
+      VLOG(2) << name << " update " << ind;
       cv::Mat tmp;
       if (!getBuffer("buffer", ind, tmp)) return false;
       
@@ -385,6 +385,10 @@ namespace bm {
   ///////////////////////////////////////////
   Add::Add() : ImageNode()
   {
+    inputs["ImageNode"]["0"] = NULL;
+    inputs["Signal"]["0"] = NULL;
+    nf.resize(1);
+    nf[0] = 2.0;
     vcol = cv::Scalar(200, 200, 50);
   }
   
@@ -397,7 +401,9 @@ namespace bm {
     this->nf = nf; 
     
     for (int i = 0; i < np.size(); i++) {
-      inputs["ImageNode"][boost::lexical_cast<string>(i)] = np[i];
+      const string port = boost::lexical_cast<string>(i);
+      inputs["ImageNode"][port] = np[i];
+      inputs["Signal"][port] = NULL; // this allows other signals to connect to replace nf
     }
   }
 
@@ -423,8 +429,9 @@ namespace bm {
         // TBD instead of strictly requiring the name to be itoa(i), just loop through all ImageNode inputs
         cv::Mat tmp_in;
         bool im_dirty;
-        if (!getImage(boost::lexical_cast<string>(i), tmp_in, im_dirty)) {  
-          VLOG(1) << name << " " << i << " couldn't be gotten from inputs"; 
+        const string port = boost::lexical_cast<string>(i);
+        if (!getImage(port, tmp_in, im_dirty)) {  
+          VLOG(2) << name << " " << i << " couldn't be gotten from inputs"; 
           continue;
         }
         if (tmp_in.empty()) {
@@ -432,6 +439,9 @@ namespace bm {
           continue;
         }
 
+        // with 8-bit unsigned it is necessary to have initial coefficients positive
+        // zero minus anything will just be zero 
+        // TBD loop through getSignal(port, val, ) and update nf if it returns true
         if (!done_something) {
           out = tmp_in * nf[i];
           sz = tmp_in.size();
@@ -443,7 +453,7 @@ namespace bm {
                 << " != " << tmp_in.size().width << " " << tmp_in.size().height ;
             continue;
           }
-          
+         
           if (nf[i] > 0)
             out += tmp_in * nf[i];
           else 
@@ -482,6 +492,61 @@ namespace bm {
       fs << nf[i]; 
     }
     fs << "]";
+  }
+
+  ////////////////////////////////////////
+  Resize::Resize()
+  {
+    inputs["ImageNode"]["image"] = NULL;
+    inputs["Signal"]["fx"] = NULL;
+    inputs["Signal"]["fy"] = NULL;
+
+    fx = 0.2;
+    fy = 0.2;
+  }
+
+  bool Resize::update()
+  {
+  if (!ImageNode::update()) return false;
+ 
+  if (out.empty()) {
+    VLOG(2) << name << " out is empty";
+    return false;
+  }
+  
+  // if fx and fy aren't hooked up then they will remain unaltered
+  getSignal("fx", fx);
+  getSignal("fy", fy);
+
+  cv::Size sz = out.size();
+  
+  cv::Size dsize = cv::Size(fx*sz.width, fy*sz.height);
+  if (dsize.width < 1) dsize.width = 1;
+  if (dsize.height < 1) dsize.height = 1;
+  // TBD
+  if (dsize.height > sz.height) dsize.height= sz.height;
+  if (dsize.width > sz.width) dsize.width = sz.width;
+
+  cv::Mat tmp;
+  cv::resize(out, tmp, dsize, 0, 0, cv::INTER_NEAREST);
+  // then scale back to input size
+  cv::Mat tmp2;
+
+  cv::resize(tmp, tmp2, sz, 0, 0, cv::INTER_NEAREST);
+  out = tmp2;
+  VLOG(1) << fx << " " << fy << " " 
+      << tmp.size().width << " " << tmp.size().height
+      << " " << tmp2.size().width << " " << tmp2.size().height;
+  return true;
+  }
+
+  bool Resize::draw() 
+  {
+    ImageNode::draw();
+
+    stringstream sstr;
+    sstr << fx << " " << fy;
+    cv::putText(graph, sstr.str(), loc - cv::Point(-20,-20), 1, 1, cv::Scalar(200,200,200));
   }
 
 } //bm

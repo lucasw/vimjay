@@ -151,5 +151,20 @@ class Add : public ImageNode
   virtual bool save(cv::FileStorage& fs);
 };
 
+class Resize : public ImageNode
+{
+  public:
+  Resize();
+
+  float fx;
+  float fy;
+
+  virtual bool update();
+  virtual bool draw();
+  //virtual bool load(cv::FileNodeIterator nd);
+  //virtual bool save(cv::FileStorage& fs);
+};
+
+
 } // bm
 #endif // MISC_NODES

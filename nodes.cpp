@@ -746,7 +746,7 @@ namespace bm {
     //if (ind < 0) ind = 0;
     ind %= frames.size();
   
-    VLOG(1) << name << " ind " << ind;
+    VLOG(2) << name << " ind " << ind;
 
     //VLOG_EVERY_N(1,10) 
     //LOG_EVERY_N(INFO, 10) << ind << " " << frames.size();

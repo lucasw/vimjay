@@ -83,9 +83,7 @@ bool FilterFIR::save(cv::FileStorage& fs)
 
 Sobel::Sobel()
 {
-    
   inputs["ImageNode"]["image"] = NULL;
-
 }
 
 bool Sobel::update()
@@ -97,14 +95,8 @@ bool Sobel::update()
     return false;
   }
 
-  // TBD check for mismatches later
   cv::Mat tmp;
-  //if (tmp.empty()) { 
-  //  tmp = out.clone(); 
-  //}
-
   cv::Sobel(out, tmp, out.depth(), 1, 1, 3, 8);
-
   out = tmp;
 
   return true;
