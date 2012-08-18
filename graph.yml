@@ -1,5 +1,5 @@
 %YAML:1.0
-date: "Fri Aug 17 21:15:16 2012\n"
+date: "Fri Aug 17 21:34:38 2012\n"
 nodes:
    -
       typeid: "bm::ImageDir"
@@ -21,7 +21,7 @@ nodes:
          -
             type: ImageNode
             port: image
-            ind: 8
+            ind: 3
          -
             type: Signal
             port: fx
@@ -35,7 +35,7 @@ nodes:
       name: add_loop
       loc: [ 640, 45 ]
       enable: 1
-      nf: [ 2., 2., 1.7999999523162842e+00, -1. ]
+      nf: [ 4.9999963492155075e-02, 2., 2., 1.7999999523162842e+00, -1. ]
       ind: 2
       inputs:
          -
@@ -45,7 +45,15 @@ nodes:
          -
             type: ImageNode
             port: "1"
-            ind: 3
+            ind: 1
+         -
+            type: Signal
+            port: "0"
+            ind: 14
+         -
+            type: Signal
+            port: "1"
+            ind: 15
    -
       typeid: "bm::Rot2D"
       name: rotate
@@ -76,7 +84,7 @@ nodes:
       enable: 1
       min: -15.
       max: 15.
-      value: 7.3299837112426758e+00
+      value: -3.8900167942047119e+00
       step: 1.0999999195337296e-01
       ind: 4
       inputs:
@@ -88,8 +96,8 @@ nodes:
       enable: 1
       min: 0.
       max: 640.
-      value: 595.
-      step: 5.
+      value: 185.
+      step: -5.
       ind: 5
       inputs:
          []
@@ -109,10 +117,10 @@ nodes:
       typeid: "bm::Saw"
       name: dir_tap_sig
       loc: [ 924, 225 ]
-      enable: 1
+      enable: 0
       min: 0.
       max: 1000.
-      value: 371.
+      value: 261.
       step: -1.
       ind: 7
       inputs:
@@ -188,5 +196,29 @@ nodes:
       loc: [ 355, 585 ]
       enable: 1
       ind: 13
+      inputs:
+         []
+   -
+      typeid: "bm::Saw"
+      name: add_sig1
+      loc: [ 571, 585 ]
+      enable: 0
+      min: -1.
+      max: 1.
+      value: 4.9999963492155075e-02
+      step: 9.0000000745058060e-02
+      ind: 14
+      inputs:
+         []
+   -
+      typeid: "bm::Saw"
+      name: add_sig2
+      loc: [ 671, 585 ]
+      enable: 0
+      min: -1.
+      max: 1.
+      value: -4.0000000000000000e-01
+      step: 5.0000000745058060e-02
+      ind: 15
       inputs:
          []

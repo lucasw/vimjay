@@ -402,6 +402,8 @@ namespace bm {
     }
     this->nf = nf; 
     
+    inputs["ImageNode"].clear();
+    inputs["Signal"].clear(); 
     for (int i = 0; i < np.size(); i++) {
       const string port = boost::lexical_cast<string>(i);
       inputs["ImageNode"][port] = np[i];
@@ -441,9 +443,10 @@ namespace bm {
           continue;
         }
 
+        getSignal(port, nf[i]);
+        
         // with 8-bit unsigned it is necessary to have initial coefficients positive
         // zero minus anything will just be zero 
-        // TBD loop through getSignal(port, val, ) and update nf if it returns true
         if (!done_something) {
           out = tmp_in * nf[i];
           sz = tmp_in.size();

@@ -632,7 +632,7 @@ namespace bm {
     vcol = cv::Scalar(200, 30, 200);
 
     inputs["ImageNode"]["image"] = NULL;
-    inputs["ImageNode"]["max_size"] = NULL;
+    inputs["Signal"]["max_size"] = NULL;
   }
  
   bool Buffer::update()
@@ -652,8 +652,6 @@ namespace bm {
     if (frames.size() <= 0) return false;
     
     out = frames[0];
-
-    
 
     if (VLOG_IS_ON(5)) {
       VLOG(15) << frames.size();
