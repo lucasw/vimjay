@@ -522,6 +522,10 @@ namespace bm {
   Signal::Signal() : Node()
   {
     vcol = cv::Scalar(0,128,255);
+
+    inputs["Signal"]["step"] = NULL;
+    inputs["Signal"]["min"] = NULL;
+    inputs["Signal"]["max"] = NULL;
   }
 
   void Signal::setup(const float new_step, const float offset, const float min, const float max) 
@@ -561,6 +565,9 @@ namespace bm {
   {
     if (!Node::update()) return false;
 
+    getSignal("step", step);
+    getSignal("min", min);
+    getSignal("max", max);
     // it wouldn't be hard to update these
     // even if they aren't in need of updating, but don't for now
     value += step;
@@ -589,7 +596,7 @@ namespace bm {
         cv::Scalar(255, 255, 100), CV_FILLED);
 
     stringstream sstr;
-    sstr << value;
+    sstr << value << " " << min << " " << max << " " << step;
     cv::putText(graph, sstr.str(), loc + cv::Point(20,-30), 1, 1, cv::Scalar(200,200,200));
     
     
