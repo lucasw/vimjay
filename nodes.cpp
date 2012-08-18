@@ -590,7 +590,7 @@ namespace bm {
 
     stringstream sstr;
     sstr << value;
-    cv::putText(graph, sstr.str(), loc - cv::Point(-20,-20), 1, 1, cv::Scalar(200,200,200));
+    cv::putText(graph, sstr.str(), loc + cv::Point(20,-30), 1, 1, cv::Scalar(200,200,200));
     
     
     return Node::draw(scale);
@@ -625,6 +625,7 @@ namespace bm {
     vcol = cv::Scalar(200, 30, 200);
 
     inputs["ImageNode"]["image"] = NULL;
+    inputs["ImageNode"]["max_size"] = NULL;
   }
  
   bool Buffer::update()
@@ -632,17 +633,24 @@ namespace bm {
     bool rv = ImageNode::update();
     if (!rv) return false;
    
-    if (isDirty(this,21)) {
+    if (!isDirty(this,21)) { return true;}
+   
+    float val;
+    getSignal("max_size", val);
+    max_size = val;
+    if (max_size < 1) max_size = 1;
+    
     add(out); 
 
     if (frames.size() <= 0) return false;
     
     out = frames[0];
 
+    
+
     if (VLOG_IS_ON(5)) {
       VLOG(15) << frames.size();
       imshow(name, out);
-    }
     }
 
     return true;

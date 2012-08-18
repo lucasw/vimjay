@@ -1,5 +1,5 @@
 %YAML:1.0
-date: "Thu Aug 16 22:42:54 2012\n"
+date: "Fri Aug 17 21:15:16 2012\n"
 nodes:
    -
       typeid: "bm::ImageDir"
@@ -21,13 +21,21 @@ nodes:
          -
             type: ImageNode
             port: image
-            ind: 0
+            ind: 8
+         -
+            type: Signal
+            port: fx
+            ind: 4
+         -
+            type: Signal
+            port: fy
+            ind: 4
    -
       typeid: "bm::Add"
       name: add_loop
       loc: [ 640, 45 ]
       enable: 1
-      nf: [ 1.7999999523162842e+00, -1. ]
+      nf: [ 2., 2., 1.7999999523162842e+00, -1. ]
       ind: 2
       inputs:
          -
@@ -38,14 +46,6 @@ nodes:
             type: ImageNode
             port: "1"
             ind: 3
-         -
-            type: Signal
-            port: "0"
-            ind: -1
-         -
-            type: Signal
-            port: "1"
-            ind: -1
    -
       typeid: "bm::Rot2D"
       name: rotate
@@ -76,7 +76,7 @@ nodes:
       enable: 1
       min: -15.
       max: 15.
-      value: -3.3400173187255859e+00
+      value: 7.3299837112426758e+00
       step: 1.0999999195337296e-01
       ind: 4
       inputs:
@@ -88,8 +88,8 @@ nodes:
       enable: 1
       min: 0.
       max: 640.
-      value: 185.
-      step: -5.
+      value: 595.
+      step: 5.
       ind: 5
       inputs:
          []
@@ -112,7 +112,7 @@ nodes:
       enable: 1
       min: 0.
       max: 1000.
-      value: 923.
+      value: 371.
       step: -1.
       ind: 7
       inputs:
@@ -142,7 +142,7 @@ nodes:
          -
             type: ImageNode
             port: image
-            ind: 11
+            ind: 1
    -
       typeid: "bm::Buffer"
       name: output_buffer
@@ -185,7 +185,7 @@ nodes:
    -
       typeid: "bm::Sobel"
       name: edges
-      loc: [ 271, 585 ]
+      loc: [ 355, 585 ]
       enable: 1
       ind: 13
       inputs:

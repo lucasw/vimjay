@@ -351,7 +351,7 @@ namespace bm {
 
     stringstream sstr;
     sstr << value;
-    cv::putText(graph, sstr.str(), loc - cv::Point(-20,-20), 1, 1, cv::Scalar(200,200,200));
+    cv::putText(graph, sstr.str(), loc + cv::Point(20,-30), 1, 1, cv::Scalar(200,200,200));
   }
   
   bool TapInd::update()
@@ -380,6 +380,8 @@ namespace bm {
     stringstream sstr;
     sstr << ind;
     cv::putText(graph, sstr.str(), loc - cv::Point(-20,-30), 1, 1, cv::Scalar(200,200,200));
+  
+    return true;
   }
 
   ///////////////////////////////////////////
@@ -520,7 +522,14 @@ namespace bm {
 
   cv::Size sz = out.size();
   
+  fx = abs(fx);
+  fy = abs(fy);
+  
   cv::Size dsize = cv::Size(fx*sz.width, fy*sz.height);
+  //TBD
+  if (fx > 1.0) dsize.width = sz.width/fx;
+  if (fy > 1.0) dsize.height = sz.height/fy;
+
   if (dsize.width < 1) dsize.width = 1;
   if (dsize.height < 1) dsize.height = 1;
   // TBD
@@ -546,7 +555,9 @@ namespace bm {
 
     stringstream sstr;
     sstr << fx << " " << fy;
-    cv::putText(graph, sstr.str(), loc - cv::Point(-20,-20), 1, 1, cv::Scalar(200,200,200));
+    cv::putText(graph, sstr.str(), loc + cv::Point(20,-40), 1, 1, cv::Scalar(200,200,200));
+    //VLOG(1)<< sstr.str();
+    return true;
   }
 
 } //bm
