@@ -177,7 +177,15 @@ namespace bm {
           //cv::line( graph, dst, dst + cv::Point(20,0), cv::Scalar(0, 121, 100), 2, 4 );
         }
 
-        cv::putText(graph, port, dst, 1, 1, cv::Scalar(255,100,245));
+        stringstream port_info;
+        port_info << port;
+        if (type == "Signal") {
+          float val;
+          getSignal(port, val);
+          port_info << " " << val;
+        }
+
+        cv::putText(graph, port_info.str(), dst, 1, 1, cv::Scalar(255,100,245));
         j++;
         
         if (!it2->second) continue;
@@ -595,10 +603,9 @@ namespace bm {
         loc + cv::Point( x * 50.0 , 5), 
         cv::Scalar(255, 255, 100), CV_FILLED);
 
-    stringstream sstr;
-    sstr << value << " " << min << " " << max << " " << step;
-    cv::putText(graph, sstr.str(), loc + cv::Point(20,-30), 1, 1, cv::Scalar(200,200,200));
-    
+    //stringstream sstr;
+    //sstr << value << " " << min << " " << max << " " << step;
+    //cv::putText(graph, sstr.str(), loc + cv::Point(20,-30), 1, 1, cv::Scalar(200,200,200));
     
     return Node::draw(scale);
   }
