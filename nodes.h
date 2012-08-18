@@ -121,7 +121,11 @@ class Node
       const std::string type, 
       const std::string port,
       Node*& rv);
-      
+
+  // this contains non-node sourced signal values, or latest node values
+  map<std::string, float> svals;
+
+  // TBD return val and pass bool
   bool getSignal(
       const std::string port, 
       float& val);
@@ -183,10 +187,12 @@ class Signal : public Node
   virtual bool load(cv::FileNodeIterator nd);
   virtual bool save(cv::FileStorage& fs);
 
+/*
   float min;
   float max;
   float value;
   float step;
+  */
 };
 
 

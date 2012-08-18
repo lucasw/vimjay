@@ -180,7 +180,7 @@ namespace bm {
         stringstream port_info;
         port_info << port;
         if (type == "Signal") {
-          float val;
+          float val = 0;
           getSignal(port, val);
           port_info << " " << val;
         }
@@ -285,6 +285,8 @@ namespace bm {
   {
     Node* nd;
 
+    val = svals[port];
+
     if (!getInputPort("Signal", port, nd)) return false;
 
     Signal* im_in = dynamic_cast<Signal*> (nd);
@@ -292,6 +294,7 @@ namespace bm {
     if (!im_in) return false;
 
     val = im_in->value;
+    svals[port] = val;
 
     return true;
   }
@@ -538,10 +541,10 @@ namespace bm {
 
   void Signal::setup(const float new_step, const float offset, const float min, const float max) 
   {
-    value = offset;
-    step = new_step;
-    this->min = min;
-    this->max = max;
+    svals["value"] = offset;
+    svals["step"] = new_step;
+    svals["min"] = min;
+    svals["max"] = max;
     LOG(INFO) << "Signal " << value << " " << new_step;
   }
   
@@ -553,10 +556,10 @@ namespace bm {
     valid_key = true;
 
     if (key == ',') {
-      value += abs(step);   
+      svals["value"] += abs(step);   
     }
     else if (key == 'm') {
-      value -= abs(step);
+      svals["value"] -= abs(step);
     } else {
       valid_key = false;
     }
@@ -581,6 +584,8 @@ namespace bm {
     value += step;
     if (value > max) value = max;
     if (value < min) value = min;
+    
+    svals["value"] = value;
 
     VLOG(3) << "Signal " << name << " " << value;
     //is_dirty = true;
@@ -614,6 +619,7 @@ namespace bm {
   {
     Node::load(nd);
 
+    // TBD if svals has all the values, could just loop through it in Node::load
     (*nd)["min"] >> min;
     (*nd)["max"] >> max;
     (*nd)["value"] >> value;
@@ -633,13 +639,18 @@ namespace bm {
 
   
   //////////////////////////////////////////////////////////////////////////////////////////
-  Buffer::Buffer() : ImageNode(), max_size(100) {
+  Buffer::Buffer() : ImageNode()
+    , max_size(100) 
+  {
     //this->max_size = max_size;
     //LOG(INFO) << "new buffer max_size " << this->max_size;
     vcol = cv::Scalar(200, 30, 200);
 
     inputs["ImageNode"]["image"] = NULL;
+
+    // TBD make a setSignal(port,val)
     inputs["Signal"]["max_size"] = NULL;
+    svals["max_size"] = 100;
   }
  
   bool Buffer::update()
@@ -806,6 +817,7 @@ namespace bm {
     ImageNode::load(nd);
     
     (*nd)["max_size"] >> max_size;
+    svals["max_size"] = max_size;
   }
 
   bool Buffer::save(cv::FileStorage& fs) 
