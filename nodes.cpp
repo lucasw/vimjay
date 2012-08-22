@@ -131,6 +131,9 @@ namespace bm {
     if ( inputs_dirty ) {
       setDirty();
     }
+
+    // TBD loop through svals and imvals and run getImage on each
+    // or could that be combined with looping through the getInputVector above?
     
     VLOG(4) << name << " in sz " << inputs.size() << " inputs dirty" << inputs_dirty;
 
@@ -180,8 +183,7 @@ namespace bm {
         stringstream port_info;
         port_info << port;
         if (type == "Signal") {
-          float val = 0;
-          getSignal(port, val);
+          float val = getSignal(port);
           port_info << " " << val;
         }
 
@@ -206,6 +208,22 @@ namespace bm {
   {
     // TBD name, loc?
     (*nd)["enable"] >> enable;
+
+
+    // blanket loading of all svals
+    FileNode nd_in = (*nd)["svals"]; 
+    if (nd_in.type() != FileNode::SEQ) {
+      //LOG(ERROR) << "no nodes";
+      //return false;
+    }
+
+    for (cv::FileNodeIterator it = nd_in.begin(); it != nd_in.end(); ++it) {
+      float val;
+      (*it) >> val;
+      setSignal( (*it)->name(), val);
+      LOG(INFO) << name << " " << it->name() << " " << val;
+    }
+
   }
 
   bool Node::save(cv::FileStorage& fs)
@@ -218,7 +236,16 @@ namespace bm {
     fs << "loc" << loc; 
     fs << "enable" << enable;
     //fs << "vcol" << p->vcol  ; 
-    
+   
+    fs << "svals" << "[";
+    // this takes care of all saving of svals, loading isn't so elegant though?
+    for (map<string, float >::iterator it = svals.begin(); it != svals.end(); it++) {
+      fs << "{";
+      fs << it->first << it->second; 
+      fs << "}";
+    }
+    fs << "]";
+
   }
   
   bool Node::handleKey(int key)
@@ -253,50 +280,97 @@ namespace bm {
     return true;
   }
 
-  // get an imagenode image from this nodes imagenode inputs
-  bool Node::getImage(
-    //map<string, map< string, Node*> >& inputs,
-    const string port,
-    cv::Mat& image,
-    bool& is_dirty)
+  void setInputPort(
+      const std::string type, 
+      const std::string port,
+      const Node* rv
+    )
   {
+    // this will create the entries if they don't alread exists, without clobbering their values
+    if (type == "ImageNode")
+      getImage("port");
+    if (type == "Signal")
+      getSignal("port");
     
-    Node* nd = NULL;
-
-    if (!getInputPort("ImageNode", port, nd)) 
-      return false;
-    
-    VLOG(4) << name << " " << port << " " << nd;
-    //if (require_dirty && !nd->isDirty()) return false;
-    is_dirty = nd->isDirty(this, 20, false);
-
-    ImageNode* im_in = dynamic_cast<ImageNode*> (nd);
-
-    if (!im_in) return false;
-
-    image = im_in->get();
-
-    return true;
+    inputs[type][port] = rv;
   }
 
-  bool Node::getSignal(
-    const string port, 
-    float& val)
+  // get an imagenode image from this nodes imagenode inputs
+  cv::Mat Node::getImage(
+    //map<string, map< string, Node*> >& inputs,
+    const string port,
+    bool& valid)
+    //bool& is_dirty)
   {
+   
+    valid = false;
+    cv::Mat im = imvals[port];
+    Node* nd = NULL;
+    if (!getInputPort("ImageNode", port, nd)) 
+      return im;
+    
+    VLOG(4) << name << " " << port << " " << nd;
+    //is_dirty = nd->isDirty(this, 20, false);
+
+    ImageNode* im_in = dynamic_cast<ImageNode*> (nd);
+    if (!im_in) return im;
+
+    // TBD need to support multiple outputs, so store a string that is the name
+    // the input node will refer to and pass that as a parameter to get()
+    im = im_in->get();
+    imvals[port] = im;
+    valid = true;
+    return im;
+  }
+
+  bool setImage(const std::string port, cv::Mat& im)
+  {
+    // can't set the image if it is controlled by an input node
     Node* nd;
-
-    val = svals[port];
-
-    if (!getInputPort("Signal", port, nd)) return false;
+    if (getInputPort("ImageNode", port, nd)) {
+      if (nd != NULL) return false;
+    } else {
+      inputs["ImageNode"][port] = NULL;
+    }
+  
+    imvals[port] = im;
+    return true;
+  }
+  
+  float Node::getSignal(
+    const string port, 
+    bool& valid)
+  {
+    valid = false; 
+    // first try non-input node map
+    float val = svals[port];
+    Node* nd = NULL;
+    // then look at input nodes
+    if (!getInputPort("Signal", port, nd)) {
+      // create it if it doesn't exist
+      inputs["Signal"][port] = NULL;
+      return val;
+    }
 
     Signal* im_in = dynamic_cast<Signal*> (nd);
-
-    if (!im_in) return false;
-
+    if (!im_in) return val;
     val = im_in->value;
+    // store a copy here in case the input node is disconnected
     svals[port] = val;
+    valid = true;
+    return val;
+  }
 
-    return true;
+  bool setSignal(const std::string port, float val)
+  {
+    if (getInputPort("Signal", port, nd)) {
+      if (nd != NULL) return false;
+    } else {
+      // create it since it doesn't exist
+      inputs["Signal"][port] = NULL;
+    }
+
+    svals[port] = val;
   }
 
   bool Node::getBuffer(
@@ -395,11 +469,16 @@ namespace bm {
   ImageNode::ImageNode() : Node(), write_count(0)
   {
     vcol = cv::Scalar(255,0,255);
+  
+    // create the entry for out
+    // TBD get default resolution from somewhere (a singleton registry?)
+    // TBD should out really be in the imvals, since it is an output not an input?
+    setImage("out", cv::Mat());
   }
    
   // TBD could there be a templated get function to be used in different node types?
   cv::Mat ImageNode::get() {
-    return out;//_old;
+    return getImage("out");//_old;
   }
  
   /// Probably don't want to call this in most inheriting functions, skip back to Node::update()
@@ -408,15 +487,9 @@ namespace bm {
     const bool rv = Node::update();
     if (!rv) return false;
 
-    bool im_dirty;
-    cv::Mat tmp;
-    if (!getImage("image", tmp, im_dirty)) return false;
-    if (tmp.empty()) return false; 
-    if (!im_dirty) return true;
-
-    out_old = out;
-    
-    out = tmp;
+    //setImage("out_old", ;
+    // TBD any reason to call this here?
+    getImage("out");
    
     //setDirty();
   #if 0
@@ -447,7 +520,7 @@ namespace bm {
     }
     #endif
 
-    VLOG(4) << name << " update: " <<  out.refcount << " " << out_old.refcount;
+    //VLOG(4) << name << " update: " <<  out.refcount << " " << out_old.refcount;
   
     return true;
   }
@@ -455,7 +528,9 @@ namespace bm {
   bool ImageNode::draw(float scale) 
   {
     
-    cv::Mat tmp = out;
+    // TBD if update is the only function to call getImage, then
+    //  the imval will have been updated
+    cv::Mat tmp = imvals["out"]; // getImage("out");
     if (!tmp.empty()) {
 
       cv::Size sz = cv::Size(tmp.size().width * scale, tmp.size().height * scale);
@@ -508,9 +583,11 @@ namespace bm {
     boost::filesystem::create_directories(dir_name.str());
 
     stringstream file_name;
+    int write_count = getSignal("write_count");
     file_name << dir_name.str() << "/image_" << (write_count + 1000000) << ".png";
     cv::imwrite(file_name.str(), out);
     write_count++;
+    setSignal("write_count");
     // TBD register that these frames have been saved somewhere so it is easy to load
     // them up again?
   }
@@ -534,18 +611,20 @@ namespace bm {
   {
     vcol = cv::Scalar(0,128,255);
 
-    inputs["Signal"]["step"] = NULL;
-    inputs["Signal"]["min"] = NULL;
-    inputs["Signal"]["max"] = NULL;
+    setSignal("min", 0);
+    setSignal("max", 1);
+    setSignal("value", 0);
+    setSignal("step", 0.1);
   }
 
   void Signal::setup(const float new_step, const float offset, const float min, const float max) 
   {
-    svals["value"] = offset;
-    svals["step"] = new_step;
-    svals["min"] = min;
-    svals["max"] = max;
-    LOG(INFO) << "Signal " << value << " " << new_step;
+    setSignal("min", min);
+    setSignal("max", max);
+    setSignal("value", offset);
+    setSignal("step", new_step);
+
+    LOG(INFO) << "Signal " << offset << " " << new_step;
   }
   
   bool Signal::handleKey(int key)
@@ -620,21 +699,23 @@ namespace bm {
     Node::load(nd);
 
     // TBD if svals has all the values, could just loop through it in Node::load
-    (*nd)["min"] >> min;
+   /* (*nd)["min"] >> min;
     (*nd)["max"] >> max;
     (*nd)["value"] >> value;
     (*nd)["step"] >> step;
-
+    */
   }
 
   bool Signal::save(cv::FileStorage& fs) 
   {
     Node::save(fs);
 
+    /*
     fs << "min" << min;
     fs << "max" << max;
     fs << "value" << value;
     fs << "step" << step;
+    */
   }
 
   
@@ -646,11 +727,8 @@ namespace bm {
     //LOG(INFO) << "new buffer max_size " << this->max_size;
     vcol = cv::Scalar(200, 30, 200);
 
-    inputs["ImageNode"]["image"] = NULL;
-
-    // TBD make a setSignal(port,val)
-    inputs["Signal"]["max_size"] = NULL;
-    svals["max_size"] = 100;
+    //setImage("image", cv::Mat());
+    setSignal("max_size", 100)
   }
  
   bool Buffer::update()
@@ -816,15 +894,15 @@ namespace bm {
   {
     ImageNode::load(nd);
     
-    (*nd)["max_size"] >> max_size;
-    svals["max_size"] = max_size;
+    //(*nd)["max_size"] >> max_size;
+    //svals["max_size"] = max_size;
   }
 
   bool Buffer::save(cv::FileStorage& fs) 
   {
     ImageNode::save(fs);
 
-    fs << "max_size" << max_size;
+    //fs << "max_size" << max_size;
   }
   //////////////////////////////////////////////////////////////////////////////////////////
 

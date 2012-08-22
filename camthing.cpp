@@ -271,67 +271,67 @@ class CamThing
       bool enable;
       (*it)["enable"] >> enable;
       
-      Node* nd;
+      Node* node;
       if (type_id.compare("bm::Webcam") == 0) {
         // TBD make a version of getNode that takes a type_id string
         Webcam* cam_in = getNode<Webcam>(name, loc);
-        nd = cam_in;
+        node = cam_in;
 
         test_im = cv::Mat(cam_in->get().size(), cam_in->get().type());
         test_im = cv::Scalar(200,200,200);
       }
       else if (type_id.compare("bm::ScreenCap") == 0) {
-        nd = getNode<ScreenCap>(name, loc);
-        nd->update();
+        node = getNode<ScreenCap>(name, loc);
+        node->update();
       }
       else if (type_id.compare("bm::ImageNode") == 0) {
-        nd = getNode<ImageNode>(name, loc);
+        node = getNode<ImageNode>(name, loc);
       }
       else if (type_id.compare("bm::Sobel") == 0) {
-        nd = getNode<Sobel>(name, loc);
+        node = getNode<Sobel>(name, loc);
       }
       else if (type_id.compare("bm::Buffer") == 0) {
-        nd = getNode<Buffer>(name, loc);
+        node = getNode<Buffer>(name, loc);
       }
       else if (type_id.compare("bm::ImageDir") == 0) {
-        nd = getNode<ImageDir>(name, loc);
+        node = getNode<ImageDir>(name, loc);
       }
       else if (type_id.compare("bm::Add") == 0) {
-        nd = getNode<Add>(name, loc);
+        node = getNode<Add>(name, loc);
       }
       else if (type_id.compare("bm::Resize") == 0) {
-        nd = getNode<Resize>(name, loc);
+        node = getNode<Resize>(name, loc);
       }
       else if (type_id.compare("bm::Rot2D") == 0) {
-        nd = getNode<Rot2D>(name, loc);
+        node = getNode<Rot2D>(name, loc);
       }
       else if (type_id.compare("bm::Signal") == 0) {
-        nd = getNode<Signal>(name, loc);
+        node = getNode<Signal>(name, loc);
       }
       else if (type_id.compare("bm::Saw") == 0) {
-        nd = getNode<Saw>(name, loc);
+        node = getNode<Saw>(name, loc);
       }
       else if (type_id.compare("bm::Tap") == 0) {
-        nd = getNode<Tap>(name, loc);
+        node = getNode<Tap>(name, loc);
       }
       else if (type_id.compare("bm::TapInd") == 0) {
-        nd = getNode<TapInd>(name, loc);
+        node = getNode<TapInd>(name, loc);
       }
       else if (type_id.compare("bm::Output") == 0) {
-        nd = getNode<Output>(name, loc);
-        output_node = (Output*)nd;
+        node = getNode<Output>(name, loc);
+        output_node = (Output*)node;
       } else{
         LOG(WARNING) << "unknown node type " << type_id << ", assuming imageNode";
-        nd = getNode<ImageNode>(name, loc);
+        node = getNode<ImageNode>(name, loc);
       }
 
-      if (dynamic_cast<ImageNode*>(nd)) {
-        (dynamic_cast<ImageNode*> (nd))->out = test_im;
+      if (dynamic_cast<ImageNode*>(node)) {
+        (dynamic_cast<ImageNode*> (node))->setImage("out", test_im);
       }
-      nd->load(it);
+      node->load(it);
       
       LOG(INFO) << type_id << " " << CLTXT << name << CLVAL << " " 
-          << nd  << " " << loc << " " << enable << CLNRM;
+          << node  << " " << loc << " " << enable << CLNRM;
 
     }
 
@@ -351,9 +351,9 @@ class CamThing
             << " " << input_ind << " " << type << " " << port << " " << input_ind;
         
         if (input_ind >= 0)
-          all_nodes[ind]->inputs[type][port] = all_nodes[input_ind];
+          all_nodes[ind]->setInputPort(type,port, all_nodes[input_ind]);
         else 
-          all_nodes[ind]->inputs[type][port] = NULL;
+          all_nodes[ind]->setInputPort(type,port, NULL);
       }
     } // second input pass
 
@@ -379,34 +379,35 @@ class CamThing
     test_im = cv::Scalar(200,200,200);
 
     ImageNode* passthrough = getNode<ImageNode>("image_node_passthrough", cv::Point(400, 50) );
-    passthrough->inputs["ImageNode"]["image"] = cam_in;
-    passthrough->out = test_im;
-    passthrough->out_old = test_im;
+    passthrough->setInputPort("ImageNode","image", cam_in);
+    passthrough->setImage("out", test_im);
+    //passthrough->out_old = test_im;
     //output = passthrough;
 
     Add* add_loop = getNode<Add>("add_loop", cv::Point(600,100) );
-    add_loop->out = test_im;
+    add_loop->setImage("out", test_im);
 
     Rot2D* rotate = getNode<Rot2D>("rotate", cv::Point(400,400));
-    rotate->inputs["ImageNode"]["image"] = add_loop;
-    rotate->out = test_im;
-    rotate->out_old = test_im;
-    rotate->angle = 50.0;
-    rotate->center = cv::Point2f(test_im.cols/2, test_im.rows/2);
+    rotate->setInputPort("ImageNode","image", add_loop);
+    rotate->setImage("out", test_im);
+    //rotate->out_old = test_im;
+    rotate->setSignal("angle", 50.0);
+    rotate->setSignal("center_x", test_im.cols/2);
+    rotate->setSignal("center_y", test_im.rows/2);
     //output = rotate;
 
     Signal* sr = getNode<Saw>("saw_rotate", cv::Point(350,400) ); 
     sr->setup(0.02, -5.0, -5.0, 5.0);
-    rotate->inputs["Signal"]["angle"] = (sr);
+    rotate->setInputPort("Signal","angle", sr);
 
     Signal* scx = getNode<Saw>("saw_center_x", cv::Point(350,450) ); 
     scx->setup(5, test_im.cols/2, 0, test_im.cols);
-    rotate->inputs["Signal"]["center_x"] = (scx);
+    rotate->setInputPort("Signal","center_x", scx);
     
     Signal* scy = getNode<Saw>("saw_center_y", cv::Point(350,500) ); 
     //scy->setup(6, test_im.rows/2, test_im.rows/2 - 55.0, test_im.rows/2 + 55.0);
     scy->setup(6, test_im.rows/2, 0, test_im.rows);
-    rotate->inputs["Signal"]["center_y"] = (scy);
+    rotate->setInputPort("Signal","center_y", scy);
 
     vector<ImageNode*> in;
     in.push_back(passthrough);
@@ -491,7 +492,7 @@ class CamThing
       vector<float> vec (arr, arr + sizeof(arr) / sizeof(arr[0]) );
 
       fir->setup(vec);
-      fir->inputs["ImageNode"]["image"] = (passthrough);
+      fir->setInputPort("ImageNode","image", passthrough);
 
       // IIR denominator
       FilterFIR* denom = getNode<FilterFIR>("iir_denom", cv::Point(500,350));
@@ -503,7 +504,7 @@ class CamThing
 
       vector<float> vec2 (arr2, arr2 + sizeof(arr2) / sizeof(arr2[0]) );
       denom->setup(vec2);
-      denom->inputs["ImageNode"]["image"] = (fir);
+      denom->setInputPort("ImageNode","image",fir);
        
       Add* add_iir = getNode<Add>("add_iir", cv::Point(400,100) );
       add_iir->out = test_im;
@@ -600,6 +601,7 @@ class CamThing
     //selected_node->draw_selected_port = true;
 
     // start at beginning if uninitialized
+    // TBD this means inputs can't be protected
     const string first_port = selected_node->inputs[source_type].begin()->first;
 
     if ((selected_port == "") || 
@@ -732,14 +734,14 @@ class CamThing
          
         // TBD a Buffer should act as an ImageNode if that is the only
         // input available
-        selected_node->inputs[source_type][selected_port] = source_node;
+        selected_node->setInputPort(source_type,selected_port, source_node);
 
       }  // legit source_node
     } // set source_node to target input
     else if (key == 'd') {
       // disconnect current input
       if (selected_node && (selected_type != "") && (selected_port != "")) {
-        selected_node->inputs[selected_type][selected_port] = NULL;
+        selected_node->setInputPort(selected_type,selected_port, NULL);
       }
     }
     //else if (key == 'c') {

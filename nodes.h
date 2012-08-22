@@ -56,12 +56,19 @@ namespace bm {
 //  what about having a map of maps for the inputs - inputs[SIGNAL]["min"]
 
 
+static bool bool_val;
+
 class Node
 {
   // this structure tracks arbitrary numbers of callers to see if there have been
   // change since the last call
   std::map<const void*, std::map<int, bool> > dirty_hash;  
+  
+  protected:
+
   public:
+  
+  std::map<std::string, std::map< std::string, Node*> > inputs;
   // has this node been updated this timestep, or does it need to be updated this timestep
   // because of dependencies
   bool do_update;
@@ -88,8 +95,12 @@ class Node
   bool draw_selected_port;
   //void drawSelectedPort();
   
-  //std::vector<Node*> inputs;
-  std::map<std::string, std::map< std::string, Node*> > inputs;
+  // this contains non-node sourced signal values, or latest node values
+  // TBD can also be outputs?
+  std::map<std::string, float> svals;
+  // Image IOs, copies of inputs images,input images that aren't node 
+  // connected, and output images
+  std::map<std::string, cv::Mat> imvals;
   
   Node();
   virtual ~Node() {}
@@ -109,26 +120,33 @@ class Node
   std::vector<Node*> getInputVector();
   std::vector<std::pair< std::string, std::string > > getInputStrings();
 
-  bool getImage(
-    //std::map<std::string, std::map< std::string, Node*> >& inputs,
-    const std::string port,
-    cv::Mat& image,
-    bool& is_dirty);
-    //const bool require_dirty= false);
- 
   bool getInputPort(
-      //std::map<std::string, std::map< std::string, Node*> >& inputs,
       const std::string type, 
       const std::string port,
       Node*& rv);
+ 
+  void setInputPort(
+      const std::string type, 
+      const std::string port,
+      const Node* rv
+    );
 
-  // this contains non-node sourced signal values, or latest node values
-  map<std::string, float> svals;
+  // TBD calling any of these will create the input, so outside
+  // nodes probably shouldn't call them?
+  cv::Mat getImage(
+      const std::string port,
+      bool& valid = bool_val);//,
+      //bool& is_dirty);
+      //const bool require_dirty= false);
+  
+  // set image, only succeeds if not an input TBD - rw permissions?
+  bool setImage(const std::string port, cv::Mat& im);
 
-  // TBD return val and pass bool
-  bool getSignal(
+  float getSignal(
       const std::string port, 
-      float& val);
+      bool& valid = bool_val);
+
+  bool setSignal(const std::string port, const float val);
 
   bool getBuffer(
     const std::string port,
@@ -141,7 +159,6 @@ class Node
     cv::Mat& image);
 
 
-
   virtual bool handleKey(int key);
 };
 
@@ -152,9 +169,10 @@ class ImageNode : public Node
 {
 public:
   // TBD make all three private
-  cv::Mat out;
-  cv::Mat out_old;
+  //cv::Mat out;
+  //cv::Mat out_old;
   //cv::Mat tmp; // scratch image
+  //int write_count;
     
   ImageNode();// : Node()
 
@@ -166,7 +184,6 @@ public:
   
   virtual bool handleKey(int key);
   
-  int write_count;
   std::stringstream dir_name;
   virtual bool writeImage();
 };

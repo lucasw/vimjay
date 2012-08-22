@@ -323,8 +323,8 @@ namespace bm {
   void Tap::setup(Signal* new_signal, Buffer* new_buffer) 
   {
     inputs.clear();
-    inputs["Signal"]["value"] = new_signal;
-    inputs["Buffer"]["buffer"] = new_buffer;
+    setInputPort("Signal","value", new_signal);
+    setInputPort("Buffer","buffer", new_buffer);
   }
 
   bool Tap::update()
@@ -387,8 +387,8 @@ namespace bm {
   ///////////////////////////////////////////
   Add::Add() : ImageNode()
   {
-    inputs["ImageNode"]["0"] = NULL;
-    inputs["Signal"]["0"] = NULL;
+    setInputPort("ImageNode","add0", NULL);
+    setInputPort("Signal","add0", 2.0);
     nf.resize(1);
     nf[0] = 2.0;
     vcol = cv::Scalar(200, 200, 50);
@@ -401,13 +401,14 @@ namespace bm {
       //return; 
     }
     this->nf = nf; 
-    
+   
+    // TBD instead of clearing all, only clear the keys that match "add"
     inputs["ImageNode"].clear();
     inputs["Signal"].clear(); 
     for (int i = 0; i < np.size(); i++) {
-      const string port = boost::lexical_cast<string>(i);
-      inputs["ImageNode"][port] = np[i];
-      inputs["Signal"][port] = NULL; // this allows other signals to connect to replace nf
+      const string port = "add" + boost::lexical_cast<string>(i);
+      setInputPort("ImageNode",port, np[i]);
+      setInputPort("Signal",port, NULL); // this allows other signals to connect to replace nf
     }
   }
 
@@ -426,14 +427,18 @@ namespace bm {
 
       bool done_something = false;
       
+      cv::Mat out;
+
       // TBD should these vectors just be stored with some incrementing string?
       // TBD loop through all input ImageNodes and input signals (or vector values, need to be able
       // to handle either)
+      // TBD instead of having nf, loop through all svals and match on ones that start with add
+      // and then run getSignal on those strings
       for (int i = 0; i < nf.size(); i++) {
         // TBD instead of strictly requiring the name to be itoa(i), just loop through all ImageNode inputs
         cv::Mat tmp_in;
         bool im_dirty;
-        const string port = boost::lexical_cast<string>(i);
+        const string port = "add" + boost::lexical_cast<string>(i);
         if (!getImage(port, tmp_in, im_dirty)) {  
           VLOG(2) << name << " " << i << " couldn't be gotten from inputs"; 
           continue;
@@ -443,7 +448,7 @@ namespace bm {
           continue;
         }
 
-        getSignal(port, nf[i]);
+        nf[i] = getSignal(port);
         
         // with 8-bit unsigned it is necessary to have initial coefficients positive
         // zero minus anything will just be zero 
@@ -466,6 +471,8 @@ namespace bm {
 
         }
       } // nf loop
+      
+    setImage("out", out);
 
     return true;
   }
@@ -481,52 +488,52 @@ namespace bm {
     }
     */
 
+    /*
     for (int i = 0; i < (*nd)["nf"].size(); i++) {
       float new_coeff;
       (*nd)["nf"][i] >> new_coeff;
       nf.push_back(new_coeff);
     }
+    */
   }
 
   bool Add::save(cv::FileStorage& fs)
   {
     ImageNode::save(fs);
 
+    /*
     fs << "nf" << "[:";
     for (int i = 0; i < nf.size(); i++) { 
       fs << nf[i]; 
     }
     fs << "]";
+    */
   }
 
   ////////////////////////////////////////
-  Resize::Resize()
+  Resize::Resize() 
   {
-    inputs["ImageNode"]["image"] = NULL;
-    inputs["Signal"]["fx"] = NULL;
-    inputs["Signal"]["fy"] = NULL;
-
-    fx = 0.2;
-    fy = 0.2;
+    setSignal("fx", 0.2);
+    setSignal("fy", 0.2);
   }
 
   bool Resize::update()
   {
   if (!ImageNode::update()) return false;
  
+  cv::Mat out = getImage("out");
+
   if (out.empty()) {
     VLOG(2) << name << " out is empty";
     return false;
   }
   
   // if fx and fy aren't hooked up then they will remain unaltered
-  getSignal("fx", fx);
-  getSignal("fy", fy);
 
   cv::Size sz = out.size();
   
-  fx = abs(fx);
-  fy = abs(fy);
+  float fx = abs(getSignal("fx"));
+  float fy = abs(getSignal("fy"));
   
   cv::Size dsize = cv::Size(fx*sz.width, fy*sz.height);
   //TBD
@@ -546,6 +553,7 @@ namespace bm {
 
   cv::resize(tmp, tmp2, sz, 0, 0, cv::INTER_NEAREST);
   out = tmp2;
+  setImage("out", out);
   VLOG(1) << fx << " " << fy << " " 
       << tmp.size().width << " " << tmp.size().height
       << " " << tmp2.size().width << " " << tmp2.size().height;
@@ -557,10 +565,11 @@ namespace bm {
     ImageNode::draw();
 
     stringstream sstr;
-    sstr << fx << " " << fy;
+    sstr << getSignal("fx") << " " << getSignal("fy");
     cv::putText(graph, sstr.str(), loc + cv::Point(20,-40), 1, 1, cv::Scalar(200,200,200));
     //VLOG(1)<< sstr.str();
     return true;
   }
 
 } //bm
+

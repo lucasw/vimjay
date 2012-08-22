@@ -57,9 +57,9 @@ class Rot2D : public ImageNode
   public:
  
   // TBD these need to be Node inputs?
-  float angle;
-  float scale;
-  cv::Point2f center;
+  //float angle;
+  //float scale;
+  //cv::Point2f center;
 
   Rot2D();
 
@@ -110,7 +110,8 @@ class Tap : public ImageNode
   public:
 
   bool changed;
-  float value;
+
+  //float value;
 
   Tap();// : ImageNode()
 
@@ -127,6 +128,7 @@ class TapInd : public Tap
 
   TapInd() {}// : ImageNode()
   
+  // TBD make an sval?
   int ind;
   virtual bool update();
 
@@ -138,6 +140,7 @@ class Add : public ImageNode
   public:
   
   // TBD make a std::vector of ImageNodes so dynamic_casts don't need to be used?
+  //TBD don't store this here, instead in svals
   std::vector<float> nf;
   
   Add(); // : ImageNode()
@@ -156,8 +159,8 @@ class Resize : public ImageNode
   public:
   Resize();
 
-  float fx;
-  float fy;
+  //float fx;
+  //float fy;
 
   virtual bool update();
   virtual bool draw();
