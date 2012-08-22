@@ -219,9 +219,10 @@ namespace bm {
 
     for (cv::FileNodeIterator it = nd_in.begin(); it != nd_in.end(); ++it) {
       float val;
-      (*it) >> val;
-      setSignal( (*it)->name(), val);
-      LOG(INFO) << name << " " << it->name() << " " << val;
+      const string sval_name = (*it).name();
+      (*it)[sval_name] >> val;
+      setSignal( sval_name, val);
+      LOG(INFO) << name << " " << sval_name << " " << val;
     }
 
   }
@@ -280,7 +281,7 @@ namespace bm {
     return true;
   }
 
-  void setInputPort(
+  void Node::setInputPort(
       const std::string type, 
       const std::string port,
       const Node* rv
@@ -292,7 +293,7 @@ namespace bm {
     if (type == "Signal")
       getSignal("port");
     
-    inputs[type][port] = rv;
+    inputs[type][port] = (Node*) rv;
   }
 
   // get an imagenode image from this nodes imagenode inputs
@@ -323,7 +324,7 @@ namespace bm {
     return im;
   }
 
-  bool setImage(const std::string port, cv::Mat& im)
+  bool Node::setImage(const std::string port, cv::Mat& im)
   {
     // can't set the image if it is controlled by an input node
     Node* nd;
@@ -354,15 +355,16 @@ namespace bm {
 
     Signal* im_in = dynamic_cast<Signal*> (nd);
     if (!im_in) return val;
-    val = im_in->value;
+    val = im_in->getSignal("value");
     // store a copy here in case the input node is disconnected
     svals[port] = val;
     valid = true;
     return val;
   }
 
-  bool setSignal(const std::string port, float val)
+  bool Node::setSignal(const std::string port, float val)
   {
+    Node* nd;
     if (getInputPort("Signal", port, nd)) {
       if (nd != NULL) return false;
     } else {
@@ -466,14 +468,15 @@ namespace bm {
   }
 
   //////////////////////////////////////////////////////////////////////////////////////////
-  ImageNode::ImageNode() : Node(), write_count(0)
+  ImageNode::ImageNode() : Node()
   {
     vcol = cv::Scalar(255,0,255);
   
     // create the entry for out
     // TBD get default resolution from somewhere (a singleton registry?)
     // TBD should out really be in the imvals, since it is an output not an input?
-    setImage("out", cv::Mat());
+    cv::Mat tmp;
+    setImage("out", tmp);
   }
    
   // TBD could there be a templated get function to be used in different node types?
@@ -585,9 +588,13 @@ namespace bm {
     stringstream file_name;
     int write_count = getSignal("write_count");
     file_name << dir_name.str() << "/image_" << (write_count + 1000000) << ".png";
+
+    cv::Mat out = getImage("out");
+    if (out.empty()) return false;
+
     cv::imwrite(file_name.str(), out);
     write_count++;
-    setSignal("write_count");
+    setSignal("write_count", write_count);
     // TBD register that these frames have been saved somewhere so it is easy to load
     // them up again?
   }
@@ -634,17 +641,20 @@ namespace bm {
     
     valid_key = true;
 
+    float value = getSignal("value");
+
     if (key == ',') {
-      svals["value"] += abs(step);   
+      value += abs(getSignal("step"));   
     }
     else if (key == 'm') {
-      svals["value"] -= abs(step);
+      value -= abs(getSignal("step"));
     } else {
       valid_key = false;
     }
     
     if (valid_key) {
       VLOG(2) << value;
+      setSignal("value", value);
       setDirty();
     }
     
@@ -655,16 +665,17 @@ namespace bm {
   {
     if (!Node::update()) return false;
 
-    getSignal("step", step);
-    getSignal("min", min);
-    getSignal("max", max);
+    float step = getSignal("step");
+    float min = getSignal("min");
+    float max = getSignal("max");
+    float value = getSignal("value");
     // it wouldn't be hard to update these
     // even if they aren't in need of updating, but don't for now
     value += step;
     if (value > max) value = max;
     if (value < min) value = min;
     
-    svals["value"] = value;
+    setSignal("value", value);
 
     VLOG(3) << "Signal " << name << " " << value;
     //is_dirty = true;
@@ -675,12 +686,17 @@ namespace bm {
 
   bool Signal::draw(float scale)
   {
-    float x = (value)/(max-min);
+    float step = getSignal("step");
+    float min = getSignal("min");
+    float max = getSignal("max");
+    float value = getSignal("value");
+    
+    float x = (value)/(max - min);
     if ((max > 0) && (min > 0)) {
-      x -= min/(max-min) + 0.1;
+      x -= min/(max - min) + 0.1;
     }
     if ((max < 0) && (min < 0)) {
-      x += max/(max-min) - 0.1;
+      x += max/(max - min) - 0.1;
     }
 
     cv::rectangle(graph, loc, 
@@ -721,14 +737,13 @@ namespace bm {
   
   //////////////////////////////////////////////////////////////////////////////////////////
   Buffer::Buffer() : ImageNode()
-    , max_size(100) 
   {
     //this->max_size = max_size;
     //LOG(INFO) << "new buffer max_size " << this->max_size;
     vcol = cv::Scalar(200, 30, 200);
 
     //setImage("image", cv::Mat());
-    setSignal("max_size", 100)
+    setSignal("max_size", 100);
   }
  
   bool Buffer::update()
@@ -738,11 +753,13 @@ namespace bm {
    
     if (!isDirty(this,21)) { return true;}
    
-    float val;
-    getSignal("max_size", val);
+    float val = getSignal("max_size");
     max_size = val;
     if (max_size < 1) max_size = 1;
-    
+   
+    // TBD this is kind of confusing, out is being used as 
+    // and input and an output
+    cv::Mat out = getImage("out");
     add(out); 
 
     if (frames.size() <= 0) return false;
@@ -759,7 +776,7 @@ namespace bm {
 
   bool Buffer::draw(float scale) 
   {
-
+    cv::Mat out = getImage("out");
     // draw some grabs of the beginning frame, and other partway through the buffer 
     for (int i = 1; i < 4; i++) {
       int ind = i * frames.size() / 3;
@@ -787,7 +804,7 @@ namespace bm {
       }
     }
     
-    if (frames.size() < max_size)
+    if (frames.size() < getSignal("max_size"))
       vcol = cv::Scalar(200, 30, 200);
     else
       vcol = cv::Scalar(55, 255, 90);
@@ -883,8 +900,10 @@ namespace bm {
       stringstream file_name;
       file_name << dir_name.str() << "/buffer_" << (i + 1000000) << ".jpg";
       cv::imwrite(file_name.str(), frames[i]);
-      
+     
+      int write_count = getSignal("write_count");
       write_count++;
+      setSignal("write_count", write_count);
     }
     // TBD register that these frames have been saved somewhere so it is easy to load
     // them up again?
