@@ -219,10 +219,19 @@ namespace bm {
 
     for (cv::FileNodeIterator it = nd_in.begin(); it != nd_in.end(); ++it) {
       float val;
+      const string sval_name = (*it)["name"];
+      (*it)["value"] >> val;
+      setSignal( sval_name, val);
+      LOG(INFO) << name << " : " << sval_name << " = " << val;
+      /* this doesn't work, name returns blank
+       * though there are a matching number of entries to sval items 
+       * */
+      /*
       const string sval_name = (*it).name();
       (*it)[sval_name] >> val;
       setSignal( sval_name, val);
-      LOG(INFO) << name << " " << sval_name << " " << val;
+      LOG(INFO) << name << " " << (*it) << " " << sval_name << " " << val;
+      */
     }
 
   }
@@ -242,7 +251,9 @@ namespace bm {
     // this takes care of all saving of svals, loading isn't so elegant though?
     for (map<string, float >::iterator it = svals.begin(); it != svals.end(); it++) {
       fs << "{";
-      fs << it->first << it->second; 
+      //fs << it->first << it->second;  // this is clever but I don't know how to load it
+      fs << "name" << it->first;
+      fs << "value" << it->second;
       fs << "}";
     }
     fs << "]";

@@ -44,7 +44,7 @@ using namespace cv;
 using namespace std;
 
 DEFINE_string(graph_file, "../graph.yml", "yaml file to load with graph in it");
-
+//DEFINE_bool(
 namespace bm {
 
 string getId(Node* ptr) 
@@ -218,17 +218,22 @@ class CamThing
       source_node(NULL),
       source_type(""),
       output_node(NULL),
-      draw_nodes(true)
+      draw_nodes(true),
+      paused(false)
   {
     count = 0;
 
     // TBD make internal type a gflag
+    // or have a config file that loads it and resolution also
     graph_im = cv::Mat(cv::Size(1280, 720), MAT_FORMAT_C3);
     graph_im = cv::Scalar(0);
 
-    defaultGraph();
-    //loadGraph(FLAGS_graph_file);
-    saveGraph("graph_load_test.yml");
+    if (FLAGS_graph_file =="") {
+      defaultGraph();
+    } else {
+      loadGraph(FLAGS_graph_file);
+      saveGraph("graph_load_test.yml");
+    }
 
     cv::namedWindow("graph_im", CV_GUI_NORMAL);
     cv::moveWindow("graph_im", 0, 500);
@@ -360,6 +365,7 @@ class CamThing
     if (output_node == NULL) {
       LOG(WARNING) << CLWRN << "No output node found, setting it to " << all_nodes[all_nodes.size() - 1]->name << CLNRM;
       // TBD could make sure that this node is an output node
+      
       output_node = (Output*) all_nodes[all_nodes.size() - 1];
     }
 
@@ -556,7 +562,7 @@ class CamThing
 */
     
     output_node = (Output*)add_loop;
-    saveGraph();
+    saveGraph("default_graph.yml");
   }
 
   // TBD move into Node?
