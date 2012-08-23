@@ -83,6 +83,7 @@ namespace bm {
       value = min;
     }
 
+    setSignal("step", step);
     setSignal("value", value);
 
     setDirty();
