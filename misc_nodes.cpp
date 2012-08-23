@@ -449,7 +449,10 @@ namespace bm {
       //for (int i = 0; i < nf.size(); i++) {
         const string port = it->first;
         
-        if (port.substr(0,2) != "add") continue;
+        if (port.substr(0,3) != "add") {
+          VLOG(1) << name << " : " << port.substr(0,3) << " " << port;
+          continue;
+        }
         
         cv::Mat tmp_in;
         bool im_dirty;
