@@ -138,8 +138,10 @@ ScreenCap::ScreenCap( )
   widthX = 640; //screen->width / 4, heightY = screen->height / 4; 
   heightY = 480;
   
-  out = cv::Mat(cv::Size(widthX, heightY), CV_8UC3);
+  cv::Mat out = cv::Mat(cv::Size(widthX, heightY), CV_8UC3);
   out = cv::Scalar(50,50,200);
+
+  setImage("out", out);
 }
 
 bool ScreenCap::update()
@@ -168,7 +170,7 @@ bool ScreenCap::update()
 
   if (tmp.empty()) return false;
   
-  out = tmp;
+  setImage("out", tmp);
 
   return true;
 }

@@ -226,8 +226,8 @@ class CamThing
     graph_im = cv::Mat(cv::Size(1280, 720), MAT_FORMAT_C3);
     graph_im = cv::Scalar(0);
 
-    //defaultGraph();
-    loadGraph(FLAGS_graph_file);
+    defaultGraph();
+    //loadGraph(FLAGS_graph_file);
     saveGraph("graph_load_test.yml");
 
     cv::namedWindow("graph_im", CV_GUI_NORMAL);
@@ -379,7 +379,7 @@ class CamThing
     test_im = cv::Scalar(200,200,200);
 
     ImageNode* passthrough = getNode<ImageNode>("image_node_passthrough", cv::Point(400, 50) );
-    passthrough->setInputPort("ImageNode","image", cam_in);
+    passthrough->setInputPort("ImageNode","in", cam_in);
     passthrough->setImage("out", test_im);
     //passthrough->out_old = test_im;
     //output = passthrough;
@@ -388,7 +388,7 @@ class CamThing
     add_loop->setImage("out", test_im);
 
     Rot2D* rotate = getNode<Rot2D>("rotate", cv::Point(400,400));
-    rotate->setInputPort("ImageNode","image", add_loop);
+    rotate->setInputPort("ImageNode","in", add_loop);
     rotate->setImage("out", test_im);
     //rotate->out_old = test_im;
     rotate->setSignal("angle", 50.0);
@@ -492,7 +492,7 @@ class CamThing
       vector<float> vec (arr, arr + sizeof(arr) / sizeof(arr[0]) );
 
       fir->setup(vec);
-      fir->setInputPort("ImageNode","image", passthrough);
+      fir->setInputPort("ImageNode","in", passthrough);
 
       // IIR denominator
       FilterFIR* denom = getNode<FilterFIR>("iir_denom", cv::Point(500,350));
@@ -504,7 +504,7 @@ class CamThing
 
       vector<float> vec2 (arr2, arr2 + sizeof(arr2) / sizeof(arr2[0]) );
       denom->setup(vec2);
-      denom->setInputPort("ImageNode","image",fir);
+      denom->setInputPort("ImageNode","in",fir);
        
       Add* add_iir = getNode<Add>("add_iir", cv::Point(400,100) );
       add_iir->out = test_im;

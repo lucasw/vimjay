@@ -289,9 +289,9 @@ namespace bm {
   {
     // this will create the entries if they don't alread exists, without clobbering their values
     if (type == "ImageNode")
-      getImage("port");
+      getImage(port);
     if (type == "Signal")
-      getSignal("port");
+      getSignal(port);
     
     inputs[type][port] = (Node*) rv;
   }
@@ -492,9 +492,11 @@ namespace bm {
 
     //setImage("out_old", ;
     // TBD any reason to call this here?
-    getImage("out");
-   
-    //setDirty();
+    cv::Mat in = getImage("in");
+    if (in.empty()) return true; 
+    
+    setImage("out", in);
+    setDirty();
   #if 0
     map<string, map<string, Node*> >::iterator image_map;  
     image_map = inputs.find("ImageNode");
@@ -589,7 +591,7 @@ namespace bm {
     int write_count = getSignal("write_count");
     file_name << dir_name.str() << "/image_" << (write_count + 1000000) << ".png";
 
-    cv::Mat out = getImage("out");
+    cv::Mat out = imvals["out"]; //getImage("out");
     if (out.empty()) return false;
 
     cv::imwrite(file_name.str(), out);
@@ -744,11 +746,13 @@ namespace bm {
 
     //setImage("image", cv::Mat());
     setSignal("max_size", 100);
+    cv::Mat tmp;
+    setImage("in", tmp);
   }
  
   bool Buffer::update()
   {
-    bool rv = ImageNode::update();
+    bool rv = Node::update(); // ImageNode::update();
     if (!rv) return false;
    
     if (!isDirty(this,21)) { return true;}
@@ -759,12 +763,13 @@ namespace bm {
    
     // TBD this is kind of confusing, out is being used as 
     // and input and an output
-    cv::Mat out = getImage("out");
-    add(out); 
+    cv::Mat in = getImage("in");
+    add(in); 
 
     if (frames.size() <= 0) return false;
     
-    out = frames[0];
+    cv::Mat out = frames[0];
+    setImage("out", out);
 
     if (VLOG_IS_ON(5)) {
       VLOG(15) << frames.size();

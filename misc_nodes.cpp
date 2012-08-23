@@ -68,6 +68,11 @@ namespace bm {
     // don't call Signal::update because it will contradict this update
     if (!Node::update()) return false;
 
+    float step = getSignal("step");
+    float min = getSignal("min");
+    float max = getSignal("max");
+    float value = getSignal("value");
+
     value += step;
     if (value > max) {
       step = -abs(step);
@@ -77,6 +82,9 @@ namespace bm {
       step = abs(step);
       value = min;
     }
+
+    setSignal("value", value);
+
     setDirty();
     //is_dirty = true;
 
@@ -84,14 +92,17 @@ namespace bm {
     return true;
   }
 
+  //
   Rot2D::Rot2D()
   {
-    angle = 0;
-    scale = 1.0;
-    center = cv::Point2f(0,0);
-  }
 
-  
+    setSignal("angle", 0);
+    setSignal("scale", 1.0);
+    setSignal("center_x", 0.0);
+    setSignal("center_y", 0.0);
+    cv::Mat tmp;
+    setImage("in",tmp);
+  }
 
   bool Rot2D::update()
   {
@@ -103,12 +114,15 @@ namespace bm {
     bool im_dirty;
     cv::Mat tmp_in;
     // "image" is the default image input name
-    if (!getImage("image", tmp_in, im_dirty)) return false;
+    tmp_in = getImage("in");
     if (tmp_in.empty()) return false;
 
-    getSignal("angle", angle);     
-    getSignal("center_x", center.x);     
-    getSignal("center_y", center.y);
+    float angle = getSignal("angle");    
+    float scale = getSignal("scale");    
+
+    cv::Point2f center;
+    center.x = getSignal("center_x");     
+    center.y = getSignal("center_y");
 
     //VLOG(1) << name << " " << is_dirty << " " << im_in->name << " " << im_in->is_dirty;
 
@@ -116,7 +130,7 @@ namespace bm {
     cv::Mat tmp;
     cv::warpAffine(tmp_in, tmp, rot, tmp_in.size(), INTER_NEAREST);
 
-    out = tmp;
+    setImage("out", tmp);
   }
 
   ////////////////////////////////////////////////////////////
@@ -201,7 +215,7 @@ namespace bm {
         new_out.convertTo(tmp, MAT_FORMAT,scale); //, 1.0/(255.0));//*255.0*255.0*255.0));
 
         //out_lock.lock();
-        out = tmp;
+        setImage("out", tmp);
         is_thread_dirty = true;
         //out_lock.unlock();
         //} else {
@@ -227,7 +241,8 @@ namespace bm {
 
   bool Webcam::update()
   {
-    ImageNode::update();
+    Node::update();
+    //ImageNode::update();
 
       if ( is_thread_dirty ) setDirty();
       is_thread_dirty = false;
@@ -332,14 +347,13 @@ namespace bm {
     if (!Node::update()) return false;
 
     if (isDirty(this,4)) {
-      value = 0;
-      getSignal("value", value);     
+      float value = getSignal("value");     
       
       VLOG(1) << name << " update " << value;
       cv::Mat tmp;
       if (!getBuffer("buffer", value, tmp)) return false;
       
-      out = tmp;
+      setImage("out", tmp);
     }
 
     return true;
@@ -350,7 +364,7 @@ namespace bm {
     ImageNode::draw();
 
     stringstream sstr;
-    sstr << value;
+    sstr << getSignal("value");
     cv::putText(graph, sstr.str(), loc + cv::Point(20,-30), 1, 1, cv::Scalar(200,200,200));
   }
   
@@ -358,16 +372,15 @@ namespace bm {
   {
     if (!Node::update()) return false;
 
-    if (isDirty(this,4)) {
-      value = 0;
-      getSignal("value", value);     
-      ind = value;
+    if (isDirty(this, 4)) {
+      float value =  getSignal("value");     
+      int ind = value;
 
       VLOG(2) << name << " update " << ind;
       cv::Mat tmp;
       if (!getBuffer("buffer", ind, tmp)) return false;
       
-      out = tmp;
+      setImage("out", tmp);
     }
 
     return true;
@@ -378,7 +391,7 @@ namespace bm {
     Tap::draw();
 
     stringstream sstr;
-    sstr << ind;
+    sstr << (int)(getSignal("value"));
     cv::putText(graph, sstr.str(), loc - cv::Point(-20,-30), 1, 1, cv::Scalar(200,200,200));
   
     return true;
@@ -387,8 +400,9 @@ namespace bm {
   ///////////////////////////////////////////
   Add::Add() : ImageNode()
   {
-    setInputPort("ImageNode","add0", NULL);
-    setInputPort("Signal","add0", 2.0);
+    cv::Mat tmp;
+    setImage("add0", tmp);
+    setSignal("add0", 2.0);
     nf.resize(1);
     nf[0] = 2.0;
     vcol = cv::Scalar(200, 200, 50);
@@ -439,10 +453,7 @@ namespace bm {
         cv::Mat tmp_in;
         bool im_dirty;
         const string port = "add" + boost::lexical_cast<string>(i);
-        if (!getImage(port, tmp_in, im_dirty)) {  
-          VLOG(2) << name << " " << i << " couldn't be gotten from inputs"; 
-          continue;
-        }
+        tmp_in = getImage(port);
         if (tmp_in.empty()) {
           VLOG(1) << name << " " << i << " image is empty"; 
           continue;
@@ -515,22 +526,24 @@ namespace bm {
   {
     setSignal("fx", 0.2);
     setSignal("fy", 0.2);
+    cv::Mat tmp;
+    setImage("in", tmp);
   }
 
   bool Resize::update()
   {
   if (!ImageNode::update()) return false;
  
-  cv::Mat out = getImage("out");
+  cv::Mat in = getImage("in");
 
-  if (out.empty()) {
-    VLOG(2) << name << " out is empty";
+  if (in.empty()) {
+    VLOG(2) << name << " in is empty";
     return false;
   }
   
   // if fx and fy aren't hooked up then they will remain unaltered
 
-  cv::Size sz = out.size();
+  cv::Size sz = in.size();
   
   float fx = abs(getSignal("fx"));
   float fy = abs(getSignal("fy"));
@@ -547,16 +560,15 @@ namespace bm {
   if (dsize.width > sz.width) dsize.width = sz.width;
 
   cv::Mat tmp;
-  cv::resize(out, tmp, dsize, 0, 0, cv::INTER_NEAREST);
+  cv::resize(in, tmp, dsize, 0, 0, cv::INTER_NEAREST);
   // then scale back to input size
-  cv::Mat tmp2;
+  cv::Mat out;
 
-  cv::resize(tmp, tmp2, sz, 0, 0, cv::INTER_NEAREST);
-  out = tmp2;
+  cv::resize(tmp, out, sz, 0, 0, cv::INTER_NEAREST);
   setImage("out", out);
   VLOG(1) << fx << " " << fy << " " 
       << tmp.size().width << " " << tmp.size().height
-      << " " << tmp2.size().width << " " << tmp2.size().height;
+      << " " << out.size().width << " " << out.size().height;
   return true;
   }
 

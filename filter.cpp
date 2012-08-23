@@ -42,19 +42,19 @@ bool FilterFIR::update()
   bool rv = Buffer::update();
   if (!rv) return false;
 
-  cv::Mat new_out;
+  cv::Mat out;
 
   for (int i = 0; i < xi.size() && i < frames.size(); i++) {
 
     cv::Mat tmp = frames[frames.size() - i - 1] * xi[i];  
     if (i == 0) {
-      new_out = tmp;
+      out = tmp;
     } else {
-      new_out += tmp;
+      out += tmp;
     }
   }
 
-  out = new_out;
+  setImage("out", out);
 
   return true;
 }
@@ -83,21 +83,24 @@ bool FilterFIR::save(cv::FileStorage& fs)
 
 Sobel::Sobel()
 {
-  inputs["ImageNode"]["image"] = NULL;
+  cv::Mat tmp;
+  setImage("in", tmp);
 }
 
 bool Sobel::update()
 {
-  if (!ImageNode::update()) return false;
- 
-  if (out.empty()) {
-    VLOG(2) << name << " out is empty";
+  //if (!ImageNode::update()) return false;
+  if (!Node::update()) return false;
+
+  cv::Mat in = getImage("in");
+  if (in.empty()) {
+    VLOG(2) << name << " in is empty";
     return false;
   }
 
-  cv::Mat tmp;
-  cv::Sobel(out, tmp, out.depth(), 1, 1, 3, 8);
-  out = tmp;
+  cv::Mat out;
+  cv::Sobel(in, out, in.depth(), 1, 1, 3, 8);
+  setImage("out", out);
 
   return true;
 }

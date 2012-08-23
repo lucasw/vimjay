@@ -129,7 +129,7 @@ class TapInd : public Tap
   TapInd() {}// : ImageNode()
   
   // TBD make an sval?
-  int ind;
+  //int ind;
   virtual bool update();
 
   virtual bool draw();

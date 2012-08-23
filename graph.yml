@@ -1,74 +1,77 @@
 %YAML:1.0
-date: "Fri Aug 17 21:34:38 2012\n"
+date: "Wed Aug 22 21:16:19 2012\n"
 nodes:
    -
-      typeid: "bm::ImageDir"
-      name: image_dir
-      loc: [ 71, 45 ]
+      typeid: "bm::Webcam"
+      name: webcam
+      loc: [ 91, 60 ]
       enable: 1
-      max_size: 0
-      dir: "../data"
+      svals:
+         []
       ind: 0
       inputs:
          []
    -
-      typeid: "bm::Resize"
-      name: resize
-      loc: [ 355, 45 ]
+      typeid: "bm::ImageNode"
+      name: image_node_passthrough
+      loc: [ 457, 60 ]
       enable: 1
+      svals:
+         []
       ind: 1
       inputs:
          -
             type: ImageNode
-            port: image
-            ind: 3
-         -
-            type: Signal
-            port: fx
-            ind: 4
-         -
-            type: Signal
-            port: fy
-            ind: 4
+            port: in
+            ind: 0
    -
       typeid: "bm::Add"
       name: add_loop
-      loc: [ 640, 45 ]
+      loc: [ 822, 60 ]
       enable: 1
-      nf: [ 4.9999963492155075e-02, 2., 2., 1.7999999523162842e+00, -1. ]
+      svals:
+         -
+            add0: 2.
+         -
+            add1: -1.0199954509735107e+00
       ind: 2
       inputs:
          -
             type: ImageNode
-            port: "0"
-            ind: 8
-         -
-            type: ImageNode
-            port: "1"
+            port: add0
             ind: 1
          -
-            type: Signal
-            port: "0"
-            ind: 14
+            type: ImageNode
+            port: add1
+            ind: 3
          -
             type: Signal
-            port: "1"
-            ind: 15
+            port: add1
+            ind: 4
    -
       typeid: "bm::Rot2D"
       name: rotate
-      loc: [ 924, 45 ]
+      loc: [ 91, 300 ]
       enable: 1
+      svals:
+         -
+            angle: 3.2000350952148438e-01
+         -
+            center_x: 3.2000350952148438e-01
+         -
+            center_y: 78.
+         -
+            scale: 1.
       ind: 3
       inputs:
          -
             type: ImageNode
-            port: image
+            port: in
             ind: 2
          -
             type: Signal
             port: angle
-            ind: 4
+            ind: 5
          -
             type: Signal
             port: center_x
@@ -76,149 +79,55 @@ nodes:
          -
             type: Signal
             port: center_y
-            ind: 7
+            ind: 6
    -
       typeid: "bm::Saw"
       name: saw_rotate
-      loc: [ 71, 225 ]
-      enable: 1
-      min: -15.
-      max: 15.
-      value: -3.8900167942047119e+00
-      step: 1.0999999195337296e-01
+      loc: [ 457, 300 ]
+      enable: 0
+      svals:
+         -
+            max: 5.
+         -
+            min: -5.
+         -
+            step: 1.9999999552965164e-02
+         -
+            value: -1.0199954509735107e+00
       ind: 4
       inputs:
          []
    -
       typeid: "bm::Saw"
       name: saw_center_x
-      loc: [ 355, 225 ]
-      enable: 1
-      min: 0.
-      max: 640.
-      value: 185.
-      step: -5.
+      loc: [ 822, 300 ]
+      enable: 0
+      svals:
+         -
+            max: 3.2000416517257690e-01
+         -
+            min: 0.
+         -
+            step: 5.
+         -
+            value: 3.2000350952148438e-01
       ind: 5
       inputs:
          []
    -
       typeid: "bm::Saw"
       name: saw_center_y
-      loc: [ 640, 225 ]
-      enable: 1
-      min: 0.
-      max: 480.
-      value: 342.
-      step: -6.
+      loc: [ 91, 540 ]
+      enable: 0
+      svals:
+         -
+            max: 480.
+         -
+            min: 0.
+         -
+            step: 6.
+         -
+            value: 78.
       ind: 6
-      inputs:
-         []
-   -
-      typeid: "bm::Saw"
-      name: dir_tap_sig
-      loc: [ 924, 225 ]
-      enable: 0
-      min: 0.
-      max: 1000.
-      value: 261.
-      step: -1.
-      ind: 7
-      inputs:
-         []
-   -
-      typeid: "bm::TapInd"
-      name: dir_tap
-      loc: [ 71, 405 ]
-      enable: 1
-      ind: 8
-      inputs:
-         -
-            type: Buffer
-            port: buffer
-            ind: 0
-         -
-            type: Signal
-            port: value
-            ind: 7
-   -
-      typeid: "bm::Output"
-      name: output
-      loc: [ 355, 405 ]
-      enable: 1
-      ind: 9
-      inputs:
-         -
-            type: ImageNode
-            port: image
-            ind: 1
-   -
-      typeid: "bm::Buffer"
-      name: output_buffer
-      loc: [ 640, 405 ]
-      enable: 1
-      max_size: 10
-      ind: 10
-      inputs:
-         -
-            type: ImageNode
-            port: image
-            ind: 3
-   -
-      typeid: "bm::TapInd"
-      name: buf_tap
-      loc: [ 924, 405 ]
-      enable: 1
-      ind: 11
-      inputs:
-         -
-            type: Buffer
-            port: buffer
-            ind: 10
-         -
-            type: Signal
-            port: value
-            ind: 12
-   -
-      typeid: "bm::Signal"
-      name: buf_tap_ind_sig
-      loc: [ 71, 585 ]
-      enable: 1
-      min: 0.
-      max: 1000.
-      value: 1000.
-      step: 1.
-      ind: 12
-      inputs:
-         []
-   -
-      typeid: "bm::Sobel"
-      name: edges
-      loc: [ 355, 585 ]
-      enable: 1
-      ind: 13
-      inputs:
-         []
-   -
-      typeid: "bm::Saw"
-      name: add_sig1
-      loc: [ 571, 585 ]
-      enable: 0
-      min: -1.
-      max: 1.
-      value: 4.9999963492155075e-02
-      step: 9.0000000745058060e-02
-      ind: 14
-      inputs:
-         []
-   -
-      typeid: "bm::Saw"
-      name: add_sig2
-      loc: [ 671, 585 ]
-      enable: 0
-      min: -1.
-      max: 1.
-      value: -4.0000000000000000e-01
-      step: 5.0000000745058060e-02
-      ind: 15
       inputs:
          []
