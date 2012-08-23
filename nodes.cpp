@@ -187,6 +187,7 @@ namespace bm {
           port_info << " " << val;
         }
 
+        cv::putText(graph, port_info.str(), dst+cv::Point(1,0), 1, 1, cv::Scalar(115,50,115));
         cv::putText(graph, port_info.str(), dst, 1, 1, cv::Scalar(255,100,245));
         j++;
         
@@ -200,7 +201,8 @@ namespace bm {
       } // for
     } // for
 
-    cv::putText(graph, name, loc - cv::Point(10, ht), 1, 1, cv::Scalar(255,255,245));
+    cv::putText(graph, name, loc - cv::Point(9, ht), 1, 1, cv::Scalar(115,115,115));
+    cv::putText(graph, name, loc - cv::Point(10, ht), 1, 1, cv::Scalar(255,255,255));
 
   }
 

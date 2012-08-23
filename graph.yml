@@ -1,20 +1,23 @@
 %YAML:1.0
-date: "Wed Aug 22 21:36:26 2012\n"
+date: "Wed Aug 22 21:55:26 2012\n"
 nodes:
    -
-      typeid: "bm::Webcam"
-      name: webcam
-      loc: [ 91, 60 ]
+      typeid: "bm::ImageDir"
+      name: image_dir
+      loc: [ 91, 45 ]
       enable: 1
       svals:
-         []
+         -
+            name: max_size
+            value: 100.
+      dir: "../data/"
       ind: 0
       inputs:
          []
    -
       typeid: "bm::ImageNode"
       name: image_node_passthrough
-      loc: [ 457, 60 ]
+      loc: [ 457, 45 ]
       enable: 1
       svals:
          []
@@ -27,7 +30,7 @@ nodes:
    -
       typeid: "bm::Add"
       name: add_loop
-      loc: [ 822, 60 ]
+      loc: [ 822, 45 ]
       enable: 1
       svals:
          -
@@ -35,7 +38,7 @@ nodes:
             value: 2.
          -
             name: add1
-            value: -8.0000394582748413e-01
+            value: 5.
       ind: 2
       inputs:
          -
@@ -53,12 +56,12 @@ nodes:
    -
       typeid: "bm::Rot2D"
       name: rotate
-      loc: [ 91, 300 ]
+      loc: [ 91, 225 ]
       enable: 1
       svals:
          -
             name: angle
-            value: -8.0000394582748413e-01
+            value: 5.
          -
             name: center_x
             value: 640.
@@ -89,8 +92,8 @@ nodes:
    -
       typeid: "bm::Saw"
       name: saw_rotate
-      loc: [ 457, 300 ]
-      enable: 0
+      loc: [ 457, 225 ]
+      enable: 1
       svals:
          -
             name: max
@@ -103,14 +106,14 @@ nodes:
             value: 1.9999999552965164e-02
          -
             name: value
-            value: -8.0000394582748413e-01
+            value: 5.
       ind: 4
       inputs:
          []
    -
       typeid: "bm::Saw"
       name: saw_center_x
-      loc: [ 822, 300 ]
+      loc: [ 822, 225 ]
       enable: 1
       svals:
          -
@@ -131,7 +134,7 @@ nodes:
    -
       typeid: "bm::Saw"
       name: saw_center_y
-      loc: [ 91, 540 ]
+      loc: [ 91, 405 ]
       enable: 1
       svals:
          -
@@ -152,7 +155,7 @@ nodes:
    -
       typeid: "bm::Output"
       name: output
-      loc: [ 457, 60 ]
+      loc: [ 457, 405 ]
       enable: 1
       svals:
          []
@@ -162,4 +165,3 @@ nodes:
             type: ImageNode
             port: in
             ind: 3
-
