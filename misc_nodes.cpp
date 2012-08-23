@@ -403,8 +403,6 @@ namespace bm {
     cv::Mat tmp;
     setImage("add0", tmp);
     setSignal("add0", 2.0);
-    nf.resize(1);
-    nf[0] = 2.0;
     vcol = cv::Scalar(200, 200, 50);
   }
   
@@ -414,7 +412,6 @@ namespace bm {
       LOG(ERROR) << CLWRN << "mismatched inputs and coefficients" << CLNRM;
       //return; 
     }
-    this->nf = nf; 
    
     // TBD instead of clearing all, only clear the keys that match "add"
     inputs["ImageNode"].clear();
@@ -448,23 +445,27 @@ namespace bm {
       // to handle either)
       // TBD instead of having nf, loop through all svals and match on ones that start with add
       // and then run getSignal on those strings
-      for (int i = 0; i < nf.size(); i++) {
-        // TBD instead of strictly requiring the name to be itoa(i), just loop through all ImageNode inputs
+      for (map<string, float >::iterator it = svals.begin(); it != svals.end(); it++) {
+      //for (int i = 0; i < nf.size(); i++) {
+        const string port = it->first;
+        
+        if (port.substr(0,2) != "add") continue;
+        
         cv::Mat tmp_in;
         bool im_dirty;
-        const string port = "add" + boost::lexical_cast<string>(i);
+        //const string port = "add" + boost::lexical_cast<string>(i);
         tmp_in = getImage(port);
         if (tmp_in.empty()) {
-          VLOG(1) << name << " " << i << " image is empty"; 
+          VLOG(1) << name << " : " << port << " image is empty"; 
           continue;
         }
 
-        nf[i] = getSignal(port);
+        float val = getSignal(port);
         
         // with 8-bit unsigned it is necessary to have initial coefficients positive
         // zero minus anything will just be zero 
         if (!done_something) {
-          out = tmp_in * nf[i];
+          out = tmp_in * val;
           sz = tmp_in.size();
           done_something = true;
         } else { 
@@ -475,10 +476,10 @@ namespace bm {
             continue;
           }
          
-          if (nf[i] > 0)
-            out += tmp_in * nf[i];
+          if (val > 0)
+            out += tmp_in * val;
           else 
-            out -= tmp_in * -nf[i];
+            out -= tmp_in * -val;
 
         }
       } // nf loop

@@ -38,7 +38,7 @@ nodes:
             value: 2.
          -
             name: add1
-            value: 5.
+            value: -1.0
       ind: 2
       inputs:
          -
@@ -93,7 +93,7 @@ nodes:
       typeid: "bm::Saw"
       name: saw_rotate
       loc: [ 457, 225 ]
-      enable: 1
+      enable: 0
       svals:
          -
             name: max
@@ -106,7 +106,7 @@ nodes:
             value: 1.9999999552965164e-02
          -
             name: value
-            value: 5.
+            value: -1.0
       ind: 4
       inputs:
          []

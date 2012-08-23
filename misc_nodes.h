@@ -141,7 +141,6 @@ class Add : public ImageNode
   
   // TBD make a std::vector of ImageNodes so dynamic_casts don't need to be used?
   //TBD don't store this here, instead in svals
-  std::vector<float> nf;
   
   Add(); // : ImageNode()
   
