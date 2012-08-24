@@ -204,8 +204,6 @@ public:
   ImageNode();// : Node()
 
   virtual bool update();
-  // TBD could there be a templated get function to be used in different node types?
-  virtual cv::Mat get(std::string src_port);
 
   virtual bool draw(float scale = 0.2);
   

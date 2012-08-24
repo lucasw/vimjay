@@ -156,7 +156,7 @@ namespace bm {
     //update();
     //update();
     is_thread_dirty = false;
-    cam_thread = boost::thread(&Webcam::runThread,this);
+    cam_thread = boost::thread(&Webcam::runThread, this);
 
     // wait for single frame so there is a sample with the correct size
     // TBD or time out

@@ -103,7 +103,7 @@ nodes:
             src_port: value
             ind: 6
    -
-      typeid: "bm::Saw"
+      typeid: "bm::Signal"
       name: saw_rotate
       loc: [ 457, 225 ]
       enable: 0

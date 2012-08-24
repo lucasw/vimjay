@@ -317,7 +317,8 @@ namespace bm {
     
     inputs[type][port] = std::pair<Node*, string> ((Node*)rv, src_port);
     VLOG(1) << name << " setInputPort: " << type << " " << port << " from "
-      << inputs[type][port].second; 
+      << CLTXT /*<< inputs[type][port].first->name << " "*/  // not necessarily non-NULL
+        << inputs[type][port].second << CLNRM; 
   }
 
   // get an imagenode image from this nodes imagenode inputs
@@ -341,16 +342,19 @@ namespace bm {
     if (!getInputPort(type, port, nd, src_port)) 
       return im;
    
+    if (!nd) return im;
 
     VLOG(4) << name << " " << port << " " << nd << " " << src_port;
-    //is_dirty = nd->isDirty(this, 20, false);
+    
+    // this could result in infinite loops, need isDirty protection
+    if (!nd->isDirty(this, 20)) return im;
 
-    ImageNode* im_in = dynamic_cast<ImageNode*> (nd);
-    if (!im_in) return im;
+    //ImageNode* im_in = dynamic_cast<ImageNode*> (nd);
+    //if (!im_in) return im;
 
-    // TBD need to support multiple outputs, so store a string that is the name
-    // the input node will refer to and pass that as a parameter to get()
-    im = im_in->get(src_port);
+    cv::Mat im2 = nd->getImage(src_port);
+    if (im2.empty()) return im;
+
     imvals[port] = im;
     valid = true;
     return im;
@@ -399,9 +403,9 @@ namespace bm {
       return val;
     }
 
-    Signal* im_in = dynamic_cast<Signal*> (nd);
-    if (!im_in) return val;
-    val = im_in->getSignal(src_port);
+    if (!nd) return val;
+    
+    val = nd->getSignal(src_port);
     // store a copy here in case the input node is disconnected
     svals[port] = val;
     valid = true;
@@ -523,12 +527,7 @@ namespace bm {
     setImage("out", tmp);
   }
    
-  // TBD could there be a templated get function to be used in different node types?
-  cv::Mat ImageNode::get(
-    const string src_port) 
-  {
-    return getImage(src_port);//_old;
-  }
+
  
   /// Probably don't want to call this in most inheriting functions, skip back to Node::update()
   bool ImageNode::update() 
@@ -725,7 +724,7 @@ namespace bm {
     
     setSignal("value", value);
 
-    VLOG(1) << "Signal " << name << " " << value;
+    VLOG(2) << "Signal " << name << " " << value;
     //is_dirty = true;
     setDirty();
 

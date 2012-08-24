@@ -290,7 +290,7 @@ class CamThing
         Webcam* cam_in = getNode<Webcam>(name, loc);
         node = cam_in;
 
-        test_im = cv::Mat(cam_in->get("out").size(), cam_in->get("out").type());
+        test_im = cam_in->getImage("out").clone();
         test_im = cv::Scalar(200,200,200);
       }
       else if (type_id.compare("bm::ScreenCap") == 0) {
@@ -394,7 +394,7 @@ class CamThing
     const float advance = 0.1;
 
     cam_in = getNode<Webcam>("webcam", cv::Point(50, 20) );
-    test_im = cv::Mat(cam_in->get("out").size(), cam_in->get("out").type());
+    test_im = cam_in->getImage("out").clone();
     test_im = cv::Scalar(200,200,200);
 
     ImageNode* passthrough = getNode<ImageNode>("image_node_passthrough", cv::Point(400, 50) );
@@ -673,7 +673,7 @@ class CamThing
       vector<pair<string, string> > strn = selected_node->getInputStrings();
 
       if (strn.size() == 0) {
-        VLOG(1) << "selectPort: " << CLTXT << selected_node->name 
+        VLOG(2) << "selectPort: " << CLTXT << selected_node->name 
             << CLNRM << " no input strings";
         return false;
       }
@@ -689,7 +689,7 @@ class CamThing
           selected_node->selected_type = selected_type;
           selected_node->selected_port = selected_port;
 
-          VLOG(1) << "selectPort: all inputs select";
+          VLOG(2) << "selectPort: all inputs select";
           return true;
         }
         ind++;
@@ -700,14 +700,14 @@ class CamThing
       selected_node->selected_type = selected_type;
       selected_node->selected_port = selected_port;
       selected_port_ind = 0;
-      VLOG(1) << "selectPort: selecting first input";
+      VLOG(2) << "selectPort: selecting first input";
       return true;
     }
    
     // loop through inputs of a specific source_type, if any
     
     if (selected_node->inputs.find(source_type) == selected_node->inputs.end()) {
-      VLOG(1) << "selectPort: no matching inputs of type " << source_type;
+      VLOG(2) << "selectPort: no matching inputs of type " << source_type;
       selected_port_ind = 0;
       return false;
     }
@@ -726,7 +726,7 @@ class CamThing
       selected_type = source_type;
       selected_node->selected_type = selected_type;
       selected_node->selected_port = selected_port;
-      VLOG(1) << "selectPort: start at beginning because uninitialized";
+      VLOG(2) << "selectPort: start at beginning because uninitialized";
       selected_port_ind = 0;
       return true;
     } 
@@ -741,7 +741,7 @@ class CamThing
       selected_type = source_type;
       selected_node->selected_type = selected_type;
       selected_node->selected_port = selected_port;
-      VLOG(1) << "selectPort: match with end so using first port";
+      VLOG(2) << "selectPort: match with end so using first port";
       selected_port_ind = 0;
       return true;
     }
@@ -759,7 +759,7 @@ class CamThing
     selected_node->selected_type = source_type;
     selected_node->selected_port = selected_port;
     
-    VLOG(1) << "selectPort: selected next in iterator";
+    VLOG(2) << "selectPort: selected next in iterator";
     return true;
   }// selectPort()
 
@@ -816,10 +816,13 @@ class CamThing
       selectPort();
       
       stringstream str;
-      if (selected_node) str << selected_node->name << " : ";
-      str << "matching " << source_type << " " << source_port << " with " 
-          << selected_ind << " " << selected_port_ind << " " 
-          << selected_type << " " << selected_port;
+      if (selected_node) {str << selected_node->name << " : ";
+      str << "matching " << source_type << " " << source_port << " with ";
+      } else {
+        str <<"selecting";
+      }
+      str  << CLTXT << selected_ind << " " << selected_port_ind << " " 
+          << selected_type << " " << selected_port << CLNRM;
       VLOG(1) << str.str();
     } 
     else if (key == 'r') {
@@ -892,7 +895,7 @@ class CamThing
   void draw() 
   {
     graph_im = cv::Scalar(0,0,0);
-    cv::Mat out_node_im = output_node->get("out");
+    cv::Mat out_node_im = output_node->getImage("out");
     if (!out_node_im.empty()) {
       cv::resize(out_node_im * (draw_nodes ? 0.35 : 1.0),  graph_im,
           graph_im.size(), 0, 0, cv::INTER_NEAREST );
