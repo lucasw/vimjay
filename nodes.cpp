@@ -296,7 +296,7 @@ namespace bm {
     rv = image_map2->second.first;
     src_port = image_map2->second.second;
     
-    if (!rv) return false;
+    //if (!rv) return false;
 
     return true;
   }
@@ -316,7 +316,7 @@ namespace bm {
       getSignal(port);
     
     inputs[type][port] = std::pair<Node*, string> ((Node*)rv, src_port);
-    VLOG(1) << name << " setInputPort: " << type << " " << port << " "
+    VLOG(1) << name << " setInputPort: " << type << " " << port << " from "
       << inputs[type][port].second; 
   }
 
@@ -340,7 +340,8 @@ namespace bm {
 
     if (!getInputPort(type, port, nd, src_port)) 
       return im;
-    
+   
+
     VLOG(4) << name << " " << port << " " << nd << " " << src_port;
     //is_dirty = nd->isDirty(this, 20, false);
 
@@ -393,13 +394,14 @@ namespace bm {
     // then look at input nodes
     if (!getInputPort("Signal", port, nd, src_port)) {
       // create it if it doesn't exist
+      VLOG(1) << "creating " << CLTXT <<  name << " " << port << CLNRM;
       inputs["Signal"][port] = std::pair<Node*, string> (NULL, "");
       return val;
     }
 
     Signal* im_in = dynamic_cast<Signal*> (nd);
     if (!im_in) return val;
-    val = im_in->getSignal("value");
+    val = im_in->getSignal(src_port);
     // store a copy here in case the input node is disconnected
     svals[port] = val;
     valid = true;
@@ -808,7 +810,8 @@ namespace bm {
     // TBD this is kind of confusing, out is being used as 
     // and input and an output
     cv::Mat in = getImage("in");
-    add(in); 
+    if (!in.empty()) 
+      add(in); 
 
     if (frames.size() <= 0) return false;
     

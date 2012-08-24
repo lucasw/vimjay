@@ -614,6 +614,7 @@ class CamThing
       // input available
       selected_node->setInputPort(source_type,selected_port, source_node, source_port);
       
+      //VLOG(1) << 
       return true;
     }  // legit source_node
     
@@ -630,7 +631,8 @@ class CamThing
 
   void selectNextNode() 
   {
-    if (selected_node) selected_node->draw_selected_port = false;
+    //if (selected_node) selected_node->draw_selected_port = false;
+    
     // move forward in selection
     selected_ind++;
     if (selected_ind >= all_nodes.size()) selected_ind = 0;
@@ -644,7 +646,7 @@ class CamThing
 
   void selectPrevNode()
   {
-    if (selected_node) selected_node->draw_selected_port = false;
+    //if (selected_node) selected_node->draw_selected_port = false;
     // move backward in selection
     selected_ind--;
     if (selected_ind < 0) selected_ind = all_nodes.size()-1;
@@ -815,7 +817,7 @@ class CamThing
       
       stringstream str;
       if (selected_node) str << selected_node->name << " : ";
-      str << "matching " << source_type << " with " 
+      str << "matching " << source_type << " " << source_port << " with " 
           << selected_ind << " " << selected_port_ind << " " 
           << selected_type << " " << selected_port;
       VLOG(1) << str.str();
