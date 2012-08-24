@@ -26,6 +26,7 @@ nodes:
          -
             type: ImageNode
             port: in
+            src_port: out
             ind: 0
    -
       typeid: "bm::Add"
@@ -44,14 +45,17 @@ nodes:
          -
             type: ImageNode
             port: add0
+            src_port: out
             ind: 1
          -
             type: ImageNode
             port: add1
+            src_port: out
             ind: 3
          -
             type: Signal
             port: add1
+            src_port: out
             ind: 4
    -
       typeid: "bm::Rot2D"
@@ -76,18 +80,22 @@ nodes:
          -
             type: ImageNode
             port: in
+            src_port: out
             ind: 2
          -
             type: Signal
             port: angle
+            src_port: value
             ind: 4
          -
             type: Signal
             port: center_x
+            src_port: value
             ind: 5
          -
             type: Signal
             port: center_y
+            src_port: value
             ind: 6
    -
       typeid: "bm::Saw"
@@ -164,4 +172,5 @@ nodes:
          -
             type: ImageNode
             port: in
+            src_port: out
             ind: 3

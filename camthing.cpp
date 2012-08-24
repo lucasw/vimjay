@@ -152,6 +152,7 @@ class CamThing
           fs << "{";
           fs << "type" << it->first;
           fs << "port" << it2->first;
+          fs << "src_port" << it2->second.second;
           fs << "ind" << getIndFromPointer(cur_node);   
           fs << "}";
         }
@@ -847,7 +848,6 @@ class CamThing
     return true;
   }
  
-
   void draw() 
   {
     graph_im = cv::Scalar(0,0,0);
@@ -870,7 +870,9 @@ class CamThing
     }
 
     // TBD could all_nodes size have
-    if (selected_node) cv::circle(graph_im, selected_node->loc, 18, cv::Scalar(0,220,1), -1);
+    if (selected_node) {
+      cv::circle(graph_im, selected_node->loc, 18, cv::Scalar(0,220,1), -1);
+    }
     if (source_node) {
       cv::circle(graph_im, source_node->loc, 13, cv::Scalar(29,51,11), -1);
       cv::circle(graph_im, source_node->loc, 12, cv::Scalar(229,151,51), -1);

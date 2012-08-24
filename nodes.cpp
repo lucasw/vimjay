@@ -192,11 +192,14 @@ namespace bm {
         j++;
        
         Node* it_node = it2->second.first;
+        string src_port = it2->second.second;
         if (!it_node) continue;
         
-        cv::Point src = it_node->loc + cv::Point(30,0);
+        cv::Point src = it_node->loc + cv::Point(100,-8);
+        cv::line( graph, it_node->loc + cv::Point(0,-8), src, cv::Scalar(0, 80/fr, 0), 2, 1 );
         cv::Point mid = src + (dst - src) * 0.8;
         cv::line( graph, src, mid, cv::Scalar(0, 128/fr, 0), 2, 4 );
+        cv::putText(graph, src_port, src, 1, 1, cv::Scalar(255,100,245), 2);
         cv::line( graph, mid, dst, cv::Scalar(0, 255/fr, 0), 2, CV_AA );
 
       } // for

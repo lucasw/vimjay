@@ -59,6 +59,24 @@ namespace bm {
 static bool bool_val;
 
 class Node;
+
+// TBD original chose this type because of access convenience, but since 
+// accessor function prevent others from using it directly then the convenience 
+// is irrelavent.  Probably should just have a vector of structs
+/*
+struct
+{
+  Node* node;
+  // src types
+  string port;
+
+  // input types
+  string type
+  string port
+
+  // TBD could even have a float val or Mat here to store the last value
+}
+*/
 typedef std::map<std::string, std::pair<Node*, std::string> > inputsItemType;
 typedef std::map<std::string, inputsItemType > inputsType;
 
