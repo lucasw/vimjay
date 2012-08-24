@@ -140,18 +140,19 @@ class CamThing
       // save inputs
       fs << "inputs" << "[";
       // TBD put in Node::load method
-      for (map<string, map<string, Node*> >::iterator it = all_nodes[i]->inputs.begin();
+      for (inputsType::iterator it = all_nodes[i]->inputs.begin();
           it != all_nodes[i]->inputs.end(); it++)
       {
-        for (map<string, Node*>::iterator it2 = it->second.begin();
+        for (inputsItemType::iterator it2 = it->second.begin();
             it2 != it->second.end(); it2++)
         {
-          if (!it2->second) continue;
+          Node* cur_node = it2->second.first;
+          if (cur_node == NULL) continue;
 
           fs << "{";
           fs << "type" << it->first;
           fs << "port" << it2->first;
-          fs << "ind" << getIndFromPointer(it2->second);   
+          fs << "ind" << getIndFromPointer(cur_node);   
           fs << "}";
         }
       }
@@ -210,6 +211,7 @@ class CamThing
   Node* source_node;
   // ImageNode, Signal, or Buffer for now- TBD use enums instead of strings
   string source_type;
+  string source_port;
   
   CamThing() : 
       selected_ind(0), 
@@ -219,6 +221,7 @@ class CamThing
       source_ind(0),
       source_node(NULL),
       source_type(""),
+      source_port(""),
       output_node(NULL),
       draw_nodes(true),
       paused(false)
@@ -284,7 +287,7 @@ class CamThing
         Webcam* cam_in = getNode<Webcam>(name, loc);
         node = cam_in;
 
-        test_im = cv::Mat(cam_in->get().size(), cam_in->get().type());
+        test_im = cv::Mat(cam_in->get("out").size(), cam_in->get("out").type());
         test_im = cv::Scalar(200,200,200);
       }
       else if (type_id.compare("bm::ScreenCap") == 0) {
@@ -350,17 +353,20 @@ class CamThing
         int input_ind;
         string type;
         string port;
+        string src_port;
+
         (*it)["inputs"][i]["type"] >> type;
         (*it)["inputs"][i]["port"] >> port;
         (*it)["inputs"][i]["ind"] >> input_ind;
+        (*it)["inputs"][i]["src_port"] >> src_port;
       
         LOG(INFO) << "input " << ind << " " << all_nodes[ind]->name 
             << " " << input_ind << " " << type << " " << port << " " << input_ind;
         
         if (input_ind >= 0)
-          all_nodes[ind]->setInputPort(type,port, all_nodes[input_ind]);
+          all_nodes[ind]->setInputPort(type, port, all_nodes[input_ind], src_port);
         else 
-          all_nodes[ind]->setInputPort(type,port, NULL);
+          all_nodes[ind]->setInputPort(type, port, NULL, "");
       }
     } // second input pass
 
@@ -383,11 +389,11 @@ class CamThing
     const float advance = 0.1;
 
     cam_in = getNode<Webcam>("webcam", cv::Point(50, 20) );
-    test_im = cv::Mat(cam_in->get().size(), cam_in->get().type());
+    test_im = cv::Mat(cam_in->get("out").size(), cam_in->get("out").type());
     test_im = cv::Scalar(200,200,200);
 
     ImageNode* passthrough = getNode<ImageNode>("image_node_passthrough", cv::Point(400, 50) );
-    passthrough->setInputPort("ImageNode","in", cam_in);
+    passthrough->setInputPort("ImageNode","in", cam_in, "out");
     passthrough->setImage("out", test_im);
     //passthrough->out_old = test_im;
     //output = passthrough;
@@ -396,7 +402,7 @@ class CamThing
     add_loop->setImage("out", test_im);
 
     Rot2D* rotate = getNode<Rot2D>("rotate", cv::Point(400,400));
-    rotate->setInputPort("ImageNode","in", add_loop);
+    rotate->setInputPort("ImageNode","in", add_loop, "out");
     rotate->setImage("out", test_im);
     //rotate->out_old = test_im;
     rotate->setSignal("angle", 50.0);
@@ -406,16 +412,16 @@ class CamThing
 
     Signal* sr = getNode<Saw>("saw_rotate", cv::Point(350,400) ); 
     sr->setup(0.02, -5.0, -5.0, 5.0);
-    rotate->setInputPort("Signal","angle", sr);
+    rotate->setInputPort("Signal","angle", sr, "out");
 
     Signal* scx = getNode<Saw>("saw_center_x", cv::Point(350,450) ); 
     scx->setup(5, test_im.cols/2, 0, test_im.cols);
-    rotate->setInputPort("Signal","center_x", scx);
+    rotate->setInputPort("Signal","center_x", scx, "out");
     
     Signal* scy = getNode<Saw>("saw_center_y", cv::Point(350,500) ); 
     //scy->setup(6, test_im.rows/2, test_im.rows/2 - 55.0, test_im.rows/2 + 55.0);
     scy->setup(6, test_im.rows/2, 0, test_im.rows);
-    rotate->setInputPort("Signal","center_y", scy);
+    rotate->setInputPort("Signal","center_y", scy , "out");
 
     vector<ImageNode*> in;
     in.push_back(passthrough);
@@ -500,7 +506,7 @@ class CamThing
       vector<float> vec (arr, arr + sizeof(arr) / sizeof(arr[0]) );
 
       fir->setup(vec);
-      fir->setInputPort("ImageNode","in", passthrough);
+      fir->setInputPort("ImageNode","in", passthrough, "out");
 
       // IIR denominator
       FilterFIR* denom = getNode<FilterFIR>("iir_denom", cv::Point(500,350));
@@ -512,7 +518,7 @@ class CamThing
 
       vector<float> vec2 (arr2, arr2 + sizeof(arr2) / sizeof(arr2[0]) );
       denom->setup(vec2);
-      denom->setInputPort("ImageNode","in",fir);
+      denom->setInputPort("ImageNode","in",fir, "out");
        
       Add* add_iir = getNode<Add>("add_iir", cv::Point(400,100) );
       add_iir->out = test_im;
@@ -573,16 +579,21 @@ class CamThing
       // select source node
       source_ind = selected_ind;
       source_node = all_nodes[source_ind];
+      source_port = selected_port;
 
-      // TBD can't be both at once?
-      if (dynamic_cast<ImageNode*> (source_node)) source_type = "ImageNode";
+      source_type = selected_type;
+      if (source_type == "ImageNode") source_type = "ImageOut";
+      /*
+      if (dynamic_cast<ImageNode*> (source_node)) source_type = "ImageOut";
       if (dynamic_cast<Signal*> (source_node)) source_type = "Signal";
       if (dynamic_cast<Buffer*> (source_node)) source_type = "Buffer";
+      */
     } else {
       // select no source port, allows cycling through all inputs
       source_ind = 0;
       source_node = NULL;
       source_type = "";
+      source_port = "";
     }
   }
 
@@ -591,11 +602,12 @@ class CamThing
     // select the target node
     // connect to source node in best way possible, replacing the current input
     // TBD need to be able to select specific inputs
-    if (source_node && selected_node && (source_type != "") && (selected_port != "")) {
+    if (source_node && selected_node && 
+        (source_type != "") && (selected_port != "") && (source_port != "")) {
 
       // TBD a Buffer should act as an ImageNode if that is the only
       // input available
-      selected_node->setInputPort(source_type,selected_port, source_node);
+      selected_node->setInputPort(source_type,selected_port, source_node, source_port);
       
       return true;
     }  // legit source_node
@@ -607,7 +619,7 @@ class CamThing
   {
     // disconnect current input
     if (selected_node && (selected_type != "") && (selected_port != "")) {
-      selected_node->setInputPort(selected_type,selected_port, NULL);
+      selected_node->setInputPort(selected_type, selected_port, NULL, "");
     }
   }
 
@@ -692,8 +704,8 @@ class CamThing
     } 
 
     // next look for match with current 
-    map<string, Node*>::iterator it2 = selected_node->inputs[source_type].find(selected_port);
-    map<string, Node*>::iterator it2_end = selected_node->inputs[source_type].end();
+    inputsItemType::iterator it2 = selected_node->inputs[source_type].find(selected_port);
+    inputsItemType::iterator it2_end = selected_node->inputs[source_type].end();
     
     if (it2 == it2_end) {
       selected_port = first_port;
@@ -839,8 +851,9 @@ class CamThing
   void draw() 
   {
     graph_im = cv::Scalar(0,0,0);
-    if (!output_node->get().empty()) {
-      cv::resize(output_node->get() * (draw_nodes ? 0.35 : 1.0),  graph_im,
+    cv::Mat out_node_im = output_node->get("out");
+    if (!out_node_im.empty()) {
+      cv::resize(out_node_im * (draw_nodes ? 0.35 : 1.0),  graph_im,
           graph_im.size(), 0, 0, cv::INTER_NEAREST );
     }
     else
@@ -851,14 +864,17 @@ class CamThing
       cv::line( graph_im, source_node->loc, selected_node->loc, cv::Scalar(70, 70, 70), 8, 4 );
     }
 
-    cv::putText(graph_im, command_text, cv::Point(10, graph_im.rows-40), 1, 1, cv::Scalar(200,205,195));
+    cv::putText(graph_im, command_text, cv::Point(10, graph_im.rows-40), 1, 1, cv::Scalar(200,205,195),2);
     if (command_text.size() > 0) { 
       VLOG(5) << "command_text " << command_text;
     }
 
     // TBD could all_nodes size have
     if (selected_node) cv::circle(graph_im, selected_node->loc, 18, cv::Scalar(0,220,1), -1);
-    if (source_node) cv::circle(graph_im, source_node->loc, 14, cv::Scalar(229,151,51), -1);
+    if (source_node) {
+      cv::circle(graph_im, source_node->loc, 13, cv::Scalar(29,51,11), -1);
+      cv::circle(graph_im, source_node->loc, 12, cv::Scalar(229,151,51), -1);
+    }
 
     // draw input and outputs
     /*

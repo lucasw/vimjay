@@ -58,6 +58,10 @@ namespace bm {
 
 static bool bool_val;
 
+class Node;
+typedef std::map<std::string, std::pair<Node*, std::string> > inputsItemType;
+typedef std::map<std::string, inputsItemType > inputsType;
+
 class Node
 {
   // this structure tracks arbitrary numbers of callers to see if there have been
@@ -67,8 +71,10 @@ class Node
   protected:
 
   public:
-  
-  std::map<std::string, std::map< std::string, Node*> > inputs;
+
+  // the first string is source type, the second is source port,
+  // Node is the source node, the last string is destination port
+  inputsType inputs;
   // has this node been updated this timestep, or does it need to be updated this timestep
   // because of dependencies
   bool do_update;
@@ -123,12 +129,15 @@ class Node
   bool getInputPort(
       const std::string type, 
       const std::string port,
-      Node*& rv);
+      Node*& rv,
+      std::string& src_port 
+      );
  
   void setInputPort(
       const std::string type, 
       const std::string port,
-      const Node* rv
+      const Node* rv,
+      const std::string src_port 
     );
 
   // TBD calling any of these will create the input, so outside
@@ -178,7 +187,7 @@ public:
 
   virtual bool update();
   // TBD could there be a templated get function to be used in different node types?
-  virtual cv::Mat get();
+  virtual cv::Mat get(std::string src_port);
 
   virtual bool draw(float scale = 0.2);
   

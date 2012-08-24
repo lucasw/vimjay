@@ -123,6 +123,7 @@ namespace bm {
     for (int i = 0; i < input_vec.size(); i++)
     {
       input_vec[i]->update();
+      // TBD may wan to track per output dirtiness later?
       if (input_vec[i]->isDirty(this, 0)) inputs_dirty = true;
     }
 
@@ -154,17 +155,16 @@ namespace bm {
 
     int j = 0;
 
-    for (map<string, map<string, Node*> >::iterator it = inputs.begin(); 
-        it != inputs.end(); it++) 
+    for (inputsType::iterator it = inputs.begin(); it != inputs.end(); it++) 
     {
+      const string type = it->first;
       // can't use getInputVector because of this, and reference to strings
-      cv::putText(graph, it->first, loc - cv::Point(-10,-ht*j - ht/2), 1, 1, cv::Scalar(100,255,245));
+      cv::putText(graph, type, loc - cv::Point(-10,-ht*j - ht/2), 1, 1, cv::Scalar(100,255,245),2);
       j++;
-      for (map<string, Node*>::iterator it2 = it->second.begin(); 
-          it2 != it->second.end(); it2++) 
+
+      for (inputsItemType::iterator it2 = it->second.begin(); it2 != it->second.end(); it2++) 
       {
         
-        const string type = it->first;
         const string port = it2->first;
 
         cv::Point dst = loc - cv::Point(-10, -ht*j - ht/2);
@@ -187,13 +187,14 @@ namespace bm {
           port_info << " " << val;
         }
 
-        cv::putText(graph, port_info.str(), dst+cv::Point(1,0), 1, 1, cv::Scalar(115,50,115));
-        cv::putText(graph, port_info.str(), dst, 1, 1, cv::Scalar(255,100,245));
+        cv::putText(graph, port_info.str(), dst + cv::Point(1,0), 1, 1, cv::Scalar(75,50,75), 2);
+        cv::putText(graph, port_info.str(), dst, 1, 1, cv::Scalar(255,100,245), 2);
         j++;
+       
+        Node* it_node = it2->second.first;
+        if (!it_node) continue;
         
-        if (!it2->second) continue;
-        
-        cv::Point src = it2->second->loc + cv::Point(30,0);
+        cv::Point src = it_node->loc + cv::Point(30,0);
         cv::Point mid = src + (dst - src) * 0.8;
         cv::line( graph, src, mid, cv::Scalar(0, 128/fr, 0), 2, 4 );
         cv::line( graph, mid, dst, cv::Scalar(0, 255/fr, 0), 2, CV_AA );
@@ -274,20 +275,23 @@ namespace bm {
       //map<string, map< string, Node*> >& inputs,
       const string type, 
       const string port,
-      Node*& rv)
+      Node*& rv,
+      string& src_port)
   {
     rv = NULL;
-    map<string, map<string, Node*> >::iterator image_map;  
+    inputsType::iterator image_map;  
     image_map = inputs.find(type);
     if (image_map == inputs.end()) {
       return false;
     }
      
-    map<string, Node*>::iterator image_map2;  
+    inputsItemType::iterator image_map2;  
     image_map2 = inputs[type].find(port);
+
     if (image_map2 == inputs[type].end()) return false;
 
-    rv = image_map2->second;
+    rv = image_map2->second.first;
+    src_port = image_map2->second.second;
     
     if (!rv) return false;
 
@@ -297,16 +301,18 @@ namespace bm {
   void Node::setInputPort(
       const std::string type, 
       const std::string port,
-      const Node* rv
+      const Node* rv,
+      const std::string src_port
     )
   {
     // this will create the entries if they don't alread exists, without clobbering their values
-    if (type == "ImageNode")
+    // TBD only do this if required?
+    if ((type == "ImageNode") || (type == "ImageOut"))
       getImage(port);
     if (type == "Signal")
       getSignal(port);
     
-    inputs[type][port] = (Node*) rv;
+    inputs[type][port] = std::pair<Node*, string> ((Node*)rv, src_port);
   }
 
   // get an imagenode image from this nodes imagenode inputs
@@ -316,14 +322,21 @@ namespace bm {
     bool& valid)
     //bool& is_dirty)
   {
-   
+ 
+    string type = "ImageNode";
+    if (port.substr(0,3) == "out") {
+      type = "ImageOut";
+    }
+  
     valid = false;
     cv::Mat im = imvals[port];
     Node* nd = NULL;
-    if (!getInputPort("ImageNode", port, nd)) 
+    string src_port = "";
+
+    if (!getInputPort(type, port, nd, src_port)) 
       return im;
     
-    VLOG(4) << name << " " << port << " " << nd;
+    VLOG(4) << name << " " << port << " " << nd << " " << src_port;
     //is_dirty = nd->isDirty(this, 20, false);
 
     ImageNode* im_in = dynamic_cast<ImageNode*> (nd);
@@ -331,20 +344,32 @@ namespace bm {
 
     // TBD need to support multiple outputs, so store a string that is the name
     // the input node will refer to and pass that as a parameter to get()
-    im = im_in->get();
+    im = im_in->get(src_port);
     imvals[port] = im;
     valid = true;
     return im;
   }
 
+  
   bool Node::setImage(const std::string port, cv::Mat& im)
   {
     // can't set the image if it is controlled by an input node
+
+    string type = "ImageNode";
+    if (port.substr(0,3) == "out") {
+      type = "ImageOut";
+    }
+
     Node* nd;
-    if (getInputPort("ImageNode", port, nd)) {
+    string src_port;
+    if (getInputPort(type, port, nd, src_port)) {
       if (nd != NULL) return false;
     } else {
-      inputs["ImageNode"][port] = NULL;
+      //pair<Node*, string> in_pair;
+      //in_pair.first = NULL;
+      //in_pair.second = "";
+      //inputs[type][port] = in_pair;
+      inputs[type][port] = std::pair<Node*, string> (NULL, "");
     }
   
     imvals[port] = im;
@@ -359,10 +384,11 @@ namespace bm {
     // first try non-input node map
     float val = svals[port];
     Node* nd = NULL;
+    string src_port;
     // then look at input nodes
-    if (!getInputPort("Signal", port, nd)) {
+    if (!getInputPort("Signal", port, nd, src_port)) {
       // create it if it doesn't exist
-      inputs["Signal"][port] = NULL;
+      inputs["Signal"][port] = std::pair<Node*, string> (NULL, "");
       return val;
     }
 
@@ -378,11 +404,12 @@ namespace bm {
   bool Node::setSignal(const std::string port, float val)
   {
     Node* nd;
-    if (getInputPort("Signal", port, nd)) {
+    string src_port;
+    if (getInputPort("Signal", port, nd, src_port)) {
       if (nd != NULL) return false;
     } else {
       // create it since it doesn't exist
-      inputs["Signal"][port] = NULL;
+      inputs["Signal"][port] = std::pair<Node*, string> (NULL, "");
     }
 
     svals[port] = val;
@@ -395,8 +422,8 @@ namespace bm {
   {
     
     Node* nd;
-
-    if (!getInputPort("Buffer", port, nd)) return false;
+    string src_port;
+    if (!getInputPort("Buffer", port, nd, src_port)) return false;
 
     Buffer* im_in = dynamic_cast<Buffer*> (nd);
 
@@ -415,8 +442,8 @@ namespace bm {
   {
     
     Node* nd;
-
-    if (!getInputPort("Buffer", port, nd)) return false;
+    string src_port;
+    if (!getInputPort("Buffer", port, nd, src_port)) return false;
 
     Buffer* im_in = dynamic_cast<Buffer*> (nd);
 
@@ -427,30 +454,29 @@ namespace bm {
     return true;
   }
 
+  //typedef map<string, map<string, pair<Node*, string> > >::iterator inputsIter;
 
   void Node::printInputVector() 
   {
 
-    for (map<string, map<string, Node*> >::iterator it = inputs.begin();
-          it != inputs.end(); it++)
+    for (inputsType::iterator it = inputs.begin(); it != inputs.end(); it++)
     {
-      for (map<string, Node*>::iterator it2 = it->second.begin();
+      for (inputsItemType::iterator it2 = it->second.begin();
             it2 != it->second.end(); it2++)
       {
-        LOG(INFO) << name << " inputVector " << it->first << " " << it2->first << " " << it2->second;
+        LOG(INFO) << name << " inputVector " << it->first << " " << it2->first << " " 
+            << it2->second.first << " " << it2->second.second;
     }}
   }
 
   vector<pair< string, string > > Node::getInputStrings()
   {
     vector<pair< string, string > > rv;
-    for (map<string, map<string, Node*> >::iterator it = inputs.begin();
-          it != inputs.end(); it++)
+    for (inputsType::iterator it = inputs.begin(); it != inputs.end(); it++)
     {
-      for (map<string, Node*>::iterator it2 = it->second.begin();
-            it2 != it->second.end(); it2++)
+      for (inputsItemType::iterator it2 = it->second.begin(); it2 != it->second.end(); it2++)
       {
-        if (it2->second == NULL) continue;
+        if (it2->second.first == NULL) continue;
           
         rv.push_back(pair<string,string> (it->first, it2->first));
       }
@@ -465,15 +491,13 @@ namespace bm {
   {
     vector<Node*> rv;
 
-    for (map<string, map<string, Node*> >::iterator it = inputs.begin();
-          it != inputs.end(); it++)
+    for (inputsType::iterator it = inputs.begin(); it != inputs.end(); it++)
     {
-      for (map<string, Node*>::iterator it2 = it->second.begin();
-            it2 != it->second.end(); it2++)
+      for (inputsItemType::iterator it2 = it->second.begin(); it2 != it->second.end(); it2++)
       {
-        if (it2->second == NULL) continue;
+        if (it2->second.first == NULL) continue;
           
-        rv.push_back(it2->second);
+        rv.push_back(it2->second.first);
       }
     }
 
@@ -493,8 +517,10 @@ namespace bm {
   }
    
   // TBD could there be a templated get function to be used in different node types?
-  cv::Mat ImageNode::get() {
-    return getImage("out");//_old;
+  cv::Mat ImageNode::get(
+    const string src_port) 
+  {
+    return getImage(src_port);//_old;
   }
  
   /// Probably don't want to call this in most inheriting functions, skip back to Node::update()

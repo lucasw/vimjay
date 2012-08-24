@@ -339,8 +339,9 @@ namespace bm {
   void Tap::setup(Signal* new_signal, Buffer* new_buffer) 
   {
     inputs.clear();
-    setInputPort("Signal","value", new_signal);
-    setInputPort("Buffer","buffer", new_buffer);
+    // TBD need caller to provide these
+    setInputPort("Signal","value", new_signal, "value");
+    setInputPort("Buffer","buffer", new_buffer, "out");
   }
 
   bool Tap::update()
@@ -419,8 +420,8 @@ namespace bm {
     inputs["Signal"].clear(); 
     for (int i = 0; i < np.size(); i++) {
       const string port = "add" + boost::lexical_cast<string>(i);
-      setInputPort("ImageNode",port, np[i]);
-      setInputPort("Signal",port, NULL); // this allows other signals to connect to replace nf
+      setInputPort("ImageNode", port, np[i], "out");
+      setInputPort("Signal", port, NULL, "value"); // this allows other signals to connect to replace nf
     }
   }
 
