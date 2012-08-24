@@ -133,10 +133,12 @@ class CamThing
 
       fs << "{";
       
-      all_nodes[i]->save(fs);
       fs << "ind" << i; //(int64_t)all_nodes[i];   // 
+      
+      all_nodes[i]->save(fs);
+      
+      // save inputs
       fs << "inputs" << "[";
-
       // TBD put in Node::load method
       for (map<string, map<string, Node*> >::iterator it = all_nodes[i]->inputs.begin();
           it != all_nodes[i]->inputs.end(); it++)
@@ -565,6 +567,74 @@ class CamThing
     saveGraph("default_graph.yml");
   }
 
+  void selectSourceNode() 
+  {
+    if (source_node != all_nodes[selected_ind]) {
+      // select source node
+      source_ind = selected_ind;
+      source_node = all_nodes[source_ind];
+
+      // TBD can't be both at once?
+      if (dynamic_cast<ImageNode*> (source_node)) source_type = "ImageNode";
+      if (dynamic_cast<Signal*> (source_node)) source_type = "Signal";
+      if (dynamic_cast<Buffer*> (source_node)) source_type = "Buffer";
+    } else {
+      // select no source port, allows cycling through all inputs
+      source_ind = 0;
+      source_node = NULL;
+      source_type = "";
+    }
+  }
+
+  bool selectTargetNode() 
+  {
+    // select the target node
+    // connect to source node in best way possible, replacing the current input
+    // TBD need to be able to select specific inputs
+    if (source_node && selected_node && (source_type != "") && (selected_port != "")) {
+
+      // TBD a Buffer should act as an ImageNode if that is the only
+      // input available
+      selected_node->setInputPort(source_type,selected_port, source_node);
+      
+      return true;
+    }  // legit source_node
+    
+    return false;
+  }
+
+  bool removePortConnection() 
+  {
+    // disconnect current input
+    if (selected_node && (selected_type != "") && (selected_port != "")) {
+      selected_node->setInputPort(selected_type,selected_port, NULL);
+    }
+  }
+
+  void selectNextNode() 
+  {
+    if (selected_node) selected_node->draw_selected_port = false;
+    // move forward in selection
+    selected_ind++;
+    if (selected_ind >= all_nodes.size()) selected_ind = 0;
+    selected_node = all_nodes[selected_ind];
+
+    selected_port = "";
+    selectPort();
+  }
+
+  void selectPrevNode()
+  {
+    if (selected_node) selected_node->draw_selected_port = false;
+    // move backward in selection
+    selected_ind--;
+    if (selected_ind < 0) selected_ind = all_nodes.size()-1;
+    selected_node = all_nodes[selected_ind];
+
+    selected_port = "";
+    selectPort();
+  }
+
   // TBD move into Node?
   bool selectPort()
   {
@@ -572,8 +642,8 @@ class CamThing
     
     selected_node->draw_selected_port = true;
 
+    // loop through all inputs, unconstrained by source_type
     if (source_type == "") {
-      // loop through all inputs, unconstrained by source_type
       vector<pair<string, string> > strn = selected_node->getInputStrings();
 
       if (strn.size() == 0) return false;
@@ -690,65 +760,22 @@ class CamThing
     
     // Connection manipulation
     else if (key == 'j') {
-      if (selected_node) selected_node->draw_selected_port = false;
-      // move forward in selection
-      selected_ind++;
-      if (selected_ind >= all_nodes.size()) selected_ind = 0;
-      selected_node = all_nodes[selected_ind];
-     
-      selected_port = "";
-      selectPort();
+      selectNextNode();
     }
     else if (key == 'k') {
-      if (selected_node) selected_node->draw_selected_port = false;
-      // move backward in selection
-      selected_ind--;
-      if (selected_ind < 0) selected_ind = all_nodes.size()-1;
-      selected_node = all_nodes[selected_ind];
-      
-      selected_port = "";
-      selectPort();
+      selectPrevNode();
     }
     else if (key == 'u') {
-     
       selectPort();
-      
     } // key = u
     else if (key == 'r') {
-      
-      if (source_node != all_nodes[selected_ind]) {
-        // select source node
-        source_ind = selected_ind;
-        source_node = all_nodes[source_ind];
-
-        // TBD can't be both at once?
-        if (dynamic_cast<ImageNode*> (source_node)) source_type = "ImageNode";
-        if (dynamic_cast<Signal*> (source_node)) source_type = "Signal";
-        if (dynamic_cast<Buffer*> (source_node)) source_type = "Buffer";
-      } else {
-        // select no source port, allows cycling through all inputs
-        source_ind = 0;
-        source_node = NULL;
-        source_type = "";
-      }
+      selectSourceNode();
     } 
     else if (key == 't') {
-      // select the target node
-      // connect to source node in best way possible, replacing the current input
-      // TBD need to be able to select specific inputs
-      if (source_node && selected_node && (source_type != "") && (selected_port != "")) {
-         
-        // TBD a Buffer should act as an ImageNode if that is the only
-        // input available
-        selected_node->setInputPort(source_type,selected_port, source_node);
-
-      }  // legit source_node
+      selectTargetNode();
     } // set source_node to target input
     else if (key == 'd') {
-      // disconnect current input
-      if (selected_node && (selected_type != "") && (selected_port != "")) {
-        selected_node->setInputPort(selected_type,selected_port, NULL);
-      }
+      removePortConnection();
     }
     //else if (key == 'c') {
       // swap selected node input with source node input- TBD this doesn't work since  
@@ -773,9 +800,9 @@ class CamThing
     }
 
     int max_count = 24;
-    if (command_text.size() > 100) max_count /= 2;
-    if (command_text.size() > 200) max_count /= 2;
-    if (command_text.size() > 300) max_count = 1;
+    if (command_text.size() > 40) max_count /= 2;
+    if (command_text.size() > 80) max_count /= 2;
+    if (command_text.size() > 160) max_count = 1;
     if (count % max_count == 0) {
       if (command_text.size() > 0);
       command_text = command_text.erase(0,1);
