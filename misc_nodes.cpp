@@ -87,7 +87,6 @@ namespace bm {
     setSignal("value", value);
 
     setDirty();
-    //is_dirty = true;
 
     VLOG(3) << "Signal " << name << " " << value;
     return true;
@@ -462,7 +461,7 @@ namespace bm {
         tmp_in = getImage(port);
         if (tmp_in.empty()) {
           //VLOG(5) << name << " : " << port << " image is empty"; 
-          //continue;
+          continue;
         }
 
         float val = getSignal(port);
@@ -488,7 +487,8 @@ namespace bm {
 
         }
       } // nf loop
-      
+    
+    //VLOG(1) << name << " " << "update";
     setImage("out", out);
 
     return true;

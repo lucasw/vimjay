@@ -349,15 +349,15 @@ namespace bm {
     // this could result in infinite loops, need isDirty protection
     if (!nd->isDirty(this, 20)) return im;
 
-    //ImageNode* im_in = dynamic_cast<ImageNode*> (nd);
-    //if (!im_in) return im;
-
     cv::Mat im2 = nd->getImage(src_port);
     if (im2.empty()) return im;
 
-    imvals[port] = im;
+    imvals[port] = im2;
+    // TBD setDirty? No don't
+    
     valid = true;
-    return im;
+
+    return im2;
   }
 
   
@@ -404,10 +404,21 @@ namespace bm {
     }
 
     if (!nd) return val;
+   
+    // prevent loops
+    if (!nd->isDirty(this, 22)) {
+      return val;
+    }
     
-    val = nd->getSignal(src_port);
+    float new_val = nd->getSignal(src_port,valid);
+
+    //VLOG(1) << name << " " << src_port << " " << valid << " " << new_val << " " << val;
+    //if (!valid) return val;
+    
+    val = new_val;
     // store a copy here in case the input node is disconnected
     svals[port] = val;
+    // TBD setDirty?  Probably shouldn't, would defeat the isDirty loop prevention
     valid = true;
     return val;
   }
