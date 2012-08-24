@@ -206,6 +206,7 @@ class CamThing
   Node* selected_node;
   string selected_type;
   string selected_port;
+  int selected_port_ind;
 
   // store a node to be connected to a different selected node
   int source_ind;
@@ -219,6 +220,7 @@ class CamThing
       selected_node(NULL),
       selected_type(""),
       selected_port(""),
+      selected_port_ind(0),
       source_ind(0),
       source_node(NULL),
       source_type(""),
@@ -362,17 +364,19 @@ class CamThing
         (*it)["inputs"][i]["src_port"] >> src_port;
       
         LOG(INFO) << "input " << ind << " " << all_nodes[ind]->name 
-            << " " << input_ind << " " << type << " " << port << " " << input_ind;
+            << " " << input_ind << " " << type << " " << port << " " << input_ind
+            << " " << src_port;
         
         if (input_ind >= 0)
           all_nodes[ind]->setInputPort(type, port, all_nodes[input_ind], src_port);
         else 
-          all_nodes[ind]->setInputPort(type, port, NULL, "");
+          all_nodes[ind]->setInputPort(type, port, NULL, src_port);
       }
     } // second input pass
 
     if (output_node == NULL) {
-      LOG(WARNING) << CLWRN << "No output node found, setting it to " << all_nodes[all_nodes.size() - 1]->name << CLNRM;
+      LOG(WARNING) << CLWRN << "No output node found, setting it to " 
+          << all_nodes[all_nodes.size() - 1]->name << CLNRM;
       // TBD could make sure that this node is an output node
       
       output_node = (Output*) all_nodes[all_nodes.size() - 1];
@@ -634,6 +638,8 @@ class CamThing
 
     selected_port = "";
     selectPort();
+
+    VLOG(1) << "selected node " << selected_node->name << " " << selected_ind;
   }
 
   void selectPrevNode()
@@ -646,12 +652,17 @@ class CamThing
 
     selected_port = "";
     selectPort();
+    
+    VLOG(1) << "selected node " << selected_node->name << " " << selected_ind;
   }
 
   // TBD move into Node?
   bool selectPort()
   {
-    if (!selected_node) return false;
+    if (!selected_node) {
+      VLOG(1) << "selectPort: no selected_node";
+      return false;
+    }
     
     selected_node->draw_selected_port = true;
 
@@ -659,31 +670,43 @@ class CamThing
     if (source_type == "") {
       vector<pair<string, string> > strn = selected_node->getInputStrings();
 
-      if (strn.size() == 0) return false;
-
+      if (strn.size() == 0) {
+        VLOG(1) << "selectPort: " << CLTXT << selected_node->name 
+            << CLNRM << " no input strings";
+        return false;
+      }
+      
+      int ind = 0;
       for (int i = 0; i < strn.size()-1; i++) {
         if ((strn[i].first == selected_type) &&
             (strn[i].second == selected_port)) {
           // select next one
           selected_type = strn[i+1].first;
           selected_port = strn[i+1].second;
+          selected_port_ind = ind + 1;
           selected_node->selected_type = selected_type;
           selected_node->selected_port = selected_port;
+
+          VLOG(1) << "selectPort: all inputs select";
           return true;
         }
+        ind++;
       }
   
       selected_type = strn[0].first;
       selected_port = strn[0].second;
       selected_node->selected_type = selected_type;
       selected_node->selected_port = selected_port;
+      selected_port_ind = 0;
+      VLOG(1) << "selectPort: selecting first input";
       return true;
     }
    
     // loop through inputs of a specific source_type, if any
     
     if (selected_node->inputs.find(source_type) == selected_node->inputs.end()) {
-      VLOG(3) << "no matching inputs of type " << source_type;
+      VLOG(1) << "selectPort: no matching inputs of type " << source_type;
+      selected_port_ind = 0;
       return false;
     }
 
@@ -701,6 +724,8 @@ class CamThing
       selected_type = source_type;
       selected_node->selected_type = selected_type;
       selected_node->selected_port = selected_port;
+      VLOG(1) << "selectPort: start at beginning because uninitialized";
+      selected_port_ind = 0;
       return true;
     } 
 
@@ -714,18 +739,25 @@ class CamThing
       selected_type = source_type;
       selected_node->selected_type = selected_type;
       selected_node->selected_port = selected_port;
+      VLOG(1) << "selectPort: match with end so using first port";
+      selected_port_ind = 0;
       return true;
     }
 
     it2++;
-    if (it2 == it2_end) selected_port = first_port;
+    selected_port_ind++;
+    if (it2 == it2_end) {
+      selected_port = first_port;
+      selected_port_ind = 0;
+    }
     // now finally set the port to the next available port
     else selected_port = it2->first;
     
     selected_type = source_type;
     selected_node->selected_type = source_type;
     selected_node->selected_port = selected_port;
-
+    
+    VLOG(1) << "selectPort: selected next in iterator";
     return true;
   }// selectPort()
 
@@ -780,7 +812,14 @@ class CamThing
     }
     else if (key == 'u') {
       selectPort();
-    } // key = u
+      
+      stringstream str;
+      if (selected_node) str << selected_node->name << " : ";
+      str << "matching " << source_type << " with " 
+          << selected_ind << " " << selected_port_ind << " " 
+          << selected_type << " " << selected_port;
+      VLOG(1) << str.str();
+    } 
     else if (key == 'r') {
       selectSourceNode();
     } 
@@ -807,7 +846,7 @@ class CamThing
       //tmp.resize(1);
       //tmp[0] = key;
       command_text.append(tmp.str());
-      VLOG(1) << tmp.str() << " " << command_text;
+      VLOG(4) << tmp.str() << " " << command_text;
     } else if (key >= 0) {
       LOG(INFO) << "unused keypress:" << (char)key << " " << key;
     }

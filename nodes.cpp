@@ -176,7 +176,7 @@ namespace bm {
 
           // TBD need to draw a line from the source node to this point too
           cv::rectangle(graph, dst, dst + cv::Point(port.size()*8, -ht), 
-              cv::Scalar(80, 80, 80), CV_FILLED );
+              cv::Scalar(180, 80, 80), CV_FILLED);
           //cv::line( graph, dst, dst + cv::Point(20,0), cv::Scalar(0, 121, 100), 2, 4 );
         }
 
@@ -187,8 +187,8 @@ namespace bm {
           port_info << " " << val;
         }
 
-        cv::putText(graph, port_info.str(), dst + cv::Point(1,0), 1, 1, cv::Scalar(75,50,75), 2);
-        cv::putText(graph, port_info.str(), dst, 1, 1, cv::Scalar(255,100,245), 2);
+        cv::putText(graph, port_info.str(), dst + cv::Point(1,0), 1, 1, cv::Scalar(75,50,75), 1);
+        cv::putText(graph, port_info.str(), dst, 1, 1, cv::Scalar(255,100,245), 1);
         j++;
        
         Node* it_node = it2->second.first;
@@ -199,7 +199,7 @@ namespace bm {
         cv::line( graph, it_node->loc + cv::Point(0,-8), src, cv::Scalar(0, 80/fr, 0), 2, 1 );
         cv::Point mid = src + (dst - src) * 0.8;
         cv::line( graph, src, mid, cv::Scalar(0, 128/fr, 0), 2, 4 );
-        cv::putText(graph, src_port, src, 1, 1, cv::Scalar(255,100,245), 2);
+        cv::putText(graph, src_port, src, 1, 1, cv::Scalar(255,100,245), 1);
         cv::line( graph, mid, dst, cv::Scalar(0, 255/fr, 0), 2, CV_AA );
 
       } // for
@@ -316,6 +316,8 @@ namespace bm {
       getSignal(port);
     
     inputs[type][port] = std::pair<Node*, string> ((Node*)rv, src_port);
+    VLOG(1) << name << " setInputPort: " << type << " " << port << " "
+      << inputs[type][port].second; 
   }
 
   // get an imagenode image from this nodes imagenode inputs
@@ -479,7 +481,7 @@ namespace bm {
     {
       for (inputsItemType::iterator it2 = it->second.begin(); it2 != it->second.end(); it2++)
       {
-        if (it2->second.first == NULL) continue;
+        //if (it2->second.first == NULL) continue;
           
         rv.push_back(pair<string,string> (it->first, it2->first));
       }

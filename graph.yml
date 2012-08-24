@@ -54,8 +54,13 @@ nodes:
             ind: 3
          -
             type: Signal
+            port: add0
+            src_port: value
+            ind: -1
+         -
+            type: Signal
             port: add1
-            src_port: out
+            src_port: value
             ind: 4
    -
       typeid: "bm::Rot2D"

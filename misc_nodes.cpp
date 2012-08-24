@@ -461,8 +461,8 @@ namespace bm {
         //const string port = "add" + boost::lexical_cast<string>(i);
         tmp_in = getImage(port);
         if (tmp_in.empty()) {
-          VLOG(1) << name << " : " << port << " image is empty"; 
-          continue;
+          //VLOG(5) << name << " : " << port << " image is empty"; 
+          //continue;
         }
 
         float val = getSignal(port);
