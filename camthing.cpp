@@ -587,12 +587,9 @@ class CamThing
       source_port = selected_port;
 
       source_type = selected_type;
-      if (source_type == "ImageNode") source_type = "ImageOut";
-      /*
-      if (dynamic_cast<ImageNode*> (source_node)) source_type = "ImageOut";
-      if (dynamic_cast<Signal*> (source_node)) source_type = "Signal";
-      if (dynamic_cast<Buffer*> (source_node)) source_type = "Buffer";
-      */
+      //if (source_type == "ImageNode") source_type = "ImageOut";
+      if (source_type == "ImageOut") source_type = "ImageNode";
+    
     } else {
       // select no source port, allows cycling through all inputs
       source_ind = 0;
@@ -639,7 +636,7 @@ class CamThing
     selected_node = all_nodes[selected_ind];
 
     selected_port = "";
-    selectPort();
+    selectPort(false);
 
     VLOG(1) << "selected node " << selected_node->name << " " << selected_ind;
   }
@@ -653,13 +650,13 @@ class CamThing
     selected_node = all_nodes[selected_ind];
 
     selected_port = "";
-    selectPort();
+    selectPort(false);
     
     VLOG(1) << "selected node " << selected_node->name << " " << selected_ind;
   }
 
   // TBD move into Node?
-  bool selectPort()
+  bool selectPort(bool next_port = true)
   {
     if (!selected_node) {
       VLOG(1) << "selectPort: no selected_node";
@@ -667,6 +664,13 @@ class CamThing
     }
     
     selected_node->draw_selected_port = true;
+
+    // take the current port
+    if (!next_port) {
+      selected_type = selected_node->selected_type;
+      selected_port = selected_node->selected_port;
+      return true;
+    }
 
     // loop through all inputs, unconstrained by source_type
     if (source_type == "") {
@@ -908,7 +912,7 @@ class CamThing
       cv::line( graph_im, source_node->loc, selected_node->loc, cv::Scalar(70, 70, 70), 8, 4 );
     }
 
-    cv::putText(graph_im, command_text, cv::Point(10, graph_im.rows-40), 1, 1, cv::Scalar(200,205,195),2);
+    cv::putText(graph_im, command_text, cv::Point(10, graph_im.rows-40), 1, 1, cv::Scalar(200,205,195), 1);
     if (command_text.size() > 0) { 
       VLOG(5) << "command_text " << command_text;
     }

@@ -159,7 +159,7 @@ namespace bm {
     {
       const string type = it->first;
       // can't use getInputVector because of this, and reference to strings
-      cv::putText(graph, type, loc - cv::Point(-10,-ht*j - ht/2), 1, 1, cv::Scalar(100,255,245),2);
+      cv::putText(graph, type, loc - cv::Point(-10,-ht*j - ht/2), 1, 1, cv::Scalar(100,255,245), 1);
       j++;
 
       for (inputsItemType::iterator it2 = it->second.begin(); it2 != it->second.end(); it2++) 
