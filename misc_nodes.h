@@ -131,7 +131,6 @@ class TapInd : public Tap
   // TBD make an sval?
   //int ind;
   virtual bool update();
-
   virtual bool draw();
 };
 

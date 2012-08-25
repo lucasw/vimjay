@@ -175,15 +175,15 @@ class Node
 
   bool setSignal(const std::string port, const float val);
 
-  bool getBuffer(
+  cv::Mat getBuffer(
     const std::string port,
-    const float val,
-    cv::Mat& image);
+    const float val);
+    //cv::Mat& image);
 
-  bool getBuffer(
+  cv::Mat getBuffer(
     const std::string port,
-    const int val,
-    cv::Mat& image);
+    const int val);
+    //cv::Mat& image);
 
 
   virtual bool handleKey(int key);

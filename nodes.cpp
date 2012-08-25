@@ -147,7 +147,7 @@ namespace bm {
     if (!isDirty(this,1)) fr = 5;
     cv::Scalar col = cv::Scalar(vcol/fr);
 
-    if (!enable) cv::circle(graph, loc, 10, cv::Scalar(0,0,100),-1);
+    if (!enable) cv::circle(graph, loc, 10, cv::Scalar(0,0,100), -1);
 
     cv::circle(graph, loc, 20, col, 4);
 
@@ -159,12 +159,11 @@ namespace bm {
     {
       const string type = it->first;
       // can't use getInputVector because of this, and reference to strings
-      cv::putText(graph, type, loc - cv::Point(-10,-ht*j - ht/2), 1, 1, cv::Scalar(100,255,245), 1);
+      cv::putText(graph, type, loc - cv::Point(-10, -ht*j - ht/2), 1, 1, cv::Scalar(100,255,245), 1);
       j++;
 
       for (inputsItemType::iterator it2 = it->second.begin(); it2 != it->second.end(); it2++) 
       {
-        
         const string port = it2->first;
 
         cv::Point dst = loc - cv::Point(-10, -ht*j - ht/2);
@@ -314,6 +313,8 @@ namespace bm {
       getImage(port);
     if (type == "Signal")
       getSignal(port);
+    if (type == "Buffer")
+      getBuffer(port, 0);
     
     inputs[type][port] = std::pair<Node*, string> ((Node*)rv, src_port);
     VLOG(1) << name << " setInputPort: " << type << " " << port << " from "
@@ -437,43 +438,46 @@ namespace bm {
     svals[port] = val;
   }
 
-  bool Node::getBuffer(
+  cv::Mat Node::getBuffer(
     const std::string port,
-    const float val,
-    cv::Mat& image)
+    const float val)
   {
-    
+   
+    cv::Mat tmp;
     Node* nd;
     string src_port;
-    if (!getInputPort("Buffer", port, nd, src_port)) return false;
-
+    if (!getInputPort("Buffer", port, nd, src_port)) {
+      return tmp;
+    }
+   
     Buffer* im_in = dynamic_cast<Buffer*> (nd);
 
-    if (!im_in) return false;
+    if (!im_in) return tmp;
 
-    image = im_in->get(val);
+    cv::Mat image = im_in->get(val);
 
-    return true;
+    return image;
   }
 
 
-  bool Node::getBuffer(
+  cv::Mat Node::getBuffer(
     const std::string port,
-    const int val,
-    cv::Mat& image)
+    const int val)
+    //cv::Mat& image)
   {
     
     Node* nd;
     string src_port;
-    if (!getInputPort("Buffer", port, nd, src_port)) return false;
+    cv::Mat image;
+    if (!getInputPort("Buffer", port, nd, src_port)) return image;
 
     Buffer* im_in = dynamic_cast<Buffer*> (nd);
 
-    if (!im_in) return false;
+    if (!im_in) return image;
 
     image = im_in->get(val);
 
-    return true;
+    return image;
   }
 
   //typedef map<string, map<string, pair<Node*, string> > >::iterator inputsIter;
@@ -605,7 +609,8 @@ namespace bm {
       if (!isDirty(this,2)) fr = 5;
       cv::Scalar col = cv::Scalar(vcol/fr);
 
-      cv::rectangle(graph, loc - cv::Point(2,2), loc + cv::Point(sz.width,sz.height) + cv::Point(2,2), col, CV_FILLED );
+      cv::rectangle(graph, loc - cv::Point(2,2), 
+          loc + cv::Point(sz.width,sz.height) + cv::Point(2,2), col, CV_FILLED );
 
       bool draw_thumb = true;
       if (loc.x + sz.width >= graph.cols) {
@@ -799,6 +804,9 @@ namespace bm {
     //this->max_size = max_size;
     //LOG(INFO) << "new buffer max_size " << this->max_size;
     vcol = cv::Scalar(200, 30, 200);
+
+    // not really an input, but using inputs since outputs aren't distinct
+    inputs["Buffer"]["out"] = std::pair<Node*, string> (NULL, "");
 
     //setImage("image", cv::Mat());
     setSignal("max_size", 100);

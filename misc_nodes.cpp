@@ -333,6 +333,12 @@ namespace bm {
   Tap::Tap() : ImageNode()
   {
     vcol = cv::Scalar(100, 30, 250);
+
+    getSignal("value");
+    getBuffer("buffer",0);
+    
+    setInputPort("Buffer","buffer", NULL, "out");
+    //getImage("Buffer");
   }
 
   void Tap::setup(Signal* new_signal, Buffer* new_buffer) 
@@ -351,10 +357,12 @@ namespace bm {
       float value = getSignal("value");     
       
       VLOG(1) << name << " update " << value;
-      cv::Mat tmp;
-      if (!getBuffer("buffer", value, tmp)) return false;
+      cv::Mat out; // = getImage("out");
+      out = getBuffer("buffer", value); //, tmp)) return false;
       
-      setImage("out", tmp);
+      if (out.empty()) return false;
+
+      setImage("out", out);
     }
 
     return true;
@@ -378,10 +386,11 @@ namespace bm {
       int ind = value;
 
       VLOG(2) << name << " update " << ind;
-      cv::Mat tmp;
-      if (!getBuffer("buffer", ind, tmp)) return false;
-      
-      setImage("out", tmp);
+      cv::Mat out; //= getImage("out");
+      out = getBuffer("buffer", ind);
+      if (out.empty())  return false;
+
+      setImage("out", out);
     }
 
     return true;

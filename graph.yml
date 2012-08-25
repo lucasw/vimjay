@@ -1,37 +1,38 @@
 %YAML:1.0
-date: "Wed Aug 22 21:55:26 2012\n"
+date: "Fri Aug 24 21:09:58 2012\n"
 nodes:
    -
+      ind: 0
       typeid: "bm::ImageDir"
       name: image_dir
-      loc: [ 91, 45 ]
+      loc: [ 71, 60 ]
       enable: 1
       svals:
          -
             name: max_size
             value: 100.
       dir: "../data/"
-      ind: 0
       inputs:
          []
    -
+      ind: 1
       typeid: "bm::ImageNode"
       name: image_node_passthrough
-      loc: [ 457, 45 ]
+      loc: [ 355, 60 ]
       enable: 1
       svals:
          []
-      ind: 1
       inputs:
          -
             type: ImageNode
             port: in
             src_port: out
-            ind: 0
+            ind: 9
    -
+      ind: 2
       typeid: "bm::Add"
       name: add_loop
-      loc: [ 822, 45 ]
+      loc: [ 640, 60 ]
       enable: 1
       svals:
          -
@@ -39,8 +40,7 @@ nodes:
             value: 2.
          -
             name: add1
-            value: -1.0
-      ind: 2
+            value: -1.1599998474121094e+00
       inputs:
          -
             type: ImageNode
@@ -54,33 +54,28 @@ nodes:
             ind: 3
          -
             type: Signal
-            port: add0
-            src_port: value
-            ind: -1
-         -
-            type: Signal
             port: add1
             src_port: value
             ind: 4
    -
+      ind: 3
       typeid: "bm::Rot2D"
       name: rotate
-      loc: [ 91, 225 ]
+      loc: [ 924, 60 ]
       enable: 1
       svals:
          -
             name: angle
-            value: 5.
+            value: -1.1599998474121094e+00
          -
             name: center_x
-            value: 640.
+            value: 50.
          -
             name: center_y
-            value: 480.
+            value: 90.
          -
             name: scale
             value: 1.
-      ind: 3
       inputs:
          -
             type: ImageNode
@@ -103,9 +98,10 @@ nodes:
             src_port: value
             ind: 6
    -
+      ind: 4
       typeid: "bm::Signal"
       name: saw_rotate
-      loc: [ 457, 225 ]
+      loc: [ 71, 300 ]
       enable: 0
       svals:
          -
@@ -119,15 +115,15 @@ nodes:
             value: 1.9999999552965164e-02
          -
             name: value
-            value: -1.0
-      ind: 4
+            value: -1.1599998474121094e+00
       inputs:
          []
    -
+      ind: 5
       typeid: "bm::Saw"
       name: saw_center_x
-      loc: [ 822, 225 ]
-      enable: 1
+      loc: [ 355, 300 ]
+      enable: 0
       svals:
          -
             name: max
@@ -140,14 +136,14 @@ nodes:
             value: 5.
          -
             name: value
-            value: 640.
-      ind: 5
+            value: 50.
       inputs:
          []
    -
+      ind: 6
       typeid: "bm::Saw"
       name: saw_center_y
-      loc: [ 91, 405 ]
+      loc: [ 640, 300 ]
       enable: 1
       svals:
          -
@@ -161,21 +157,66 @@ nodes:
             value: 6.
          -
             name: value
-            value: 480.
-      ind: 6
+            value: 90.
       inputs:
          []
    -
+      ind: 7
       typeid: "bm::Output"
       name: output
-      loc: [ 457, 405 ]
+      loc: [ 924, 300 ]
       enable: 1
       svals:
          []
-      ind: 7
       inputs:
          -
             type: ImageNode
             port: in
             src_port: out
             ind: 3
+   -
+      ind: 8
+      typeid: "bm::Saw"
+      name: saw_misc
+      loc: [ 71, 540 ]
+      enable: 0
+      svals:
+         -
+            name: max
+            value: 1.
+         -
+            name: min
+            value: -1.
+         -
+            name: step
+            value: 1.9999999552965164e-02
+         -
+            name: value
+            value: 7.0000028610229492e-01
+      inputs:
+         -
+            type: Signal
+            port: step
+            src_port: step
+            ind: 4
+   -
+      ind: 9
+      typeid: "bm::Tap"
+      name: tap1
+      loc: [ 355, 540 ]
+      enable: 1
+      svals:
+         -
+            name: value
+            value: 7.0000028610229492e-01
+      inputs:
+         -
+            type: Buffer
+            port: buffer
+            src_port: out
+            ind: 0
+         -
+            type: Signal
+            port: value
+            src_port: value
+            ind: 8
