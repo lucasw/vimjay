@@ -267,7 +267,29 @@ namespace bm {
   
   bool Node::handleKey(int key)
   {
-    return false;
+    bool valid_key = true;
+  
+    VLOG(1) << selected_type << " " << selected_port;
+    if ((selected_type == "Signal") && (selected_port != "")) { 
+      float value = getSignal(selected_port);
+
+      if (key == ',') {
+        value += 1;   
+      }
+      else if (key == 'm') {
+        value -= 1;
+      } else {
+        valid_key = false;
+      }
+
+      if (valid_key) {
+        VLOG(2) << value;
+        setSignal(selected_port, value);
+        setDirty();
+      }
+    }
+
+    return valid_key;
   }
 
   //////////////////////////////////////////////////////
@@ -664,7 +686,8 @@ namespace bm {
 
   bool ImageNode::handleKey(int key)
   {
-    bool valid_key = true;
+    bool valid_key = Node::handleKey(key);
+    if (valid_key) return true;
     
     if (key == 'p') {
       writeImage(); 
@@ -706,10 +729,10 @@ namespace bm {
 
     float value = getSignal("value");
 
-    if (key == ',') {
+    if (key == '.') {
       value += abs(getSignal("step"));   
     }
-    else if (key == 'm') {
+    else if (key == '/') {
       value -= abs(getSignal("step"));
     } else {
       valid_key = false;
@@ -834,8 +857,11 @@ namespace bm {
     setSignal("cur_size", frames.size());
 
     if (frames.size() <= 0) return false;
-    
-    cv::Mat out = frames[0];
+   
+    const int ind =  ((int)getSignal("ind"))%frames.size();
+    setSignal("ind", ind);
+
+    cv::Mat out = frames[ind];
     setImage("out", out);
 
 
