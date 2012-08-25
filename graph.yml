@@ -1,5 +1,5 @@
 %YAML:1.0
-date: "Fri Aug 24 21:09:58 2012\n"
+date: "Fri Aug 24 21:25:30 2012\n"
 nodes:
    -
       ind: 0
@@ -9,11 +9,21 @@ nodes:
       enable: 1
       svals:
          -
+            name: cur_size
+            value: 100.
+         -
             name: max_size
+            value: 100.
+         -
+            name: write_count
             value: 100.
       dir: "../data/"
       inputs:
-         []
+         -
+            type: ImageNode
+            port: in
+            src_port: out
+            ind: 3
    -
       ind: 1
       typeid: "bm::ImageNode"
@@ -40,7 +50,7 @@ nodes:
             value: 2.
          -
             name: add1
-            value: -1.1599998474121094e+00
+            value: -1.1999998092651367e+00
       inputs:
          -
             type: ImageNode
@@ -66,13 +76,13 @@ nodes:
       svals:
          -
             name: angle
-            value: -1.1599998474121094e+00
+            value: -1.1999998092651367e+00
          -
             name: center_x
             value: 50.
          -
             name: center_y
-            value: 90.
+            value: 150.
          -
             name: scale
             value: 1.
@@ -115,7 +125,7 @@ nodes:
             value: 1.9999999552965164e-02
          -
             name: value
-            value: -1.1599998474121094e+00
+            value: -1.1999998092651367e+00
       inputs:
          []
    -
@@ -154,10 +164,10 @@ nodes:
             value: 0.
          -
             name: step
-            value: 6.
+            value: -6.
          -
             name: value
-            value: 90.
+            value: 150.
       inputs:
          []
    -
@@ -179,36 +189,36 @@ nodes:
       typeid: "bm::Saw"
       name: saw_misc
       loc: [ 71, 540 ]
-      enable: 0
+      enable: 1
       svals:
          -
             name: max
-            value: 1.
+            value: 100.
          -
             name: min
-            value: -1.
+            value: 0.
          -
             name: step
-            value: 1.9999999552965164e-02
+            value: 1.
          -
             name: value
-            value: 7.0000028610229492e-01
+            value: 65.
       inputs:
          -
             type: Signal
-            port: step
-            src_port: step
-            ind: 4
+            port: max
+            src_port: cur_size
+            ind: 0
    -
       ind: 9
-      typeid: "bm::Tap"
+      typeid: "bm::TapInd"
       name: tap1
       loc: [ 355, 540 ]
       enable: 1
       svals:
          -
             name: value
-            value: 7.0000028610229492e-01
+            value: 65.
       inputs:
          -
             type: Buffer

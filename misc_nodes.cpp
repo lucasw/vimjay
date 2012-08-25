@@ -75,11 +75,11 @@ namespace bm {
 
     value += step;
     if (value > max) {
-      step = -abs(step);
+      step = -fabs(step);
       value = max;
     }
     if (value < min) {
-      step = abs(step);
+      step = fabs(step);
       value = min;
     }
 

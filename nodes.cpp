@@ -830,11 +830,14 @@ namespace bm {
     cv::Mat in = getImage("in");
     if (!in.empty()) 
       add(in); 
+    
+    setSignal("cur_size", frames.size());
 
     if (frames.size() <= 0) return false;
     
     cv::Mat out = frames[0];
     setImage("out", out);
+
 
     if (VLOG_IS_ON(5)) {
       VLOG(15) << frames.size();
