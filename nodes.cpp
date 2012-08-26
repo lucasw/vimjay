@@ -287,7 +287,10 @@ namespace bm {
         setSignal(selected_port, value);
         setDirty();
       }
+      return valid_key;
     }
+
+    valid_key = false;
 
     return valid_key;
   }
@@ -680,6 +683,8 @@ namespace bm {
     cv::imwrite(file_name.str(), out);
     write_count++;
     setSignal("write_count", write_count);
+
+    LOG(INFO) << name << " wrote " << CLTXT << file_name << CLNRM;
     // TBD register that these frames have been saved somewhere so it is easy to load
     // them up again?
   }
