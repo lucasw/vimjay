@@ -28,10 +28,8 @@ class ScreenCap : public ImageNode
   
   virtual bool update();
 
-    int startX;
-    int startY;
-    int widthX;
-    int heightY;
+  int screen_w;
+  int screen_h;
 
 };
 

@@ -1,16 +1,19 @@
 %YAML:1.0
-date: "Fri Aug 24 21:25:30 2012\n"
+date: "Sat Aug 25 22:01:07 2012\n"
 nodes:
    -
       ind: 0
       typeid: "bm::ImageDir"
       name: image_dir
-      loc: [ 71, 60 ]
+      loc: [ 71, 45 ]
       enable: 1
       svals:
          -
             name: cur_size
-            value: 100.
+            value: 11.
+         -
+            name: ind
+            value: 0.
          -
             name: max_size
             value: 100.
@@ -19,16 +22,12 @@ nodes:
             value: 100.
       dir: "../data/"
       inputs:
-         -
-            type: ImageNode
-            port: in
-            src_port: out
-            ind: 3
+         []
    -
       ind: 1
       typeid: "bm::ImageNode"
       name: image_node_passthrough
-      loc: [ 355, 60 ]
+      loc: [ 355, 45 ]
       enable: 1
       svals:
          []
@@ -42,7 +41,7 @@ nodes:
       ind: 2
       typeid: "bm::Add"
       name: add_loop
-      loc: [ 640, 60 ]
+      loc: [ 640, 45 ]
       enable: 1
       svals:
          -
@@ -56,7 +55,7 @@ nodes:
             type: ImageNode
             port: add0
             src_port: out
-            ind: 1
+            ind: 10
          -
             type: ImageNode
             port: add1
@@ -71,7 +70,7 @@ nodes:
       ind: 3
       typeid: "bm::Rot2D"
       name: rotate
-      loc: [ 924, 60 ]
+      loc: [ 924, 45 ]
       enable: 1
       svals:
          -
@@ -82,7 +81,7 @@ nodes:
             value: 50.
          -
             name: center_y
-            value: 150.
+            value: 78.
          -
             name: scale
             value: 1.
@@ -111,7 +110,7 @@ nodes:
       ind: 4
       typeid: "bm::Signal"
       name: saw_rotate
-      loc: [ 71, 300 ]
+      loc: [ 71, 225 ]
       enable: 0
       svals:
          -
@@ -132,7 +131,7 @@ nodes:
       ind: 5
       typeid: "bm::Saw"
       name: saw_center_x
-      loc: [ 355, 300 ]
+      loc: [ 355, 225 ]
       enable: 0
       svals:
          -
@@ -153,7 +152,7 @@ nodes:
       ind: 6
       typeid: "bm::Saw"
       name: saw_center_y
-      loc: [ 640, 300 ]
+      loc: [ 640, 225 ]
       enable: 1
       svals:
          -
@@ -167,14 +166,14 @@ nodes:
             value: -6.
          -
             name: value
-            value: 150.
+            value: 78.
       inputs:
          []
    -
       ind: 7
       typeid: "bm::Output"
       name: output
-      loc: [ 924, 300 ]
+      loc: [ 924, 225 ]
       enable: 1
       svals:
          []
@@ -183,17 +182,17 @@ nodes:
             type: ImageNode
             port: in
             src_port: out
-            ind: 3
+            ind: 2
    -
       ind: 8
       typeid: "bm::Saw"
       name: saw_misc
-      loc: [ 71, 540 ]
+      loc: [ 71, 405 ]
       enable: 1
       svals:
          -
             name: max
-            value: 100.
+            value: 11.
          -
             name: min
             value: 0.
@@ -202,7 +201,7 @@ nodes:
             value: 1.
          -
             name: value
-            value: 65.
+            value: 6.
       inputs:
          -
             type: Signal
@@ -213,12 +212,12 @@ nodes:
       ind: 9
       typeid: "bm::TapInd"
       name: tap1
-      loc: [ 355, 540 ]
+      loc: [ 355, 405 ]
       enable: 1
       svals:
          -
             name: value
-            value: 65.
+            value: 6.
       inputs:
          -
             type: Buffer
@@ -230,3 +229,61 @@ nodes:
             port: value
             src_port: value
             ind: 8
+   -
+      ind: 10
+      typeid: "bm::ScreenCap"
+      name: screen_cap
+      loc: [ 640, 405 ]
+      enable: 1
+      svals:
+         -
+            name: heightY
+            value: 522.
+         -
+            name: startX
+            value: 34.
+         -
+            name: startY
+            value: 40.
+         -
+            name: widthX
+            value: 733.
+      inputs:
+         []
+   -
+      ind: 11
+      typeid: "bm::Buffer"
+      name: buffer
+      loc: [ 924, 405 ]
+      enable: 1
+      svals:
+         -
+            name: max_size
+            value: 100.
+      inputs:
+         []
+   -
+      ind: 12
+      typeid: "bm::Sobel"
+      name: sobel
+      loc: [ 71, 585 ]
+      enable: 1
+      svals:
+         []
+      inputs:
+         []
+   -
+      ind: 13
+      typeid: "bm::Resize"
+      name: sobel
+      loc: [ 355, 585 ]
+      enable: 1
+      svals:
+         -
+            name: fx
+            value: 2.0000000298023224e-01
+         -
+            name: fy
+            value: 2.0000000298023224e-01
+      inputs:
+         []
