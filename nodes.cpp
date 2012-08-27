@@ -565,6 +565,8 @@ namespace bm {
     // TBD should out really be in the imvals, since it is an output not an input?
     cv::Mat tmp;
     setImage("out", tmp);
+    // TBD
+    //setImage("in", tmp);
   }
    
 

@@ -390,6 +390,49 @@ class CamThing
 
   void defaultGraph() 
   {
+    Node* node;
+    
+    // create a bunch of nodes but don't connect them, user will do that
+    //node = getNode<ScreenCap>(name, loc);
+    //node->update();
+    
+    cv::Point2f loc = cv::Point2f(400,400);
+    
+    ImageDir* im_dir = getNode<ImageDir>("image_dir", loc);
+    im_dir->dir = "../data/";
+    im_dir->loadImages();
+
+    node = getNode<Sobel>("sobel", loc);
+    node = getNode<Add>("add0", loc);
+    node = getNode<Add>("add1", loc);
+    //node = getNode<Fir>("fir", loc);
+    node = getNode<Resize>("resize", loc);
+    node = getNode<Rot2D>("rot2d", loc);
+    node = getNode<Signal>("signal0", loc);
+    node = getNode<Signal>("signal1", loc);
+    node = getNode<Saw>("saw0", loc);
+    node = getNode<Saw>("saw1", loc);
+    node = getNode<Saw>("saw2", loc);
+    node = getNode<Tap>("tap0", loc);
+    node = getNode<Tap>("tap1", loc);
+    node = getNode<Tap>("tap2", loc);
+    node = getNode<TapInd>("tapind0", loc);
+    node = getNode<TapInd>("tapind1", loc);
+    node = getNode<TapInd>("tapind2", loc);
+    node = getNode<Buffer>("buffer0", loc);
+    node = getNode<Buffer>("buffer1", loc);
+    node = getNode<Buffer>("buffer2", loc);
+
+    node = getNode<ImageNode>("out", loc);
+    cv::Mat tmp;
+    node->setImage("in", tmp); 
+
+
+    //node = getNode<Output>("out", loc);
+
+    gridGraph(); 
+
+  #if 0
     ///////////////
     const float advance = 0.1;
 
@@ -573,8 +616,8 @@ class CamThing
     cv::namedWindow("cam", CV_GUI_NORMAL);
     cv::moveWindow("cam", 0, 0);
 */
-    
-    output_node = (Output*)add_loop;
+   #endif 
+    output_node = (Output*)node;
     saveGraph("default_graph.yml");
   }
 

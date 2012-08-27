@@ -1,14 +1,17 @@
 %YAML:1.0
-date: "Sun Aug 26 20:24:33 2012\n"
+date: "Sun Aug 26 20:32:45 2012\n"
 nodes:
    -
       ind: 0
-      typeid: "bm::ImageNode"
-      name: pass
+      typeid: "bm::ImageDir"
+      name: image_dir
       loc: [ 58, 36 ]
       enable: 1
       svals:
-         []
+         -
+            name: max_size
+            value: 100.
+      dir: "../data/"
       inputs:
          []
    -
@@ -20,34 +23,23 @@ nodes:
       svals:
          []
       inputs:
-         -
-            type: ImageNode
-            port: in
-            src_port: out
-            ind: 5
+         []
    -
       ind: 2
-      typeid: "bm::ImageDir"
-      name: image_dir
+      typeid: "bm::Add"
+      name: add0
       loc: [ 523, 36 ]
       enable: 1
       svals:
          -
-            name: cur_size
-            value: 11.
-         -
-            name: ind
-            value: 4.
-         -
-            name: max_size
-            value: 100.
-      dir: "../data/"
+            name: add0
+            value: 2.
       inputs:
          []
    -
       ind: 3
       typeid: "bm::Add"
-      name: add0
+      name: add1
       loc: [ 756, 36 ]
       enable: 1
       svals:
@@ -58,21 +50,9 @@ nodes:
          []
    -
       ind: 4
-      typeid: "bm::Add"
-      name: add1
-      loc: [ 989, 36 ]
-      enable: 1
-      svals:
-         -
-            name: add0
-            value: 2.
-      inputs:
-         []
-   -
-      ind: 5
       typeid: "bm::Resize"
       name: resize
-      loc: [ 58, 180 ]
+      loc: [ 989, 36 ]
       enable: 1
       svals:
          -
@@ -80,47 +60,55 @@ nodes:
             value: 2.0000000298023224e-01
          -
             name: fy
-            value: 3.0200000762939453e+01
+            value: 2.0000000298023224e-01
       inputs:
-         -
-            type: ImageNode
-            port: in
-            src_port: out
-            ind: 2
+         []
    -
-      ind: 6
+      ind: 5
       typeid: "bm::Rot2D"
       name: rot2d
-      loc: [ 290, 180 ]
+      loc: [ 58, 180 ]
       enable: 1
       svals:
          -
             name: angle
-            value: 7.
+            value: 0.
          -
             name: center_x
-            value: 59.
+            value: 0.
          -
             name: center_y
-            value: 108.
+            value: 0.
          -
             name: scale
             value: 1.
       inputs:
+         []
+   -
+      ind: 6
+      typeid: "bm::Signal"
+      name: signal0
+      loc: [ 290, 180 ]
+      enable: 1
+      svals:
          -
-            type: ImageNode
-            port: in
-            src_port: out
-            ind: 5
+            name: max
+            value: 1.
          -
-            type: Signal
-            port: scale
-            src_port: value
-            ind: 7
+            name: min
+            value: 0.
+         -
+            name: step
+            value: 1.0000000149011612e-01
+         -
+            name: value
+            value: 0.
+      inputs:
+         []
    -
       ind: 7
       typeid: "bm::Signal"
-      name: signal0
+      name: signal1
       loc: [ 523, 180 ]
       enable: 1
       svals:
@@ -135,13 +123,13 @@ nodes:
             value: 1.0000000149011612e-01
          -
             name: value
-            value: 1.
+            value: 0.
       inputs:
          []
    -
       ind: 8
-      typeid: "bm::Signal"
-      name: signal1
+      typeid: "bm::Saw"
+      name: saw0
       loc: [ 756, 180 ]
       enable: 1
       svals:
@@ -162,32 +150,28 @@ nodes:
    -
       ind: 9
       typeid: "bm::Saw"
-      name: saw0
+      name: saw1
       loc: [ 989, 180 ]
       enable: 1
       svals:
          -
             name: max
-            value: 100.
+            value: 1.
          -
             name: min
             value: 0.
          -
             name: step
-            value: 1.1000000238418579e+00
+            value: 1.0000000149011612e-01
          -
             name: value
-            value: 2.5300004959106445e+01
+            value: 0.
       inputs:
-         -
-            type: Signal
-            port: max
-            src_port: cur_size
-            ind: 18
+         []
    -
       ind: 10
       typeid: "bm::Saw"
-      name: saw1
+      name: saw2
       loc: [ 58, 324 ]
       enable: 1
       svals:
@@ -207,20 +191,11 @@ nodes:
          []
    -
       ind: 11
-      typeid: "bm::Saw"
-      name: saw2
+      typeid: "bm::Tap"
+      name: tap0
       loc: [ 290, 324 ]
       enable: 1
       svals:
-         -
-            name: max
-            value: 1.
-         -
-            name: min
-            value: 0.
-         -
-            name: step
-            value: 1.0000000149011612e-01
          -
             name: value
             value: 0.
@@ -229,7 +204,7 @@ nodes:
    -
       ind: 12
       typeid: "bm::Tap"
-      name: tap0
+      name: tap1
       loc: [ 523, 324 ]
       enable: 1
       svals:
@@ -241,7 +216,7 @@ nodes:
    -
       ind: 13
       typeid: "bm::Tap"
-      name: tap1
+      name: tap2
       loc: [ 756, 324 ]
       enable: 1
       svals:
@@ -252,8 +227,8 @@ nodes:
          []
    -
       ind: 14
-      typeid: "bm::Tap"
-      name: tap2
+      typeid: "bm::TapInd"
+      name: tapind0
       loc: [ 989, 324 ]
       enable: 1
       svals:
@@ -265,7 +240,7 @@ nodes:
    -
       ind: 15
       typeid: "bm::TapInd"
-      name: tapind0
+      name: tapind1
       loc: [ 58, 468 ]
       enable: 1
       svals:
@@ -277,7 +252,7 @@ nodes:
    -
       ind: 16
       typeid: "bm::TapInd"
-      name: tapind1
+      name: tapind2
       loc: [ 290, 468 ]
       enable: 1
       svals:
@@ -288,51 +263,32 @@ nodes:
          []
    -
       ind: 17
-      typeid: "bm::TapInd"
-      name: tapind2
+      typeid: "bm::Buffer"
+      name: buffer0
       loc: [ 523, 468 ]
       enable: 1
       svals:
          -
-            name: value
-            value: 2.5300004959106445e+01
+            name: max_size
+            value: 100.
       inputs:
-         -
-            type: Buffer
-            port: buffer
-            src_port: out
-            ind: 18
-         -
-            type: Signal
-            port: value
-            src_port: value
-            ind: 9
+         []
    -
       ind: 18
       typeid: "bm::Buffer"
-      name: buffer0
+      name: buffer1
       loc: [ 756, 468 ]
-      enable: 0
+      enable: 1
       svals:
-         -
-            name: cur_size
-            value: 100.
-         -
-            name: ind
-            value: 14.
          -
             name: max_size
             value: 100.
       inputs:
-         -
-            type: ImageNode
-            port: in
-            src_port: out
-            ind: 6
+         []
    -
       ind: 19
       typeid: "bm::Buffer"
-      name: buffer1
+      name: buffer2
       loc: [ 989, 468 ]
       enable: 1
       svals:
@@ -343,27 +299,11 @@ nodes:
          []
    -
       ind: 20
-      typeid: "bm::Buffer"
-      name: buffer2
+      typeid: "bm::ImageNode"
+      name: out
       loc: [ 58, 612 ]
       enable: 1
       svals:
-         -
-            name: max_size
-            value: 100.
-      inputs:
-         []
-   -
-      ind: 21
-      typeid: "bm::Output"
-      name: out
-      loc: [ 290, 612 ]
-      enable: 1
-      svals:
          []
       inputs:
-         -
-            type: ImageNode
-            port: in
-            src_port: out
-            ind: 17
+         []
