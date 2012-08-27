@@ -147,6 +147,7 @@ class Add : public ImageNode
   void setup(std::vector<ImageNode*> np, std::vector<float> nf); 
 
   virtual bool update();
+  virtual bool handleKey(int key);
   
   virtual bool load(cv::FileNodeIterator nd);
   virtual bool save(cv::FileStorage& fs);

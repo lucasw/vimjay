@@ -503,6 +503,43 @@ namespace bm {
     return true;
   }
 
+  bool Add::handleKey(int key)
+  {
+    bool valid_key = ImageNode::handleKey(key);
+    if (valid_key) return true;
+   
+    valid_key = true;
+    if (key == 'o') {
+    
+      // add an input addition port, TBD move to function
+      int add_num = 0;
+      for (map<string, float >::iterator it = svals.begin(); it != svals.end(); it++) {
+      //for (int i = 0; i < nf.size(); i++) {
+        const string port = it->first;
+        
+        if (port.substr(0,3) != "add") {
+          VLOG(1) << name << " : " << port.substr(0,3) << " " << port;
+          continue;
+        }
+        add_num++;
+      }
+
+      // add a new addition port
+      const string port = "add" + boost::lexical_cast<string>(add_num);
+      setInputPort("ImageNode", port, NULL, "out");
+      setInputPort("Signal", port, NULL, "value"); // this allows other signals to connect to replace nf
+       
+      // TBD make a way to delete a port
+    } else {
+      valid_key = false;
+    }
+
+    // TBD 
+    if (valid_key) setDirty();
+    
+    return valid_key;
+  }
+
   bool Add::load(cv::FileNodeIterator nd)
   {
     ImageNode::load(nd);
