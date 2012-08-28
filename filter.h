@@ -27,15 +27,9 @@ class FilterFIR : public Buffer
 
 class Sobel : public ImageNode
 {
-  
   public:
   Sobel();
-
   virtual bool update();
- 
-  //virtual bool load(cv::FileNodeIterator nd);
-  //virtual bool save(cv::FileStorage& fs);
-
 };
 
 

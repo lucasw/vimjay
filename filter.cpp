@@ -85,6 +85,10 @@ Sobel::Sobel()
 {
   cv::Mat tmp;
   setImage("in", tmp);
+  setSignal("xorder",1);
+  setSignal("yorder",1);
+  setSignal("ksize",3);
+  setSignal("scale",0.8);
 }
 
 bool Sobel::update()
@@ -98,8 +102,32 @@ bool Sobel::update()
     return false;
   }
 
+  int ksize = getSignal("ksize");
+  int xorder = getSignal("xorder"); 
+  int yorder = getSignal("yorder"); 
+  float scale = getSignal("scale");
+
+  if (ksize < 1) ksize = 1;
+  if (ksize == 2) ksize= 1;
+  if (ksize == 4) ksize= 3;
+  if (ksize == 6) ksize= 5;
+  if (ksize > 7) ksize = 7;
+  if (xorder < 1) xorder = 1;
+  if (yorder < 1) yorder = 1;
+  if (scale < 0.001) scale = 0.001;
+
+  setSignal("ksize", ksize);
+  setSignal("xorder", xorder);
+  setSignal("yorder", yorder);
+  setSignal("scale", scale);
+
   cv::Mat out;
-  cv::Sobel(in, out, in.depth(), 1, 1, 3, 8);
+  cv::Sobel(in, out, in.depth(), 
+      xorder,
+      yorder,
+      ksize, 
+      scale
+      );
   setImage("out", out);
 
   return true;

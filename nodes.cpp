@@ -273,12 +273,22 @@ namespace bm {
     if ((selected_type == "Signal") && (selected_port != "")) { 
       float value = getSignal(selected_port);
 
-      if (key == ',') {
+      if (key == '.') {
+        value *= 0.9;   
+      }
+      else if (key == '/') {
+        value *= 1.1;
+      }
+      else if (key == ',') {
         value += 1;   
       }
       else if (key == 'm') {
         value -= 1;
-      } else {
+      }
+      else if (key == 'n') {
+        value = 0;
+      } 
+      else {
         valid_key = false;
       }
 
