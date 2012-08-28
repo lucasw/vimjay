@@ -39,13 +39,60 @@
 #include "misc_nodes.h" 
 #include "filter.h"
 #include "screencap.h"
+#include "camthing.h"
 
 using namespace cv;
 using namespace std;
 
 DEFINE_string(graph_file, "../graph.yml", "yaml file to load with graph in it");
+DEFINE_string(config_file, "../config.yml", "configuration settings for ui and output");
+
 //DEFINE_bool(
 namespace bm {
+
+  Config* Config::instance = NULL;
+
+  Config* Config::inst()  
+  {
+    if (!instance) { 
+      instance = new Config;
+
+      instance->width = 1280;
+      instance->height = 720; 
+      instance->thumb_width = 40; 
+      instance->thumb_height = 30;
+      instance->im_width = 640;
+      instance->im_height = 480;
+
+      instance->load(FLAGS_config_file);
+    }
+
+    return instance;
+  }
+
+  bool Config::load(const string config_file)
+  {
+    LOG(INFO) << "loading graph " << config_file;
+    
+    FileStorage fs; 
+    fs.open(config_file, FileStorage::READ);
+    
+    if (!fs.isOpened()) {
+      LOG(ERROR) << "couldn't open " << config_file;
+      return false;
+    }
+
+    fs["width"] >> width;
+    fs["height"] >> height;
+    fs["thumb_width"] >> thumb_width;
+    fs["thumb_height"] >> thumb_height;
+    fs["im_width"] >> im_width;
+    fs["im_height"] >> im_height;
+    
+    LOG(INFO) << width << " " << height;
+    LOG(INFO) << thumb_width << " " << thumb_height;
+    LOG(INFO) << im_width << " " << im_height;
+  }
 
 string getId(Node* ptr) 
   {
@@ -233,7 +280,7 @@ class CamThing
 
     // TBD make internal type a gflag
     // or have a config file that loads it and resolution also
-    graph_im = cv::Mat(cv::Size(1280, 720), MAT_FORMAT_C3);
+    graph_im = cv::Mat(cv::Size(Config::inst()->width, Config::inst()->height), MAT_FORMAT_C3);
     graph_im = cv::Scalar(0);
 
     if (FLAGS_graph_file =="") {
@@ -245,7 +292,7 @@ class CamThing
 
     cv::namedWindow("graph_im", CV_GUI_NORMAL);
     cv::moveWindow("graph_im", 0, 500);
-    cv::resizeWindow("graph_im", 1280, 720);
+    cv::resizeWindow("graph_im", graph_im.size().width, graph_im.size().height);
 /*
     // Bring this back when there is a fullscreen/decoration free output window
     cv::namedWindow("out", CV_GUI_NORMAL);
@@ -951,42 +998,39 @@ class CamThing
       graph_im = cv::Scalar(0,0,0);
 
     if (draw_nodes) {
-    if (source_node && selected_node) {
-      cv::line( graph_im, source_node->loc, selected_node->loc, cv::Scalar(70, 70, 70), 8, 4 );
-    }
+      if (source_node && selected_node) {
+        cv::line( graph_im, source_node->loc, selected_node->loc, cv::Scalar(70, 70, 70), 8, 4 );
+      }
 
-    cv::putText(graph_im, command_text, cv::Point(10, graph_im.rows-40), 1, 1, cv::Scalar(200,205,195), 1);
-    if (command_text.size() > 0) { 
-      VLOG(5) << "command_text " << command_text;
-    }
+      cv::putText(graph_im, command_text, cv::Point(10, graph_im.rows-40), 1, 1, cv::Scalar(200,205,195), 1);
+      if (command_text.size() > 0) { 
+        VLOG(5) << "command_text " << command_text;
+      }
 
-    // TBD could all_nodes size have
-    if (selected_node) {
-      cv::circle(graph_im, selected_node->loc, 18, cv::Scalar(0,220,1), -1);
-    }
-    if (source_node) {
-      cv::circle(graph_im, source_node->loc, 13, cv::Scalar(29,51,11), -1);
-      cv::circle(graph_im, source_node->loc, 12, cv::Scalar(229,151,51), -1);
-    }
+      // TBD could all_nodes size have
+      if (selected_node) {
+        cv::circle(graph_im, selected_node->loc, 18, cv::Scalar(0,220,1), -1);
+      }
+      if (source_node) {
+        cv::circle(graph_im, source_node->loc, 13, cv::Scalar(29,51,11), -1);
+        cv::circle(graph_im, source_node->loc, 12, cv::Scalar(229,151,51), -1);
+      }
 
-    // draw input and outputs
-    /*
-    imshow("cam", cam_buf->get());
+      // draw input and outputs
+      /*
+         imshow("cam", cam_buf->get());
 
-    cv::Mat out = output->get();
-    if (out.data) {
+         cv::Mat out = output->get();
+         if (out.data) {
       //imshow("out", out);
-    } else {
+      } else {
       LOG(ERROR) << "out no data";
-    }*/
+      }*/
 
-    // loop through
-    for (int i = 0; i < all_nodes.size(); i++) {
-      float scale = 0.2;
-      if (all_nodes[i] == output_node) scale = 0.3;
-      if (i == 0) scale = 0.3;
-      all_nodes[i]->draw(scale);
-    } 
+      // loop through
+      for (int i = 0; i < all_nodes.size(); i++) {
+        all_nodes[i]->draw();
+      }
     }
 
     imshow("graph_im", graph_im);

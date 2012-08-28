@@ -141,7 +141,7 @@ namespace bm {
     return true;
   }
 
-  bool Node::draw(float scale) 
+  bool Node::draw() 
   {
     int fr = 1;
     if (!isDirty(this,1)) fr = 5;
@@ -617,7 +617,7 @@ namespace bm {
     return true;
   }
 
-  bool ImageNode::draw(float scale) 
+  bool ImageNode::draw() 
   {
     
     // TBD if update is the only function to call getImage, then
@@ -625,7 +625,7 @@ namespace bm {
     cv::Mat tmp = imvals["out"]; // getImage("out");
     if (!tmp.empty()) {
 
-      cv::Size sz = cv::Size(tmp.size().width * scale, tmp.size().height * scale);
+      cv::Size sz = cv::Size(Config::inst()->thumb_width, Config::inst()->thumb_height);
 
       cv::Mat thumbnail = cv::Mat(sz, CV_8UC3);
       //cv::resize(tmp->get(), thumbnail, thumbnail.size(), 0, 0, cv::INTER_NEAREST );
@@ -636,8 +636,9 @@ namespace bm {
       if (!isDirty(this,2)) fr = 5;
       cv::Scalar col = cv::Scalar(vcol/fr);
 
-      cv::rectangle(graph, loc - cv::Point(2,2), 
-          loc + cv::Point(sz.width,sz.height) + cv::Point(2,2), col, CV_FILLED );
+      cv::rectangle(graph, loc + cv::Point(100,0) - cv::Point(2,2), 
+          loc + cv::Point(100,0) + cv::Point(sz.width,sz.height) + cv::Point(2,2), 
+          col, CV_FILLED );
 
       bool draw_thumb = true;
       if (loc.x + sz.width >= graph.cols) {
@@ -650,13 +651,13 @@ namespace bm {
       }
 
       if (draw_thumb) {
-        cv::Mat graph_roi = graph(cv::Rect(loc.x, loc.y, sz.width, sz.height));
+        cv::Mat graph_roi = graph(cv::Rect(loc.x + 100, loc.y, sz.width, sz.height));
         graph_roi = cv::Scalar(0, 0, 255);
         thumbnail.copyTo(graph_roi);
       }
     }
     
-    bool rv = Node::draw(scale);
+    bool rv = Node::draw();
 
     return rv;
   }
@@ -777,7 +778,7 @@ namespace bm {
     return true;
   }
 
-  bool Signal::draw(float scale)
+  bool Signal::draw()
   {
     float step = getSignal("step");
     float min = getSignal("min");
@@ -800,7 +801,7 @@ namespace bm {
     //sstr << value << " " << min << " " << max << " " << step;
     //cv::putText(graph, sstr.str(), loc + cv::Point(20,-30), 1, 1, cv::Scalar(200,200,200));
     
-    return Node::draw(scale);
+    return Node::draw();
   }
 
   bool Signal::load(cv::FileNodeIterator nd)
@@ -880,7 +881,7 @@ namespace bm {
     return true;
   }
 
-  bool Buffer::draw(float scale) 
+  bool Buffer::draw() 
   {
     cv::Mat out = getImage("out");
     // draw some grabs of the beginning frame, and other partway through the buffer 
@@ -894,12 +895,13 @@ namespace bm {
 
       if (out.empty()) out = frames[0];//.clone();
 
-      cv::Size sz = cv::Size(out.size().width * scale * 0.25, out.size().height * scale * 0.25);
+      cv::Size sz = cv::Size(Config::inst()->thumb_width * 0.25, Config::inst()->thumb_height * 0.25);
 
       cv::Mat thumbnail = cv::Mat(sz, CV_8UC3);
       cv::resize(frames[ind], thumbnail, sz, 0, 0, cv::INTER_NEAREST );
       //cv::resize(tmp->get(), thumbnail, cv::INTER_NEAREST );
-      cv::Mat graph_roi = graph(cv::Rect(loc.x + i * out.cols*scale*0.25, loc.y + out.rows*scale, sz.width, sz.height));
+      cv::Mat graph_roi = graph(
+          cv::Rect(loc.x + 100 + i * sz.width, loc.y + sz.height*4, sz.width, sz.height));
       graph_roi = cv::Scalar(0, 0, 255);
       thumbnail.copyTo(graph_roi);
     }
@@ -915,7 +917,7 @@ namespace bm {
     else
       vcol = cv::Scalar(55, 255, 90);
     
-    return ImageNode::draw(scale);
+    return ImageNode::draw();
   }
 
   bool Buffer::add(cv::Mat& new_frame, bool restrict_size)
@@ -970,7 +972,8 @@ namespace bm {
   {
     if (frames.size() < 1) {
       VLOG(1) << "no frames returning gray";
-      cv::Mat tmp = cv::Mat(640, 480, CV_8UC3);
+      cv::Mat tmp = cv::Mat( 
+        Config::inst()->thumb_width, Config::inst()->thumb_height, CV_8UC3);
       tmp = cv::Scalar(128);
       return tmp;
     }

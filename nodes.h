@@ -135,7 +135,7 @@ class Node
   // process or not
   virtual bool update(); 
 
-  virtual bool draw(float scale = 0.125); 
+  virtual bool draw(); 
 
   virtual bool save(cv::FileStorage& fs);
   virtual bool load(cv::FileNodeIterator nd);
@@ -205,7 +205,7 @@ public:
 
   virtual bool update();
 
-  virtual bool draw(float scale = 0.2);
+  virtual bool draw();
   
   virtual bool handleKey(int key);
   
@@ -224,7 +224,7 @@ class Signal : public Node
  
   virtual bool handleKey(int key);
   virtual bool update();
-  virtual bool draw(float scale);
+  virtual bool draw();
 
   virtual bool load(cv::FileNodeIterator nd);
   virtual bool save(cv::FileStorage& fs);
@@ -253,7 +253,7 @@ class Buffer : public ImageNode
   virtual bool update();
 
   bool add(cv::Mat& new_frame, bool restrict_size = true);
-  virtual bool draw(float scale); 
+  virtual bool draw(); 
    
   virtual cv::Mat get();
 

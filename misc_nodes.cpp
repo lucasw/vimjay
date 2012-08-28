@@ -35,6 +35,8 @@
 
 #include <deque>
 
+#include "camthing.h"
+
 using namespace cv;
 using namespace std;
 
@@ -293,7 +295,7 @@ namespace bm {
       
       LOG(INFO) << name << " " << i << " loaded image " << next_im;
 
-      cv::Size sz = cv::Size(640,480);
+      cv::Size sz = cv::Size(Config::inst()->im_width, Config::inst()->im_height);
       cv::Mat tmp1;
       cv::resize(tmp0, tmp1, sz, 0, 0, cv::INTER_NEAREST );
 

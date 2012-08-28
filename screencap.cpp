@@ -17,6 +17,7 @@
  */
 
 #include "screencap.h"
+#include "camthing.h"
 
 #include <glog/logging.h>
 
@@ -150,8 +151,8 @@ ScreenCap::ScreenCap( )
   int startY = 0;
 
   // The size of the area (width,height) to take a screenshot of
-  int widthX = 640; //screen->width / 4, heightY = screen->height / 4; 
-  int heightY = 480;
+  int widthX = Config::inst()->im_width; //screen->width / 4, heightY = screen->height / 4; 
+  int heightY = Config::inst()->im_height;
   
   cv::Mat out = cv::Mat(cv::Size(widthX, heightY), CV_8UC3);
   out = cv::Scalar(50,50,200);
@@ -185,7 +186,7 @@ bool ScreenCap::update()
       startX = screen_w - widthX;
     } else {
       startX = 0;
-      widthX = 640;
+      widthX = Config::inst()->im_width;
     }
   }
 
@@ -195,7 +196,7 @@ bool ScreenCap::update()
       startY = screen_h - heightY;
     } else {
       startY = 0;
-      heightY = 480;
+      heightY = Config::inst()->im_height;
     }
   }
  
@@ -204,7 +205,8 @@ bool ScreenCap::update()
   setSignal("widthX", widthX);
   setSignal("heightY", heightY);
 
-  xImageSample = XGetImage(display, DefaultRootWindow(display), startX, startY, widthX, heightY, AllPlanes, ZPixmap);
+  xImageSample = XGetImage(display, DefaultRootWindow(display), 
+      startX, startY, widthX, heightY, AllPlanes, ZPixmap);
   
   // Check for bad null pointers
   if (xImageSample == NULL) { 
@@ -225,7 +227,7 @@ bool ScreenCap::update()
   if (tmp.empty()) return false;
  
   // resize
-  cv::Size sz = cv::Size(640,480);
+  cv::Size sz = cv::Size(Config::inst()->im_width, Config::inst()->im_height);
   cv::Mat tmp1;
   cv::resize(tmp, tmp1, sz, 0, 0, cv::INTER_NEAREST );
   setImage("out", tmp);
