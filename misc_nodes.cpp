@@ -216,8 +216,12 @@ namespace bm {
         cv::Mat tmp;
         new_out.convertTo(tmp, MAT_FORMAT,scale); //, 1.0/(255.0));//*255.0*255.0*255.0));
 
+        cv::Size sz = cv::Size(Config::inst()->im_width, Config::inst()->im_height);
+        cv::Mat tmp1;
+        cv::resize(tmp, tmp1, sz, 0, 0, cv::INTER_NEAREST );
+
         //out_lock.lock();
-        setImage("out", tmp);
+        setImage("out", tmp1);
         is_thread_dirty = true;
         //out_lock.unlock();
         //} else {
