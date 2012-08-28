@@ -108,10 +108,9 @@ bool Sobel::update()
   float scale = getSignal("scale");
 
   if (ksize < 1) ksize = 1;
-  if (ksize == 2) ksize= 1;
-  if (ksize == 4) ksize= 3;
-  if (ksize == 6) ksize= 5;
-  if (ksize > 7) ksize = 7;
+  if (ksize == 2) ksize= 3;
+  if (ksize == 3) ksize= 5;
+  if (ksize > 4) ksize = 7;
   if (xorder < 1) xorder = 1;
   if (xorder > 2) xorder = 2;
   if (yorder < 1) yorder = 1;
