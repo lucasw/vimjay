@@ -113,7 +113,9 @@ bool Sobel::update()
   if (ksize == 6) ksize= 5;
   if (ksize > 7) ksize = 7;
   if (xorder < 1) xorder = 1;
+  if (xorder > 2) xorder = 2;
   if (yorder < 1) yorder = 1;
+  if (yorder > 2) yorder = 2;
   if (scale < 0.001) scale = 0.001;
 
   setSignal("ksize", ksize);

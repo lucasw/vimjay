@@ -1,5 +1,5 @@
 %YAML:1.0
-date: "Sun Aug 26 21:19:53 2012\n"
+date: "Mon Aug 27 21:15:33 2012\n"
 nodes:
    -
       ind: 0
@@ -28,7 +28,19 @@ nodes:
       enable: 1
       svals:
          -
+            name: ksize
+            value: 3.
+         -
+            name: scale
+            value: 8.0000001192092896e-01
+         -
             name: write_count
+            value: 1.
+         -
+            name: xorder
+            value: 1.
+         -
+            name: yorder
             value: 1.
       inputs:
          -
@@ -45,7 +57,7 @@ nodes:
       svals:
          -
             name: add0
-            value: 1.9999992847442627e-01
+            value: 3.0000001192092896e-01
          -
             name: add1
             value: 0.
@@ -78,10 +90,10 @@ nodes:
             value: 1.
          -
             name: add2
-            value: -1.
+            value: -5.0539511442184448e-01
          -
             name: add3
-            value: -4.
+            value: -8.2356452941894531e-01
          -
             name: add4
             value: 0.
@@ -137,16 +149,19 @@ nodes:
       svals:
          -
             name: angle
-            value: 1.
+            value: 8.3095133304595947e-02
          -
             name: center_x
-            value: 0.
+            value: 2.2895935058593750e+02
          -
             name: center_y
             value: 0.
          -
             name: scale
             value: 1.
+         -
+            name: write_count
+            value: 2.
       inputs:
          -
             type: ImageNode
@@ -210,10 +225,10 @@ nodes:
             value: 0.
          -
             name: step
-            value: -1.0000000149011612e-01
+            value: 1.0000000149011612e-01
          -
             name: value
-            value: 1.9999992847442627e-01
+            value: 3.0000001192092896e-01
       inputs:
          []
    -
@@ -255,7 +270,7 @@ nodes:
             value: -1.1000000238418579e+00
          -
             name: value
-            value: 3.1999993324279785e+00
+            value: 8.6999988555908203e+00
       inputs:
          []
    -
@@ -303,7 +318,7 @@ nodes:
       svals:
          -
             name: value
-            value: 3.1999993324279785e+00
+            value: 8.6999988555908203e+00
       inputs:
          -
             type: Buffer
@@ -382,7 +397,9 @@ nodes:
       loc: [ 58, 612 ]
       enable: 1
       svals:
-         []
+         -
+            name: write_count
+            value: 6.
       inputs:
          -
             type: ImageNode
