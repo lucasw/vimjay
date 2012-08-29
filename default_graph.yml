@@ -16,8 +16,10 @@ nodes:
          []
    -
       ind: 1
-      typeid: "bm::Sobel"
-      name: sobel
+      #typeid: "bm::Sobel"
+      #name: sobel
+      typeid: "bm::Bezier"
+      name: bezier
       loc: [ 290, 36 ]
       enable: 1
       svals:
@@ -300,7 +302,7 @@ nodes:
    -
       ind: 20
       typeid: "bm::ImageNode"
-      name: out
+      name: output
       loc: [ 58, 612 ]
       enable: 1
       svals:

@@ -44,6 +44,7 @@ camthing.cpp
 nodes.cpp
 misc_nodes.cpp
 filter.cpp
+generate.cpp
 screencap.cpp
 )
 

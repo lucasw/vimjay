@@ -38,6 +38,7 @@
 #include "nodes.h" 
 #include "misc_nodes.h" 
 #include "filter.h"
+#include "generate.h"
 #include "screencap.h"
 #include "camthing.h"
 
@@ -377,6 +378,9 @@ class CamThing
       else if (type_id.compare("bm::TapInd") == 0) {
         node = getNode<TapInd>(name, loc);
       }
+      else if (type_id.compare("bm::Bezier") == 0) {
+        node = getNode<Bezier>(name, loc);
+      }
       else if (type_id.compare("bm::Output") == 0) {
         node = getNode<Output>(name, loc);
         output_node = (Output*)node;
@@ -389,7 +393,13 @@ class CamThing
         (dynamic_cast<ImageNode*> (node))->setImage("out", test_im);
       }
       node->load(it);
-      
+
+      if (name == "output") {
+        output_node = (Output*)node;
+        cv::Mat tmp;
+        node->setImage("in", tmp); 
+      }
+
       LOG(INFO) << type_id << " " << CLTXT << name << CLVAL << " " 
           << node  << " " << loc << " " << enable << CLNRM;
 
@@ -470,7 +480,7 @@ class CamThing
     node = getNode<Buffer>("buffer1", loc);
     node = getNode<Buffer>("buffer2", loc);
 
-    node = getNode<ImageNode>("out", loc);
+    node = getNode<ImageNode>("output", loc);
     cv::Mat tmp;
     node->setImage("in", tmp); 
 
