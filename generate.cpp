@@ -30,28 +30,17 @@ Bezier::Bezier()
 {
   setSignal("x0",10);
   setSignal("y0",10);
+  
   setSignal("x1",100);
-  setSignal("y1",100);
+  setSignal("y1",50);
+  
   setSignal("x2",200);
   setSignal("y2",50);
+  
   setSignal("x3",300);
   setSignal("y3",150);
-  setSignal("num", 4);
-}
 
-std::string logMat(const cv::Mat& m) 
-{
-  std::stringstream s;
-  s << "{";
-  for (int x = 0; x < m.rows; x++) {
-    for (int y = 0; y < m.cols; y++) {
-      s << " " << m.at<double>(x,y); 
-    }
-      s << std::endl;
-    
-    }
-  s << "}";
-  return s.str();
+  setSignal("num", 4);
 }
 
 bool Bezier::update()
@@ -59,62 +48,25 @@ bool Bezier::update()
   //if (!ImageNode::update()) return false;
   if (!Node::update()) return false;
 
-  cv::Mat out = cv::Mat(cv::Size(Config::inst()->width, Config::inst()->height), MAT_FORMAT_C3);
+  cv::Mat out = cv::Mat(cv::Size(Config::inst()->im_width, Config::inst()->im_height), MAT_FORMAT_C3);
   out = cv::Scalar(0,0,0);
 
-  float x0 = getSignal("x0");
-  float y0 = getSignal("y0");
-  float x1 = getSignal("x1");
-  float y1 = getSignal("y1");
-  float x2 = getSignal("x2");
-  float y2 = getSignal("y2");
-  float x3 = getSignal("x3");
-  float y3 = getSignal("y3");
+  std::vector<cv::Point2f> control_points;
+  control_points.push_back( cv::Point2f( getSignal("x0"), getSignal("y0") ));
+  control_points.push_back( cv::Point2f( getSignal("x1"), getSignal("y1") ));
+  control_points.push_back( cv::Point2f( getSignal("x2"), getSignal("y2") ));
+  control_points.push_back( cv::Point2f( getSignal("x3"), getSignal("y3") ));
   
   int num = getSignal("num");
   if (num < 2) { num = 2;
     setSignal("num", num);
   }
 
-  double coeff_raw[4][4] = {
-      { 1, 0, 0, 0},
-      {-3, 3, 0, 0},
-      { 3,-6, 3, 0},
-      { 1, 3,-3, 1}
-      };
-  cv::Mat coeff = cv::Mat(4, 4, CV_64F, coeff_raw);
+  std::vector<cv::Point2f> bezier_points;
+  getBezier(control_points, bezier_points, num);
 
-  double control_raw[4][2] = {
-      {0, 0},
-      {x1-x0, y1-y0},
-      {x2-x0, y2-y0},
-      {x3-x0, y3-y0}
-      };
-  cv::Mat control = cv::Mat(4, 2, CV_64F, control_raw);
-
-  VLOG(5) << CLTXT << "coeff " << CLNRM << std::endl << logMat(coeff); 
-  VLOG(5) << CLTXT <<"control " << CLNRM << std::endl << logMat(control); 
-
-  cv::Point2f old_pt;
-
-  for (int i = 0; i < num; i++) {
-    float t = (float)i/(float)(num-1);
-    double tee_raw[1][4] = {{ 1.0, t, t*t, t*t*t}};
-
-    cv::Mat tee = cv::Mat(1, 4, CV_64F, tee_raw);
-
-    cv::Mat pos = tee * coeff * control;
-
-    cv::Point new_pt = cv::Point2f(pos.at<double>(0,0) + x0, pos.at<double>(0,1) + y0);
-    
-    if (i > 0) 
-      cv::line(out, old_pt, new_pt, cv::Scalar(255, 255, 255), 2, CV_AA ); 
-    old_pt = new_pt;
-
-    VLOG(5) << "pos " << t << " "
-      << new_pt.x << " " << new_pt.y 
-      << std::endl << logMat(tee) 
-      << std::endl << logMat(pos); 
+  for (int i = 1; i < bezier_points.size(); i++) {
+    cv::line(out, bezier_points[i-1], bezier_points[i], cv::Scalar(255, 255, 255), 2, CV_AA ); 
   }
 
   setImage("out", out);

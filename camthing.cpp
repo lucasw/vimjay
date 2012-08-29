@@ -51,6 +51,76 @@ DEFINE_string(config_file, "../config.yml", "configuration settings for ui and o
 //DEFINE_bool(
 namespace bm {
 
+  std::string logMat(const cv::Mat& m) 
+  {
+    std::stringstream s;
+    s << "{";
+    for (int x = 0; x < m.rows; x++) {
+      for (int y = 0; y < m.cols; y++) {
+        s << " " << m.at<double>(x,y); 
+      }
+      if (x < m.rows-1) s << std::endl;
+    }
+    s << " }";
+    return s.str();
+  }
+
+  bool getBezier(
+      const std::vector<cv::Point2f>& control_points, // TBD currently has to be 4
+      std::vector<cv::Point2f>& output_points,
+      const int num // numbe of intermediate points to generate 
+      )
+  {
+    if (control_points.size() != 4) {
+      LOG(ERROR) << control_points.size() << " != 4"; 
+      return false;
+    }
+    // TBD how to generate programmatically
+    double coeff_raw[4][4] = {
+      { 1, 0, 0, 0},
+      {-3, 3, 0, 0},
+      { 3,-6, 3, 0},
+      { 1, 3,-3, 1}
+    };
+    cv::Mat coeff = cv::Mat(4, 4, CV_64F, coeff_raw);
+
+    float x0 = control_points[0].x;
+    float y0 = control_points[0].y;
+
+    cv::Mat control = cv::Mat::zeros(4, 2, CV_64F);
+    for (int i = 1; i < control.rows; i++) {
+      control.at<double>(i, 0) = control_points[i].x - x0;
+      control.at<double>(i, 1) = control_points[i].y - y0;
+    }
+
+    VLOG(5) << CLTXT << "coeff " << CLNRM << std::endl << logMat(coeff); 
+    VLOG(5) << CLTXT <<"control " << CLNRM << std::endl << logMat(control); 
+
+    cv::Point2f old_pt;
+
+    output_points.clear();
+
+    for (int i = 0; i < num; i++) {
+      float t = (float)i/(float)(num-1);
+      double tee_raw[1][4] = {{ 1.0, t, t*t, t*t*t}};
+
+      cv::Mat tee = cv::Mat(1, 4, CV_64F, tee_raw);
+
+      cv::Mat pos = tee * coeff * control;
+
+      cv::Point new_pt = cv::Point2f(pos.at<double>(0,0) + x0, pos.at<double>(0,1) + y0);
+
+      output_points.push_back(new_pt);
+
+      VLOG(5) << "pos " << t << " "
+        << new_pt.x << " " << new_pt.y 
+        << std::endl << logMat(tee) 
+        << std::endl << logMat(pos); 
+    }
+
+    return true;
+  }
+
   Config* Config::instance = NULL;
 
   Config* Config::inst()  
