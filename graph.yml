@@ -1,5 +1,5 @@
 %YAML:1.0
-date: "Tue Aug 28 21:22:34 2012\n"
+date: "Tue Aug 28 21:27:28 2012\n"
 nodes:
    -
       ind: 0
@@ -35,25 +35,25 @@ nodes:
             value: 10.
          -
             name: x1
-            value: 2.1039982604980469e+02
+            value: 2.4878852844238281e+02
          -
             name: x2
-            value: 6.6230575561523438e+01
+            value: 2.2006460189819336e+01
          -
             name: x3
             value: 1.3784916992187500e+03
          -
             name: y0
-            value: 9.4707566499710083e-01
+            value: 4.9995797872543335e-01
          -
             name: y1
             value: 100.
          -
             name: y2
-            value: 4.5267062377929688e+02
+            value: 3.3807882690429688e+02
          -
             name: y3
-            value: 5.5499548339843750e+02
+            value: 1.2354920196533203e+02
       inputs:
          -
             type: Signal
@@ -92,7 +92,7 @@ nodes:
             value: 2.1012267097830772e-02
          -
             name: add1
-            value: 9.4707566499710083e-01
+            value: 4.9995797872543335e-01
          -
             name: add2
             value: -1.2692382931709290e-01
@@ -137,9 +137,21 @@ nodes:
       svals:
          -
             name: add0
-            value: 2.
+            value: 1.
+         -
+            name: add1
+            value: -2.2876791656017303e-01
       inputs:
-         []
+         -
+            type: ImageNode
+            port: add0
+            src_port: out
+            ind: 2
+         -
+            type: ImageNode
+            port: add1
+            src_port: out
+            ind: 16
    -
       ind: 4
       typeid: "bm::Resize"
@@ -171,10 +183,10 @@ nodes:
             value: 7.2899997234344482e-01
          -
             name: center_x
-            value: 4.5267062377929688e+02
+            value: 3.3807882690429688e+02
          -
             name: center_y
-            value: 6.6230575561523438e+01
+            value: 2.2006460189819336e+01
          -
             name: scale
             value: 9.8487198352813721e-01
@@ -215,7 +227,7 @@ nodes:
             value: 1.0000000149011612e-01
          -
             name: value
-            value: 4.5267062377929688e+02
+            value: 3.3807882690429688e+02
       inputs:
          []
    -
@@ -233,10 +245,10 @@ nodes:
             value: 0.
          -
             name: step
-            value: 4.1394104957580566e+00
+            value: -4.1394104957580566e+00
          -
             name: value
-            value: 6.6230575561523438e+01
+            value: 2.2006460189819336e+01
       inputs:
          []
    -
@@ -257,7 +269,7 @@ nodes:
             value: -1.9194345474243164e+01
          -
             name: value
-            value: 2.1039982604980469e+02
+            value: 2.4878852844238281e+02
       inputs:
          []
    -
@@ -269,16 +281,16 @@ nodes:
       svals:
          -
             name: max
-            value: 9.4707566499710083e-01
+            value: 8.5236811637878418e-01
          -
             name: min
-            value: 2.7130067348480225e-01
+            value: 3.2827380299568176e-01
          -
             name: step
-            value: -3.4336838871240616e-02
+            value: 3.4336838871240616e-02
          -
             name: value
-            value: 9.4707566499710083e-01
+            value: 4.9995797872543335e-01
       inputs:
          []
    -
@@ -299,7 +311,7 @@ nodes:
             value: -7.9897389411926270e+00
          -
             name: value
-            value: 5.5499548339843750e+02
+            value: 1.2354920196533203e+02
       inputs:
          []
    -
@@ -364,16 +376,32 @@ nodes:
          []
    -
       ind: 16
-      typeid: "bm::TapInd"
-      name: tapind2
+      typeid: "bm::Sobel"
+      name: sobel
       loc: [ 290, 468 ]
       enable: 1
       svals:
          -
+            name: ksize
+            value: 2.
+         -
+            name: scale
+            value: 2.3159968852996826e+00
+         -
             name: value
-            value: 0.
+            value: 4.
+         -
+            name: xorder
+            value: 2.
+         -
+            name: yorder
+            value: 2.
       inputs:
-         []
+         -
+            type: ImageNode
+            port: in
+            src_port: out
+            ind: 2
    -
       ind: 17
       typeid: "bm::Buffer"
@@ -423,4 +451,4 @@ nodes:
             type: ImageNode
             port: in
             src_port: out
-            ind: 2
+            ind: 3
