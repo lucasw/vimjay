@@ -1,5 +1,5 @@
 %YAML:1.0
-date: "Tue Aug 28 15:14:33 2012\n"
+date: "Tue Aug 28 21:22:34 2012\n"
 nodes:
    -
       ind: 0
@@ -8,6 +8,12 @@ nodes:
       loc: [ 58, 36 ]
       enable: 1
       svals:
+         -
+            name: cur_size
+            value: 12.
+         -
+            name: ind
+            value: 4.
          -
             name: max_size
             value: 100.
@@ -23,37 +29,57 @@ nodes:
       svals:
          -
             name: num
-            value: 10.
+            value: 1.4641000747680664e+01
          -
             name: x0
             value: 10.
          -
             name: x1
-            value: 2.1435888671875000e+02
+            value: 2.1039982604980469e+02
          -
             name: x2
-            value: 6.2768560791015625e+02
+            value: 6.6230575561523438e+01
          -
             name: x3
             value: 1.3784916992187500e+03
          -
             name: y0
-            value: 10.
+            value: 9.4707566499710083e-01
          -
             name: y1
             value: 100.
          -
             name: y2
-            value: 4.7644268798828125e+02
+            value: 4.5267062377929688e+02
          -
             name: y3
-            value: 150.
+            value: 5.5499548339843750e+02
       inputs:
+         -
+            type: Signal
+            port: x1
+            src_port: value
+            ind: 8
+         -
+            type: Signal
+            port: x2
+            src_port: value
+            ind: 7
+         -
+            type: Signal
+            port: y0
+            src_port: value
+            ind: 9
          -
             type: Signal
             port: y2
             src_port: value
             ind: 6
+         -
+            type: Signal
+            port: y3
+            src_port: value
+            ind: 10
    -
       ind: 2
       typeid: "bm::Add"
@@ -63,13 +89,19 @@ nodes:
       svals:
          -
             name: add0
-            value: 2.
+            value: 2.1012267097830772e-02
          -
             name: add1
-            value: 9.7029894590377808e-01
+            value: 9.4707566499710083e-01
+         -
+            name: add2
+            value: -1.2692382931709290e-01
+         -
+            name: add3
+            value: 6.5306299924850464e-01
          -
             name: write_count
-            value: 0.
+            value: 2.
       inputs:
          -
             type: ImageNode
@@ -80,7 +112,22 @@ nodes:
             type: ImageNode
             port: add1
             src_port: out
-            ind: 4
+            ind: 20
+         -
+            type: ImageNode
+            port: add2
+            src_port: out
+            ind: 0
+         -
+            type: ImageNode
+            port: add3
+            src_port: out
+            ind: 5
+         -
+            type: Signal
+            port: add1
+            src_port: value
+            ind: 9
    -
       ind: 3
       typeid: "bm::Add"
@@ -121,18 +168,35 @@ nodes:
       svals:
          -
             name: angle
-            value: 0.
+            value: 7.2899997234344482e-01
          -
             name: center_x
-            value: 0.
+            value: 4.5267062377929688e+02
          -
             name: center_y
-            value: 0.
+            value: 6.6230575561523438e+01
          -
             name: scale
-            value: 1.
+            value: 9.8487198352813721e-01
+         -
+            name: write_count
+            value: 2.
       inputs:
-         []
+         -
+            type: ImageNode
+            port: in
+            src_port: out
+            ind: 2
+         -
+            type: Signal
+            port: center_x
+            src_port: value
+            ind: 6
+         -
+            type: Signal
+            port: center_y
+            src_port: value
+            ind: 7
    -
       ind: 6
       typeid: "bm::Random"
@@ -151,7 +215,7 @@ nodes:
             value: 1.0000000149011612e-01
          -
             name: value
-            value: 4.7644268798828125e+02
+            value: 4.5267062377929688e+02
       inputs:
          []
    -
@@ -163,16 +227,16 @@ nodes:
       svals:
          -
             name: max
-            value: 1.
+            value: 5.6426861572265625e+02
          -
             name: min
             value: 0.
          -
             name: step
-            value: 1.0000000149011612e-01
+            value: 4.1394104957580566e+00
          -
             name: value
-            value: 0.
+            value: 6.6230575561523438e+01
       inputs:
          []
    -
@@ -184,16 +248,16 @@ nodes:
       svals:
          -
             name: max
-            value: 1.
+            value: 3.2556588745117188e+02
          -
             name: min
             value: 0.
          -
             name: step
-            value: 1.0000000149011612e-01
+            value: -1.9194345474243164e+01
          -
             name: value
-            value: 0.
+            value: 2.1039982604980469e+02
       inputs:
          []
    -
@@ -205,16 +269,16 @@ nodes:
       svals:
          -
             name: max
-            value: 1.
+            value: 9.4707566499710083e-01
          -
             name: min
-            value: 0.
+            value: 2.7130067348480225e-01
          -
             name: step
-            value: 1.0000000149011612e-01
+            value: -3.4336838871240616e-02
          -
             name: value
-            value: 0.
+            value: 9.4707566499710083e-01
       inputs:
          []
    -
@@ -226,16 +290,16 @@ nodes:
       svals:
          -
             name: max
-            value: 1.
+            value: 5.8695446777343750e+02
          -
             name: min
             value: 0.
          -
             name: step
-            value: 1.0000000149011612e-01
+            value: -7.9897389411926270e+00
          -
             name: value
-            value: 0.
+            value: 5.5499548339843750e+02
       inputs:
          []
    -
