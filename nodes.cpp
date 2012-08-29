@@ -776,8 +776,16 @@ namespace bm {
     // it wouldn't be hard to update these
     // even if they aren't in need of updating, but don't for now
     value += step;
-    if (value > max) value = max;
-    if (value < min) value = min;
+    if (value > max) {
+      value = max;
+      step = -abs(step);   
+      setSignal("step", step);
+    }
+    if (value < min) {
+      value = min;
+      step = abs(step);   
+      setSignal("step", step);
+    }
     
     setSignal("value", value);
 

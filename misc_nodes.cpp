@@ -93,6 +93,28 @@ namespace bm {
     VLOG(3) << "Signal " << name << " " << value;
     return true;
   }
+  
+  Random::Random()
+  {
+    dis = std::uniform_real_distribution<>(0,1);
+  }
+
+  bool Random::update() 
+  {
+    // don't call Signal::update because it will contradict this update
+    if (!Node::update()) return false;
+    
+    float min = getSignal("min");
+    float max = getSignal("max");
+    float rnd = dis(gen);
+    float value = rnd * (max - min) + min;
+    
+    setSignal("value", value);
+    setDirty();
+
+    VLOG(3) << "Signal " << name << " " << value;
+    return true;
+  }
 
   //
   Rot2D::Rot2D()

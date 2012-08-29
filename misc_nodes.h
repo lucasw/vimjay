@@ -9,6 +9,7 @@
 #include "opencv2/highgui/highgui.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
 
+//#include <random>
 #include <deque>
 #include <map>
 
@@ -35,37 +36,36 @@ class Saw : public Signal
 {
   public:
   Saw(); // : Signal()
-  
   void setup(const float new_step=0.01, const float offset=0.0, const float min =0.0, const float max=1.0); 
-  
   virtual bool update();
-  
   virtual bool handleKey(int key);
+};
+
+class Random : public Signal
+{
+  std::random_device rd;
+  std::uniform_real_distribution<> dis;
+  std::mt19937 gen;
+
+  public:
+  Random(); // : Signal()
+  virtual bool update();
+  //virtual bool handleKey(int key);
 };
 
 // TBD allow multiple?
 class Output : public ImageNode
 {
   public:
-  Output() {}
-
+  Output() { cv::Mat out; setImage("in",out);}
   // doesn't have anything special, just a class to be detected with a dynamic_cast upon loading
 };
 
 class Rot2D : public ImageNode
 {
   public:
- 
-  // TBD these need to be Node inputs?
-  //float angle;
-  //float scale;
-  //cv::Point2f center;
-
   Rot2D();
-
   virtual bool update();
-
-  //virtual bool save(cv::FileStorage& fs);
 };
 
 class Webcam : public ImageNode

@@ -381,6 +381,9 @@ class CamThing
       else if (type_id.compare("bm::Bezier") == 0) {
         node = getNode<Bezier>(name, loc);
       }
+      else if (type_id.compare("bm::Random") == 0) {
+        node = getNode<Random>(name, loc);
+      }
       else if (type_id.compare("bm::Output") == 0) {
         node = getNode<Output>(name, loc);
         output_node = (Output*)node;

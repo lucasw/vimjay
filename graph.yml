@@ -1,5 +1,5 @@
 %YAML:1.0
-date: "Mon Aug 27 21:15:33 2012\n"
+date: "Tue Aug 28 15:14:33 2012\n"
 nodes:
    -
       ind: 0
@@ -9,12 +9,6 @@ nodes:
       enable: 1
       svals:
          -
-            name: cur_size
-            value: 11.
-         -
-            name: ind
-            value: 0.
-         -
             name: max_size
             value: 100.
       dir: "../data/"
@@ -22,32 +16,44 @@ nodes:
          []
    -
       ind: 1
-      typeid: "bm::Sobel"
-      name: sobel
+      typeid: "bm::Bezier"
+      name: bezier
       loc: [ 290, 36 ]
       enable: 1
       svals:
          -
-            name: ksize
-            value: 3.
+            name: num
+            value: 10.
          -
-            name: scale
-            value: 8.0000001192092896e-01
+            name: x0
+            value: 10.
          -
-            name: write_count
-            value: 1.
+            name: x1
+            value: 2.1435888671875000e+02
          -
-            name: xorder
-            value: 1.
+            name: x2
+            value: 6.2768560791015625e+02
          -
-            name: yorder
-            value: 1.
+            name: x3
+            value: 1.3784916992187500e+03
+         -
+            name: y0
+            value: 10.
+         -
+            name: y1
+            value: 100.
+         -
+            name: y2
+            value: 4.7644268798828125e+02
+         -
+            name: y3
+            value: 150.
       inputs:
          -
-            type: ImageNode
-            port: in
-            src_port: out
-            ind: 2
+            type: Signal
+            port: y2
+            src_port: value
+            ind: 6
    -
       ind: 2
       typeid: "bm::Add"
@@ -57,24 +63,24 @@ nodes:
       svals:
          -
             name: add0
-            value: 3.0000001192092896e-01
+            value: 2.
          -
             name: add1
-            value: 0.
+            value: 9.7029894590377808e-01
          -
             name: write_count
-            value: 1.
+            value: 0.
       inputs:
          -
             type: ImageNode
             port: add0
             src_port: out
-            ind: 3
+            ind: 1
          -
-            type: Signal
-            port: add0
-            src_port: value
-            ind: 8
+            type: ImageNode
+            port: add1
+            src_port: out
+            ind: 4
    -
       ind: 3
       typeid: "bm::Add"
@@ -84,43 +90,9 @@ nodes:
       svals:
          -
             name: add0
-            value: 1.
-         -
-            name: add1
-            value: 1.
-         -
-            name: add2
-            value: -5.0539511442184448e-01
-         -
-            name: add3
-            value: -8.2356452941894531e-01
-         -
-            name: add4
-            value: 0.
-         -
-            name: write_count
-            value: 7.
+            value: 2.
       inputs:
-         -
-            type: ImageNode
-            port: add0
-            src_port: out
-            ind: 14
-         -
-            type: ImageNode
-            port: add1
-            src_port: out
-            ind: 4
-         -
-            type: ImageNode
-            port: add2
-            src_port: out
-            ind: 1
-         -
-            type: ImageNode
-            port: add3
-            src_port: out
-            ind: 5
+         []
    -
       ind: 4
       typeid: "bm::Resize"
@@ -139,7 +111,7 @@ nodes:
             type: ImageNode
             port: in
             src_port: out
-            ind: 3
+            ind: 2
    -
       ind: 5
       typeid: "bm::Rot2D"
@@ -149,35 +121,28 @@ nodes:
       svals:
          -
             name: angle
-            value: 8.3095133304595947e-02
+            value: 0.
          -
             name: center_x
-            value: 2.2895935058593750e+02
+            value: 0.
          -
             name: center_y
             value: 0.
          -
             name: scale
             value: 1.
-         -
-            name: write_count
-            value: 2.
       inputs:
-         -
-            type: ImageNode
-            port: in
-            src_port: out
-            ind: 3
+         []
    -
       ind: 6
-      typeid: "bm::Signal"
-      name: signal0
+      typeid: "bm::Random"
+      name: random
       loc: [ 290, 180 ]
       enable: 1
       svals:
          -
             name: max
-            value: 1.
+            value: 500.
          -
             name: min
             value: 0.
@@ -186,7 +151,7 @@ nodes:
             value: 1.0000000149011612e-01
          -
             name: value
-            value: 1.
+            value: 4.7644268798828125e+02
       inputs:
          []
    -
@@ -228,7 +193,7 @@ nodes:
             value: 1.0000000149011612e-01
          -
             name: value
-            value: 3.0000001192092896e-01
+            value: 0.
       inputs:
          []
    -
@@ -261,16 +226,16 @@ nodes:
       svals:
          -
             name: max
-            value: 12.
+            value: 1.
          -
             name: min
             value: 0.
          -
             name: step
-            value: -1.1000000238418579e+00
+            value: 1.0000000149011612e-01
          -
             name: value
-            value: 8.6999988555908203e+00
+            value: 0.
       inputs:
          []
    -
@@ -318,18 +283,9 @@ nodes:
       svals:
          -
             name: value
-            value: 8.6999988555908203e+00
+            value: 0.
       inputs:
-         -
-            type: Buffer
-            port: buffer
-            src_port: out
-            ind: 0
-         -
-            type: Signal
-            port: value
-            src_port: value
-            ind: 10
+         []
    -
       ind: 15
       typeid: "bm::TapInd"
@@ -393,16 +349,14 @@ nodes:
    -
       ind: 20
       typeid: "bm::ImageNode"
-      name: out
+      name: output
       loc: [ 58, 612 ]
       enable: 1
       svals:
-         -
-            name: write_count
-            value: 6.
+         []
       inputs:
          -
             type: ImageNode
             port: in
             src_port: out
-            ind: 1
+            ind: 2
