@@ -60,25 +60,53 @@ static bool bool_val;
 
 class Node;
 
+enum conType { 
+  SIGNAL,
+  IMAGE,
+  BUFFER
+};
+
 // TBD original chose this type because of access convenience, but since 
 // accessor function prevent others from using it directly then the convenience 
 // is irrelavent.  Probably should just have a vector of structs
-/*
-struct
+class Connector
 {
-  Node* node;
-  // src types
-  string port;
+  public:
+  Connector();
 
-  // input types
-  string type
-  string port
+  bool update();
+
+  // the Connector that is sourcing this one, if any
+  Connector* src;
+
+  Node* parent;
+
+  // src types
+  std::string name;
+  conType type;
+ 
+  cv::Point2f loc;
+  
+  std::vector<cv::Point2f> con_points;
+
+  void draw();
+  bool highlight;
+
+  bool writeable;  
+
+  // TBD 
+  bool is_dirty;
+  bool set_dirty;
 
   // TBD could even have a float val or Mat here to store the last value
-}
-*/
-typedef std::map<std::string, std::pair<Node*, std::string> > inputsItemType;
-typedef std::map<std::string, inputsItemType > inputsType;
+  // only used if conType == Signal, TBD subclass?
+  float value;
+  // only used if conType == Image or Buffer
+  cv::Mat im;
+};
+
+//typedef std::map<std::string, std::pair<Node*, std::string> > inputsItemType;
+//typedef std::map<std::string, inputsItemType > inputsType;
 
 class Node
 {
@@ -92,7 +120,9 @@ class Node
 
   // the first string is source type, the second is source port,
   // Node is the source node, the last string is destination port
-  inputsType inputs;
+  //inputsType inputs;
+  std::vector<Connector*> ports;
+
   // has this node been updated this timestep, or does it need to be updated this timestep
   // because of dependencies
   bool do_update;
@@ -140,17 +170,12 @@ class Node
   virtual bool save(cv::FileStorage& fs);
   virtual bool load(cv::FileNodeIterator nd);
 
-  void printInputVector();
-  std::vector<Node*> getInputVector();
-  std::vector<std::pair< std::string, std::string > > getInputStrings();
-
   bool getInputPort(
-      const std::string type, 
+      const conType type, 
       const std::string port,
-      Node*& rv,
-      std::string& src_port 
-      );
- 
+      Connector*& con,
+      std::string& src_port);
+
   void setInputPort(
       const std::string type, 
       const std::string port,

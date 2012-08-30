@@ -500,6 +500,7 @@ class CamThing
             << " " << input_ind << " " << type << " " << port << " " << input_ind
             << " " << src_port;
         
+        // this method will produce input ports in disorder
         if (input_ind >= 0)
           all_nodes[ind]->setInputPort(type, port, all_nodes[input_ind], src_port);
         else 
