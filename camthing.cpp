@@ -257,23 +257,32 @@ class CamThing
       
       // save inputs
       fs << "inputs" << "[";
-      // TBD put in Node::load method
-      for (inputsType::iterator it = all_nodes[i]->inputs.begin();
-          it != all_nodes[i]->inputs.end(); it++)
-      {
-        for (inputsItemType::iterator it2 = it->second.begin();
-            it2 != it->second.end(); it2++)
-        {
-          Node* cur_node = it2->second.first;
-          if (cur_node == NULL) continue;
+      // TBD put in Node::save method
+      for (int j = 0; j < all_nodes[i]->ports.size(); j++) {
+          
+          Connector* con = all_nodes[i]->ports[j];
 
           fs << "{";
-          fs << "type" << it->first;
-          fs << "port" << it2->first;
-          fs << "src_port" << it2->second.second;
-          fs << "ind" << getIndFromPointer(cur_node);   
+          fs << "type" << con->type;
+          fs << "name" << con->name;
+          // TBD loc
+          if (con->type == SIGNAL) {
+            //fs << it->first << it->second;  // this is clever but I don't know how to load it
+            fs << "value" << con->value;
+          }
+
+          string src_port = "";
+          int ind = -1;
+          if (con->src) {
+            src_port = con->src->name;
+            // TBD this function is currently why this isn't in the Node::save()
+            ind = getIndFromPointer(con->src->parent);  
+          }
+
+          fs << "ind" << ind;
+          fs << "src_port" << src_port;
+
           fs << "}";
-        }
       }
       fs << "]";
 
@@ -851,6 +860,7 @@ class CamThing
 
     // loop through all inputs, unconstrained by source_type
     if (source_type == "") {
+      
       vector<pair<string, string> > strn = selected_node->getInputStrings();
 
       if (strn.size() == 0) {

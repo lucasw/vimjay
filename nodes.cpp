@@ -244,6 +244,7 @@ namespace bm {
       (*it)["value"] >> val;
       setSignal( sval_name, val);
       LOG(INFO) << name << " : " << sval_name << " = " << val;
+      
       /* this doesn't work, name returns blank
        * though there are a matching number of entries to sval items 
        * */
@@ -267,20 +268,7 @@ namespace bm {
     fs << "loc" << loc; 
     fs << "enable" << enable;
     //fs << "vcol" << p->vcol  ; 
-   
-    fs << "svals" << "[";
-    // this takes care of all saving of svals, loading isn't so elegant though?
-    for (int i = 0; i < ports.size(); i++) {
-      if (ports[i]->type == SIGNAL) {
-        fs << "{";
-        //fs << it->first << it->second;  // this is clever but I don't know how to load it
-        fs << "name" << ports[i]->name;
-        fs << "value" << ports[i]->value;
-        fs << "}";
-      }
-    }
-    fs << "]";
-
+    
   }
   
   bool Node::handleKey(int key)
