@@ -40,14 +40,12 @@ nodes:
          []
    -
       ind: 3
-      typeid: "bm::Add"
-      name: add1
+      typeid: "bm::Multiply"
+      name: mul0
       loc: [ 756, 36 ]
       enable: 1
       svals:
-         -
-            name: add0
-            value: 2.
+         []
       inputs:
          []
    -

@@ -436,7 +436,7 @@ namespace bm {
   }
 
   ///////////////////////////////////////////
-  Add::Add() : ImageNode()
+  Add::Add() 
   {
     cv::Mat tmp;
     setImage("add0", tmp);
@@ -568,37 +568,74 @@ namespace bm {
     return valid_key;
   }
 
-  bool Add::load(cv::FileNodeIterator nd)
+  
+  ////////////////////////////////////////
+  Multiply::Multiply() 
   {
-    ImageNode::load(nd);
-    /*
-    FileNode nd2 = nd["nf"];
-    if (nd2.type() != FileNode::SEQ) {
-      LOG(ERROR) << "no nodes";
-      return false;
-    }
-    */
-
-    /*
-    for (int i = 0; i < (*nd)["nf"].size(); i++) {
-      float new_coeff;
-      (*nd)["nf"][i] >> new_coeff;
-      nf.push_back(new_coeff);
-    }
-    */
+    cv::Mat tmp;
+    setImage("mul0", tmp);
+    setImage("mul1", tmp);
+    setSignal("mul0", 1.0/16.0);
+    setSignal("mul1", 1.0/16.0);
+    vcol = cv::Scalar(200, 200, 50);
   }
 
-  bool Add::save(cv::FileStorage& fs)
+  bool Multiply::update()
   {
-    ImageNode::save(fs);
+    if (!Node::update()) return false;
 
-    /*
-    fs << "nf" << "[:";
-    for (int i = 0; i < nf.size(); i++) { 
-      fs << nf[i]; 
+    if (!isDirty(this, 5)) { 
+      VLOG(1) << name << " not dirty ";
+      return true; 
     }
-    fs << "]";
-    */
+      
+    // TBD accomodate bad mats somewhere
+    cv::Size sz;
+
+    bool done_something = false;
+      
+    cv::Mat out;
+
+    for (map<string, float >::iterator it = svals.begin(); it != svals.end(); it++) {
+      const string port = it->first;
+
+      if (port.substr(0,3) != "mul") {
+        VLOG(1) << name << " : " << port.substr(0,3) << " " << port;
+        continue;
+      }
+
+      cv::Mat tmp_in;
+      bool im_dirty;
+      tmp_in = getImage(port);
+      if (tmp_in.empty()) {
+        continue;
+      }
+
+      float val = getSignal(port);
+      if (val < 0) {
+        val = 0;
+        setSignal(port, val);
+      }
+      
+      if (!done_something) {
+        out = tmp_in * val;
+        sz = tmp_in.size();
+        done_something = true;
+      } else { 
+
+        if (sz != tmp_in.size()) {
+          LOG(ERROR) << name << " size mismatch " << sz.width << " " << sz.height 
+            << " != " << tmp_in.size().width << " " << tmp_in.size().height ;
+          continue;
+        }
+
+        out = out.mul(tmp_in * val);
+      }
+    } // port loop
+
+    setImage("out", out);
+
+    return true;
   }
 
   ////////////////////////////////////////

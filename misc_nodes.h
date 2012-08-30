@@ -137,21 +137,22 @@ class TapInd : public Tap
 class Add : public ImageNode
 {
   public:
-  
-  // TBD make a std::vector of ImageNodes so dynamic_casts don't need to be used?
-  //TBD don't store this here, instead in svals
-  
   Add(); // : ImageNode()
-  
   // TBD could require pair be passed in to enforce size
+  // TBD get rid of this?
   void setup(std::vector<ImageNode*> np, std::vector<float> nf); 
-
   virtual bool update();
   virtual bool handleKey(int key);
-  
-  virtual bool load(cv::FileNodeIterator nd);
-  virtual bool save(cv::FileStorage& fs);
 };
+
+class Multiply : public ImageNode
+{
+  public:
+  Multiply(); // : ImageNode()
+  virtual bool update();
+  //virtual bool handleKey(int key);
+};
+
 
 class Resize : public ImageNode
 {

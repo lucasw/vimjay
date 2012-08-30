@@ -430,6 +430,9 @@ class CamThing
       else if (type_id.compare("bm::Add") == 0) {
         node = getNode<Add>(name, loc);
       }
+      else if (type_id.compare("bm::Multiply") == 0) {
+        node = getNode<Multiply>(name, loc);
+      }
       else if (type_id.compare("bm::Resize") == 0) {
         node = getNode<Resize>(name, loc);
       }
