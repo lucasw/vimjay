@@ -81,8 +81,12 @@ namespace bm {
       control_points.resize(4);
       control_points[0] = src->parent->loc + src->loc + cv::Point(20,0);
       control_points[3] = parent->loc + loc;
-      control_points[1] = control_points[0] + cv::Point2f(250,0);
-      control_points[2] = control_points[3] - cv::Point2f(250,0);
+    
+      cv::Point2f diff = control_points[3] - control_points[0];
+      float dist = abs(diff.x) + abs(diff.y);
+
+      control_points[1] = control_points[0] + cv::Point2f(dist/3.0,0);
+      control_points[2] = control_points[3] - cv::Point2f(dist/3.0,0);
       getBezier(control_points, connector_points, 20);
 
       for (int i = 1; i < connector_points.size(); i++) {
@@ -356,7 +360,7 @@ namespace bm {
       VLOG(3) << ind << " : " << type << " " << ports[ind]->type << ", " 
           << ports[ind]->name;
 
-      if ((type == NONE) || (type == ports[i]->type)) {
+      if ((type == NONE) || (type == ports[ind]->type)) {
         selected_port_ind = ind;
         selected_port = ports[ind]->name;
         selected_type = ports[ind]->type;

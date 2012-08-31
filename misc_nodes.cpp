@@ -486,7 +486,7 @@ namespace bm {
         const string port = ports[i]->name;
         
         if (port.substr(0,3) != "add") {
-          VLOG(1) << name << " : " << port.substr(0,3) << " " << port;
+          VLOG(5) << name << " : " << port.substr(0,3) << " " << port;
           continue;
         }
         

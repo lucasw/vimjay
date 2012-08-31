@@ -1,5 +1,5 @@
 %YAML:1.0
-date: "Thu Aug 30 22:20:08 2012\n"
+date: "Thu Aug 30 22:38:32 2012\n"
 nodes:
    -
       ind: 0
@@ -39,7 +39,7 @@ nodes:
          -
             type: 1
             name: ind
-            value: 0.
+            value: 4.
             ind: -1
             src_port: ""
    -
@@ -98,12 +98,29 @@ nodes:
          -
             type: 2
             name: add0
+            ind: 0
+            src_port: out
+         -
+            type: 1
+            name: add0
+            value: 9.8076879978179932e-01
+            ind: -1
+            src_port: ""
+         -
+            type: 2
+            name: add1
+            ind: 5
+            src_port: out
+         -
+            type: 1
+            name: add1
+            value: -9.8425173759460449e-01
             ind: -1
             src_port: ""
          -
             type: 1
-            name: add0
-            value: 2.
+            name: write_count
+            value: 4.
             ind: -1
             src_port: ""
    -
@@ -173,30 +190,36 @@ nodes:
          -
             type: 1
             name: angle
-            value: 0.
-            ind: -1
-            src_port: ""
+            value: 2.7618061751127243e-02
+            ind: 8
+            src_port: value
          -
             type: 1
             name: scale
-            value: 1.
-            ind: -1
-            src_port: ""
+            value: 1.0275588035583496e+00
+            ind: 7
+            src_port: value
          -
             type: 1
             name: center_x
-            value: 0.
+            value: 3.2279174804687500e+02
             ind: -1
             src_port: ""
          -
             type: 1
             name: center_y
-            value: 0.
+            value: 3.3722927856445312e+02
             ind: -1
             src_port: ""
          -
             type: 2
             name: in
+            ind: 2
+            src_port: out
+         -
+            type: 1
+            name: write_count
+            value: 3.
             ind: -1
             src_port: ""
    -
@@ -209,25 +232,25 @@ nodes:
          -
             type: 1
             name: min
-            value: 0.
+            value: -3.4867843985557556e-01
             ind: -1
             src_port: ""
          -
             type: 1
             name: max
-            value: 1.
+            value: 3.0114075541496277e-01
             ind: -1
             src_port: ""
          -
             type: 1
             name: value
-            value: 0.
+            value: 1.5821546316146851e-02
             ind: -1
             src_port: ""
          -
             type: 1
             name: step
-            value: 1.0000000149011612e-01
+            value: 7.2899997234344482e-02
             ind: -1
             src_port: ""
    -
@@ -240,25 +263,25 @@ nodes:
          -
             type: 1
             name: min
-            value: 0.
+            value: 9.6799993515014648e-01
             ind: -1
             src_port: ""
          -
             type: 1
             name: max
-            value: 1.
+            value: 1.0460890531539917e+00
             ind: -1
             src_port: ""
          -
             type: 1
             name: value
-            value: 0.
+            value: 1.0275588035583496e+00
             ind: -1
             src_port: ""
          -
             type: 1
             name: step
-            value: 1.0000000149011612e-01
+            value: -1.8530199304223061e-02
             ind: -1
             src_port: ""
    -
@@ -271,25 +294,25 @@ nodes:
          -
             type: 1
             name: min
-            value: 0.
+            value: -2.6572053432464600e+00
             ind: -1
             src_port: ""
          -
             type: 1
             name: max
-            value: 1.
+            value: 2.6572053432464600e+00
             ind: -1
             src_port: ""
          -
             type: 1
             name: value
-            value: 0.
+            value: 2.7618061751127243e-02
             ind: -1
             src_port: ""
          -
             type: 1
             name: step
-            value: 1.0000000149011612e-01
+            value: 3.4867841750383377e-02
             ind: -1
             src_port: ""
    -
@@ -591,5 +614,5 @@ nodes:
          -
             type: 2
             name: in
-            ind: 1
+            ind: 2
             src_port: out
