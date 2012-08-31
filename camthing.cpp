@@ -320,7 +320,6 @@ class CamThing
     }}
   }
 
-
   Webcam* cam_in;
   int count;
 
@@ -328,10 +327,11 @@ class CamThing
 
   cv::Mat cam_image;
   cv::Mat graph_im;
- 
+
+  // TBD make struct for these two
   int selected_ind;
   Node* selected_node;
-  string selected_type;
+  conType selected_type;
   string selected_port;
   int selected_port_ind;
 
@@ -339,19 +339,21 @@ class CamThing
   int source_ind;
   Node* source_node;
   // ImageNode, Signal, or Buffer for now- TBD use enums instead of strings
-  string source_type;
+  conType source_type;
   string source_port;
+  int source_port_ind;
   
   CamThing() : 
       selected_ind(0), 
       selected_node(NULL),
-      selected_type(""),
+      selected_type(NONE),
       selected_port(""),
       selected_port_ind(0),
       source_ind(0),
       source_node(NULL),
-      source_type(""),
+      source_type(NONE),
       source_port(""),
+      source_port_ind(0),
       output_node(NULL),
       draw_nodes(true),
       paused(false)
@@ -378,7 +380,6 @@ class CamThing
     cv::namedWindow("out", CV_GUI_NORMAL);
     cv::moveWindow("out", 420, 0);
 */
-
   }
 
   ///////////////////////////////////////////////
@@ -419,57 +420,42 @@ class CamThing
 
         test_im = cam_in->getImage("out").clone();
         test_im = cv::Scalar(200,200,200);
-      }
-      else if (type_id.compare("bm::ScreenCap") == 0) {
+
+      } else if (type_id.compare("bm::ScreenCap") == 0) {
         node = getNode<ScreenCap>(name, loc);
         node->update();
-      }
-      else if (type_id.compare("bm::ImageNode") == 0) {
+      } else if (type_id.compare("bm::ImageNode") == 0) {
         node = getNode<ImageNode>(name, loc);
-      }
-      else if (type_id.compare("bm::Sobel") == 0) {
+      } else if (type_id.compare("bm::Sobel") == 0) {
         node = getNode<Sobel>(name, loc);
-      }
-      else if (type_id.compare("bm::Buffer") == 0) {
+      } else if (type_id.compare("bm::Buffer") == 0) {
         node = getNode<Buffer>(name, loc);
-      }
-      else if (type_id.compare("bm::ImageDir") == 0) {
+      } else if (type_id.compare("bm::ImageDir") == 0) {
         node = getNode<ImageDir>(name, loc);
-      }
-      else if (type_id.compare("bm::Add") == 0) {
+      } else if (type_id.compare("bm::Add") == 0) {
         node = getNode<Add>(name, loc);
-      }
-      else if (type_id.compare("bm::Multiply") == 0) {
+      } else if (type_id.compare("bm::Multiply") == 0) {
         node = getNode<Multiply>(name, loc);
-      }
-      else if (type_id.compare("bm::Resize") == 0) {
+      } else if (type_id.compare("bm::Resize") == 0) {
         node = getNode<Resize>(name, loc);
-      }
-      else if (type_id.compare("bm::Rot2D") == 0) {
+      } else if (type_id.compare("bm::Rot2D") == 0) {
         node = getNode<Rot2D>(name, loc);
-      }
-      else if (type_id.compare("bm::Signal") == 0) {
+      } else if (type_id.compare("bm::Signal") == 0) {
         node = getNode<Signal>(name, loc);
-      }
-      else if (type_id.compare("bm::Saw") == 0) {
+      } else if (type_id.compare("bm::Saw") == 0) {
         node = getNode<Saw>(name, loc);
-      }
-      else if (type_id.compare("bm::Tap") == 0) {
+      } else if (type_id.compare("bm::Tap") == 0) {
         node = getNode<Tap>(name, loc);
-      }
-      else if (type_id.compare("bm::TapInd") == 0) {
+      } else if (type_id.compare("bm::TapInd") == 0) {
         node = getNode<TapInd>(name, loc);
-      }
-      else if (type_id.compare("bm::Bezier") == 0) {
+      } else if (type_id.compare("bm::Bezier") == 0) {
         node = getNode<Bezier>(name, loc);
-      }
-      else if (type_id.compare("bm::Random") == 0) {
+      } else if (type_id.compare("bm::Random") == 0) {
         node = getNode<Random>(name, loc);
-      }
-      else if (type_id.compare("bm::Output") == 0) {
+      } else if (type_id.compare("bm::Output") == 0) {
         node = getNode<Output>(name, loc);
         output_node = (Output*)node;
-      } else{
+      } else {
         LOG(WARNING) << "unknown node type " << type_id << ", assuming imageNode";
         node = getNode<ImageNode>(name, loc);
       }
@@ -508,12 +494,17 @@ class CamThing
         LOG(INFO) << "input " << ind << " " << all_nodes[ind]->name 
             << " " << input_ind << " " << type << " " << port << " " << input_ind
             << " " << src_port;
-        
+       
+        conType con_type = NONE;
+        if (type == "ImageNode") con_type = IMAGE;
+        if (type == "ImageOut") con_type = IMAGE;
+        if (type == "Signal") con_type = SIGNAL;
+        if (type == "Buffer") con_type = BUFFER;
         // this method will produce input ports in disorder
         if (input_ind >= 0)
-          all_nodes[ind]->setInputPort(type, port, all_nodes[input_ind], src_port);
+          all_nodes[ind]->setInputPort(con_type, port, all_nodes[input_ind], src_port);
         else 
-          all_nodes[ind]->setInputPort(type, port, NULL, src_port);
+          all_nodes[ind]->setInputPort(con_type, port, NULL, src_port);
       }
     } // second input pass
 
@@ -570,103 +561,11 @@ class CamThing
     cv::Mat tmp;
     node->setImage("in", tmp); 
 
-
     //node = getNode<Output>("out", loc);
 
     gridGraph(); 
 
-  #if 0
-    ///////////////
-    const float advance = 0.1;
-
-    cam_in = getNode<Webcam>("webcam", cv::Point(50, 20) );
-    test_im = cam_in->getImage("out").clone();
-    test_im = cv::Scalar(200,200,200);
-
-    ImageNode* passthrough = getNode<ImageNode>("image_node_passthrough", cv::Point(400, 50) );
-    passthrough->setInputPort("ImageNode","in", cam_in, "out");
-    passthrough->setImage("out", test_im);
-    //passthrough->out_old = test_im;
-    //output = passthrough;
-
-    Add* add_loop = getNode<Add>("add_loop", cv::Point(600,100) );
-    add_loop->setImage("out", test_im);
-
-    Rot2D* rotate = getNode<Rot2D>("rotate", cv::Point(400,400));
-    rotate->setInputPort("ImageNode","in", add_loop, "out");
-    rotate->setImage("out", test_im);
-    //rotate->out_old = test_im;
-    rotate->setSignal("angle", 50.0);
-    rotate->setSignal("center_x", test_im.cols/2);
-    rotate->setSignal("center_y", test_im.rows/2);
-    //output = rotate;
-
-    Signal* sr = getNode<Saw>("saw_rotate", cv::Point(350,400) ); 
-    sr->setup(0.02, -5.0, -5.0, 5.0);
-    rotate->setInputPort("Signal","angle", sr, "out");
-
-    Signal* scx = getNode<Saw>("saw_center_x", cv::Point(350,450) ); 
-    scx->setup(5, test_im.cols/2, 0, test_im.cols);
-    rotate->setInputPort("Signal","center_x", scx, "out");
-    
-    Signal* scy = getNode<Saw>("saw_center_y", cv::Point(350,500) ); 
-    //scy->setup(6, test_im.rows/2, test_im.rows/2 - 55.0, test_im.rows/2 + 55.0);
-    scy->setup(6, test_im.rows/2, 0, test_im.rows);
-    rotate->setInputPort("Signal","center_y", scy , "out");
-
-    vector<ImageNode*> in;
-    in.push_back(passthrough);
-    in.push_back(rotate);
-    vector<float> nf;
-    nf.push_back(0.1);
-    nf.push_back(0.89);
-    add_loop->setup(in, nf);
-    #if 0
-    if (false) {
-    // test dead branch (shouldn't be updated)
-    ImageNode* passthrough2 = getNode<ImageNode>("image_node_passthrough2", cv::Point(400, 450) );
-    passthrough2->inputs.push_back(cam_in);
-    passthrough2->out = test_im;
-    passthrough2->out_old = test_im;
-    
-    output = passthrough2;
-    }
-
-    if (false) {
-
-      // buffer test
-      Buffer* cam_buf = getNode<Buffer>("buffer", cv::Point(500,50) );  
-      cam_buf->max_size = ( 60 );
-      cam_buf->out = test_im;
-
-      output = cam_buf;
-
-      if (false) {
-        Add* add = getNode<Add>("addloop", cv::Point(50,500) );
-        add->out = test_im;
-        add->setup(passthrough, cam_buf, 0.8, 0.2);
-
-        cam_buf->inputs.push_back(add);
-      } else {
-        cam_buf->inputs.push_back(passthrough);
-      }
-
-    
-    Signal* s1 = getNode<Saw>("saw", cv::Point(500,400) ); 
-    s1->setup(advance, 0);
-    //Signal* s1 = getNode<Signal>("fixed signal", cv::Point(300,50) ); 
-    //s1->setup(advance, 0);
-
-    Tap* p1 = getNode<Tap>("tap", cv::Point(500,450) );
-    //static_cast<Tap*>
-    p1->setup(s1, cam_buf);
-    p1->out = test_im;
-
-    output = p1;
-    } else
-    #endif
-
-    #if MAKE_FIR
+  #if MAKE_FIR
     {
       FilterFIR* fir = getNode<FilterFIR>("fir_filter", cv::Point(500,150));
 
@@ -697,7 +596,7 @@ class CamThing
       vector<float> vec (arr, arr + sizeof(arr) / sizeof(arr[0]) );
 
       fir->setup(vec);
-      fir->setInputPort("ImageNode","in", passthrough, "out");
+      fir->setInputPort(IMAGE,"in", passthrough, "out");
 
       // IIR denominator
       FilterFIR* denom = getNode<FilterFIR>("iir_denom", cv::Point(500,350));
@@ -709,7 +608,7 @@ class CamThing
 
       vector<float> vec2 (arr2, arr2 + sizeof(arr2) / sizeof(arr2[0]) );
       denom->setup(vec2);
-      denom->setInputPort("ImageNode","in",fir, "out");
+      denom->setInputPort(IMAGE,"in",fir, "out");
        
       Add* add_iir = getNode<Add>("add_iir", cv::Point(400,100) );
       add_iir->out = test_im;
@@ -751,15 +650,12 @@ class CamThing
     }
   #endif
 
-
-
     //output = nd;
     //output = p1;
 /*
     cv::namedWindow("cam", CV_GUI_NORMAL);
     cv::moveWindow("cam", 0, 0);
 */
-   #endif 
     output_node = (Output*)node;
     saveGraph("default_graph.yml");
   }
@@ -774,13 +670,13 @@ class CamThing
 
       source_type = selected_type;
       //if (source_type == "ImageNode") source_type = "ImageOut";
-      if (source_type == "ImageOut") source_type = "ImageNode";
+      //if (source_type == "ImageOut") source_type = "ImageNode";
     
     } else {
       // select no source port, allows cycling through all inputs
       source_ind = 0;
       source_node = NULL;
-      source_type = "";
+      source_type = NONE;
       source_port = "";
     }
   }
@@ -791,11 +687,11 @@ class CamThing
     // connect to source node in best way possible, replacing the current input
     // TBD need to be able to select specific inputs
     if (source_node && selected_node && 
-        (source_type != "") && (selected_port != "") && (source_port != "")) {
+        (source_type != NONE) && (selected_port != "") && (source_port != "")) {
 
       // TBD a Buffer should act as an ImageNode if that is the only
       // input available
-      selected_node->setInputPort(source_type,selected_port, source_node, source_port);
+      selected_node->setInputPort(source_type, selected_port, source_node, source_port);
       
       //VLOG(1) << 
       return true;
@@ -807,7 +703,7 @@ class CamThing
   bool removePortConnection() 
   {
     // disconnect current input
-    if (selected_node && (selected_type != "") && (selected_port != "")) {
+    if (selected_node && (selected_type != NONE) && (selected_port != "")) {
       selected_node->setInputPort(selected_type, selected_port, NULL, "");
     }
   }
@@ -858,101 +754,10 @@ class CamThing
       return true;
     }
 
-    // loop through all inputs, unconstrained by source_type
-    if (source_type == "") {
-      
-      vector<pair<string, string> > strn = selected_node->getInputStrings();
-
-      if (strn.size() == 0) {
-        VLOG(2) << "selectPort: " << CLTXT << selected_node->name 
-            << CLNRM << " no input strings";
-        return false;
-      }
-      
-      int ind = 0;
-      for (int i = 0; i < strn.size()-1; i++) {
-        if ((strn[i].first == selected_type) &&
-            (strn[i].second == selected_port)) {
-          // select next one
-          selected_type = strn[i+1].first;
-          selected_port = strn[i+1].second;
-          selected_port_ind = ind + 1;
-          selected_node->selected_type = selected_type;
-          selected_node->selected_port = selected_port;
-
-          VLOG(2) << "selectPort: all inputs select";
-          return true;
-        }
-        ind++;
-      }
-  
-      selected_type = strn[0].first;
-      selected_port = strn[0].second;
-      selected_node->selected_type = selected_type;
-      selected_node->selected_port = selected_port;
-      selected_port_ind = 0;
-      VLOG(2) << "selectPort: selecting first input";
-      return true;
-    }
-   
-    // loop through inputs of a specific source_type, if any
+    bool rv = selected_node->getNextPort(source_type);
     
-    if (selected_node->inputs.find(source_type) == selected_node->inputs.end()) {
-      VLOG(2) << "selectPort: no matching inputs of type " << source_type;
-      selected_port_ind = 0;
-      return false;
-    }
-
-    //selected_node->draw_selected_port = true;
-
-    // start at beginning if uninitialized
-    // TBD this means inputs can't be protected
-    const string first_port = selected_node->inputs[source_type].begin()->first;
-
-    if ((selected_port == "") || 
-        (selected_node->inputs[source_type].find(selected_port) == 
-         selected_node->inputs[source_type].end())) {
-      selected_port = first_port;
-      // TBD double book keeping is ugly
-      selected_type = source_type;
-      selected_node->selected_type = selected_type;
-      selected_node->selected_port = selected_port;
-      VLOG(2) << "selectPort: start at beginning because uninitialized";
-      selected_port_ind = 0;
-      return true;
-    } 
-
-    // next look for match with current 
-    inputsItemType::iterator it2 = selected_node->inputs[source_type].find(selected_port);
-    inputsItemType::iterator it2_end = selected_node->inputs[source_type].end();
-    
-    if (it2 == it2_end) {
-      selected_port = first_port;
-      // TBD selected_type used anywhere? Yes Nodes uses it. 
-      selected_type = source_type;
-      selected_node->selected_type = selected_type;
-      selected_node->selected_port = selected_port;
-      VLOG(2) << "selectPort: match with end so using first port";
-      selected_port_ind = 0;
-      return true;
-    }
-
-    it2++;
-    selected_port_ind++;
-    if (it2 == it2_end) {
-      selected_port = first_port;
-      selected_port_ind = 0;
-    }
-    // now finally set the port to the next available port
-    else selected_port = it2->first;
-    
-    selected_type = source_type;
-    selected_node->selected_type = source_type;
-    selected_node->selected_port = selected_port;
-    
-    VLOG(2) << "selectPort: selected next in iterator";
-    return true;
-  }// selectPort()
+    return rv;
+  } // selectPort()
 
   int key;
   bool valid_key;
@@ -1004,14 +809,17 @@ class CamThing
       selectPrevNode();
     }
     else if (key == 'u') {
+      // TBD the node should catch this itself
       selectPort();
       
       stringstream str;
-      if (selected_node) {str << selected_node->name << " : ";
-      str << "matching " << source_type << " " << source_port << " with ";
+      if (selected_node) {
+        str << selected_node->name << " : ";
+        str << "matching " << source_type << " " << source_port << " with ";
       } else {
         str <<"selecting";
       }
+      
       str  << CLTXT << selected_ind << " " << selected_port_ind << " " 
           << selected_type << " " << selected_port << CLNRM;
       VLOG(1) << str.str();

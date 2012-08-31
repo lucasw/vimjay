@@ -77,29 +77,35 @@ namespace bm {
   {
    
     if (src) {
-      getBezier(src->loc + cv::Point2f(20,0), loc, con_points, 12);
+      vector<cv::Point2f> control_points;
+      control_points.resize(4);
+      control_points[0] = src->loc + cv::Point(20,0);
+      control_points[3] = loc;
+      control_points[1] = control_points[0] + cv::Point2f(30,0);
+      control_points[2] = control_points[3] - cv::Point2f(30,0);
+      getBezier(control_points, connector_points, 12);
 
-      for (int i = 1; i < con_points.size(); i++) {
+      for (int i = 1; i < connector_points.size(); i++) {
         cv::Scalar col;
-        const float fr = (float)i/(float)con_points.size();
+        const float fr = (float)i/(float)connector_points.size();
         col = cv::Scalar(255*fr, 128+128*fr, 255);
-        cv::line(graph, con_points[i-1], con_points[i], col, 2, CV_AA ); 
+        cv::line(graph, connector_points[i-1], connector_points[i], col, 2, CV_AA ); 
       }
     }
 
-    if (highlight)
+    if (highlight) {
       cv::rectangle(graph, 
           parent->loc + loc, 
           parent->loc + loc + cv::Point(name.size()*8, -10), 
           cv::Scalar(180, 80, 80), CV_FILLED);
+    }
 
     stringstream port_info;
     port_info << name;
 
     if (type == SIGNAL) {
       // TBD color this later
-      float val = getSignal(port);
-      port_info << " " << val;
+      port_info << " " << value;
     }
     
     // TBD color based on type late
@@ -108,7 +114,11 @@ namespace bm {
   }
 
   //////////////////////////////////////////////////////////////////////////////////////////
-  Node::Node() : enable(true) {
+  Node::Node() : 
+    enable(true),
+    selected_type(NONE),
+    selected_port_ind(-1)
+  {
     do_update = false;
 
     //is_dirty = true;
@@ -218,7 +228,9 @@ namespace bm {
     int j = 0;
 
     for (int i = 0; i < ports.size(); i++) {
-      ports[i]->draw();
+      if (i == selected_port_ind) ports[i]->highlight = true;
+      else ports[i]->highlight = false;
+      ports[i]->draw(graph);
     }
 
     cv::putText(graph, name, loc - cv::Point(9, ht), 1, 1, cv::Scalar(115,115,115));
@@ -276,7 +288,7 @@ namespace bm {
     bool valid_key = true;
   
     VLOG(1) << selected_type << " " << selected_port;
-    if ((selected_type == "Signal") && (selected_port != "")) { 
+    if ((selected_type == SIGNAL) && (selected_port != "")) { 
       float value = getSignal(selected_port);
 
       if (key == '.') {
@@ -313,6 +325,24 @@ namespace bm {
 
   //////////////////////////////////////////////////////
 
+  bool Node::getNextPort(conType type)
+  {
+    
+    for (int i = 0; i < ports.size(); i++) {
+      int ind = (i + 1 + selected_port_ind) % ports.size();
+
+      if ((type == NONE) || (type == ports[i]->type)) {
+        selected_port_ind = ind;
+        selected_type = ports[i]->type;
+        return true;
+      }
+
+    }
+
+    return false;
+
+  }
+
   /// TBD
   bool Node::getInputPort(
       const conType type, 
@@ -337,34 +367,19 @@ namespace bm {
   }
 
   void Node::setInputPort(
-      const std::string type, 
+      const conType type, 
       const std::string port,
-      const Node* rv,
+      Node* src_node,
       const std::string src_port
     )
   {
     // this will create the entries if they don't alread exists, without clobbering their values
     // TBD only do this if required?
-    conType con_type;
-    if ((type == "ImageNode") || (type == "ImageOut")) {
-      //getImage(port);
-      con_type = IMAGE;
-    }
-    else if (type == "Signal") {
-      //getSignal(port);
-      con_type = IMAGE;
-    }
-    else if (type == "Buffer") {
-      //getBuffer(port, 0);
-      con_type = IMAGE;
-    } else {
-      LOG(ERROR) << "unknown type " << type;
-      return; // TBD false;
-    }
+    
    
     Connector* con;
     string existing_port;
-    bool con_exists = getInputPort(con_type, port, existing_nd, con, existing_port);
+    bool con_exists = getInputPort(type, port, con, existing_port);
     if (!con_exists) {
       con = new Connector();
       con->name = port;
@@ -374,16 +389,16 @@ namespace bm {
     }
 
     Connector* src_con = NULL;
-    if (rv) {
-      bool src_con_exists = rv->getInputPort(con_type, src_port, src_con, existing_port);
-      if (!con_exists) {
+    if (src_node) {
+      bool src_con_exists = src_node->getInputPort(type, src_port, src_con, existing_port);
+      if (!src_con_exists) {
         // this will produce connectors in the src parent in an order determined
         // by the way the earlier connections use them as ports
         src_con = new Connector();
         src_con->name = src_port;
-        src_con->parent = rv;
-        src_con->loc = cv::Point(0, rv->ports.size()*10);
-        rv->ports.push_back(con);
+        src_con->parent = src_node;
+        src_con->loc = cv::Point(0, src_node->ports.size()*10);
+        src_node->ports.push_back(con);
       }
     }
 
@@ -398,16 +413,15 @@ namespace bm {
   {
     // can't set the image if it is controlled by an input node
 
-    string type = "ImageNode";
-    if (port.substr(0,3) == "out") {
-      type = "ImageOut";
-    }
+    //if (port.substr(0,3) == "out") {
+    //  type = "ImageOut";
+    //}
 
     Connector* con = NULL;
     string src_port;
     if (!getInputPort(IMAGE, port, con, src_port)) {
       // create it since it doesn't exist
-      setInputPort(type, port, NULL, "");
+      setInputPort(IMAGE, port, NULL, "");
       // now get it again TBD actually check rv
       getInputPort(IMAGE, port, con, src_port);
     }
@@ -427,7 +441,7 @@ namespace bm {
     string src_port;
     if (!getInputPort(SIGNAL, port, con, src_port)) {
       // create it since it doesn't exist
-      setInputPort("Signal", port, NULL, "");
+      setInputPort(SIGNAL, port, NULL, "");
       // now get it again TBD actually check rv
       getInputPort(SIGNAL, port, con, src_port);
     }
@@ -446,24 +460,26 @@ namespace bm {
     const string port,
     bool& valid)
   {
+    /*
     string type = "ImageNode";
     if (port.substr(0,3) == "out") {
       type = "ImageOut";
     }
+    */
   
     valid = false;
     cv::Mat im;
     Connector* con = NULL;
     string src_port = "";
 
-    if (!getInputPort("ImageNode", port, con, src_port)) {
+    if (!getInputPort(IMAGE, port, con, src_port)) {
       // create it if it doesn't exist
       VLOG(1) << "creating " << CLTXT <<  name << " " << port << CLNRM;
       setInputPort(IMAGE, port, NULL, "");
       return im;
     }
 
-    VLOG(4) << name << " " << port << " " << nd << " " << src_port;
+    VLOG(4) << name << " " << port << " " << " " << src_port;
    
     im = con->im;
     valid = true;
@@ -481,7 +497,7 @@ namespace bm {
     Connector* con = NULL;
     string src_port;
     // then look at input nodes
-    if (!getInputPort("Signal", port, con, src_port)) {
+    if (!getInputPort(SIGNAL, port, con, src_port)) {
       // create it if it doesn't exist
       VLOG(1) << "creating " << CLTXT <<  name << " " << port << CLNRM;
       setInputPort(SIGNAL, port, NULL, "");
@@ -491,7 +507,7 @@ namespace bm {
     if (!con) return 0;
     //VLOG(1) << name << " " << src_port << " " << valid << " " << new_val << " " << val;
     //if (!valid) return val;
-    val = con->value;
+    float val = con->value;
     
     // TBD setDirty?  Probably shouldn't, would defeat the isDirty loop prevention
     valid = true;
@@ -506,7 +522,7 @@ namespace bm {
     cv::Mat tmp;
     Connector* con;
     string src_port;
-    if (!getInputPort("Buffer", port, con, src_port)) {
+    if (!getInputPort(BUFFER, port, con, src_port)) {
       return tmp;
     }
   
@@ -540,7 +556,7 @@ namespace bm {
     cv::Mat tmp;
     Connector* con;
     string src_port;
-    if (!getInputPort("Buffer", port, con, src_port)) {
+    if (!getInputPort(BUFFER, port, con, src_port)) {
       return tmp;
     }
   
@@ -604,7 +620,7 @@ namespace bm {
     
     // TBD if update is the only function to call getImage, then
     //  the imval will have been updated
-    cv::Mat tmp = imvals["out"]; // getImage("out");
+    cv::Mat tmp = getImage("out");
     if (!tmp.empty()) {
 
       cv::Size sz = cv::Size(Config::inst()->thumb_width, Config::inst()->thumb_height);
@@ -662,7 +678,7 @@ namespace bm {
     int write_count = getSignal("write_count");
     file_name << dir_name.str() << "/image_" << (write_count + 1000000) << ".png";
 
-    cv::Mat out = imvals["out"]; //getImage("out");
+    cv::Mat out = getImage("out");
     if (out.empty()) return false;
 
     cv::imwrite(file_name.str(), out);
@@ -827,7 +843,7 @@ namespace bm {
     vcol = cv::Scalar(200, 30, 200);
 
     // not really an input, but using inputs since outputs aren't distinct
-    setInputPort("Buffer", "out", NULL, "");
+    setInputPort(BUFFER, "out", NULL, "");
 
     //setImage("image", cv::Mat());
     setSignal("max_size", 100);

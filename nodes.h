@@ -60,7 +60,8 @@ static bool bool_val;
 
 class Node;
 
-enum conType { 
+enum conType {  
+  NONE,
   SIGNAL,
   IMAGE,
   BUFFER
@@ -85,11 +86,11 @@ class Connector
   std::string name;
   conType type;
  
-  cv::Point2f loc;
+  cv::Point loc;
   
-  std::vector<cv::Point2f> con_points;
+  std::vector<cv::Point2f> connector_points;
 
-  void draw();
+  void draw(cv::Mat);
   bool highlight;
 
   bool writeable;  
@@ -117,22 +118,20 @@ class Node
   protected:
 
   public:
-
-  // the first string is source type, the second is source port,
-  // Node is the source node, the last string is destination port
-  //inputsType inputs;
+  
   std::vector<Connector*> ports;
-
+  
   // has this node been updated this timestep, or does it need to be updated this timestep
   // because of dependencies
   bool do_update;
-  
   bool enable;
 
   // is the output of this node different from the last  timestep
   //bool is_dirty;
-  // has the node changed since the last time the pointer parameter supplied has called this function (and cleared it)
-  bool isDirty(const void* caller, 
+  // has the node changed since the last time the pointer 
+  // parameter supplied has called this function (and cleared it)
+  bool isDirty(
+      const void* caller, 
       const int ind=0, 
       const bool clear_dirty=true);
   
@@ -144,18 +143,13 @@ class Node
   cv::Scalar vcol;
 
   // these are for ui display purposes, shows the current potential connection
-  std::string selected_type; 
+  int selected_port_ind;
   std::string selected_port;
+  conType selected_type;
   bool draw_selected_port;
   //void drawSelectedPort();
   
-  // this contains non-node sourced signal values, or latest node values
-  // TBD can also be outputs?
-  std::map<std::string, float> svals;
-  // Image IOs, copies of inputs images,input images that aren't node 
-  // connected, and output images
-  std::map<std::string, cv::Mat> imvals;
-  
+ 
   Node();
   virtual ~Node() {}
     
@@ -170,6 +164,8 @@ class Node
   virtual bool save(cv::FileStorage& fs);
   virtual bool load(cv::FileNodeIterator nd);
 
+  bool getNextPort(conType type=NONE); 
+  
   bool getInputPort(
       const conType type, 
       const std::string port,
@@ -177,10 +173,10 @@ class Node
       std::string& src_port);
 
   void setInputPort(
-      const std::string type, 
+      const conType type, 
       const std::string port,
-      const Node* rv,
-      const std::string src_port 
+      Node* src_node = NULL,
+      const std::string src_port = "" 
     );
 
   // TBD calling any of these will create the input, so outside
@@ -209,7 +205,6 @@ class Node
     const std::string port,
     const int val);
     //cv::Mat& image);
-
 
   virtual bool handleKey(int key);
 };
