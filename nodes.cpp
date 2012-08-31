@@ -81,9 +81,9 @@ namespace bm {
       control_points.resize(4);
       control_points[0] = src->parent->loc + src->loc + cv::Point(20,0);
       control_points[3] = parent->loc + loc;
-      control_points[1] = control_points[0] + cv::Point2f(30,0);
-      control_points[2] = control_points[3] - cv::Point2f(30,0);
-      getBezier(control_points, connector_points, 12);
+      control_points[1] = control_points[0] + cv::Point2f(250,0);
+      control_points[2] = control_points[3] - cv::Point2f(250,0);
+      getBezier(control_points, connector_points, 20);
 
       for (int i = 1; i < connector_points.size(); i++) {
         cv::Scalar col;

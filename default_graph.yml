@@ -1,5 +1,5 @@
 %YAML:1.0
-date: "Sun Aug 26 20:32:45 2012\n"
+date: "Thu Aug 30 22:17:37 2012\n"
 nodes:
    -
       ind: 0
@@ -7,303 +7,577 @@ nodes:
       name: image_dir
       loc: [ 58, 36 ]
       enable: 1
-      svals:
-         -
-            name: max_size
-            value: 100.
       dir: "../data/"
       inputs:
-         []
+         -
+            type: 2
+            name: out
+            ind: -1
+            src_port: ""
+         -
+            type: 3
+            name: out
+            ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: max_size
+            value: 100.
+            ind: -1
+            src_port: ""
+         -
+            type: 2
+            name: in
+            ind: -1
+            src_port: ""
    -
       ind: 1
-      #typeid: "bm::Sobel"
-      #name: sobel
-      typeid: "bm::Bezier"
-      name: bezier
+      typeid: "bm::Sobel"
+      name: sobel
       loc: [ 290, 36 ]
       enable: 1
-      svals:
-         []
       inputs:
-         []
+         -
+            type: 2
+            name: out
+            ind: -1
+            src_port: ""
+         -
+            type: 2
+            name: in
+            ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: xorder
+            value: 1.
+            ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: yorder
+            value: 1.
+            ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: ksize
+            value: 3.
+            ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: scale
+            value: 8.0000001192092896e-01
+            ind: -1
+            src_port: ""
    -
       ind: 2
       typeid: "bm::Add"
       name: add0
       loc: [ 523, 36 ]
       enable: 1
-      svals:
+      inputs:
          -
+            type: 2
+            name: out
+            ind: -1
+            src_port: ""
+         -
+            type: 2
+            name: add0
+            ind: -1
+            src_port: ""
+         -
+            type: 1
             name: add0
             value: 2.
-      inputs:
-         []
+            ind: -1
+            src_port: ""
    -
       ind: 3
-      typeid: "bm::Multiply"
-      name: mul0
+      typeid: "bm::Add"
+      name: add1
       loc: [ 756, 36 ]
       enable: 1
-      svals:
-         []
       inputs:
-         []
+         -
+            type: 2
+            name: out
+            ind: -1
+            src_port: ""
+         -
+            type: 2
+            name: add0
+            ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: add0
+            value: 2.
+            ind: -1
+            src_port: ""
    -
       ind: 4
       typeid: "bm::Resize"
       name: resize
       loc: [ 989, 36 ]
       enable: 1
-      svals:
+      inputs:
          -
+            type: 2
+            name: out
+            ind: -1
+            src_port: ""
+         -
+            type: 1
             name: fx
             value: 2.0000000298023224e-01
+            ind: -1
+            src_port: ""
          -
+            type: 1
             name: fy
             value: 2.0000000298023224e-01
-      inputs:
-         []
+            ind: -1
+            src_port: ""
+         -
+            type: 2
+            name: in
+            ind: -1
+            src_port: ""
    -
       ind: 5
       typeid: "bm::Rot2D"
       name: rot2d
       loc: [ 58, 180 ]
       enable: 1
-      svals:
+      inputs:
          -
+            type: 2
+            name: out
+            ind: -1
+            src_port: ""
+         -
+            type: 1
             name: angle
             value: 0.
+            ind: -1
+            src_port: ""
          -
-            name: center_x
-            value: 0.
-         -
-            name: center_y
-            value: 0.
-         -
+            type: 1
             name: scale
             value: 1.
-      inputs:
-         []
+            ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: center_x
+            value: 0.
+            ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: center_y
+            value: 0.
+            ind: -1
+            src_port: ""
+         -
+            type: 2
+            name: in
+            ind: -1
+            src_port: ""
    -
       ind: 6
       typeid: "bm::Signal"
       name: signal0
       loc: [ 290, 180 ]
       enable: 1
-      svals:
+      inputs:
          -
-            name: max
-            value: 1.
-         -
+            type: 1
             name: min
             value: 0.
+            ind: -1
+            src_port: ""
          -
-            name: step
-            value: 1.0000000149011612e-01
+            type: 1
+            name: max
+            value: 1.
+            ind: -1
+            src_port: ""
          -
+            type: 1
             name: value
             value: 0.
-      inputs:
-         []
+            ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: step
+            value: 1.0000000149011612e-01
+            ind: -1
+            src_port: ""
    -
       ind: 7
       typeid: "bm::Signal"
       name: signal1
       loc: [ 523, 180 ]
       enable: 1
-      svals:
+      inputs:
          -
-            name: max
-            value: 1.
-         -
+            type: 1
             name: min
             value: 0.
+            ind: -1
+            src_port: ""
          -
-            name: step
-            value: 1.0000000149011612e-01
+            type: 1
+            name: max
+            value: 1.
+            ind: -1
+            src_port: ""
          -
+            type: 1
             name: value
             value: 0.
-      inputs:
-         []
+            ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: step
+            value: 1.0000000149011612e-01
+            ind: -1
+            src_port: ""
    -
       ind: 8
       typeid: "bm::Saw"
       name: saw0
       loc: [ 756, 180 ]
       enable: 1
-      svals:
+      inputs:
          -
-            name: max
-            value: 1.
-         -
+            type: 1
             name: min
             value: 0.
+            ind: -1
+            src_port: ""
          -
-            name: step
-            value: 1.0000000149011612e-01
+            type: 1
+            name: max
+            value: 1.
+            ind: -1
+            src_port: ""
          -
+            type: 1
             name: value
             value: 0.
-      inputs:
-         []
+            ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: step
+            value: 1.0000000149011612e-01
+            ind: -1
+            src_port: ""
    -
       ind: 9
       typeid: "bm::Saw"
       name: saw1
       loc: [ 989, 180 ]
       enable: 1
-      svals:
+      inputs:
          -
-            name: max
-            value: 1.
-         -
+            type: 1
             name: min
             value: 0.
+            ind: -1
+            src_port: ""
          -
-            name: step
-            value: 1.0000000149011612e-01
+            type: 1
+            name: max
+            value: 1.
+            ind: -1
+            src_port: ""
          -
+            type: 1
             name: value
             value: 0.
-      inputs:
-         []
+            ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: step
+            value: 1.0000000149011612e-01
+            ind: -1
+            src_port: ""
    -
       ind: 10
       typeid: "bm::Saw"
       name: saw2
       loc: [ 58, 324 ]
       enable: 1
-      svals:
+      inputs:
          -
-            name: max
-            value: 1.
-         -
+            type: 1
             name: min
             value: 0.
+            ind: -1
+            src_port: ""
          -
-            name: step
-            value: 1.0000000149011612e-01
+            type: 1
+            name: max
+            value: 1.
+            ind: -1
+            src_port: ""
          -
+            type: 1
             name: value
             value: 0.
-      inputs:
-         []
+            ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: step
+            value: 1.0000000149011612e-01
+            ind: -1
+            src_port: ""
    -
       ind: 11
       typeid: "bm::Tap"
       name: tap0
       loc: [ 290, 324 ]
       enable: 1
-      svals:
+      inputs:
          -
+            type: 2
+            name: out
+            ind: -1
+            src_port: ""
+         -
+            type: 1
             name: value
             value: 0.
-      inputs:
-         []
+            ind: -1
+            src_port: ""
+         -
+            type: 3
+            name: buffer
+            ind: -1
+            src_port: ""
    -
       ind: 12
       typeid: "bm::Tap"
       name: tap1
       loc: [ 523, 324 ]
       enable: 1
-      svals:
+      inputs:
          -
+            type: 2
+            name: out
+            ind: -1
+            src_port: ""
+         -
+            type: 1
             name: value
             value: 0.
-      inputs:
-         []
+            ind: -1
+            src_port: ""
+         -
+            type: 3
+            name: buffer
+            ind: -1
+            src_port: ""
    -
       ind: 13
       typeid: "bm::Tap"
       name: tap2
       loc: [ 756, 324 ]
       enable: 1
-      svals:
+      inputs:
          -
+            type: 2
+            name: out
+            ind: -1
+            src_port: ""
+         -
+            type: 1
             name: value
             value: 0.
-      inputs:
-         []
+            ind: -1
+            src_port: ""
+         -
+            type: 3
+            name: buffer
+            ind: -1
+            src_port: ""
    -
       ind: 14
       typeid: "bm::TapInd"
       name: tapind0
       loc: [ 989, 324 ]
       enable: 1
-      svals:
+      inputs:
          -
+            type: 2
+            name: out
+            ind: -1
+            src_port: ""
+         -
+            type: 1
             name: value
             value: 0.
-      inputs:
-         []
+            ind: -1
+            src_port: ""
+         -
+            type: 3
+            name: buffer
+            ind: -1
+            src_port: ""
    -
       ind: 15
       typeid: "bm::TapInd"
       name: tapind1
       loc: [ 58, 468 ]
       enable: 1
-      svals:
+      inputs:
          -
+            type: 2
+            name: out
+            ind: -1
+            src_port: ""
+         -
+            type: 1
             name: value
             value: 0.
-      inputs:
-         []
+            ind: -1
+            src_port: ""
+         -
+            type: 3
+            name: buffer
+            ind: -1
+            src_port: ""
    -
       ind: 16
       typeid: "bm::TapInd"
       name: tapind2
       loc: [ 290, 468 ]
       enable: 1
-      svals:
+      inputs:
          -
+            type: 2
+            name: out
+            ind: -1
+            src_port: ""
+         -
+            type: 1
             name: value
             value: 0.
-      inputs:
-         []
+            ind: -1
+            src_port: ""
+         -
+            type: 3
+            name: buffer
+            ind: -1
+            src_port: ""
    -
       ind: 17
       typeid: "bm::Buffer"
       name: buffer0
       loc: [ 523, 468 ]
       enable: 1
-      svals:
+      inputs:
          -
+            type: 2
+            name: out
+            ind: -1
+            src_port: ""
+         -
+            type: 3
+            name: out
+            ind: -1
+            src_port: ""
+         -
+            type: 1
             name: max_size
             value: 100.
-      inputs:
-         []
+            ind: -1
+            src_port: ""
+         -
+            type: 2
+            name: in
+            ind: -1
+            src_port: ""
    -
       ind: 18
       typeid: "bm::Buffer"
       name: buffer1
       loc: [ 756, 468 ]
       enable: 1
-      svals:
+      inputs:
          -
+            type: 2
+            name: out
+            ind: -1
+            src_port: ""
+         -
+            type: 3
+            name: out
+            ind: -1
+            src_port: ""
+         -
+            type: 1
             name: max_size
             value: 100.
-      inputs:
-         []
+            ind: -1
+            src_port: ""
+         -
+            type: 2
+            name: in
+            ind: -1
+            src_port: ""
    -
       ind: 19
       typeid: "bm::Buffer"
       name: buffer2
       loc: [ 989, 468 ]
       enable: 1
-      svals:
+      inputs:
          -
+            type: 2
+            name: out
+            ind: -1
+            src_port: ""
+         -
+            type: 3
+            name: out
+            ind: -1
+            src_port: ""
+         -
+            type: 1
             name: max_size
             value: 100.
-      inputs:
-         []
+            ind: -1
+            src_port: ""
+         -
+            type: 2
+            name: in
+            ind: -1
+            src_port: ""
    -
       ind: 20
       typeid: "bm::ImageNode"
       name: output
       loc: [ 58, 612 ]
       enable: 1
-      svals:
-         []
       inputs:
-         []
+         -
+            type: 2
+            name: out
+            ind: -1
+            src_port: ""
+         -
+            type: 2
+            name: in
+            ind: -1
+            src_port: ""

@@ -102,6 +102,13 @@ namespace bm {
 
     for (int i = 0; i < num; i++) {
       float t = (float)i/(float)(num-1);
+
+      // concentrate samples near beginning and end
+      if (t < 0.5) {
+        t *= t;
+      } else {
+        t = 1.0 - (1.0-t)*(1.0-t);
+      }
       double tee_raw[1][4] = {{ 1.0, t, t*t, t*t*t}};
 
       cv::Mat tee = cv::Mat(1, 4, CV_64F, tee_raw);
