@@ -133,7 +133,7 @@ namespace bm {
     if (!Node::update()) return false;
 
     // anything to rotate?
-    if (inputs.size() < 1) return false;
+    if (ports.size() < 1) return false;
    
     bool im_dirty;
     cv::Mat tmp_in;
@@ -365,16 +365,15 @@ namespace bm {
     getSignal("value");
     getBuffer("buffer",0);
     
-    setInputPort("Buffer","buffer", NULL, "out");
+    setInputPort(BUFFER,"buffer", NULL, "out");
     //getImage("Buffer");
   }
 
   void Tap::setup(Signal* new_signal, Buffer* new_buffer) 
   {
-    inputs.clear();
     // TBD need caller to provide these
-    setInputPort("Signal","value", new_signal, "value");
-    setInputPort("Buffer","buffer", new_buffer, "out");
+    setInputPort(SIGNAL,"value", new_signal, "value");
+    setInputPort(BUFFER,"buffer", new_buffer, "out");
   }
 
   bool Tap::update()
@@ -452,12 +451,10 @@ namespace bm {
     }
    
     // TBD instead of clearing all, only clear the keys that match "add"
-    inputs["ImageNode"].clear();
-    inputs["Signal"].clear(); 
     for (int i = 0; i < np.size(); i++) {
       const string port = "add" + boost::lexical_cast<string>(i);
-      setInputPort("ImageNode", port, np[i], "out");
-      setInputPort("Signal", port, NULL, "value"); // this allows other signals to connect to replace nf
+      setInputPort(IMAGE, port, np[i], "out");
+      setInputPort(SIGNAL, port, NULL, "value"); // this allows other signals to connect to replace nf
     }
   }
 
@@ -483,9 +480,10 @@ namespace bm {
       // to handle either)
       // TBD instead of having nf, loop through all svals and match on ones that start with add
       // and then run getSignal on those strings
-      for (map<string, float >::iterator it = svals.begin(); it != svals.end(); it++) {
-      //for (int i = 0; i < nf.size(); i++) {
-        const string port = it->first;
+      for (int i = 0; i < ports.size(); i++) {
+        if (ports[i]->type != IMAGE) continue;
+
+        const string port = ports[i]->name;
         
         if (port.substr(0,3) != "add") {
           VLOG(1) << name << " : " << port.substr(0,3) << " " << port;
@@ -541,9 +539,9 @@ namespace bm {
     
       // add an input addition port, TBD move to function
       int add_num = 0;
-      for (map<string, float >::iterator it = svals.begin(); it != svals.end(); it++) {
-      //for (int i = 0; i < nf.size(); i++) {
-        const string port = it->first;
+      for (int i = 0; i < ports.size(); i++) {
+        if (ports[i]->type != IMAGE) continue;
+        const string port = ports[i]->name;
         
         if (port.substr(0,3) != "add") {
           VLOG(1) << name << " : " << port.substr(0,3) << " " << port;
@@ -554,8 +552,8 @@ namespace bm {
 
       // add a new addition port
       const string port = "add" + boost::lexical_cast<string>(add_num);
-      setInputPort("ImageNode", port, NULL, "out");
-      setInputPort("Signal", port, NULL, "value"); // this allows other signals to connect to replace nf
+      setInputPort(IMAGE, port, NULL, "out");
+      setInputPort(SIGNAL, port, NULL, "value"); // this allows other signals to connect to replace nf
        
       // TBD make a way to delete a port
     } else {
@@ -596,8 +594,9 @@ namespace bm {
       
     cv::Mat out;
 
-    for (map<string, float >::iterator it = svals.begin(); it != svals.end(); it++) {
-      const string port = it->first;
+    for (int i = 0 ; i < ports.size(); i++) {
+      if (ports[i]->type != IMAGE) continue;
+      const string port = ports[i]->name;
 
       if (port.substr(0,3) != "mul") {
         VLOG(1) << name << " : " << port.substr(0,3) << " " << port;

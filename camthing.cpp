@@ -143,7 +143,7 @@ namespace bm {
 
   bool Config::load(const string config_file)
   {
-    LOG(INFO) << "loading graph " << config_file;
+    LOG(INFO) << "loading config " << config_file;
     
     FileStorage fs; 
     fs.open(config_file, FileStorage::READ);
