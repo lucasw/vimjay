@@ -347,16 +347,19 @@ namespace bm {
 
   //////////////////////////////////////////////////////
 
-  bool Node::getNextPort(conType type)
+  bool Node::getNextPort(const conType type)
   {
     
     for (int i = 0; i < ports.size(); i++) {
       int ind = (i + 1 + selected_port_ind) % ports.size();
+      
+      VLOG(3) << ind << " : " << type << " " << ports[ind]->type << ", " 
+          << ports[ind]->name;
 
       if ((type == NONE) || (type == ports[i]->type)) {
         selected_port_ind = ind;
-        selected_port = ports[i]->name;
-        selected_type = ports[i]->type;
+        selected_port = ports[ind]->name;
+        selected_type = ports[ind]->type;
         return true;
       }
 

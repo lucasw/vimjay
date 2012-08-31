@@ -671,13 +671,14 @@ class CamThing
       source_type = selected_type;
       //if (source_type == "ImageNode") source_type = "ImageOut";
       //if (source_type == "ImageOut") source_type = "ImageNode";
-    
+      VLOG(1) << "selected source node " << source_type << " " << source_port; 
     } else {
       // select no source port, allows cycling through all inputs
       source_ind = 0;
       source_node = NULL;
       source_type = NONE;
       source_port = "";
+      VLOG(1) << "cleared source node";
     }
   }
 
@@ -751,11 +752,18 @@ class CamThing
     if (!next_port) {
       selected_type = selected_node->selected_type;
       selected_port = selected_node->selected_port;
+      selected_port_ind = selected_node->selected_port_ind;
       return true;
     }
 
     bool rv = selected_node->getNextPort(source_type);
     
+    if (rv) {
+    selected_type = selected_node->selected_type;
+    selected_port = selected_node->selected_port;
+    selected_port_ind = selected_node->selected_port_ind;
+    }
+
     return rv;
   } // selectPort()
 
@@ -817,13 +825,16 @@ class CamThing
       stringstream str;
       if (selected_node) {
         str << selected_node->name << " : ";
-        str << "matching " << source_type << " " << source_port << " with ";
+        str << "matching " << source_type << " \"" << source_port << "\" with ";
       } else {
         str <<"selecting";
       }
       
-      str  << CLTXT << selected_ind << " " << selected_port_ind << " " 
-          << selected_type << " " << selected_port << CLNRM;
+      str 
+          << selected_type << " \"" << selected_port << "\" "
+          << CLTXT 
+          << selected_ind << " " << selected_port_ind << " " 
+          << CLNRM;
       VLOG(1) << str.str();
     } 
     else if (key == 'r') {
