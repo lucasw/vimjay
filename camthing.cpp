@@ -188,8 +188,8 @@ class CamThing
   template <class nodeType>
     nodeType* getNode(string name = "", cv::Point loc=cv::Point(0.0, 0.0))
     {
-      nodeType* node = new nodeType();
-
+      nodeType* node = new nodeType();//name, loc, graph_im);
+      
       node->name = name;
       node->loc = loc;
       node->graph = graph_im;
@@ -356,7 +356,7 @@ class CamThing
       source_port_ind(0),
       output_node(NULL),
       draw_nodes(true),
-      paused(false)
+      paused(true)
   {
     count = 0;
 
@@ -771,6 +771,8 @@ class CamThing
       key = waitKey(0);
     else 
       key = waitKey(20);
+
+    if (key < 0) return true;
 
     valid_key = true;
     if( key == 'q' ) {

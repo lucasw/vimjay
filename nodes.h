@@ -151,6 +151,10 @@ class Node
   
  
   Node();
+
+  //Node(std::string name, cv::Point loc, cv::Mat graph ); 
+  
+  // TBD need to delete all the connectors
   virtual ~Node() {}
     
   bool setUpdate();
@@ -222,6 +226,7 @@ public:
   //int write_count;
     
   ImageNode();// : Node()
+  //ImageNode(std::string name, cv::Point loc, cv::Mat graph ); 
 
   virtual bool update();
 

@@ -79,8 +79,8 @@ namespace bm {
     if (src) {
       vector<cv::Point2f> control_points;
       control_points.resize(4);
-      control_points[0] = src->loc + cv::Point(20,0);
-      control_points[3] = loc;
+      control_points[0] = src->parent->loc + src->loc + cv::Point(20,0);
+      control_points[3] = parent->loc + loc;
       control_points[1] = control_points[0] + cv::Point2f(30,0);
       control_points[2] = control_points[3] - cv::Point2f(30,0);
       getBezier(control_points, connector_points, 12);
@@ -103,13 +103,18 @@ namespace bm {
     stringstream port_info;
     port_info << name;
 
+    // color based on type late
+    cv::Scalar col = cv::Scalar(200,200,200);
     if (type == SIGNAL) {
-      // TBD color this later
+      col = cv::Scalar(55,255,255);
       port_info << " " << value;
+    } else if (type == IMAGE) {
+      col = cv::Scalar(255,55,255);
+    } else if (type == BUFFER) {
+      col = cv::Scalar(255,255,55);
     }
     
-    // TBD color based on type late
-    cv::putText(graph, port_info.str(), loc, 1, 1, cv::Scalar(100,255,245), 1);
+    cv::putText(graph, port_info.str(), parent->loc + loc, 1, 1, col, 1);
 
   }
 
@@ -117,13 +122,30 @@ namespace bm {
   Node::Node() : 
     enable(true),
     selected_type(NONE),
-    selected_port_ind(-1)
+    selected_port_ind(-1),
+    selected_port(""),
+    do_update(false)
   {
-    do_update = false;
+
+    //is_dirty = true;
+    vcol = cv::Scalar(200,200,200);
+  }
+
+/*
+  Node::Node(string name, cv::Point loc, cv::Mat graph ) : 
+    enable(true),
+    selected_type(NONE),
+    selected_port_ind(-1),
+    name(name),
+    loc(loc),
+    graph(graph),
+    do_update(false)
+  {
 
     //is_dirty = true;
     vcol = cv::Scalar(0,128,255);
   }
+  */
 
   // this finds all the nodes that are connected to this node and sets them to be updated
   bool Node::setUpdate()
@@ -287,7 +309,7 @@ namespace bm {
   {
     bool valid_key = true;
   
-    VLOG(1) << selected_type << " " << selected_port;
+    VLOG(1) << selected_type << " \"" << selected_port << "\"";
     if ((selected_type == SIGNAL) && (selected_port != "")) { 
       float value = getSignal(selected_port);
 
@@ -333,6 +355,7 @@ namespace bm {
 
       if ((type == NONE) || (type == ports[i]->type)) {
         selected_port_ind = ind;
+        selected_port = ports[i]->name;
         selected_type = ports[i]->type;
         return true;
       }
@@ -353,12 +376,15 @@ namespace bm {
     con = NULL;
   
     for (int i = 0; i < ports.size(); i++) {
+
+      VLOG(6) << i << " " << ports[i]->type << " " << ports[i]->name << ", " << type << " " << port;
+      
       if ((ports[i]->type == type) && (ports[i]->name == port)) {
+        con = ports[i];
         if (ports[i]->src) {
-          con = ports[i]->src;
           src_port = ports[i]->src->name;
-          return true;        
         }
+        return true;        
       }
 
     }
@@ -384,8 +410,12 @@ namespace bm {
       con = new Connector();
       con->name = port;
       con->parent = this;
+      con->type = type;
       con->loc = cv::Point(0, ports.size()*10);
+
       ports.push_back(con);
+
+      VLOG(2) << "new connector " << con->name << " " << type << " " << con->parent->name;
     }
 
     Connector* src_con = NULL;
@@ -397,8 +427,11 @@ namespace bm {
         src_con = new Connector();
         src_con->name = src_port;
         src_con->parent = src_node;
+        src_con->type = type;
         src_con->loc = cv::Point(0, src_node->ports.size()*10);
-        src_node->ports.push_back(con);
+        
+        src_node->ports.push_back(src_con);
+        VLOG(2) << "new src Connector " << src_con->name << " " << src_con->parent->name; 
       }
     }
 
@@ -423,9 +456,17 @@ namespace bm {
       // create it since it doesn't exist
       setInputPort(IMAGE, port, NULL, "");
       // now get it again TBD actually check rv
-      getInputPort(IMAGE, port, con, src_port);
+      if (!getInputPort(IMAGE, port, con, src_port)) {
+        LOG(ERROR) << "still can't get port";
+        return false;
+      }
     }
-      
+     
+    if (!con) {
+      LOG(ERROR) << "no connector";
+      return false;
+    }
+
     // can't set signal if it is controlled by src port 
     if (con->src) return false;
 
@@ -443,9 +484,12 @@ namespace bm {
       // create it since it doesn't exist
       setInputPort(SIGNAL, port, NULL, "");
       // now get it again TBD actually check rv
-      getInputPort(SIGNAL, port, con, src_port);
+      if (!getInputPort(SIGNAL, port, con, src_port)) {
+        LOG(ERROR) << "still can't get connector";
+        return false;
+      }
     }
-      
+    
     // can't set signal if it is controlled by src port 
     if (con->src) return false;
 
@@ -708,7 +752,7 @@ namespace bm {
   // TBD subclasses of Node that are input/output specific, or make that general somehow?
   Signal::Signal() : Node()
   {
-    vcol = cv::Scalar(0,128,255);
+    vcol = cv::Scalar(0,255,255);
 
     setSignal("min", 0);
     setSignal("max", 1);
