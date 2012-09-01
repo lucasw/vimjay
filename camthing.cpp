@@ -240,6 +240,9 @@ class CamThing
   template <class nodeType>
     nodeType* getNode(string name = "", cv::Point loc=cv::Point(0.0, 0.0))
     {
+      LOG(INFO) << CLVAL << all_nodes.size()  << CLTX2 
+          << " new node " << CLNRM << name << " " << loc.x << ", " << loc.y;
+
       nodeType* node = new nodeType();//name, loc, graph_im);
       
       node->name = name;
@@ -248,8 +251,6 @@ class CamThing
 
       all_nodes.push_back(node);
       
-      LOG(INFO) << CLVAL << all_nodes.size() - 1 << CLNRM 
-          << " new node " << name << " " << loc.x << ", " << loc.y;
 
       return node;
     }
@@ -279,8 +280,14 @@ class CamThing
 
   int getIndFromPointer(Node* node)
   {
+    if (node == NULL) return -1;
+
+    
     for (int i = 0; i < all_nodes.size(); i++) {
-      if (all_nodes[i] == node) return i; 
+      if (all_nodes[i] == node) {
+        VLOG(3) << node->name << " " << i; 
+        return i; 
+      }
     }
 
     return -1;
@@ -310,6 +317,7 @@ class CamThing
       // save inputs
       fs << "inputs" << "[";
       // TBD put in Node::save method
+      VLOG(2) << all_nodes[i]->name << " saving " << all_nodes[i]->ports.size() << " inputs";
       for (int j = 0; j < all_nodes[i]->ports.size(); j++) {
           
           Connector* con = all_nodes[i]->ports[j];
@@ -324,14 +332,14 @@ class CamThing
           }
 
           string src_port = "";
-          int ind = -1;
+          int src_ind = -1;
           if (con->src) {
             src_port = con->src->name;
             // TBD this function is currently why this isn't in the Node::save()
-            ind = getIndFromPointer(con->src->parent);  
+            src_ind = getIndFromPointer(con->src->parent);  
           }
 
-          fs << "ind" << ind;
+          fs << "src_ind" << src_ind;
           fs << "src_port" << src_port;
 
           fs << "}";
@@ -525,38 +533,62 @@ class CamThing
 
       LOG(INFO) << type_id << " " << CLTXT << name << CLVAL << " " 
           << node  << " " << loc << " " << enable << CLNRM;
-
-    }
-
-    // second pass for inputs
-    for (FileNodeIterator it = nd.begin(); it != nd.end(); ++it) {
+      
       int ind;
       (*it)["ind"] >> ind;
+      LOG(INFO) << CLTXT << "first pass inputs " << CLVAL << ind << CLNRM << " " << node->name;
+
       for (int i = 0; i < (*it)["inputs"].size(); i++) {
-        int input_ind;
-        string type;
+        int type;
         string port;
-        string src_port;
 
         (*it)["inputs"][i]["type"] >> type;
-        (*it)["inputs"][i]["port"] >> port;
-        (*it)["inputs"][i]["ind"] >> input_ind;
-        (*it)["inputs"][i]["src_port"] >> src_port;
+        (*it)["inputs"][i]["name"] >> port;
       
-        LOG(INFO) << "input " << ind << " " << all_nodes[ind]->name 
-            << " " << input_ind << " " << type << " " << port << " " << input_ind
-            << " " << src_port;
-       
+        LOG(INFO) << "input " << ind << " \"" << node->name
+            << "\", type " << type << " " << port;
+        
+        // TBD make function for this
+        /*
         conType con_type = NONE;
         if (type == "ImageNode") con_type = IMAGE;
         if (type == "ImageOut") con_type = IMAGE;
         if (type == "Signal") con_type = SIGNAL;
         if (type == "Buffer") con_type = BUFFER;
-        // this method will produce input ports in disorder
-        if (input_ind >= 0)
-          all_nodes[ind]->setInputPort(con_type, port, all_nodes[input_ind], src_port);
-        else 
-          all_nodes[ind]->setInputPort(con_type, port, NULL, src_port);
+        */
+        
+        node->setInputPort((conType)type, port, NULL, "");
+      }
+    }
+
+    // second pass for inputs (the first pass was necessary to create them 
+    // all in right order
+    LOG(INFO) << "second pass inputs";
+    for (FileNodeIterator it = nd.begin(); it != nd.end(); ++it) {
+      int ind;
+      (*it)["ind"] >> ind;
+      LOG(INFO) << "second pass inputs " << ind << " " << CLTXT << all_nodes[ind]->name << CLNRM;
+      for (int i = 0; i < (*it)["inputs"].size(); i++) {
+        int input_ind;
+        int type;
+        string port;
+        string src_port;
+
+        (*it)["inputs"][i]["type"] >> type;
+        (*it)["inputs"][i]["name"] >> port;
+        (*it)["inputs"][i]["src_ind"] >> input_ind;
+        (*it)["inputs"][i]["src_port"] >> src_port;
+        
+        if (input_ind >= 0) {
+        LOG(INFO) << "input " 
+            << " " << input_ind << ", type " << type << " " << port << " " << input_ind
+            << " " << src_port;
+      
+        
+          // this method will produce input ports in disorder
+          all_nodes[ind]->setInputPort((conType)type, port, all_nodes[input_ind], src_port);
+        } // input_ind > 0
+
       }
     } // second input pass
 

@@ -19,6 +19,8 @@
 #define CLERR "\e[1;41m"
 #define CLVAL "\e[1;36m"
 #define CLTXT "\e[1;35m"
+// BOLD black text with blue background
+#define CLTX2 "\e[1;44m"  
 
 #define MAT_FORMAT_C3 CV_8UC3
 #define MAT_FORMAT CV_8U

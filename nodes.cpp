@@ -407,8 +407,7 @@ namespace bm {
     )
   {
     // this will create the entries if they don't alread exists, without clobbering their values
-    // TBD only do this if required?
-    
+    // TBD only do this if requested?
    
     Connector* con;
     string existing_port;
@@ -422,7 +421,8 @@ namespace bm {
 
       ports.push_back(con);
 
-      VLOG(2) << "new connector " << con->name << " " << type << " " << con->parent->name;
+      VLOG(2) << "\"" << con->parent->name << "\"" <<CLTX2 << " new connector " << CLNRM 
+          << type << " \"" << con->name << "\"";
     }
 
     Connector* src_con = NULL;
@@ -438,15 +438,18 @@ namespace bm {
         src_con->loc = cv::Point(0, src_node->ports.size()*10);
         
         src_node->ports.push_back(src_con);
-        VLOG(2) << "new src Connector " << src_con->name << " " << src_con->parent->name; 
+        VLOG(2) << con->parent->name << " new src Connector " << type << " " << src_con->name; 
       }
+      
+      VLOG(1) << "\"" << name << "\" setInputPort: " << type << " " << port << " from "
+        << CLTXT /*<< inputs[type][port].first->name << " "*/  // not necessarily non-NULL
+        << "\"" << src_port << "\"" << CLNRM; 
+    } else {
+
+      VLOG(1) << "\"" << name << "\" setInputPort: " << type << " " << port;
     }
 
     con->src = src_con;
-
-    VLOG(1) << name << " setInputPort: " << type << " " << port << " from "
-      << CLTXT /*<< inputs[type][port].first->name << " "*/  // not necessarily non-NULL
-        << src_port << CLNRM; 
   }
   
   bool Node::setImage(const std::string port, cv::Mat& im)
@@ -525,7 +528,7 @@ namespace bm {
 
     if (!getInputPort(IMAGE, port, con, src_port)) {
       // create it if it doesn't exist
-      VLOG(1) << "creating " << CLTXT <<  name << " " << port << CLNRM;
+      VLOG(1) << name << " creating IMAGE " << CLTXT <<  name << " " << port << CLNRM;
       setInputPort(IMAGE, port, NULL, "");
       return im;
     }
@@ -550,7 +553,7 @@ namespace bm {
     // then look at input nodes
     if (!getInputPort(SIGNAL, port, con, src_port)) {
       // create it if it doesn't exist
-      VLOG(1) << "creating " << CLTXT <<  name << " " << port << CLNRM;
+      VLOG(1) << name << " creating SIGNAL " << CLTXT <<  name << " " << port << CLNRM;
       setInputPort(SIGNAL, port, NULL, "");
       return 0;
     }
