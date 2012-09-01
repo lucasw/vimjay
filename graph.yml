@@ -1,5 +1,5 @@
 %YAML:1.0
-date: "Fri Aug 31 14:52:55 2012\n"
+date: "Fri Aug 31 15:21:41 2012\n"
 nodes:
    -
       ind: 0
@@ -39,7 +39,7 @@ nodes:
          -
             type: 1
             name: ind
-            value: 8.1789960861206055e+00
+            value: 1.4108653068542480e+01
             src_ind: 8
             src_port: value
    -
@@ -130,8 +130,8 @@ nodes:
             src_port: ""
    -
       ind: 3
-      typeid: "bm::AbsDiff"
-      name: absdiff1
+      typeid: "bm::Greater"
+      name: greater1
       loc: [ 756, 36 ]
       enable: 1
       inputs:
@@ -142,13 +142,13 @@ nodes:
             src_port: ""
          -
             type: 2
-            name: diff0
-            src_ind: 17
+            name: in0
+            src_ind: 5
             src_port: out
          -
             type: 2
-            name: diff1
-            src_ind: 2
+            name: in1
+            src_ind: 0
             src_port: out
    -
       ind: 4
@@ -194,13 +194,13 @@ nodes:
          -
             type: 1
             name: angle
-            value: 2.8146690130233765e-01
+            value: 1.7780306935310364e-01
             src_ind: 7
             src_port: value
          -
             type: 1
             name: scale
-            value: 9.6658271551132202e-01
+            value: 8.9999997615814209e-01
             src_ind: 6
             src_port: value
          -
@@ -218,7 +218,7 @@ nodes:
          -
             type: 2
             name: in
-            src_ind: 1
+            src_ind: 0
             src_port: out
          -
             type: 1
@@ -248,13 +248,13 @@ nodes:
          -
             type: 1
             name: value
-            value: 9.6658271551132202e-01
+            value: 8.9999997615814209e-01
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: step
-            value: -1.6677178442478180e-02
+            value: 1.6677178442478180e-02
             src_ind: -1
             src_port: ""
    -
@@ -279,13 +279,13 @@ nodes:
          -
             type: 1
             name: value
-            value: 2.8146690130233765e-01
+            value: 1.7780306935310364e-01
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: step
-            value: -6.5609999001026154e-02
+            value: 6.5609999001026154e-02
             src_ind: -1
             src_port: ""
    -
@@ -310,7 +310,7 @@ nodes:
          -
             type: 1
             name: value
-            value: 8.1789960861206055e+00
+            value: 1.4108653068542480e+01
             src_ind: -1
             src_port: ""
          -
@@ -557,6 +557,12 @@ nodes:
             type: 1
             name: ind
             value: 0.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: write_count
+            value: 10.
             src_ind: -1
             src_port: ""
    -

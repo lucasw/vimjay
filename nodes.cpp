@@ -92,7 +92,7 @@ namespace bm {
       for (int i = 1; i < connector_points.size(); i++) {
         cv::Scalar col;
         const float fr = (float)i/(float)connector_points.size();
-        col = cv::Scalar(255*fr, 128+128*fr, 255);
+        col = cv::Scalar(255*fr, 32+196*fr, 128 + 64*fr);
         cv::line(graph, connector_points[i-1], connector_points[i], col, 2, CV_AA ); 
       }
     }

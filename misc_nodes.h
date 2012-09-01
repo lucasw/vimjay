@@ -159,18 +159,18 @@ class AbsDiff : public ImageNode
   virtual bool update();
 };
 
+class Greater : public ImageNode
+{
+  public:
+  Greater(); 
+  virtual bool update();
+};
+
 class Resize : public ImageNode
 {
   public:
   Resize();
-
-  //float fx;
-  //float fy;
-
   virtual bool update();
-  virtual bool draw();
-  //virtual bool load(cv::FileNodeIterator nd);
-  //virtual bool save(cv::FileStorage& fs);
 };
 
 

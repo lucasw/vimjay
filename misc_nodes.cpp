@@ -152,7 +152,7 @@ namespace bm {
 
     cv::Mat rot = cv::getRotationMatrix2D(center, angle, scale);
     cv::Mat tmp;
-    cv::warpAffine(tmp_in, tmp, rot, tmp_in.size(), INTER_NEAREST);
+    cv::warpAffine(tmp_in, tmp, rot, tmp_in.size(), INTER_NEAREST, BORDER_REFLECT);
 
     setImage("out", tmp);
   }
@@ -676,6 +676,56 @@ namespace bm {
     return true;
   }
 
+  ////////////////////////////////////////
+  Greater::Greater() 
+  {
+    cv::Mat tmp;
+    setImage("in0", tmp);
+    setImage("in1", tmp);
+    vcol = cv::Scalar(200, 200, 50);
+  }
+
+  bool Greater::update()
+  {
+    if (!Node::update()) return false;
+
+    if (!isDirty(this, 5)) { 
+      VLOG(1) << name << " not dirty ";
+      return true; 
+    }
+      
+    cv::Mat out;
+    
+    cv::Mat diff0 = getImage("in0");
+    cv::Mat diff1 = getImage("in1");
+
+    if (diff0.empty() && !diff1.empty()) {
+      out = diff1;
+    } else if (!diff0.empty() && !diff1.empty()) {
+      out = diff0;
+    } else if (diff0.size() != diff1.size()) {
+      LOG(ERROR) << name << " size mismatch";
+      return false;
+    }
+
+    out = diff0 > diff1;
+
+    /*
+      TBD use actual function and have an int  input select among these options
+CMP_EQ src1 equal to src2.
+CMP_GT src1 greater than src2.
+CMP_GE src1 greater than or equal to src2.
+CMP_LT src1 less than src2.
+CMP_LE src1 less than or equal to src2.
+CMP_NE
+      Or simply have a key that switches in and ref 
+    */
+
+    setImage("out", out);
+
+    return true;
+  }
+
 
   ////////////////////////////////////////
   Resize::Resize() 
@@ -728,16 +778,7 @@ namespace bm {
   return true;
   }
 
-  bool Resize::draw() 
-  {
-    ImageNode::draw();
-
-    stringstream sstr;
-    sstr << getSignal("fx") << " " << getSignal("fy");
-    cv::putText(graph, sstr.str(), loc + cv::Point(20,-40), 1, 1, cv::Scalar(200,200,200));
-    //VLOG(1)<< sstr.str();
-    return true;
-  }
+  
 
 } //bm
 
