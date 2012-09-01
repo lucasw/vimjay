@@ -76,12 +76,27 @@ namespace bm {
   void Connector::draw(cv::Mat graph) 
   {
    
+    // draw a box around the port
+    cv::Scalar rect_col = cv::Scalar(40,50,40);
+    if (highlight) {
+      rect_col = cv::Scalar(180, 80, 80);
+    }
+    cv::rectangle(graph, 
+          parent->loc + loc, 
+          parent->loc + loc + cv::Point(name.size()*10, -10), 
+          rect_col,
+          CV_FILLED);
+
     if (src) {
+      
       vector<cv::Point2f> control_points;
       control_points.resize(4);
       control_points[0] = src->parent->loc + src->loc + cv::Point(src->name.size()*10, -5);
       control_points[3] = parent->loc + loc + cv::Point(0,-5);
-    
+      
+
+      // TBD if control_points dirty
+      {
       cv::Point2f diff = control_points[3] - control_points[0];
       float dist = abs(diff.x) + abs(diff.y);
 
@@ -93,22 +108,28 @@ namespace bm {
       control_points[1] = control_points[0] + cv::Point2f(dist/3.0,  y_off);
       control_points[2] = control_points[3] - cv::Point2f(dist/3.0, -y_off);
       getBezier(control_points, connector_points, 20);
+      }
 
+      // draw dark outline
+      for (int i = 1; i < connector_points.size(); i++) {
+        cv::line(graph, connector_points[i-1], connector_points[i], cv::Scalar(10,10,10), 4, CV_AA ); 
+      }
       for (int i = 1; i < connector_points.size(); i++) {
         cv::Scalar col;
         const float fr = (float)i/(float)connector_points.size();
-        col = cv::Scalar(255*fr, 32+196*fr, 128 + 64*fr);
-        cv::line(graph, connector_points[i-1], connector_points[i], cv::Scalar(10,10,10), 4, CV_AA ); 
+        col = cv::Scalar(255*fr, 128 + 64*fr, 128 + 64*fr);
+        if (type == IMAGE) {
+          col = cv::Scalar(55 + 200*fr, 110 - 55*fr, 85 + 150*fr);
+        } else if (type == SIGNAL) {
+          col = cv::Scalar(110 - 55*fr, 55 + 200*fr, 85 + 150*fr);
+        } else if (type == BUFFER) {
+          col = cv::Scalar(55 + 200*fr, 85 + 150*fr, 110-55*fr);
+        }
         cv::line(graph, connector_points[i-1], connector_points[i], col, 2, CV_AA ); 
       }
     }
 
-    if (highlight) {
-      cv::rectangle(graph, 
-          parent->loc + loc, 
-          parent->loc + loc + cv::Point(name.size()*8, -10), 
-          cv::Scalar(180, 80, 80), CV_FILLED);
-    }
+    
 
     stringstream port_info;
     port_info << name;

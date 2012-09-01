@@ -1004,7 +1004,7 @@ class CamThing
     graph_im = cv::Scalar(0,0,0);
     cv::Mat out_node_im = output_node->getImage("out");
     if (!out_node_im.empty()) {
-      cv::resize(out_node_im * (draw_nodes ? 0.35 : 1.0),  graph_im,
+      cv::resize(out_node_im * (draw_nodes ? 0.2 : 1.0),  graph_im,
           graph_im.size(), 0, 0, cv::INTER_NEAREST );
     }
     else
