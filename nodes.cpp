@@ -129,8 +129,6 @@ namespace bm {
       }
     }
 
-    
-
     stringstream port_info;
     port_info << name;
 

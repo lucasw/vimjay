@@ -95,7 +95,8 @@ namespace bm {
   }
   
   Random::Random()
-  {
+  { 
+    // TBD try opencv RNG
     dis = std::uniform_real_distribution<>(0,1);
   }
 
@@ -781,7 +782,7 @@ CMP_NE
   ////////////////////////////////////////
   Flip::Flip() 
   {
-    setSignal("flip_code", 0.2);
+    setSignal("flip_code", 0);
     cv::Mat tmp;
     setImage("in", tmp);
   }
@@ -808,8 +809,8 @@ CMP_NE
   cv::Size sz = in.size();
   
   int flip_code = getSignal("flip_code");
-  if (flip_code > 2) flip_code = 2;
-  if (flip_code <-1) flip_code = -1;
+  while (flip_code > 2) flip_code -= 3;
+  while (flip_code <-1) flip_code += 3;
   setSignal("flip_code", flip_code);
 
   cv::Mat out = cv::Mat(sz, in.type());
