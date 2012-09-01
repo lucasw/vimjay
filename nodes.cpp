@@ -231,7 +231,7 @@ namespace bm {
       setDirty();
     }
 
-    // TBD loop through svals and imvals and run getImage on each
+    // TBD loop through ports and run getImage on each
     // or could that be combined with looping through the getInputVector above?
     
     VLOG(4) << name << " in sz " << ports.size() << " inputs dirty" << inputs_dirty;
@@ -269,8 +269,9 @@ namespace bm {
     // TBD name, loc?
     (*nd)["enable"] >> enable;
 
+     #if 0 
     // blanket loading of all svals
-    FileNode nd_in = (*nd)["svals"]; 
+    FileNode nd_in = (*nd)["inputs"]; 
     if (nd_in.type() != FileNode::SEQ) {
       //LOG(ERROR) << "no nodes";
       //return false;
@@ -293,7 +294,7 @@ namespace bm {
       LOG(INFO) << name << " " << (*it) << " " << sval_name << " " << val;
       */
     }
-
+    #endif
   }
 
   bool Node::save(cv::FileStorage& fs)
@@ -1081,9 +1082,6 @@ namespace bm {
   bool Buffer::load(cv::FileNodeIterator nd)
   {
     ImageNode::load(nd);
-    
-    //(*nd)["max_size"] >> max_size;
-    //svals["max_size"] = max_size;
   }
 
   bool Buffer::save(cv::FileStorage& fs) 

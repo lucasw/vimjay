@@ -573,21 +573,26 @@ class CamThing
         int type;
         string port;
         string src_port;
+        float value;
 
         (*it)["inputs"][i]["type"] >> type;
         (*it)["inputs"][i]["name"] >> port;
         (*it)["inputs"][i]["src_ind"] >> input_ind;
         (*it)["inputs"][i]["src_port"] >> src_port;
+        (*it)["inputs"][i]["value"] >> value;
         
         if (input_ind >= 0) {
         LOG(INFO) << "input " 
             << " " << input_ind << ", type " << type << " " << port << " " << input_ind
             << " " << src_port;
       
-        
-          // this method will produce input ports in disorder
           all_nodes[ind]->setInputPort((conType)type, port, all_nodes[input_ind], src_port);
         } // input_ind > 0
+
+        if (type == SIGNAL) {
+          
+          all_nodes[ind]->setSignal(port, value);
+        }
 
       }
     } // second input pass
