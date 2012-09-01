@@ -638,6 +638,46 @@ namespace bm {
   }
 
   ////////////////////////////////////////
+  AbsDiff::AbsDiff() 
+  {
+    cv::Mat tmp;
+    setImage("diff0", tmp);
+    setImage("diff1", tmp);
+    vcol = cv::Scalar(200, 200, 50);
+  }
+
+  bool AbsDiff::update()
+  {
+    if (!Node::update()) return false;
+
+    if (!isDirty(this, 5)) { 
+      VLOG(1) << name << " not dirty ";
+      return true; 
+    }
+      
+    cv::Mat out;
+    
+    cv::Mat diff0 = getImage("diff0");
+    cv::Mat diff1 = getImage("diff1");
+
+    if (diff0.empty() && !diff1.empty()) {
+      out = diff1;
+    } else if (!diff0.empty() && !diff1.empty()) {
+      out = diff0;
+    } else if (diff0.size() != diff1.size()) {
+      LOG(ERROR) << name << " size mismatch";
+      return false;
+    }
+
+    cv::absdiff(diff0, diff1, out);
+
+    setImage("out", out);
+
+    return true;
+  }
+
+
+  ////////////////////////////////////////
   Resize::Resize() 
   {
     setSignal("fx", 0.2);

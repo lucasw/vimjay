@@ -148,11 +148,16 @@ class Add : public ImageNode
 class Multiply : public ImageNode
 {
   public:
-  Multiply(); // : ImageNode()
+  Multiply(); 
   virtual bool update();
-  //virtual bool handleKey(int key);
 };
 
+class AbsDiff : public ImageNode
+{
+  public:
+  AbsDiff(); 
+  virtual bool update();
+};
 
 class Resize : public ImageNode
 {
