@@ -502,6 +502,8 @@ class CamThing
         node = getNode<Greater>(name, loc);
       } else if (type_id.compare("bm::Resize") == 0) {
         node = getNode<Resize>(name, loc);
+      } else if (type_id.compare("bm::Flip") == 0) {
+        node = getNode<Flip>(name, loc);
       } else if (type_id.compare("bm::Rot2D") == 0) {
         node = getNode<Rot2D>(name, loc);
       } else if (type_id.compare("bm::Signal") == 0) {

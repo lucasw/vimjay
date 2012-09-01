@@ -778,6 +778,53 @@ CMP_NE
   return true;
   }
 
+  ////////////////////////////////////////
+  Flip::Flip() 
+  {
+    setSignal("flip_code", 0.2);
+    cv::Mat tmp;
+    setImage("in", tmp);
+  }
+
+  bool Flip::update()
+  {
+  if (!ImageNode::update()) return false;
+ 
+  // TBD make sure keyboard changed parameters make this dirty 
+  if (!isDirty(this, 5)) { 
+      VLOG(1) << name << " not dirty ";
+      return true; 
+  }
+   
+  cv::Mat in = getImage("in");
+
+  if (in.empty()) {
+    VLOG(2) << name << " in is empty";
+    return false;
+  }
+  
+  // if fx and fy aren't hooked up then they will remain unaltered
+
+  cv::Size sz = in.size();
+  
+  int flip_code = getSignal("flip_code");
+  if (flip_code > 2) flip_code = 2;
+  if (flip_code <-1) flip_code = -1;
+  setSignal("flip_code", flip_code);
+
+  cv::Mat out = cv::Mat(sz, in.type());
+
+  if (flip_code == 2) out = in;
+  else {
+    flip(in, out, flip_code);
+  }
+
+  setImage("out", out);
+  
+  return true;
+  }
+
+
   
 
 } //bm

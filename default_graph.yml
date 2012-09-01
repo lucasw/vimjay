@@ -32,8 +32,8 @@ nodes:
             src_port: ""
    -
       ind: 1
-      typeid: "bm::Sobel"
-      name: sobel
+      typeid: "bm::Flip"
+      name: fliip
       loc: [ 290, 36 ]
       enable: 1
       inputs:
@@ -45,30 +45,6 @@ nodes:
          -
             type: 2
             name: in
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: xorder
-            value: 1.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: yorder
-            value: 1.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: ksize
-            value: 3.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: scale
-            value: 8.0000001192092896e-01
             src_ind: -1
             src_port: ""
    -

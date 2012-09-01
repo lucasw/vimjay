@@ -79,20 +79,26 @@ namespace bm {
     if (src) {
       vector<cv::Point2f> control_points;
       control_points.resize(4);
-      control_points[0] = src->parent->loc + src->loc + cv::Point(20,0);
-      control_points[3] = parent->loc + loc;
+      control_points[0] = src->parent->loc + src->loc + cv::Point(src->name.size()*10, -5);
+      control_points[3] = parent->loc + loc + cv::Point(0,-5);
     
       cv::Point2f diff = control_points[3] - control_points[0];
       float dist = abs(diff.x) + abs(diff.y);
 
-      control_points[1] = control_points[0] + cv::Point2f(dist/3.0,0);
-      control_points[2] = control_points[3] - cv::Point2f(dist/3.0,0);
+      // don't want lines going
+      float y_off = 0;
+      if ((control_points[3].x < control_points[0].x) && 
+          (abs(control_points[3].y - control_points[0].y) < 100)) y_off = 100;
+
+      control_points[1] = control_points[0] + cv::Point2f(dist/3.0,  y_off);
+      control_points[2] = control_points[3] - cv::Point2f(dist/3.0, -y_off);
       getBezier(control_points, connector_points, 20);
 
       for (int i = 1; i < connector_points.size(); i++) {
         cv::Scalar col;
         const float fr = (float)i/(float)connector_points.size();
         col = cv::Scalar(255*fr, 32+196*fr, 128 + 64*fr);
+        cv::line(graph, connector_points[i-1], connector_points[i], cv::Scalar(10,10,10), 4, CV_AA ); 
         cv::line(graph, connector_points[i-1], connector_points[i], col, 2, CV_AA ); 
       }
     }

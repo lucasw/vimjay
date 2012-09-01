@@ -134,6 +134,7 @@ class TapInd : public Tap
   virtual bool draw();
 };
 
+// Arbitrary inputs 
 class Add : public ImageNode
 {
   public:
@@ -152,6 +153,7 @@ class Multiply : public ImageNode
   virtual bool update();
 };
 
+// Double inputs
 class AbsDiff : public ImageNode
 {
   public:
@@ -166,12 +168,21 @@ class Greater : public ImageNode
   virtual bool update();
 };
 
+// Single inputs
 class Resize : public ImageNode
 {
   public:
   Resize();
   virtual bool update();
 };
+
+class Flip : public ImageNode
+{
+  public:
+  Flip();
+  virtual bool update();
+};
+
 
 
 } // bm

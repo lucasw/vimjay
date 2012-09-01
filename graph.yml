@@ -44,8 +44,10 @@ nodes:
             src_port: value
    -
       ind: 1
-      typeid: "bm::Sobel"
-      name: sobel
+      #typeid: "bm::Sobel"
+      #name: sobel
+      typeid: "bm::Flip"
+      name: flip
       loc: [ 290, 36 ]
       enable: 1
       inputs:
@@ -59,30 +61,6 @@ nodes:
             name: in
             src_ind: 17
             src_port: out
-         -
-            type: 1
-            name: xorder
-            value: 1.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: yorder
-            value: 1.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: ksize
-            value: 3.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: scale
-            value: 8.0000001192092896e-01
-            src_ind: -1
-            src_port: ""
    -
       ind: 2
       typeid: "bm::Add"
