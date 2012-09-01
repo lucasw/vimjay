@@ -138,6 +138,41 @@ bool Sobel::update()
   return true;
 }
 
+////////////////////////////////////////
+  GaussianBlur::GaussianBlur() 
+  {
+    cv::Mat tmp;
+    setImage("in", tmp);
+    setSignal("k_width",2);
+    setSignal("k_height",2);
+    vcol = cv::Scalar(200, 200, 50);
+  }
+
+  bool GaussianBlur::update()
+  {
+    if (!Node::update()) return false;
+
+    if (!isDirty(this, 5)) { 
+      VLOG(1) << name << " not dirty ";
+      return true; 
+    }
+    
+    cv::Mat in = getImage("in");
+
+    if (in.empty()) return false;
+
+    int k_width = abs(getSignal("k_width"));
+    int k_height = abs(getSignal("k_height"));
+     
+    cv::Size ksize = cv::Size(k_width*2 + 1, k_height*2+1);
+
+    cv::Mat out = cv::Mat(in.size(), in.type());
+
+    cv::GaussianBlur(in, out, ksize, 0, 0, cv::BORDER_REFLECT);
+    
+    setImage("out", out);
+    return true;
+  }
 
 } // namespace bm
 

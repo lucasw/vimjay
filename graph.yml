@@ -632,3 +632,11 @@ nodes:
             value: 4.
             src_ind: -1
             src_port: ""
+   -
+      ind: 21
+      typeid: "bm::GaussianBlur"
+      name: gauss
+      loc: [ 358, 612 ]
+      enable: 1
+      inputs:
+         []
