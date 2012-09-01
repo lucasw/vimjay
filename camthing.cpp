@@ -75,7 +75,52 @@ namespace bm {
       LOG(ERROR) << control_points.size() << " != 4"; 
       return false;
     }
+
+    /*
+    // 2nd order 1 2 1
+    double coeff_raw[4][4] = {
+      { 1, 0, 0},
+      {-2, 2, 0},
+      { 1,-2, 1},
+    };
+    // 4th order 1 4 6 4 1
+
+    general pattern
+    bc(1) =    1 1
+    bc(2) =   1 2 1
+    bc(3) =  1 3 3 1
+    bc(4) = 1 4 6 4 1
+    
+    bc(3,0) = 1
+    bc(3,1) = 3
+
+    (1-x)(1-x)(1-x) = 1 -3x 3x^2 -x^3
+    (1 -2x x^2) (1-x) 
+    
+    bc(+/-0) =   1
+    bc(-1) =    1 -1
+    bc(-2) =   1 -2  1
+    bc(-3) =  1 -3  3 -1
+    bc(-4) = 1 -4  6 -4  1 
+    ...
+
+      { bc(-3)*bc(3,0),  0               0               0
+                        bc(-2)*bc(3,1)   0               0
+                                         bc(-1)*bc(3,2)  0
+                                                         bc(-0)*bc(3,3)
+    But why is lower left coeff +1 and not -1?
+
+       1  0   0   0  0
+      -4  4   0   0  0
+       6 -12  6   0  0
+      -4  12 -12  4  0
+       1 -4   6  -4  1   
+       Is that right? 
+
+    */
+
     // TBD how to generate programmatically
+    // 1 3 3 1
     double coeff_raw[4][4] = {
       { 1, 0, 0, 0},
       {-3, 3, 0, 0},
