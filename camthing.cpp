@@ -238,7 +238,7 @@ class CamThing
 
   // conveniently create and store node
   template <class nodeType>
-    nodeType* getNode(string name = "", cv::Point loc=cv::Point(0.0, 0.0))
+    nodeType* getNode(string name = "", cv::Point2f loc=cv::Point2f(0.0, 0.0))
     {
       LOG(INFO) << CLVAL << all_nodes.size()  << CLTX2 
           << " new node " << CLNRM << name << " " << loc.x << ", " << loc.y;
@@ -369,7 +369,7 @@ class CamThing
       const int ind = y*(wd+1) + x;
       if (ind >= all_nodes.size()) continue;
       
-      cv::Point loc = cv::Point( x*dx + dx/4.0, y*dy + dy/4.0 );
+      cv::Point loc = cv::Point2f( x*dx + dx/4.0, y*dy + dy/4.0 );
       
       LOG(INFO) << ind << " " << all_nodes[ind]->name << " " 
           << all_nodes[ind]->loc.x << " " << all_nodes[ind]->loc.y 
@@ -614,7 +614,7 @@ class CamThing
     }
 
     LOG(INFO) << all_nodes.size() << " nodes total";
-    //output_node->loc = cv::Point(graph.cols - (test_im.cols/2+100), 20);
+    //output_node->loc = cv::Point2f(graph.cols - (test_im.cols/2+100), 20);
     
 
   } // loadGraph
@@ -664,7 +664,7 @@ class CamThing
 
   #if MAKE_FIR
     {
-      FilterFIR* fir = getNode<FilterFIR>("fir_filter", cv::Point(500,150));
+      FilterFIR* fir = getNode<FilterFIR>("fir_filter", cv::Point2(500,150));
 
       // http://www-users.cs.york.ac.uk/~fisher/cgi-bin/mkfscript
       static float arr[] =  { -1.0, 3.0, -3.0, 1.0, }; //{ 0.85, -0.35, 0.55, -0.05, };
@@ -696,7 +696,7 @@ class CamThing
       fir->setInputPort(IMAGE,"in", passthrough, "out");
 
       // IIR denominator
-      FilterFIR* denom = getNode<FilterFIR>("iir_denom", cv::Point(500,350));
+      FilterFIR* denom = getNode<FilterFIR>("iir_denom", cv::Point2f(500,350));
       static float arr2[] =  { 
                  1.7600418803, // y[n-1]
                 -1.1828932620, // * y[n- 2])
@@ -707,7 +707,7 @@ class CamThing
       denom->setup(vec2);
       denom->setInputPort(IMAGE,"in",fir, "out");
        
-      Add* add_iir = getNode<Add>("add_iir", cv::Point(400,100) );
+      Add* add_iir = getNode<Add>("add_iir", cv::Point2f(400,100) );
       add_iir->out = test_im;
       vector<ImageNode*> add_in;
       add_in.push_back(fir);
@@ -726,14 +726,14 @@ class CamThing
     bool toggle = false;
     for (float ifr = advance; ifr <= 1.0; ifr += advance ) {
 
-      Signal* s2 = getNode<Saw>("sawl", cv::Point(400.0 + ifr*400.0, 200.0 + ifr*40.0) );
+      Signal* s2 = getNode<Saw>("sawl", cv::Point2f(400.0 + ifr*400.0, 200.0 + ifr*40.0) );
       s2->setup(advance, ifr);
 
-      Tap* p2 = getNode<Tap>("tapl", cv::Point(400.0 + ifr*410.0, 300.0 + ifr*30.0) );
+      Tap* p2 = getNode<Tap>("tapl", cv::Point2f(400.0 + ifr*410.0, 300.0 + ifr*30.0) );
       p2->setup(s2, cam_buf);
       p2->out = test_im;
 
-      Add* add = getNode<Add>("addl", cv::Point(400.0 + ifr*430.0, 400.0 + ifr*10.0) );
+      Add* add = getNode<Add>("addl", cv::Point2f(400.0 + ifr*430.0, 400.0 + ifr*10.0) );
       add->out = test_im;
       add->setup(nd, p2, toggle ? 1.5 : 0.5, toggle? -0.5 :0.5);
       toggle = !toggle;
@@ -1017,7 +1017,7 @@ class CamThing
         cv::line( graph_im, source_node->loc, selected_node->loc, cv::Scalar(70, 70, 70), 8, 4 );
       }
 
-      cv::putText(graph_im, command_text, cv::Point(10, graph_im.rows-40), 1, 1, cv::Scalar(200,205,195), 1);
+      cv::putText(graph_im, command_text, cv::Point2f(10, graph_im.rows-40), 1, 1, cv::Scalar(200,205,195), 1);
       if (command_text.size() > 0) { 
         VLOG(5) << "command_text " << command_text;
       }

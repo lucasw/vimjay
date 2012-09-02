@@ -88,7 +88,7 @@ class Connector
   std::string name;
   conType type;
  
-  cv::Point loc;
+  cv::Point2f loc;
   
   std::vector<cv::Point2f> connector_points;
 
@@ -116,7 +116,11 @@ class Node
   // this structure tracks arbitrary numbers of callers to see if there have been
   // change since the last call
   std::map<const void*, std::map<int, bool> > dirty_hash;  
-  
+ 
+  // velocity and acceleration of node screen position 
+  cv::Point2f acc;
+  cv::Point2f vel;
+
   protected:
 
   public:
@@ -140,7 +144,7 @@ class Node
   bool setDirty();
 
   std::string name;
-  cv::Point loc;
+  cv::Point2f loc;
   cv::Mat graph;
   cv::Scalar vcol;
 

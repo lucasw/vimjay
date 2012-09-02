@@ -83,7 +83,7 @@ namespace bm {
     }
     cv::rectangle(graph, 
           parent->loc + loc, 
-          parent->loc + loc + cv::Point(name.size()*10, -10), 
+          parent->loc + loc + cv::Point2f(name.size()*10, -10), 
           rect_col,
           CV_FILLED);
 
@@ -91,8 +91,8 @@ namespace bm {
       
       vector<cv::Point2f> control_points;
       control_points.resize(4);
-      control_points[0] = src->parent->loc + src->loc + cv::Point(src->name.size()*10, -5);
-      control_points[3] = parent->loc + loc + cv::Point(0,-5);
+      control_points[0] = src->parent->loc + src->loc + cv::Point2f(src->name.size()*10, -5);
+      control_points[3] = parent->loc + loc + cv::Point2f(0,-5);
       
 
       // TBD if control_points dirty
@@ -234,6 +234,30 @@ namespace bm {
   // process or not
   bool Node::update() 
   {
+    // pos update
+    vel += acc;
+    acc = cv::Point2f(0,0);
+    loc += vel;
+    vel *= 0.9;
+
+    if (loc.x < 0) {
+      loc.x = 0;
+      vel.x = abs(vel.x)*0.5;
+    }
+    if (loc.x > graph.cols) {
+      loc.x = graph.cols;
+      vel.x = -abs(vel.x)*0.5;
+    }
+    if (loc.y < 0) {
+      loc.y = 0;
+      vel.y = abs(vel.y)*0.5;
+    }
+    if (loc.y > graph.rows) {
+      loc.y = graph.rows;
+      vel.y = -abs(vel.y)*0.5;
+    }
+    ///
+
     if (!do_update) return false;
     do_update = false; 
 
@@ -280,8 +304,8 @@ namespace bm {
     
     // draw rectangle around entire node
     cv::rectangle(graph, 
-          loc + cv::Point(-5, -15), 
-          loc + cv::Point(100, ports.size()*10 + 2), 
+          loc + cv::Point2f(-5, -15), 
+          loc + cv::Point2f(100, ports.size()*10 + 2), 
           vcol*0.2, //cv::Scalar(255,0,0),
           2);
     
@@ -292,8 +316,8 @@ namespace bm {
       ports[i]->draw(graph);
     }
 
-    cv::putText(graph, name, loc - cv::Point(9, ht), 1, 1, cv::Scalar(115,115,115));
-    cv::putText(graph, name, loc - cv::Point(10, ht), 1, 1, cv::Scalar(255,255,255));
+    cv::putText(graph, name, loc - cv::Point2f(9, ht), 1, 1, cv::Scalar(115,115,115));
+    cv::putText(graph, name, loc - cv::Point2f(10, ht), 1, 1, cv::Scalar(255,255,255));
 
   }
 
@@ -346,7 +370,9 @@ namespace bm {
   bool Node::handleKey(int key)
   {
     bool valid_key = true;
-  
+ 
+    float acc_step = 3.0;
+
     VLOG(1) << selected_type << " \"" << selected_port << "\"";
     if ((selected_type == SIGNAL) && (selected_port != "")) { 
       float value = getSignal(selected_port);
@@ -378,7 +404,22 @@ namespace bm {
       return valid_key;
     }
 
-    valid_key = false;
+      // following may not be portable
+      // TBD alternatively could handle loc as a Signal
+      if (key == 65362) {  // UP
+        acc.y -= acc_step;
+    //    LOG(INFO) << "acc.y " << acc.y;
+      } else if (key == 65364) {  // DOWN
+        acc.y += acc_step;
+      } else if (key == 65361) {  // LEFT
+        acc.x -= acc_step;
+      } else if (key == 65363) {  // RIGHT
+        acc.x += acc_step;
+      }
+      else {
+        valid_key = false;
+      }
+
 
     return valid_key;
   }
@@ -451,7 +492,7 @@ namespace bm {
       con->name = port;
       con->parent = this;
       con->type = type;
-      con->loc = cv::Point(0, ports.size()*10);
+      con->loc = cv::Point2f(0, ports.size()*10);
 
       ports.push_back(con);
 
@@ -469,7 +510,7 @@ namespace bm {
         src_con->name = src_port;
         src_con->parent = src_node;
         src_con->type = type;
-        src_con->loc = cv::Point(0, src_node->ports.size()*10);
+        src_con->loc = cv::Point2f(0, src_node->ports.size()*10);
         
         src_node->ports.push_back(src_con);
         VLOG(2) << con->parent->name << " new src Connector " << type << " " << src_con->name; 
@@ -722,8 +763,8 @@ namespace bm {
       if (!isDirty(this,2)) fr = 5;
       cv::Scalar col = cv::Scalar(vcol/fr);
 
-      cv::rectangle(graph, loc + cv::Point(100,0) - cv::Point(2,2), 
-          loc + cv::Point(100,0) + cv::Point(sz.width,sz.height) + cv::Point(2,2), 
+      cv::rectangle(graph, loc + cv::Point2f(100,0) - cv::Point2f(2,2), 
+          loc + cv::Point2f(100,0) + cv::Point2f(sz.width,sz.height) + cv::Point2f(2,2), 
           col, CV_FILLED );
 
       bool draw_thumb = true;
@@ -737,9 +778,11 @@ namespace bm {
       }
 
       if (draw_thumb) {
-        cv::Mat graph_roi = graph(cv::Rect(loc.x + 100, loc.y, sz.width, sz.height));
-        graph_roi = cv::Scalar(0, 0, 255);
-        thumbnail.copyTo(graph_roi);
+        if ((loc.x+ 100 + sz.width  < graph.cols) && (loc.y + sz.height < graph.rows)) {
+          cv::Mat graph_roi = graph(cv::Rect(loc.x + 100, loc.y, sz.width, sz.height));
+          graph_roi = cv::Scalar(0, 0, 255);
+          thumbnail.copyTo(graph_roi);
+        }
       }
     }
     
@@ -888,12 +931,12 @@ namespace bm {
     }
 
     cv::rectangle(graph, loc, 
-        loc + cv::Point( x * 50.0 , 5), 
+        loc + cv::Point2f( x * 50.0 , 5), 
         cv::Scalar(255, 255, 100), CV_FILLED);
 
     //stringstream sstr;
     //sstr << value << " " << min << " " << max << " " << step;
-    //cv::putText(graph, sstr.str(), loc + cv::Point(20,-30), 1, 1, cv::Scalar(200,200,200));
+    //cv::putText(graph, sstr.str(), loc + cv::Point2(20,-30), 1, 1, cv::Scalar(200,200,200));
     
     return Node::draw();
   }
