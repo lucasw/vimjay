@@ -956,6 +956,13 @@ class CamThing
     }
     
     // Connection manipulation
+    else if (key == 'h') {
+      if (source_node) {
+        selected_node = source_node;
+        selected_ind = source_ind;
+        // TBD saw with selected_node?
+      }
+    }
     else if (key == 'j') {
       selectNextNode();
     }
