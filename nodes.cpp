@@ -234,30 +234,8 @@ namespace bm {
   // process or not
   bool Node::update() 
   {
-    // pos update
-    vel += acc;
-    acc = cv::Point2f(0,0);
-    loc += vel;
-    vel *= 0.9;
-
-    if (loc.x < 0) {
-      loc.x = 0;
-      vel.x = abs(vel.x)*0.5;
-    }
-    if (loc.x > graph.cols) {
-      loc.x = graph.cols;
-      vel.x = -abs(vel.x)*0.5;
-    }
-    if (loc.y < 0) {
-      loc.y = 0;
-      vel.y = abs(vel.y)*0.5;
-    }
-    if (loc.y > graph.rows) {
-      loc.y = graph.rows;
-      vel.y = -abs(vel.y)*0.5;
-    }
-    ///
-
+  
+ 
     if (!do_update) return false;
     do_update = false; 
 
@@ -290,6 +268,31 @@ namespace bm {
 
   bool Node::draw() 
   {
+
+   // pos update
+    vel += acc;
+    acc = cv::Point2f(0,0);
+    loc += vel;
+    vel *= 0.9;
+
+    if (loc.x < 0) {
+      loc.x = 0;
+      vel.x = abs(vel.x)*0.5;
+    }
+    if (loc.x > graph.cols) {
+      loc.x = graph.cols;
+      vel.x = -abs(vel.x)*0.5;
+    }
+    if (loc.y < 0) {
+      loc.y = 0;
+      vel.y = abs(vel.y)*0.5;
+    }
+    if (loc.y > graph.rows) {
+      loc.y = graph.rows;
+      vel.y = -abs(vel.y)*0.5;
+    }
+    //////////////////////////////
+
     int fr = 1;
     if (!isDirty(this,1)) fr = 5;
     cv::Scalar col = cv::Scalar(vcol/fr);
@@ -371,7 +374,6 @@ namespace bm {
   {
     bool valid_key = true;
  
-    float acc_step = 3.0;
 
     VLOG(1) << selected_type << " \"" << selected_port << "\"";
     if ((selected_type == SIGNAL) && (selected_port != "")) { 
@@ -404,16 +406,18 @@ namespace bm {
       return valid_key;
     }
 
-      // following may not be portable
+    
+      const float acc_step = 3.0;
       // TBD alternatively could handle loc as a Signal
-      if (key == 65362) {  // UP
+      
+            if (key == '8') {  // UP
         acc.y -= acc_step;
     //    LOG(INFO) << "acc.y " << acc.y;
-      } else if (key == 65364) {  // DOWN
+      } else if (key == '2') {  // DOWN
         acc.y += acc_step;
-      } else if (key == 65361) {  // LEFT
+      } else if (key == '4') {  // LEFT
         acc.x -= acc_step;
-      } else if (key == 65363) {  // RIGHT
+      } else if (key == '6') {  // RIGHT
         acc.x += acc_step;
       }
       else {

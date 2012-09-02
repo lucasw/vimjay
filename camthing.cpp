@@ -870,6 +870,53 @@ class CamThing
   bool draw_nodes;
   bool paused;
 
+  bool selectNodeDirection(const int dir) 
+  {
+ 
+      // find closest node in y
+      float cur_y = 0;
+      if (selected_node) cur_y = selected_node->loc.y;
+      float cur_x = 0;
+      if (selected_node) cur_x = selected_node->loc.x;
+     
+      int min_ind = -1;
+      //float min_dx = dir*1e6;
+      //float min_dy = dir*1e6;
+      float min_len = 1e6;
+
+      for (int i = 0; i < all_nodes.size(); i++) {
+        if (i == selected_ind) continue;
+
+        float dy = all_nodes[i]->loc.y - cur_y;
+        float dx = all_nodes[i]->loc.x - cur_x;
+        float len = dx*dx + dy*dy;
+        bool test = false;
+        
+        if (dir == -2) 
+          test = ((abs(dx) <= abs(dy)) && (dy <= 0) );
+        if (dir == -1) 
+          test = ((abs(dy) <= abs(dx)) && (dx <= 0) );
+        if (dir ==  1) 
+          test = ((abs(dy) <= abs(dx)) && (dx > 0) );
+        if (dir ==  2) 
+          test = ((abs(dx) <= abs(dy)) && (dy > 0) );
+
+        if (test && (len < min_len)) {
+          //min_dy = dy;
+          //min_dx = dx;
+          min_len = len;
+          min_ind = i;
+        }
+      }
+      if (min_ind >= 0) {
+        selected_node = all_nodes[min_ind];
+        selected_ind = min_ind;
+        return true;
+      }
+      return false;
+
+  }
+  
   bool handleInput() 
   {
     if (VLOG_IS_ON(10) || paused) 
@@ -943,11 +990,23 @@ class CamThing
     else if (key == 'd') {
       removePortConnection();
     }
+    //////////////////////////////////////////////////
+    // following may not be portable
+    else if (key == 65362) {  // UP
+      selectNodeDirection(-2); 
+    } else if (key == 65364) {  // DOWN
+      selectNodeDirection(2); 
+    } else if (key == 65361) {  // LEFT
+      selectNodeDirection(-1); 
+    } else if (key == 65363) {  // RIGHT
+      selectNodeDirection(1); 
+      
+    
     //else if (key == 'c') {
       // swap selected node input with source node input- TBD this doesn't work since  
       // outputs can be one-to-many
     //}
-    else {
+    } else {
       valid_key = false;
       // see if node can work with the key
       if (selected_node) 
