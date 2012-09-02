@@ -277,7 +277,15 @@ namespace bm {
     const int ht = 10;
 
     int j = 0;
-
+    
+    // draw rectangle around entire node
+    cv::rectangle(graph, 
+          loc + cv::Point(-5, -15), 
+          loc + cv::Point(100, ports.size()*10 + 2), 
+          vcol*0.2, //cv::Scalar(255,0,0),
+          2);
+    
+    int max_width = 0;
     for (int i = 0; i < ports.size(); i++) {
       if (i == selected_port_ind) ports[i]->highlight = true;
       else ports[i]->highlight = false;
