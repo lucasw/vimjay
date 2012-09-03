@@ -1124,6 +1124,9 @@ class CamThing
 
 }
 
+#include <linux/input.h>
+#include <fcntl.h>
+
 /*
  * To work with Kinect the user must install OpenNI library and PrimeSensorModule for OpenNI and
  * configure OpenCV with WITH_OPENNI flag is ON (using CMake).
@@ -1138,13 +1141,45 @@ int main( int argc, char* argv[] )
   google::LogToStderr();
   google::ParseCommandLineFlags(&argc, &argv, false);
  
-  bm::CamThing* cam_thing = new bm::CamThing();
+  //bm::CamThing* cam_thing = new bm::CamThing();
   
+
+// TEMP mouse test
+  int fd;
+  if ((fd = open("/dev/input/event5", O_RDONLY)) < 0) {
+    LOG(ERROR) << "couldn't open mouse " << fd;
+    exit(0);
+  }
+  struct input_event ev;
+
   bool rv = true;
   while(rv) {
+    /*
     rv = cam_thing->update();
     cam_thing->draw();
     cam_thing->clearAllNodeUpdates();
+    */
+
+    read(fd, &ev, sizeof(struct input_event));
+    VLOG(1) << "value 0x" << std::hex << ev.value 
+      << ", type 0x" << std::hex << ev.type 
+      << ", code 0x" << std::hex << ev.code;
+    if (ev.type == EV_REL) {
+      if (ev.value != 0) {
+        // mouse move left
+        if (ev.code == ABS_X) LOG(INFO)<< "dx " << ev.value;
+        // mouse move right
+        if (ev.code == ABS_Y)  LOG(INFO)<< "dy " << ev.value;
+        // wheel
+        if (ev.code == REL_WHEEL) LOG(INFO)<< "wheel " << ev.value;
+      }
+    }
+    if (ev.type == EV_MSC) {
+      // 0x90001 - 3
+      LOG(INFO) << "Button value 0x" << std::hex << ev.value 
+      << ", code " << ev.code;
+
+    }
   }
 
   return 0;
