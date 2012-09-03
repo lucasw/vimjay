@@ -45,6 +45,7 @@ add_executable(${PROJECT_NAME}
 camthing.cpp
 nodes.cpp
 misc_nodes.cpp
+signals.cpp
 filter.cpp
 generate.cpp
 screencap.cpp

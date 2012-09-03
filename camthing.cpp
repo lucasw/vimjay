@@ -18,6 +18,7 @@
     along with Camthing.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "camthing.h"
 
 #include <iostream>
 #include <sstream>
@@ -37,10 +38,10 @@
 
 #include "nodes.h" 
 #include "misc_nodes.h" 
+#include "signals.h"
 #include "filter.h"
 #include "generate.h"
 #include "screencap.h"
-#include "camthing.h"
 
 using namespace cv;
 using namespace std;

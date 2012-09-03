@@ -902,13 +902,13 @@ namespace bm {
     // even if they aren't in need of updating, but don't for now
     value += step;
     if (value > max) {
-      value = max;
-      step = -abs(step);   
+      value = min;
+      step = abs(step);   
       setSignal("step", step);
     }
     if (value < min) {
-      value = min;
-      step = abs(step);   
+      value = max;
+      step = -abs(step);   
       setSignal("step", step);
     }
     
@@ -936,41 +936,23 @@ namespace bm {
       x += max/(max - min) - 0.1;
     }
 
+    // TBD make a graphic that shows a rolling oscilloscope value
     cv::rectangle(graph, loc, 
         loc + cv::Point2f( x * 50.0 , 5), 
         cv::Scalar(255, 255, 100), CV_FILLED);
-
-    //stringstream sstr;
-    //sstr << value << " " << min << " " << max << " " << step;
-    //cv::putText(graph, sstr.str(), loc + cv::Point2(20,-30), 1, 1, cv::Scalar(200,200,200));
-    
+   
     return Node::draw();
   }
 
   bool Signal::load(cv::FileNodeIterator nd)
   {
     Node::load(nd);
-
-    // TBD if svals has all the values, could just loop through it in Node::load
-   /* (*nd)["min"] >> min;
-    (*nd)["max"] >> max;
-    (*nd)["value"] >> value;
-    (*nd)["step"] >> step;
-    */
   }
 
   bool Signal::save(cv::FileStorage& fs) 
   {
     Node::save(fs);
-
-    /*
-    fs << "min" << min;
-    fs << "max" << max;
-    fs << "value" << value;
-    fs << "step" << step;
-    */
   }
-
   
   //////////////////////////////////////////////////////////////////////////////////////////
   Buffer::Buffer() : ImageNode()

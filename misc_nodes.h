@@ -13,45 +13,9 @@
 #include <deque>
 #include <map>
 
-// bash color codes
-#define CLNRM "\e[0m"
-#define CLWRN "\e[0;43m"
-#define CLERR "\e[1;41m"
-#define CLVAL "\e[1;36m"
-#define CLTXT "\e[1;35m"
-
-#define MAT_FORMAT_C3 CV_8UC3
-#define MAT_FORMAT CV_8U
-//#define MAT_FORMAT_C3 CV_16SC3
-//#define MAT_FORMAT CV_16S
-//#define MAT_FORMAT_C3 CV_32FC3
-//#define MAT_FORMAT CV_32F
-
 #include "nodes.h"
 
 namespace bm {
-
-// TBD make signals.h?
-class Saw : public Signal
-{
-  public:
-  Saw(); // : Signal()
-  void setup(const float new_step=0.01, const float offset=0.0, const float min =0.0, const float max=1.0); 
-  virtual bool update();
-  virtual bool handleKey(int key);
-};
-
-class Random : public Signal
-{
-  std::random_device rd;
-  std::uniform_real_distribution<> dis;
-  std::mt19937 gen;
-
-  public:
-  Random(); // : Signal()
-  virtual bool update();
-  //virtual bool handleKey(int key);
-};
 
 // TBD allow multiple?
 class Output : public ImageNode

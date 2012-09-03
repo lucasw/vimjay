@@ -18,7 +18,7 @@
     along with Camthing.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "misc_nodes.h"
+#include "signals.h"
 
 #include <iostream>
 #include <stdio.h>
@@ -42,169 +42,83 @@ using namespace std;
 
 namespace bm {
 //////////////////////////////////////////////////
-
-  Rot2D::Rot2D()
+  Saw::Saw() : Signal()
   {
-
-    setSignal("angle", 0);
-    setSignal("scale", 1.0);
-    setSignal("center_x", 0.0);
-    setSignal("center_y", 0.0);
-    cv::Mat tmp;
-    setImage("in",tmp);
-  }
-
-  bool Rot2D::update()
-  {
-    if (!Node::update()) return false;
-
-    // anything to rotate?
-    if (ports.size() < 1) return false;
-   
-    bool im_dirty;
-    cv::Mat tmp_in;
-    // "image" is the default image input name
-    tmp_in = getImage("in");
-    if (tmp_in.empty()) return false;
-
-    float angle = getSignal("angle");    
-    float scale = getSignal("scale");    
-
-    cv::Point2f center;
-    center.x = getSignal("center_x");     
-    center.y = getSignal("center_y");
-
-    //VLOG(1) << name << " " << is_dirty << " " << im_in->name << " " << im_in->is_dirty;
-
-    cv::Mat rot = cv::getRotationMatrix2D(center, angle, scale);
-    cv::Mat tmp;
-    cv::warpAffine(tmp_in, tmp, rot, tmp_in.size(), INTER_NEAREST, BORDER_REFLECT);
-
-    setImage("out", tmp);
-  }
-
-  ////////////////////////////////////////////////////////////
-  Webcam::Webcam() : error_count(0)
-  {
-    LOG(INFO) << "camera opening ...";
-    capture = VideoCapture(0); //CV_CAP_OPENNI );
-    LOG(INFO) << "done.";
-
-    if ( !capture.isOpened() ) {
-      LOG(ERROR) << "Can not open a capture object.";
-      return;// -1;
-    }
-
-        //bool rv1 = capture.set( CV_CAP_PROP_FRAME_WIDTH, 800);
-        //    //bool rv2 = capture.set( CV_CAP_PROP_FRAME_HEIGHT, 600);
-        //        //LOG(INFO) << "set res " << rv1 << " " << rv2;
-        //
-        //
-    
-
-    //update();
-    //update();
-    is_thread_dirty = false;
-    cam_thread = boost::thread(&Webcam::runThread, this);
-
-    // wait for single frame so there is a sample with the correct size
-    // TBD or time out
-    while(!is_thread_dirty && (error_count < 20)) {}
+    vcol = cv::Scalar(0,90,255);
   }
   
-  Webcam::~Webcam()
+  void Saw::setup(const float new_step, const float offset, const float min, const float max) 
   {
-    LOG(INFO) << name << " stopping camera capture thread";
-    do_capture = false;
-    run_thread = false;
-    cam_thread.join();
-
-    LOG(INFO) << name << " releasing the camera";
-    capture.release();
+    Signal::setup(new_step, offset, min, max);
   }
 
-  void Webcam::runThread()
+  bool Saw::handleKey(int key)
   {
-    do_capture = true;
-    run_thread = true;
+    bool valid_key = Signal::handleKey(key);
+    if (valid_key) return true;
+    
+    //valid_key = true;
 
-    while(run_thread) {
-      if (do_capture && error_count < 20) {
-        /// TBD need to make this in separate thread
-        if( !capture.grab() )
-        {
-          LOG(ERROR) << name << " Can not grab images." << endl;
-          error_count++;
-          continue;
-          //return false;
-        } 
+    // TBD 
+    if (valid_key) setDirty();
+    
+    return valid_key;
+  }
 
-        cv::Mat new_out;
-        capture.retrieve(new_out);
+  bool Saw::update()
+  {
+    // don't call Signal::update because it will contradict this update
+    if (!Node::update()) return false;
 
-        if (new_out.empty()) {
-          LOG(ERROR) << name << " new image empty";
-          error_count++;
-          continue;
-          //return false;
-        }
+    float step = getSignal("step");
+    float min = getSignal("min");
+    float max = getSignal("max");
+    float value = getSignal("value");
 
-        error_count--;
-        if (error_count < 0) error_count = 0;
-        // I think opencv is reusing a mat within capture so have to clone it
-
-        //if (&new_out.data == &out.data) {
-        //
-        //cv::Mat tmp; // new_out.clone();
-       
-        float scale = 1.0;
-        if (MAT_FORMAT == CV_16S) scale = 255;
-        if (MAT_FORMAT == CV_32F) scale = 1.0/255.0;
-        if (MAT_FORMAT == CV_8U) scale = 1.0;
-        cv::Mat tmp;
-        new_out.convertTo(tmp, MAT_FORMAT,scale); //, 1.0/(255.0));//*255.0*255.0*255.0));
-
-        cv::Size sz = cv::Size(Config::inst()->im_width, Config::inst()->im_height);
-        cv::Mat tmp1;
-        cv::resize(tmp, tmp1, sz, 0, 0, cv::INTER_NEAREST );
-
-        //out_lock.lock();
-        setImage("out", tmp1);
-        is_thread_dirty = true;
-        //out_lock.unlock();
-        //} else {
-        //  VLOG(3) << name << " dissimilar capture";
-        //  out = new_out;
-        //}
-
-        // TBD out is the same address every time, why doesn't clone produce a new one?
-        //VLOG(3) << 
-
-      } else {
-        usleep(1000);
-      }
+    value += step;
+    if (value > max) {
+      step = -fabs(step);
+      value = max;
     }
-  } // runThread
+    if (value < min) {
+      step = fabs(step);
+      value = min;
+    }
 
-/*
-  cv::Mat get()
-  {
+    setSignal("step", step);
+    setSignal("value", value);
 
+    setDirty();
+
+    VLOG(3) << "Signal " << name << " " << value;
+    return true;
   }
-  */
+  
+  Random::Random()
+  { 
+    // TBD try opencv RNG
+    dis = std::uniform_real_distribution<>(0,1);
+  }
 
-  bool Webcam::update()
+  bool Random::update() 
   {
-    Node::update();
-    //ImageNode::update();
+    // don't call Signal::update because it will contradict this update
+    if (!Node::update()) return false;
+    
+    float min = getSignal("min");
+    float max = getSignal("max");
+    float rnd = dis(gen);
+    float value = rnd * (max - min) + min;
+    
+    setSignal("value", value);
+    setDirty();
 
-      if ( is_thread_dirty ) setDirty();
-      is_thread_dirty = false;
-
+    VLOG(3) << "Signal " << name << " " << value;
     return true;
   }
 
 
+#ifdef NOT_YET_IMPLEMENTED
 ///////////////////////////////////////////////////////////
   bool ImageDir::loadImages()
   {
@@ -284,22 +198,15 @@ namespace bm {
   }
 
 ///////////////////////////////////////////////////////////
-  Tap::Tap() : ImageNode()
+  Tap::Tap() 
   {
     vcol = cv::Scalar(100, 30, 250);
 
     getSignal("value");
-    getBuffer("buffer",0);
+    getSigBuffer("buffer",0);
     
     setInputPort(BUFFER,"buffer", NULL, "out");
     //getImage("Buffer");
-  }
-
-  void Tap::setup(Signal* new_signal, Buffer* new_buffer) 
-  {
-    // TBD need caller to provide these
-    setInputPort(SIGNAL,"value", new_signal, "value");
-    setInputPort(BUFFER,"buffer", new_buffer, "out");
   }
 
   bool Tap::update()
@@ -361,29 +268,12 @@ namespace bm {
   }
 
   ///////////////////////////////////////////
-  Add::Add() 
+  SigAdd::SigAdd() 
   {
-    cv::Mat tmp;
-    setImage("add0", tmp);
-    setSignal("add0", 2.0);
+    setSignal("add0", 1.0);
     vcol = cv::Scalar(200, 200, 50);
   }
-  
-  void Add::setup(vector<ImageNode*> np, vector<float> nf) 
-  {
-    if (np.size() != nf.size()) {
-      LOG(ERROR) << CLWRN << "mismatched inputs and coefficients" << CLNRM;
-      //return; 
-    }
-   
-    // TBD instead of clearing all, only clear the keys that match "add"
-    for (int i = 0; i < np.size(); i++) {
-      const string port = "add" + boost::lexical_cast<string>(i);
-      setInputPort(IMAGE, port, np[i], "out");
-      setInputPort(SIGNAL, port, NULL, "value"); // this allows other signals to connect to replace nf
-    }
-  }
-
+ 
   bool Add::update()
   {
     if (!Node::update()) return false;
@@ -750,6 +640,7 @@ CMP_NE
   return true;
   }
 
+#endif
 
   
 

@@ -1,5 +1,5 @@
 %YAML:1.0
-date: "Sun Sep  2 20:37:52 2012\n"
+date: "Sun Sep  2 20:53:12 2012\n"
 nodes:
    -
       ind: 0
@@ -38,7 +38,7 @@ nodes:
          -
             type: 1
             name: ind
-            value: 4.0766444206237793e+00
+            value: 9.6614103317260742e+00
             src_ind: 8
             src_port: value
          -
@@ -206,13 +206,13 @@ nodes:
          -
             type: 1
             name: angle
-            value: 1.1219307780265808e-01
+            value: -2.4341306090354919e-01
             src_ind: 7
             src_port: value
          -
             type: 1
             name: scale
-            value: 9.6658271551132202e-01
+            value: 9.1667717695236206e-01
             src_ind: 6
             src_port: value
          -
@@ -265,13 +265,13 @@ nodes:
          -
             type: 1
             name: value
-            value: 9.6658271551132202e-01
+            value: 9.1667717695236206e-01
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: step
-            value: -1.6677178442478180e-02
+            value: 1.6677178442478180e-02
             src_ind: -1
             src_port: ""
          -
@@ -301,13 +301,13 @@ nodes:
          -
             type: 1
             name: value
-            value: 1.1219307780265808e-01
+            value: -2.4341306090354919e-01
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: step
-            value: 6.5609999001026154e-02
+            value: -6.5609999001026154e-02
             src_ind: -1
             src_port: ""
          -
@@ -337,13 +337,13 @@ nodes:
          -
             type: 1
             name: value
-            value: 4.0766444206237793e+00
+            value: 9.6614103317260742e+00
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: step
-            value: 1.8530201911926270e-01
+            value: -1.8530201911926270e-01
             src_ind: -1
             src_port: ""
          -
@@ -409,19 +409,19 @@ nodes:
          -
             type: 1
             name: value
-            value: 0.
+            value: 7.7812290191650391e-01
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: step
-            value: 1.0000000149011612e-01
+            value: 2.5937429070472717e-01
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: enable
-            value: 0.
+            value: 1.
             src_ind: -1
             src_port: ""
    -
@@ -734,9 +734,9 @@ nodes:
          -
             type: 1
             name: enable
-            value: 1.
-            src_ind: -1
-            src_port: ""
+            value: 7.7812290191650391e-01
+            src_ind: 10
+            src_port: value
    -
       ind: 21
       typeid: "bm::GaussianBlur"
