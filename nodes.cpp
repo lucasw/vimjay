@@ -149,20 +149,16 @@ namespace bm {
 
   //////////////////////////////////////////////////////////////////////////////////////////
   Node::Node() : 
-    enable(true),
     selected_type(NONE),
     selected_port_ind(-1),
     selected_port(""),
     do_update(false)
   {
-
-    //is_dirty = true;
     vcol = cv::Scalar(200,200,200);
   }
 
 /*
   Node::Node(string name, cv::Point loc, cv::Mat graph ) : 
-    enable(true),
     selected_type(NONE),
     selected_port_ind(-1),
     name(name),
@@ -234,19 +230,26 @@ namespace bm {
   // process or not
   bool Node::update() 
   {
-  
- 
     if (!do_update) return false;
     do_update = false; 
 
+    // need to update enable no matter if it is false
+    for (int i = 0; i < ports.size(); i++)
+    {
+      if (ports[i]->name == "enable")
+        ports[i]->update();
+    }
+
     // TBD should this occur before updating the inputs?
-    if (!enable) return false;
+    if (!(getSignal("enable") >= 1.0)) 
+      return false;
     
     bool inputs_dirty = false;
 
     for (int i = 0; i < ports.size(); i++)
     {
-      ports[i]->update();
+      if (ports[i]->name != "enable")
+        ports[i]->update();
         //ports[i]->src->parent->update();
         // TBD may wan to track per output dirtiness later?
       if (ports[i]->is_dirty) inputs_dirty = true;
@@ -297,7 +300,8 @@ namespace bm {
     if (!isDirty(this,1)) fr = 5;
     cv::Scalar col = cv::Scalar(vcol/fr);
 
-    if (!enable) cv::circle(graph, loc, 10, cv::Scalar(0,0,100), -1);
+    if (!(getSignal("enable") >= 1.0)) 
+      cv::circle(graph, loc, 10, cv::Scalar(0,0,100), -1);
 
     cv::circle(graph, loc, 24, col, 4);
 
@@ -327,7 +331,6 @@ namespace bm {
   bool Node::load(cv::FileNodeIterator nd)
   {
     // TBD name, loc?
-    (*nd)["enable"] >> enable;
 
      #if 0 
     // blanket loading of all svals
@@ -365,7 +368,6 @@ namespace bm {
     //fs << "typeid_mangled" << typeid(*all_nodes[i]).name();
     fs << "name" << name; 
     fs << "loc" << loc; 
-    fs << "enable" << enable;
     //fs << "vcol" << p->vcol  ; 
     
   }

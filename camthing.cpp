@@ -952,7 +952,9 @@ class CamThing
       draw_nodes = !draw_nodes;
     }
     else if (key == 's') {
-      if (selected_node) selected_node->enable = !selected_node->enable;
+      if (selected_node)
+        // TBD make node function to do this without exposing setSignal 
+        selected_node->setSignal("enable",  !((bool)selected_node->getSignal("enable")));
     }
     
     // Connection manipulation

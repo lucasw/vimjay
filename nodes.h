@@ -130,7 +130,6 @@ class Node
   // has this node been updated this timestep, or does it need to be updated this timestep
   // because of dependencies
   bool do_update;
-  bool enable;
 
   // is the output of this node different from the last  timestep
   //bool is_dirty;
