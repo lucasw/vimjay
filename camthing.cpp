@@ -1141,25 +1141,25 @@ int main( int argc, char* argv[] )
   google::LogToStderr();
   google::ParseCommandLineFlags(&argc, &argv, false);
  
-  //bm::CamThing* cam_thing = new bm::CamThing();
-  
-
 // TEMP mouse test
+  #ifdef MOUSE_TEST
   int fd;
-  if ((fd = open("/dev/input/event5", O_RDONLY)) < 0) {
+  // cat /proc/bus/input/devices - TBD how to find just the mouses?
+  // - TBD how to find just the mouses?
+  // TBD can't get touchpad to work, don't even see it when catting /dev/input/mouseN
+  if ((fd = open("/dev/input/event4", O_RDONLY)) < 0) {
     LOG(ERROR) << "couldn't open mouse " << fd;
     exit(0);
   }
   struct input_event ev;
+  #else 
+  bm::CamThing* cam_thing = new bm::CamThing();
+  #endif
 
   bool rv = true;
   while(rv) {
-    /*
-    rv = cam_thing->update();
-    cam_thing->draw();
-    cam_thing->clearAllNodeUpdates();
-    */
 
+    #ifdef MOUSE_TEST
     read(fd, &ev, sizeof(struct input_event));
     VLOG(1) << "value 0x" << std::hex << ev.value 
       << ", type 0x" << std::hex << ev.type 
@@ -1180,6 +1180,11 @@ int main( int argc, char* argv[] )
       << ", code " << ev.code;
 
     }
+    #else
+    rv = cam_thing->update();
+    cam_thing->draw();
+    cam_thing->clearAllNodeUpdates();
+    #endif
   }
 
   return 0;

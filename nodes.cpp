@@ -45,6 +45,33 @@ using namespace std;
 
 namespace bm {
 
+  unsigned long
+    hashdjb2(const char *str)
+    {
+      unsigned long hash = 5381;
+      int c;
+
+      while (c = (unsigned char)(*str++))
+        hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
+
+      return hash;
+    }
+
+  cv::Scalar hashStringColor(const string str) {
+    
+    unsigned long val = hashdjb2(str.c_str());
+
+    int val2 = val % 0xffffff;
+    
+    int r = (val2 & 0xff0000) >> 16;
+    int g = (val2 & 0x00ff00) >> 8;
+    int b = (val2 & 0x0000ff) >> 0;
+   
+    VLOG(1) << "hash color 0x" << std::hex << val << " 0x" << std::hex << val2 
+      << " : 0x" << std::hex <<  r << " 0x" << std::hex << g << " 0x" << std::hex << b;
+    return cv::Scalar(r,g,b);
+  }
+
   Connector::Connector() :
     parent(NULL),
     src(NULL),
@@ -72,10 +99,25 @@ namespace bm {
       }
     } 
   }
+  
+  std::string typeToString(const conType type)
+  {
+    if (type == IMAGE) {
+      return "Image";
+    } else if (type == SIGNAL) {
+      return "Signal";
+    } else if (type == BUFFER) {
+      return "Buffer";
+    }
+    return "Unknown";
+  }
 
   void Connector::draw(cv::Mat graph) 
   {
    
+    cv::Scalar hash_col = hashStringColor(/*parent->name +*/ typeToString(type) + name);
+    VLOG(1) << name << " " << hash_col[0] << " " << hash_col[1] << " " << hash_col[2];
+
     // draw a box around the port
     cv::Scalar rect_col = cv::Scalar(40,50,40);
     if (highlight) {
@@ -87,8 +129,15 @@ namespace bm {
           rect_col,
           CV_FILLED);
 
+    cv::rectangle(graph, 
+          parent->loc + loc, 
+          parent->loc + loc + cv::Point2f(name.size()*10, -10), 
+          hash_col);
+     
     if (src) {
-      
+
+      cv::Scalar dst_hash_col = hashStringColor(/*src->parent->name +*/ typeToString(src->type) + src->name);
+
       vector<cv::Point2f> control_points;
       control_points.resize(4);
       control_points[0] = src->parent->loc + src->loc + cv::Point2f(src->name.size()*10, -5);
@@ -97,17 +146,17 @@ namespace bm {
 
       // TBD if control_points dirty
       {
-      cv::Point2f diff = control_points[3] - control_points[0];
-      float dist = abs(diff.x) + abs(diff.y);
+        cv::Point2f diff = control_points[3] - control_points[0];
+        float dist = abs(diff.x) + abs(diff.y);
 
-      // don't want lines going
-      float y_off = 0;
-      if ((control_points[3].x < control_points[0].x) && 
-          (abs(control_points[3].y - control_points[0].y) < 100)) y_off = 100;
+        // don't want lines going
+        float y_off = 0;
+        if ((control_points[3].x < control_points[0].x) && 
+            (abs(control_points[3].y - control_points[0].y) < 100)) y_off = 100;
 
-      control_points[1] = control_points[0] + cv::Point2f(dist/3.0,  y_off);
-      control_points[2] = control_points[3] - cv::Point2f(dist/3.0, -y_off);
-      getBezier(control_points, connector_points, 20);
+        control_points[1] = control_points[0] + cv::Point2f(dist/3.0,  y_off);
+        control_points[2] = control_points[3] - cv::Point2f(dist/3.0, -y_off);
+        getBezier(control_points, connector_points, 20);
       }
 
       // draw dark outline
@@ -117,14 +166,22 @@ namespace bm {
       for (int i = 1; i < connector_points.size(); i++) {
         cv::Scalar col;
         const float fr = (float)i/(float)connector_points.size();
-        col = cv::Scalar(255*fr, 128 + 64*fr, 128 + 64*fr);
-        if (type == IMAGE) {
-          col = cv::Scalar(55 + 200*fr, 110 - 55*fr, 85 + 150*fr);
-        } else if (type == SIGNAL) {
-          col = cv::Scalar(110 - 55*fr, 55 + 200*fr, 85 + 150*fr);
-        } else if (type == BUFFER) {
-          col = cv::Scalar(55 + 200*fr, 85 + 150*fr, 110-55*fr);
+
+        // colorize the lines so that starts and ends are distinct, and 
+        // use the hash colors so similarly named connector ends are similarly colored.
+        float wt1, wt2;
+        if (fr < 0.5) {
+          wt1 = 1.0 * (1.0-fr*fr);
+          wt2 = 0.0;
+        } else {
+          wt1 = ((1.0-fr)*(1.0-fr));
+          wt2 = 1.0 * (fr);
         }
+        cv::Scalar hc2 = dst_hash_col * cv::Scalar(wt1);
+        //cv::Scalar hc1 = hash_col *( 1.0-(1.0-fr));
+        cv::Scalar hc1 = hash_col * cv::Scalar(wt2);
+        col = hc1 + hc2; 
+
         cv::line(graph, connector_points[i-1], connector_points[i], col, 2, CV_AA ); 
       }
     }
