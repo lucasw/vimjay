@@ -43,122 +43,11 @@
 #include "filter.h"
 #include "generate.h"
 #include "screencap.h"
+#include "utility.h"
 
 //using namespace cv;
 using namespace std;
 
-#include <X11/Xlib.h>
-#include <X11/Intrinsic.h>
-#include <X11/extensions/XInput2.h>
-
-/**
- * This is the function to demonstrate the conversion XImage to IplImage
- * @param ximage the X image object
- * @param display the X display, for init see main() below
- * @param screen the X screen, for init see main() below
- * @return
- */
-bool matToXImage(cv::Mat& im, XImage* ximage, Window& win, Display& display, Screen& screen) 
-{
-    XColor color;
-    
-    LOG_FIRST_N(INFO,1) << im.rows << " " << im.cols << ", " << ximage->width << " " << ximage->height;
-    //cv::Mat tmp = cv::Mat(cv::Size(ximage.width, ximage.height), CV_8UC3);
-
-    if (screen.depths->depth == 24) {
-      LOG_FIRST_N(INFO,1) << "24-bit depth";
-        // Some of the following code is borrowed from http://www.roard.com/docs/cookbook/cbsu19.html ("Screen grab with X11" - by Marko Riedel, with an idea by Alexander Malmberg)
-        unsigned long rmask = screen.root_visual->red_mask,
-                gmask = screen.root_visual->green_mask,
-                bmask = screen.root_visual->blue_mask;
-        unsigned long rshift, rbits, gshift, gbits, bshift, bbits;
-        //unsigned char colorChannel[3];
-
-        rshift = 0;
-        rbits = 0;
-        while (!(rmask & 1)) {
-            rshift++;
-            rmask >>= 1;
-        }
-        while (rmask & 1) {
-            rbits++;
-            rmask >>= 1;
-        }
-        if (rbits > 8) {
-            rshift += rbits - 8;
-            rbits = 8;
-        }
-
-        gshift = 0;
-        gbits = 0;
-        while (!(gmask & 1)) {
-            gshift++;
-            gmask >>= 1;
-        }
-        while (gmask & 1) {
-            gbits++;
-            gmask >>= 1;
-        }
-        if (gbits > 8) {
-            gshift += gbits - 8;
-            gbits = 8;
-        }
-
-        bshift = 0;
-        bbits = 0;
-        while (!(bmask & 1)) {
-            bshift++;
-            bmask >>= 1;
-        }
-        while (bmask & 1) {
-            bbits++;
-            bmask >>= 1;
-        }
-        if (bbits > 8) {
-            bshift += bbits - 8;
-            bbits = 8;
-        }
-
-        LOG_FIRST_N(INFO,1) 
-            << "bshift " << bshift << " bbits " << bbits 
-            << ", gshift " << gshift << " gbits " << gbits 
-            << ", rshift " << rshift << " rbits " << rbits;
-        for (unsigned int x = 0; x < ximage->width; x++) {
-            for (unsigned int y = 0; y < ximage->height; y++) {
-                color.pixel = XGetPixel(ximage, x, y);
-                //colorChannel[0] = ((color.pixel >> bshift) & ((1 << bbits) - 1)) << (8 - bbits);
-                //colorChannel[1] = ((color.pixel >> gshift) & ((1 << gbits) - 1)) << (8 - gbits);
-                //colorChannel[2] = ((color.pixel >> rshift) & ((1 << rbits) - 1)) << (8 - rbits);
-                //cv::Vec3b col = cv::Vec3b(colorChannel[0], colorChannel[1], colorChannel[0]);
-                
-                cv::Vec3b col = im.at<cv::Vec3b> (y,x);
-                int b = col[0];
-                int g = col[1];
-                int r = col[2];
-                 
-                 color.pixel  = (r << rshift);
-                 color.pixel |= (b << bshift);
-                 color.pixel |= (g << gshift);
-
-                //color.pixel = 0xf0f0f0;
-                XPutPixel(ximage, x,y, color.pixel);
-            }
-        }
-        LOG_FIRST_N(INFO,1) << "done copying mat";
-    } else { // Extremly slow alternative for non 24bit-depth
-        LOG_FIRST_N(INFO,1) <<" slow route TBD";
-        Colormap colmap = DefaultColormap(&display, DefaultScreen(&display));
-        for (unsigned int x = 0; x < ximage->width; x++) {
-            for (unsigned int y = 0; y < ximage->height; y++) {
-                color.pixel = XGetPixel(ximage, x, y);
-                XQueryColor(&display, colmap, &color);
-                cv::Vec3b col = cv::Vec3b(color.blue, color.green, color.red);
-                im.at<cv::Vec3b> (y,x) = col;
-            }
-        }
-    }
-    return true;
-}
 
 
 
@@ -270,7 +159,7 @@ int main( int argc, char* argv[] )
   XImage* ximage = XGetImage(display, DefaultRootWindow(display), 0, 0, 500, 500, AllPlanes, ZPixmap);
   Screen* screen = DefaultScreenOfDisplay(display);
   //XImage* ximage = XCreateImage(display, DefaultVisual(display, screen) 
-  matToXImage(tmp, ximage, win, *display, *screen);
+  bm::matToXImage(tmp, ximage, win, *display, *screen);
   GC gc = XCreateGC(display, win, 0, NULL);
   XPutImage(display, win,  gc, ximage, 0, 0, 0, 0, 500, 500);
   

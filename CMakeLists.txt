@@ -49,6 +49,7 @@ signals.cpp
 filter.cpp
 generate.cpp
 screencap.cpp
+utility.cpp
 )
 
 target_link_libraries(${PROJECT_NAME} 
@@ -64,6 +65,7 @@ boost_system
 
 add_executable(input_test
 input.cpp
+utility.cpp
 )
 
 target_link_libraries(input_test 

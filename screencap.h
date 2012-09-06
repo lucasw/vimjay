@@ -19,7 +19,6 @@ class ScreenCap : public ImageNode
     Display* display;
     Screen* screen;
     XImage* xImageSample;
-    IplImage* cvImageSample;
     XColor col;
 
   public:
