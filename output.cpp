@@ -56,6 +56,15 @@ namespace bm {
 
   bool Output::draw()
   {
+    /*
+    XWindowAttributes xwAttr;
+    Status ret = XGetWindowAttributes( display, win, &xwAttr );
+    int screen_w = xwAttr.width;
+    int screen_h = xwAttr.height;
+
+
+    if (ximage) XPutImage(display, win,  gc, ximage, 0, 0, 0, 0, screen_w, screen_h);
+    */
     if (ximage) XPutImage(display, win,  gc, ximage, 0, 0, 0, 0, ximage->width, ximage->height);
     return ImageNode::draw();
   }
