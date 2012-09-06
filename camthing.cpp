@@ -42,6 +42,7 @@
 #include "filter.h"
 #include "generate.h"
 #include "screencap.h"
+#include "output.h"
 
 using namespace cv;
 using namespace std;
@@ -212,6 +213,8 @@ namespace bm {
     fs["thumb_height"] >> thumb_height;
     fs["im_width"] >> im_width;
     fs["im_height"] >> im_height;
+    fs["out_width"] >> out_width;
+    fs["out_height"] >> out_height;
     
     LOG(INFO) << width << " " << height;
     LOG(INFO) << thumb_width << " " << thumb_height;
@@ -437,7 +440,8 @@ class CamThing
     cv::moveWindow("graph_im", 0, 500);
     cv::resizeWindow("graph_im", graph_im.size().width, graph_im.size().height);
 
-    cv::setWindowProperty("graph_im", WND_PROP_FULLSCREEN, CV_WINDOW_FULLSCREEN);
+    //cv::setWindowProperty("graph_im", WND_PROP_FULLSCREEN, CV_WINDOW_FULLSCREEN);
+
 /*
     // Bring this back when there is a fullscreen/decoration free output window
     cv::namedWindow("out", CV_GUI_NORMAL);
@@ -526,6 +530,7 @@ class CamThing
       } else if (type_id.compare("bm::Output") == 0) {
         node = getNode<Output>(name, loc);
         output_node = (Output*)node;
+        output_node->setup(Config::inst()->out_width, Config::inst()->out_height);
       } else {
         LOG(WARNING) << "unknown node type " << type_id << ", assuming imageNode";
         node = getNode<ImageNode>(name, loc);

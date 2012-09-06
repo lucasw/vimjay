@@ -17,14 +17,6 @@
 
 namespace bm {
 
-// TBD allow multiple?
-class Output : public ImageNode
-{
-  public:
-  Output() { cv::Mat out; setImage("in",out);}
-  // doesn't have anything special, just a class to be detected with a dynamic_cast upon loading
-};
-
 class Rot2D : public ImageNode
 {
   public:

@@ -25,6 +25,8 @@ namespace bm {
       int thumb_height;
       int im_width;
       int im_height;
+      int out_width;
+      int out_height;
 
       bool load(const std::string file);
   };

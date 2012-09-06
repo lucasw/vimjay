@@ -53,6 +53,30 @@ bool setupX(Display*& display, Window& win, const int width, const int height, i
 
   XISelectEvents(display, win, &eventmask, 1);
 
+  if (0) {
+  // move to upper corner?  No it moves it to the far left but a few menu bar widths below the top of the screen
+  Window wid = DefaultRootWindow( display );
+  XMoveResizeWindow(display, wid, 0,0, width, height);
+  XMapRaised(display, wid);
+  }
+
+  {
+    Window wid = DefaultRootWindow( display );
+    XWindowAttributes xwAttr;
+    Status ret = XGetWindowAttributes( display, wid, &xwAttr );
+    int screen_w = xwAttr.width;
+    int screen_h = xwAttr.height;
+
+    LOG(INFO) << " screen w h " << CLVAL << screen_w << " " << screen_h << CLNRM;
+    // This is the same as the attributes above
+    LOG(INFO) << XDisplayWidth(display, 0) << " " << XDisplayHeight(display, 0);
+    // this is junk
+    LOG(INFO) << XDisplayWidth(display, 1) << " " << XDisplayHeight(display, 1);
+
+    // TBD how to get resolution of particular monitor?
+
+  }
+
   return true;
 }
 
@@ -194,7 +218,7 @@ bool matToXImage(cv::Mat& im, XImage* ximage, Window& win, Display& display, Scr
 {
     XColor color;
     
-    LOG_FIRST_N(INFO,1) << im.rows << " " << im.cols << ", " << ximage->width << " " << ximage->height;
+    LOG_FIRST_N(INFO,1) << im.cols << " " << im.rows << ", " << ximage->width << " " << ximage->height;
     //cv::Mat tmp = cv::Mat(cv::Size(ximage.width, ximage.height), CV_8UC3);
 
     if (screen.depths->depth == 24) {

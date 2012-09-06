@@ -711,7 +711,7 @@ nodes:
             src_port: ""
    -
       ind: 20
-      typeid: "bm::ImageNode"
+      typeid: "bm::Output"
       name: output
       loc: [ 778., 582. ]
       inputs:

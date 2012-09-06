@@ -50,6 +50,7 @@ filter.cpp
 generate.cpp
 screencap.cpp
 utility.cpp
+output.cpp
 )
 
 target_link_libraries(${PROJECT_NAME} 

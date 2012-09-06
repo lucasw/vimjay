@@ -8,6 +8,22 @@
 
 #include "opencv2/imgproc/imgproc.hpp"
 
+// bash color codes
+#define CLNRM "\e[0m"
+#define CLWRN "\e[0;43m"
+#define CLERR "\e[1;41m"
+#define CLVAL "\e[1;36m"
+#define CLTXT "\e[1;35m"
+// BOLD black text with blue background
+#define CLTX2 "\e[1;44m"  
+
+#define MAT_FORMAT_C3 CV_8UC3
+#define MAT_FORMAT CV_8U
+//#define MAT_FORMAT_C3 CV_16SC3
+//#define MAT_FORMAT CV_16S
+//#define MAT_FORMAT_C3 CV_32FC3
+//#define MAT_FORMAT CV_32F
+
 namespace bm {
 
 bool setupX(Display*& display, Window& win, const int width, const int height, int& opcode);

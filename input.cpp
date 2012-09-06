@@ -49,7 +49,8 @@
 using namespace std;
 
 
-
+DEFINE_int32(width, 640, "");
+DEFINE_int32(height, 480, "");
 //DEFINE_string(mouse, "/dev/input/mouse0", "/dev/input/mouseN or /dev/input/eventN");
 /*
  * To work with Kinect the user must install OpenNI library and PrimeSensorModule for OpenNI and
@@ -102,19 +103,18 @@ int main( int argc, char* argv[] )
   }
 #endif
 
-  int width = 500;
-  int height = 500;
+  int width = FLAGS_width;
+  int height = FLAGS_height;
   
 	Display *display;
   Window win;
   int opcode;
   bm::setupX(display, win, width, height, opcode);
-  bm::removeWindowDecorations(display, win);
+  //bm::removeWindowDecorations(display, win);
 
-  
   cv::Mat tmp;
   // BGR
-  tmp = cv::Mat(width,height, CV_8UC3, cv::Scalar(255,100,50));
+  tmp = cv::Mat(height, width, CV_8UC3, cv::Scalar(255,100,50));
  
   bm::matToScreen(tmp, display, win);
 
@@ -123,6 +123,9 @@ int main( int argc, char* argv[] )
 
 	/* Event loop */
 	while(1) {
+
+    bm::matToScreen(tmp, display, win);
+    usleep(10000);
 
 		XEvent ev;
 		/* Get next event; blocks until an event occurs */
