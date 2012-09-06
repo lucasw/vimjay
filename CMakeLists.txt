@@ -62,3 +62,15 @@ boost_system
 )
 
 
+add_executable(input_test
+input.cpp
+)
+
+target_link_libraries(input_test 
+${OpenCV_LIBS}
+glog
+gflags
+boost_thread
+boost_filesystem
+boost_system
+)
