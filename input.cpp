@@ -50,7 +50,6 @@ using namespace std;
 
 
 
-
 //DEFINE_string(mouse, "/dev/input/mouse0", "/dev/input/mouseN or /dev/input/eventN");
 /*
  * To work with Kinect the user must install OpenNI library and PrimeSensorModule for OpenNI and
@@ -103,67 +102,24 @@ int main( int argc, char* argv[] )
   }
 #endif
 
-  // from git://gitorious.org/vinput/vinput.git demo-paint.c (GPL)
-	/* Connect to the X server */
-	Display *display = XOpenDisplay(NULL);
+  int width = 500;
+  int height = 500;
+  
+	Display *display;
+  Window win;
+  int opcode;
+  bm::setupX(display, win, width, height, opcode);
+  bm::removeWindowDecorations(display, win);
 
-
-	/* Check if the XInput Extension is available */
-	int opcode, event, error;
-	if (!XQueryExtension(display, "XInputExtension", &opcode, &event, &error)) {
-		printf("X Input extension not available.\n");
-		return -1;
-	}
-  LOG(INFO) <<"XInputExtension available";
-
-	/* Check for XI2 support */
-	int major = 2, minor = 0;
-	if (XIQueryVersion(display, &major, &minor) == BadRequest) {
-		printf("XI2 not available. Server supports %d.%d\n", major, minor);
-		return -1;
-	}
-  LOG(INFO) <<"XI2 available";
-
-	/* Set up MPX events */
-	XIEventMask eventmask;
-	unsigned char mask[1] = { 0 };
-
-	eventmask.deviceid = XIAllMasterDevices;
-	eventmask.mask_len = sizeof(mask);
-	eventmask.mask = mask;
-
-	/* Events we want to listen for */
-	XISetMask(mask, XI_Motion);
-	XISetMask(mask, XI_ButtonPress);
-	XISetMask(mask, XI_ButtonRelease);
-	//XISetMask(mask, XI_KeyPress);
-	//XISetMask(mask, XI_KeyRelease);
-
-	/* Register events on the window */
-  int screen_num = DefaultScreen(display);
-  Window win = XCreateSimpleWindow(display, DefaultRootWindow(display),
-          0, 0, 500, 500, 5, 
-          WhitePixel(display, screen_num), 
-          BlackPixel(display, screen_num));
-  XMapWindow(display, win);
-  XSync( display, False );
-
-  XISelectEvents(display, win, &eventmask, 1);
-
-  //
+  
   cv::Mat tmp;
   // BGR
-  tmp = cv::Mat(500,500, CV_8UC3, cv::Scalar(255,100,50));
+  tmp = cv::Mat(width,height, CV_8UC3, cv::Scalar(255,100,50));
+ 
+  bm::matToScreen(tmp, display, win);
+
   //cv::imshow("temp", tmp);
-  //XImage* ximage = XGetImage(display, win, 0, 0, 500, 500, AllPlanes, ZPixmap);
-  XImage* ximage = XGetImage(display, DefaultRootWindow(display), 0, 0, 500, 500, AllPlanes, ZPixmap);
-  Screen* screen = DefaultScreenOfDisplay(display);
-  //XImage* ximage = XCreateImage(display, DefaultVisual(display, screen) 
-  bm::matToXImage(tmp, ximage, win, *display, *screen);
-  GC gc = XCreateGC(display, win, 0, NULL);
-  XPutImage(display, win,  gc, ximage, 0, 0, 0, 0, 500, 500);
-  
-  cv::waitKey(10);
+  //cv::waitKey(10);
 
 	/* Event loop */
 	while(1) {

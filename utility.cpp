@@ -3,6 +3,94 @@
 #include <glog/logging.h>
 
 namespace bm {
+
+bool setupX(Display*& display, Window& win, const int width, const int height, int& opcode) 
+{
+  // from git://gitorious.org/vinput/vinput.git demo-paint.c (GPL)
+	/* Connect to the X server */
+  display = XOpenDisplay(NULL);
+
+
+	/* Check if the XInput Extension is available */
+	int event, error;
+	if (!XQueryExtension(display, "XInputExtension", &opcode, &event, &error)) {
+		printf("X Input extension not available.\n");
+		return false;
+	}
+  LOG(INFO) <<"XInputExtension available";
+
+	/* Check for XI2 support */
+	int major = 2, minor = 0;
+	if (XIQueryVersion(display, &major, &minor) == BadRequest) {
+		printf("XI2 not available. Server supports %d.%d\n", major, minor);
+		return false;
+	}
+  LOG(INFO) <<"XI2 available";
+
+	/* Set up MPX events */
+	XIEventMask eventmask;
+	unsigned char mask[1] = { 0 };
+
+	eventmask.deviceid = XIAllMasterDevices;
+	eventmask.mask_len = sizeof(mask);
+	eventmask.mask = mask;
+
+	/* Events we want to listen for */
+	XISetMask(mask, XI_Motion);
+	XISetMask(mask, XI_ButtonPress);
+	XISetMask(mask, XI_ButtonRelease);
+	//XISetMask(mask, XI_KeyPress);
+	//XISetMask(mask, XI_KeyRelease);
+
+	/* Register events on the window */
+  int screen_num = DefaultScreen(display);
+  win = XCreateSimpleWindow(display, DefaultRootWindow(display),
+          0, 0, width, height, 5, 
+          WhitePixel(display, screen_num), 
+          BlackPixel(display, screen_num));
+  XMapWindow(display, win);
+  XSync( display, False );
+
+  XISelectEvents(display, win, &eventmask, 1);
+
+  return true;
+}
+
+bool removeWindowDecorations(Display* display, Window& win) 
+{
+    //code to remove decoration
+  Hints hints;
+  Atom property;
+  hints.flags = 2;
+  hints.decorations = 0;
+  property = XInternAtom(display, "_MOTIF_WM_HINTS", true);
+  XChangeProperty(display, win, property, property, 32, PropModeReplace, (unsigned char *)&hints,5);
+  XMapWindow(display, win);
+}
+
+// TBD may not need this function, user ought to keep ximage around and reuse it
+bool matToScreen(cv::Mat& tmp, Display* display, Window& win) 
+{
+  // TBD handle size mismatches
+  const int width = tmp.cols;
+  const int height = tmp.rows;
+  
+  // grabbing image for now, later 
+  XImage* ximage = XGetImage(display, DefaultRootWindow(display), 0, 0, width, height, AllPlanes, ZPixmap);
+  
+  if (ximage == NULL) return false;
+
+  Screen* screen = DefaultScreenOfDisplay(display);
+  //XImage* ximage = XCreateImage(display, DefaultVisual(display, screen) 
+  bm::matToXImage(tmp, ximage, win, *display, *screen);
+  GC gc = XCreateGC(display, win, 0, NULL);
+  XPutImage(display, win,  gc, ximage, 0, 0, 0, 0, width, height);
+  
+  XDestroyImage(ximage);
+
+  return true;
+}
+
 /**
  * This is the function to demonstrate the conversion XImage to IplImage
  * @param _xImage the X image object
