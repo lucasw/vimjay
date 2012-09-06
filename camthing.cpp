@@ -436,6 +436,8 @@ class CamThing
     cv::namedWindow("graph_im", CV_GUI_NORMAL);
     cv::moveWindow("graph_im", 0, 500);
     cv::resizeWindow("graph_im", graph_im.size().width, graph_im.size().height);
+
+    cv::setWindowProperty("graph_im", WND_PROP_FULLSCREEN, CV_WINDOW_FULLSCREEN);
 /*
     // Bring this back when there is a fullscreen/decoration free output window
     cv::namedWindow("out", CV_GUI_NORMAL);

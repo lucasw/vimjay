@@ -23,6 +23,7 @@
 #include <iostream>
 #include <sstream>
 #include <stdio.h>
+#include <stdlib.h>
 #include <time.h>
 #include <typeinfo>
 #include <cxxabi.h> // non portable
@@ -43,13 +44,16 @@
 #include "generate.h"
 #include "screencap.h"
 
-using namespace cv;
+//using namespace cv;
 using namespace std;
 
-#include <linux/input.h>
-#include <fcntl.h>
+#include <X11/Xlib.h>
+#include <X11/Intrinsic.h>
+#include <X11/extensions/XInput2.h>
 
-DEFINE_string(mouse, "/dev/input/mouse0", "/dev/input/mouseN or /dev/input/eventN");
+
+
+//DEFINE_string(mouse, "/dev/input/mouse0", "/dev/input/mouseN or /dev/input/eventN");
 /*
  * To work with Kinect the user must install OpenNI library and PrimeSensorModule for OpenNI and
  * configure OpenCV with WITH_OPENNI flag is ON (using CMake).
@@ -63,7 +67,8 @@ int main( int argc, char* argv[] )
   google::InitGoogleLogging(argv[0]);
   google::LogToStderr();
   google::ParseCommandLineFlags(&argc, &argv, false);
- 
+
+#if 0
   int fd;
   // cat /proc/bus/input/devices - TBD how to find just the mouses?
   // - TBD how to find just the mouses?
@@ -98,6 +103,105 @@ int main( int argc, char* argv[] )
 
     }
   }
+#endif
+
+  // from git://gitorious.org/vinput/vinput.git demo-paint.c (GPL)
+	/* Connect to the X server */
+	Display *display = XOpenDisplay(NULL);
+
+
+	/* Check if the XInput Extension is available */
+	int opcode, event, error;
+	if (!XQueryExtension(display, "XInputExtension", &opcode, &event, &error)) {
+		printf("X Input extension not available.\n");
+		return -1;
+	}
+  LOG(INFO) <<"XInputExtension available";
+
+	/* Check for XI2 support */
+	int major = 2, minor = 0;
+	if (XIQueryVersion(display, &major, &minor) == BadRequest) {
+		printf("XI2 not available. Server supports %d.%d\n", major, minor);
+		return -1;
+	}
+  LOG(INFO) <<"XI2 available";
+
+	/* Set up MPX events */
+	XIEventMask eventmask;
+	unsigned char mask[1] = { 0 };
+
+	eventmask.deviceid = XIAllMasterDevices;
+	eventmask.mask_len = sizeof(mask);
+	eventmask.mask = mask;
+
+	/* Events we want to listen for */
+	XISetMask(mask, XI_Motion);
+	XISetMask(mask, XI_ButtonPress);
+	XISetMask(mask, XI_ButtonRelease);
+	//XISetMask(mask, XI_KeyPress);
+	//XISetMask(mask, XI_KeyRelease);
+
+	/* Register events on the window */
+  int screen_num = DefaultScreen(display);
+  Window win = XCreateSimpleWindow(display, DefaultRootWindow(display),
+          0, 0, 500, 500, 5, 
+          WhitePixel(display, screen_num), 
+          BlackPixel(display,screen_num));
+  XMapWindow(display, win);
+  XSync( display, False );
+
+  XISelectEvents(display, win, &eventmask, 1);
+
+
+	
+
+	/* Event loop */
+	while(1) {
+
+		XEvent ev;
+		/* Get next event; blocks until an event occurs */
+		XNextEvent(display, &ev);
+		if (ev.xcookie.type == GenericEvent &&
+		    ev.xcookie.extension == opcode &&
+		    XGetEventData(display, &ev.xcookie))
+		{
+			XIDeviceEvent* evData = (XIDeviceEvent*)(ev.xcookie.data);
+			int deviceid = evData->deviceid;
+
+			switch(ev.xcookie.evtype)
+			{
+			case XI_Motion:
+				LOG(INFO) <<  "motion";
+        LOG(INFO) << deviceid << " " << evData->event_x << " " << evData->event_y;
+				
+				break;
+
+			case XI_ButtonPress:
+		    LOG(INFO) << deviceid << " button: " << evData->detail;
+			//	printf("abs X:%f Y:%f - ", evData->root_x, evData->root_y);
+			//	printf("win X:%f Y:%f\n", evData->event_x, evData->event_y);
+		
+				break;
+
+			case XI_ButtonRelease:
+				LOG(INFO) << deviceid << " unclick";
+				break;
+  #if 0
+			case XI_KeyPress:
+				LOG(INFO) << "key down";
+				break;
+
+			case XI_KeyRelease:
+				printf("key up\n");
+				break;
+        #endif
+			}
+		}
+		XFreeEventData(display, &ev.xcookie);
+	}
+
+	return 0;
+
 
   return 0;
 }
