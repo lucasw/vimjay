@@ -1,10 +1,12 @@
-#ifndef __SIGNALS_H__
-#define __SIGNALS_H__
+#ifndef __INPUT_H__
+#define __INPUT_H__
 
 #include <iostream>
 #include <stdio.h>
 
 #include <boost/thread.hpp>
+
+#include <X11/Xlib.h>
 
 #include "opencv2/highgui/highgui.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
@@ -21,6 +23,19 @@ namespace bm {
 
 // Mouse - support multiple mice
 //  also output dx, dy, mousewheel
+class Mouse : public Node
+{
+  public:
+  
+  // need to set all these
+  Display* display;
+  Window win;
+  int opcode;
+  
+  Mouse() : display(NULL) { setSignal("0_x",0);}
+  virtual bool update();
+};
+
 
 // Joystick
 // https://github.com/Grumbel/jstest-gtk/blob/master/src/joystick.cpp

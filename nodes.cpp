@@ -67,7 +67,7 @@ namespace bm {
     int g = (val2 & 0x00ff00) >> 8;
     int b = (val2 & 0x0000ff) >> 0;
    
-    VLOG(1) << "hash color 0x" << std::hex << val << " 0x" << std::hex << val2 
+    VLOG(6) << "hash color 0x" << std::hex << val << " 0x" << std::hex << val2 
       << " : 0x" << std::hex <<  r << " 0x" << std::hex << g << " 0x" << std::hex << b;
     return cv::Scalar(r,g,b);
   }
@@ -116,7 +116,7 @@ namespace bm {
   {
    
     cv::Scalar hash_col = hashStringColor(/*parent->name +*/ typeToString(type) + name);
-    VLOG(1) << name << " " << hash_col[0] << " " << hash_col[1] << " " << hash_col[2];
+    VLOG(6) << name << " " << hash_col[0] << " " << hash_col[1] << " " << hash_col[2];
 
     // draw a box around the port
     cv::Scalar rect_col = cv::Scalar(40,50,40);

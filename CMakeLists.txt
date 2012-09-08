@@ -51,6 +51,7 @@ generate.cpp
 screencap.cpp
 utility.cpp
 output.cpp
+input.cpp
 )
 
 target_link_libraries(${PROJECT_NAME} 
@@ -64,6 +65,7 @@ boost_system
 )
 
 
+if(false)
 add_executable(input_test
 input.cpp
 utility.cpp
@@ -78,3 +80,4 @@ boost_filesystem
 boost_system
 Xi
 )
+endif(false)

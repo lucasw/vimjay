@@ -33,9 +33,9 @@ namespace bm {
 
   std::string getId(Node* ptr);
 
+  std::string logMat(const cv::Mat& m);
 
-std::string logMat(const cv::Mat& m);
-bool getBezier(
+  bool getBezier(
     const std::vector<cv::Point2f>& control_points, // TBD currently has to be 4
     std::vector<cv::Point2f>& output_points,
     const int num // numbe of intermediate points to generate 

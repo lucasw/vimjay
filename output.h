@@ -8,15 +8,17 @@ namespace bm {
 // TBD allow multiple?
 class Output : public ImageNode
 {
-	Display *display;
-  Window win;
-  int opcode;
   GC gc;
   Screen* screen;
 
   XImage* ximage;
 
   public:
+
+	Display *display;
+  Window win;
+  int opcode;
+  
   Output();
   
   bool setup(const int width, const int height);

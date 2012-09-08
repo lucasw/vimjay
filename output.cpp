@@ -51,6 +51,8 @@ namespace bm {
     Status ret = XGetWindowAttributes( display, win, &xwAttr );
     int screen_w = xwAttr.width;
     int screen_h = xwAttr.height;
+    setSignal("disp_w", screen_w);
+    setSignal("disp_h", screen_h);
 
     // TBD is this necessary or does X do it for me if the window is resized?
     cv::Size sz = cv::Size(screen_w, screen_h);
@@ -62,7 +64,6 @@ namespace bm {
 
     bm::matToXImage(scaled, ximage, win, *display, *screen);
   
-    
     bool window_decorations_on = getSignal("decor");
     setSignal("decor", window_decorations_on);
 

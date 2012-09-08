@@ -1,5 +1,5 @@
 %YAML:1.0
-date: "Sun Sep  2 20:53:12 2012\n"
+date: "Fri Sep  7 21:40:49 2012\n"
 nodes:
    -
       ind: 0
@@ -38,7 +38,7 @@ nodes:
          -
             type: 1
             name: ind
-            value: 9.6614103317260742e+00
+            value: 3.7317528724670410e+00
             src_ind: 8
             src_port: value
          -
@@ -160,36 +160,20 @@ nodes:
             src_port: ""
    -
       ind: 4
-      typeid: "bm::Resize"
-      name: resize
+      typeid: "bm::Mouse"
+      name: mouse
       loc: [ 989., 36. ]
       inputs:
          -
-            type: 2
-            name: out
-            src_ind: -1
-            src_port: ""
-         -
             type: 1
-            name: fx
-            value: 2.0000000298023224e-01
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: fy
-            value: 2.0000000298023224e-01
-            src_ind: -1
-            src_port: ""
-         -
-            type: 2
-            name: in
+            name: "0_x"
+            value: 0.
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: enable
-            value: 0.
+            value: 1.
             src_ind: -1
             src_port: ""
    -
@@ -206,21 +190,21 @@ nodes:
          -
             type: 1
             name: angle
-            value: -2.4341306090354919e-01
+            value: -3.7463304400444031e-01
             src_ind: 7
             src_port: value
          -
             type: 1
             name: scale
-            value: 9.1667717695236206e-01
+            value: 1.0500946044921875e+00
             src_ind: 6
             src_port: value
          -
             type: 1
             name: center_x
-            value: 2.4748707580566406e+02
-            src_ind: -1
-            src_port: ""
+            value: 0.
+            src_ind: 4
+            src_port: "0_x"
          -
             type: 1
             name: center_y
@@ -265,7 +249,7 @@ nodes:
          -
             type: 1
             name: value
-            value: 9.1667717695236206e-01
+            value: 1.0500946044921875e+00
             src_ind: -1
             src_port: ""
          -
@@ -301,7 +285,7 @@ nodes:
          -
             type: 1
             name: value
-            value: -2.4341306090354919e-01
+            value: -3.7463304400444031e-01
             src_ind: -1
             src_port: ""
          -
@@ -337,7 +321,7 @@ nodes:
          -
             type: 1
             name: value
-            value: 9.6614103317260742e+00
+            value: 3.7317528724670410e+00
             src_ind: -1
             src_port: ""
          -
@@ -409,13 +393,13 @@ nodes:
          -
             type: 1
             name: value
-            value: 7.7812290191650391e-01
+            value: 2.2187715768814087e-01
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: step
-            value: 2.5937429070472717e-01
+            value: -2.5937429070472717e-01
             src_ind: -1
             src_port: ""
          -
@@ -622,7 +606,7 @@ nodes:
          -
             type: 1
             name: cur_size
-            value: 39.
+            value: 31.
             src_ind: -1
             src_port: ""
          -
@@ -734,9 +718,27 @@ nodes:
          -
             type: 1
             name: enable
-            value: 7.7812290191650391e-01
+            value: 2.2187715768814087e-01
             src_ind: 10
             src_port: value
+         -
+            type: 1
+            name: disp_w
+            value: 800.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: disp_h
+            value: 600.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: decor
+            value: 0.
+            src_ind: -1
+            src_port: ""
    -
       ind: 21
       typeid: "bm::GaussianBlur"

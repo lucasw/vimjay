@@ -31,12 +31,15 @@
 #include <deque>
 //#include <pair>
 
+#include <boost/lexical_cast.hpp>
+
 #include "opencv2/highgui/highgui.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
 
 #include <glog/logging.h>
 #include <gflags/gflags.h>
 
+#include "input.h"
 #include "nodes.h" 
 #include "misc_nodes.h" 
 #include "signals.h"
@@ -48,8 +51,9 @@
 //using namespace cv;
 using namespace std;
 
-DEFINE_int32(width, 640, "");
-DEFINE_int32(height, 480, "");
+namespace bm {
+//DEFINE_int32(width, 640, "");
+//DEFINE_int32(height, 480, "");
 //DEFINE_string(mouse, "/dev/input/mouse0", "/dev/input/mouseN or /dev/input/eventN");
 /*
  * To work with Kinect the user must install OpenNI library and PrimeSensorModule for OpenNI and
@@ -58,13 +62,14 @@ DEFINE_int32(height, 480, "");
 TBD have a mode that takes a webcam, uses brightness as depth, and thresholds it for the valid map
 
  */
+#if 0
 int main( int argc, char* argv[] )
 {
  // google::ParseCommandLineFlags(&argc, &argv, true);
   google::InitGoogleLogging(argv[0]);
   google::LogToStderr();
   google::ParseCommandLineFlags(&argc, &argv, false);
-
+#endif
 #if 0
   int fd;
   // cat /proc/bus/input/devices - TBD how to find just the mouses?
@@ -102,6 +107,7 @@ int main( int argc, char* argv[] )
   }
 #endif
 
+#if 0
   int width = FLAGS_width;
   int height = FLAGS_height;
   
@@ -125,49 +131,66 @@ int main( int argc, char* argv[] )
 
     bm::matToScreen(tmp, display, win);
     usleep(10000);
+#endif
+    
 
-		XEvent ev;
-		/* Get next event; blocks until an event occurs */
-		XNextEvent(display, &ev);
-		if (ev.xcookie.type == GenericEvent &&
-		    ev.xcookie.extension == opcode &&
-		    XGetEventData(display, &ev.xcookie))
-		{
-			XIDeviceEvent* evData = (XIDeviceEvent*)(ev.xcookie.data);
-			int deviceid = evData->deviceid;
+bool Mouse::update()
+    //bool getMouse(Display* display, int& deviceid, int& button, int& x, int& y, bool );
+    {
+      if (!Node::update()) return false;
 
-			switch(ev.xcookie.evtype)
-			{
-			case XI_Motion:
-				LOG(INFO) <<  "motion";
-        LOG(INFO) << deviceid << " " << evData->event_x << " " << evData->event_y;
-				
-				break;
+      if (!display) return true;
+      VLOG(1) << "mouse";
 
-			case XI_ButtonPress:
-		    LOG(INFO) << deviceid << " button: " << evData->detail;
-			//	printf("abs X:%f Y:%f - ", evData->root_x, evData->root_y);
-			//	printf("win X:%f Y:%f\n", evData->event_x, evData->event_y);
-		
-				break;
+      XEvent ev;
+      /* Get next event; blocks until an event occurs */
+      // TBD block is bad, move to another thread
+      XNextEvent(display, &ev);
+      if (ev.xcookie.type == GenericEvent &&
+          ev.xcookie.extension == opcode &&
+          XGetEventData(display, &ev.xcookie))
+      {
+        XIDeviceEvent* evData = (XIDeviceEvent*)(ev.xcookie.data);
+        int deviceid = evData->deviceid;
 
-			case XI_ButtonRelease:
-				LOG(INFO) << deviceid << " unclick";
-				break;
-  #if 0
-			case XI_KeyPress:
-				LOG(INFO) << "key down";
-				break;
+        switch(ev.xcookie.evtype)
+        {
+          case XI_Motion:
+            //LOG(INFO) <<  "motion";
+            setSignal(boost::lexical_cast<string>(deviceid) + "_x", evData->event_x);
+            setSignal(boost::lexical_cast<string>(deviceid) + "_y", evData->event_y);
+            VLOG(1) << deviceid << " " << evData->event_x << " " << evData->event_y;
 
-			case XI_KeyRelease:
-				printf("key up\n");
-				break;
-        #endif
-			}
-		}
-		XFreeEventData(display, &ev.xcookie);
-	}
+            break;
 
-  return 0;
+          case XI_ButtonPress:
+            VLOG(1) << deviceid << " button: " << evData->detail;
+            setSignal(boost::lexical_cast<string>(deviceid) + "_" + 
+                boost::lexical_cast<string>(evData->detail), 1);
+
+            break;
+
+          case XI_ButtonRelease:
+            VLOG(1) << deviceid << " unclick";
+            setSignal(boost::lexical_cast<string>(deviceid) + "_" + 
+                boost::lexical_cast<string>(evData->detail), 0);
+            break;
+#if 0
+          case XI_KeyPress:
+            LOG(INFO) << "key down";
+            break;
+
+          case XI_KeyRelease:
+            printf("key up\n");
+            break;
+#endif
+        } // switch 
+      } // correct event
+      XFreeEventData(display, &ev.xcookie);
+    
+      return true;
+    }
+
+
 }
 

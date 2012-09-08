@@ -19,8 +19,8 @@ namespace bm {
 class Saw : public Signal
 {
   public:
-  Saw(); // : Signal()
-  void setup(const float new_step=0.01, const float offset=0.0, const float min =0.0, const float max=1.0); 
+  Saw(); 
+  void setup(const float new_step=0.01, const float offset=0.0, const float min=0.0, const float max=1.0); 
   virtual bool update();
   virtual bool handleKey(int key);
 };

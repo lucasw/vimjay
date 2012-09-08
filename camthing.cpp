@@ -43,6 +43,7 @@
 #include "generate.h"
 #include "screencap.h"
 #include "output.h"
+#include "input.h"
 
 using namespace cv;
 using namespace std;
@@ -115,6 +116,8 @@ class CamThing
   // the final output 
   // TBD make this a special node type
   Output* output_node;
+  // TBD temp- currently need to connect output Xlib parameters to Mouse
+  Mouse* input_node;
 
   public:
 
@@ -149,6 +152,7 @@ class CamThing
     all_nodes.resize(0);
     
     output_node = NULL;
+    input_node = NULL;
   }
 
   void clearAllNodeUpdates() 
@@ -297,6 +301,7 @@ class CamThing
       source_port(""),
       source_port_ind(0),
       output_node(NULL),
+      input_node(NULL),
       draw_nodes(true),
       paused(true)
   {
@@ -314,6 +319,7 @@ class CamThing
       saveGraph("graph_load_test.yml");
     }
 
+    // TBD replace with Xlib calls?
     cv::namedWindow("graph_im", CV_GUI_NORMAL);
     cv::moveWindow("graph_im", 0, 500);
     cv::resizeWindow("graph_im", graph_im.size().width, graph_im.size().height);
@@ -405,10 +411,26 @@ class CamThing
         node = getNode<Bezier>(name, loc);
       } else if (type_id.compare("bm::Random") == 0) {
         node = getNode<Random>(name, loc);
+      } else if (type_id.compare("bm::Mouse") == 0) {
+        node = getNode<Mouse>(name, loc);
+
+        input_node = (Mouse*) node;
+        if (output_node) {
+          input_node->display = output_node->display;
+          input_node->win = output_node->win;
+          input_node->opcode = output_node->opcode;
+        }
       } else if (type_id.compare("bm::Output") == 0) {
         node = getNode<Output>(name, loc);
         output_node = (Output*)node;
         output_node->setup(Config::inst()->out_width, Config::inst()->out_height);
+      
+        // TBD need better way to share X11 info- Config probably
+        if (input_node) {
+          input_node->display = output_node->display;
+          input_node->win = output_node->win;
+          input_node->opcode = output_node->opcode;
+        }
       } else {
         LOG(WARNING) << "unknown node type " << type_id << ", assuming imageNode";
         node = getNode<ImageNode>(name, loc);
