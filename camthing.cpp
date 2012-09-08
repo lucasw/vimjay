@@ -110,7 +110,6 @@ namespace bm {
                         bc(-2)*bc(3,1)   0               0
                                          bc(-1)*bc(3,2)  0
                                                          bc(-0)*bc(3,3)
-    But why is lower left coeff +1 and not -1?
 
        1  0   0   0  0
       -4  4   0   0  0
@@ -127,17 +126,18 @@ namespace bm {
       { 1, 0, 0, 0},
       {-3, 3, 0, 0},
       { 3,-6, 3, 0},
-      { 1, 3,-3, 1}
+      {-1, 3,-3, 1}
     };
     cv::Mat coeff = cv::Mat(4, 4, CV_64F, coeff_raw);
 
-    float x0 = control_points[0].x;
-    float y0 = control_points[0].y;
+    //float x0 = control_points[0].x;
+    //float y0 = control_points[0].y;
 
     cv::Mat control = cv::Mat::zeros(4, 2, CV_64F);
-    for (int i = 1; i < control.rows; i++) {
-      control.at<double>(i, 0) = control_points[i].x - x0;
-      control.at<double>(i, 1) = control_points[i].y - y0;
+    
+    for (int i = 0; i < control.rows; i++) {
+      control.at<double>(i, 0) = control_points[i].x;// - x0;
+      control.at<double>(i, 1) = control_points[i].y;// - y0;
     }
 
     VLOG(5) << CLTXT << "coeff " << CLNRM << std::endl << logMat(coeff); 
@@ -162,7 +162,8 @@ namespace bm {
 
       cv::Mat pos = tee * coeff * control;
 
-      cv::Point new_pt = cv::Point2f(pos.at<double>(0,0) + x0, pos.at<double>(0,1) + y0);
+      //cv::Point new_pt = cv::Point2f(pos.at<double>(0,0) + x0, pos.at<double>(0,1) + y0);
+      cv::Point new_pt = cv::Point2f(pos.at<double>(0,0), pos.at<double>(0,1));
 
       output_points.push_back(new_pt);
 
