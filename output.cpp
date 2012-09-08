@@ -61,6 +61,12 @@ namespace bm {
     ximage = XGetImage(display, DefaultRootWindow(display), 0, 0, screen_w, screen_h, AllPlanes, ZPixmap);
 
     bm::matToXImage(scaled, ximage, win, *display, *screen);
+  
+    
+    bool window_decorations_on = getSignal("decor");
+    setSignal("decor", window_decorations_on);
+
+    bm::setWindowDecorations(display, win, window_decorations_on);
   }
 
   bool Output::draw()

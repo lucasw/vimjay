@@ -28,7 +28,7 @@ namespace bm {
 
 bool setupX(Display*& display, Window& win, const int width, const int height, int& opcode);
 
-bool removeWindowDecorations(Display* display, Window& win); 
+bool setWindowDecorations(Display* display, Window& win, bool decorations_on); 
 
 // TBD where is this properly defined?
 typedef struct Hints{

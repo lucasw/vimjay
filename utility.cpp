@@ -80,13 +80,13 @@ bool setupX(Display*& display, Window& win, const int width, const int height, i
   return true;
 }
 
-bool removeWindowDecorations(Display* display, Window& win) 
+bool setWindowDecorations(Display* display, Window& win, bool decorations_on) 
 {
     //code to remove decoration
   Hints hints;
   Atom property;
   hints.flags = 2;
-  hints.decorations = 0;
+  hints.decorations = decorations_on ? 1 : 0;
   property = XInternAtom(display, "_MOTIF_WM_HINTS", true);
   XChangeProperty(display, win, property, property, 32, PropModeReplace, (unsigned char *)&hints,5);
   XMapWindow(display, win);
