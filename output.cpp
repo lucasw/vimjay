@@ -47,10 +47,19 @@ namespace bm {
 
     if (!ximage) return true;
    
+    XWindowAttributes xwAttr;
+    Status ret = XGetWindowAttributes( display, win, &xwAttr );
+    int screen_w = xwAttr.width;
+    int screen_h = xwAttr.height;
+
     // TBD is this necessary or does X do it for me if the window is resized?
-    cv::Size sz = cv::Size(ximage->width, ximage->height);
+    cv::Size sz = cv::Size(screen_w, screen_h);
     cv::Mat scaled;
     cv::resize(in, scaled, sz, 0, 0, cv::INTER_NEAREST );
+   
+    XDestroyImage(ximage);
+    ximage = XGetImage(display, DefaultRootWindow(display), 0, 0, screen_w, screen_h, AllPlanes, ZPixmap);
+
     bm::matToXImage(scaled, ximage, win, *display, *screen);
   }
 
