@@ -48,7 +48,6 @@
 //using namespace cv;
 using namespace std;
 
-
 DEFINE_int32(width, 640, "");
 DEFINE_int32(height, 480, "");
 //DEFINE_string(mouse, "/dev/input/mouse0", "/dev/input/mouseN or /dev/input/eventN");
@@ -110,7 +109,7 @@ int main( int argc, char* argv[] )
   Window win;
   int opcode;
   bm::setupX(display, win, width, height, opcode);
-  //bm::removeWindowDecorations(display, win);
+  //bm::setWindowDecorations(display, win,false);
 
   cv::Mat tmp;
   // BGR
@@ -168,9 +167,6 @@ int main( int argc, char* argv[] )
 		}
 		XFreeEventData(display, &ev.xcookie);
 	}
-
-	return 0;
-
 
   return 0;
 }

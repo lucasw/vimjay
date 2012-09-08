@@ -116,7 +116,6 @@ namespace bm {
        6 -12  6   0  0
       -4  12 -12  4  0
        1 -4   6  -4  1   
-       Is that right? 
 
     */
 
@@ -129,15 +128,11 @@ namespace bm {
       {-1, 3,-3, 1}
     };
     cv::Mat coeff = cv::Mat(4, 4, CV_64F, coeff_raw);
-
-    //float x0 = control_points[0].x;
-    //float y0 = control_points[0].y;
-
     cv::Mat control = cv::Mat::zeros(4, 2, CV_64F);
     
     for (int i = 0; i < control.rows; i++) {
-      control.at<double>(i, 0) = control_points[i].x;// - x0;
-      control.at<double>(i, 1) = control_points[i].y;// - y0;
+      control.at<double>(i, 0) = control_points[i].x;
+      control.at<double>(i, 1) = control_points[i].y;
     }
 
     VLOG(5) << CLTXT << "coeff " << CLNRM << std::endl << logMat(coeff); 
@@ -159,10 +154,8 @@ namespace bm {
       double tee_raw[1][4] = {{ 1.0, t, t*t, t*t*t}};
 
       cv::Mat tee = cv::Mat(1, 4, CV_64F, tee_raw);
-
       cv::Mat pos = tee * coeff * control;
 
-      //cv::Point new_pt = cv::Point2f(pos.at<double>(0,0) + x0, pos.at<double>(0,1) + y0);
       cv::Point new_pt = cv::Point2f(pos.at<double>(0,0), pos.at<double>(0,1));
 
       output_points.push_back(new_pt);
