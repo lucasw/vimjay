@@ -26,6 +26,14 @@
 
 namespace bm {
 
+std::string logMat(const cv::Mat& m);
+
+bool getBezier(
+      const std::vector<cv::Point2f>& control_points, // TBD currently has to be 4
+      std::vector<cv::Point2f>& output_points,
+      const int num // numbe of intermediate points to generate 
+      );
+ 
 bool setupX(Display*& display, Window& win, const int width, const int height, int& opcode);
 
 bool setWindowDecorations(Display* display, Window& win, bool decorations_on); 
