@@ -50,6 +50,7 @@ namespace bm {
     setSignal("scale", 1.0);
     setSignal("center_x", 0.0);
     setSignal("center_y", 0.0);
+    setSignal("border", 0.0);
     cv::Mat tmp;
     setImage("in",tmp);
   }
@@ -73,7 +74,15 @@ namespace bm {
     cv::Point2f center;
     center.x = getSignal("center_x");     
     center.y = getSignal("center_y");
+    
+    int border = getSignal("border");
+    border %= 5;
 
+    int border_type = BORDER_CONSTANT;
+    if (border == 1) border_type = BORDER_REPLICATE;
+    if (border == 2) border_type = BORDER_REFLECT;
+    if (border == 3) border_type = BORDER_REFLECT_101;
+    if (border == 4) border_type = BORDER_WRAP;
     //VLOG(1) << name << " " << is_dirty << " " << im_in->name << " " << im_in->is_dirty;
 
     cv::Mat rot = cv::getRotationMatrix2D(center, angle, scale);

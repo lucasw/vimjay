@@ -830,7 +830,7 @@ class CamThing
     if (VLOG_IS_ON(10) || paused) 
       key = waitKey(0);
     else 
-      key = waitKey(20);
+      key = waitKey(30);
 
     if (key < 0) return true;
 
