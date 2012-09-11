@@ -14,6 +14,8 @@
 //#include <random>
 #include <deque>
 #include <map>
+#include <boost/thread.hpp>
+
 #include "nodes.h"
 
 namespace bm {
@@ -27,12 +29,17 @@ class Mouse : public Node
 {
   public:
   
-  // need to set all these
+  // need to set all these - or just require an Output node pointer to be set?
   Display* display;
   Window win;
   int opcode;
   
-  Mouse() : display(NULL) { setSignal("0_x",0);}
+  bool run_thread;
+  boost::thread event_thread;
+  void runThread();
+
+  Mouse();
+  ~Mouse();
   virtual bool update();
 };
 

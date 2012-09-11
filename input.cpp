@@ -133,13 +133,35 @@ int main( int argc, char* argv[] )
     usleep(10000);
 #endif
     
+Mouse::Mouse() : 
+  display(NULL) 
+{ 
+  setSignal("0_x", 0);
+
+  event_thread = boost::thread(&Mouse::runThread, this);
+}
+
+Mouse::~Mouse()
+{
+  run_thread = false;
+  event_thread.join();
+}
 
 bool Mouse::update()
+{
+  if (!Node::update()) return false;
+  
+  return true;
+}
+
+void Mouse::runThread()
+{
+  run_thread = true;
+
+  while (run_thread)
     //bool getMouse(Display* display, int& deviceid, int& button, int& x, int& y, bool );
     {
-      if (!Node::update()) return false;
-
-      if (!display) return true;
+      if (!display) continue;
       VLOG(1) << "mouse";
 
       XEvent ev;
@@ -150,6 +172,7 @@ bool Mouse::update()
           ev.xcookie.extension == opcode &&
           XGetEventData(display, &ev.xcookie))
       {
+      
         XIDeviceEvent* evData = (XIDeviceEvent*)(ev.xcookie.data);
         int deviceid = evData->deviceid;
 
@@ -186,11 +209,13 @@ bool Mouse::update()
 #endif
         } // switch 
       } // correct event
+
       XFreeEventData(display, &ev.xcookie);
-    
-      return true;
-    }
+  
+      usleep(1000); 
+    } // while
 
 
-}
+  }
+} //  bm
 
