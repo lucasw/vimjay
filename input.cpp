@@ -138,19 +138,21 @@ Mouse::Mouse() :
 { 
   setSignal("0_x", 0);
 
-  event_thread = boost::thread(&Mouse::runThread, this);
+  //event_thread = boost::thread(&Mouse::runThread, this);
 }
 
 Mouse::~Mouse()
 {
   run_thread = false;
-  event_thread.join();
+  //event_thread.join();
 }
 
 bool Mouse::update()
 {
   if (!Node::update()) return false;
   
+  runThread();
+
   return true;
 }
 
@@ -158,21 +160,22 @@ void Mouse::runThread()
 {
   run_thread = true;
 
-  while (run_thread)
+  //while (run_thread)
     //bool getMouse(Display* display, int& deviceid, int& button, int& x, int& y, bool );
     {
-      if (!display) continue;
-      VLOG(1) << "mouse";
+      if (!display) return;// continue;
+      //VLOG(1) << "mouse";
 
       XEvent ev;
       /* Get next event; blocks until an event occurs */
-      // TBD block is bad, move to another thread
+      while(XPending(display)) {
       XNextEvent(display, &ev);
       if (ev.xcookie.type == GenericEvent &&
           ev.xcookie.extension == opcode &&
           XGetEventData(display, &ev.xcookie))
+      //if (XCheckWindowEvent(display, win, PointerMotionMask | ButtonPressMask | ButtonReleaseMask, &ev))
       {
-      
+        VLOG(1) <<" event found"; 
         XIDeviceEvent* evData = (XIDeviceEvent*)(ev.xcookie.data);
         int deviceid = evData->deviceid;
 
@@ -212,9 +215,10 @@ void Mouse::runThread()
 
       XFreeEventData(display, &ev.xcookie);
   
-      usleep(1000); 
+      //usleep(1000); 
     } // while
 
+  }
 
   }
 } //  bm
