@@ -41,28 +41,7 @@ namespace bm {
   bool Output::update()
   {
     if (!ImageNode::update()) return false;
-  
-    cv::Mat in = getImage("in");
-    if (in.empty()) return true;
-
-    if (!ximage) return true;
-   
-    XWindowAttributes xwAttr;
-    Status ret = XGetWindowAttributes( display, win, &xwAttr );
-    int screen_w = xwAttr.width;
-    int screen_h = xwAttr.height;
-    setSignal("disp_w", screen_w);
-    setSignal("disp_h", screen_h);
-
-    // TBD is this necessary or does X do it for me if the window is resized?
-    cv::Size sz = cv::Size(screen_w, screen_h);
-    cv::Mat scaled;
-    cv::resize(in, scaled, sz, 0, 0, cv::INTER_NEAREST );
-   
-    XDestroyImage(ximage);
-    ximage = XGetImage(display, DefaultRootWindow(display), 0, 0, screen_w, screen_h, AllPlanes, ZPixmap);
-
-    bm::matToXImage(scaled, ximage, win, *display, *screen);
+ 
   
     bool window_decorations_on = getSignal("decor");
     setSignal("decor", window_decorations_on);
@@ -81,7 +60,31 @@ namespace bm {
 
     if (ximage) XPutImage(display, win,  gc, ximage, 0, 0, 0, 0, screen_w, screen_h);
     */
-    if (ximage) XPutImage(display, win,  gc, ximage, 0, 0, 0, 0, ximage->width, ximage->height);
+ 
+    cv::Mat in = getImage("in");
+    //if (in.empty()) return true;
+
+    if (!(in.empty()) && ximage) {
+    XWindowAttributes xwAttr;
+    Status ret = XGetWindowAttributes( display, win, &xwAttr );
+    int screen_w = xwAttr.width;
+    int screen_h = xwAttr.height;
+    setSignal("disp_w", screen_w);
+    setSignal("disp_h", screen_h);
+
+    // TBD is this necessary or does X do it for me if the window is resized?
+    cv::Size sz = cv::Size(screen_w, screen_h);
+    cv::Mat scaled;
+    cv::resize(in, scaled, sz, 0, 0, cv::INTER_NEAREST );
+   
+    XDestroyImage(ximage);
+    ximage = XGetImage(display, DefaultRootWindow(display), 0, 0, screen_w, screen_h, AllPlanes, ZPixmap);
+
+    bm::matToXImage(scaled, ximage, win, *display, *screen);
+    
+    XPutImage(display, win,  gc, ximage, 0, 0, 0, 0, ximage->width, ximage->height);
+    }
+
     return ImageNode::draw();
   }
 

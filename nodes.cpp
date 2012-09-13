@@ -353,6 +353,8 @@ namespace bm {
     }
     //////////////////////////////
 
+    if (graph.empty()) return false;
+    
     int fr = 1;
     if (!isDirty(this,1)) fr = 5;
     cv::Scalar col = cv::Scalar(vcol/fr);
@@ -809,7 +811,8 @@ namespace bm {
 
   bool ImageNode::draw() 
   {
-    
+    if (graph.empty()) return false;
+
     // TBD if update is the only function to call getImage, then
     //  the imval will have been updated
     cv::Mat tmp = getImage("out");
@@ -994,10 +997,12 @@ namespace bm {
     }
 
     // TBD make a graphic that shows a rolling oscilloscope value
+    if (!graph.empty()) {
     cv::rectangle(graph, loc, 
         loc + cv::Point2f( x * 50.0 , 5), 
         cv::Scalar(255, 255, 100), CV_FILLED);
-   
+    }
+
     return Node::draw();
   }
 

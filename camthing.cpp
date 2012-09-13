@@ -106,7 +106,7 @@ string getId(Node* ptr)
     return (abi::__cxa_demangle(typeid(*ptr).name(), 0, 0, &status));
   }
 
-class CamThing 
+class CamThing : public Output 
 {
   // TBD informal timer for the system
   
@@ -135,7 +135,6 @@ class CamThing
       node->graph = graph_im;
 
       all_nodes.push_back(node);
-      
 
       return node;
     }
@@ -320,17 +319,7 @@ class CamThing
     }
 
     // TBD replace with Xlib calls?
-    cv::namedWindow("graph_im", CV_GUI_NORMAL);
-    cv::moveWindow("graph_im", 0, 500);
-    cv::resizeWindow("graph_im", graph_im.size().width, graph_im.size().height);
-
-    //cv::setWindowProperty("graph_im", WND_PROP_FULLSCREEN, CV_WINDOW_FULLSCREEN);
-
-/*
-    // Bring this back when there is a fullscreen/decoration free output window
-    cv::namedWindow("out", CV_GUI_NORMAL);
-    cv::moveWindow("out", 420, 0);
-*/
+    setup(graph_im.size().width, graph_im.size().height);
   }
 
   ///////////////////////////////////////////////
@@ -955,8 +944,10 @@ class CamThing
     return true;
   }
 
-  bool update() 
+  virtual bool update() 
   {
+    //Output::update();
+
     // TBD capture key input in separate thread?
     count++;
    
@@ -977,7 +968,7 @@ class CamThing
     return true;
   }
  
-  void draw() 
+  virtual bool draw() 
   {
     graph_im = cv::Scalar(0,0,0);
     cv::Mat out_node_im = output_node->getImage("out");
@@ -993,7 +984,8 @@ class CamThing
         cv::line( graph_im, source_node->loc, selected_node->loc, cv::Scalar(70, 70, 70), 8, 4 );
       }
 
-      cv::putText(graph_im, command_text, cv::Point2f(10, graph_im.rows-40), 1, 1, cv::Scalar(200,205,195), 1);
+      cv::putText(graph_im, command_text, cv::Point2f(10, graph_im.rows-40), 1, 1, 
+          cv::Scalar(200,205,195), 1);
       if (command_text.size() > 0) { 
         VLOG(5) << "command_text " << command_text;
       }
@@ -1024,8 +1016,9 @@ class CamThing
       }
     }
 
-    imshow("graph_im", graph_im);
-  }
+    setImage("in", graph_im );
+    Output::draw();
+  } // CamThing::draw
 
   };
 
