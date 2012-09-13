@@ -28,7 +28,7 @@
 #include <cxxabi.h> // non portable
 
 #include <deque>
-//#include <pair>
+#include <boost/lexical_cast.hpp>
 
 #include "opencv2/highgui/highgui.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
@@ -318,8 +318,23 @@ class CamThing : public Output
       saveGraph("graph_load_test.yml");
     }
 
-    // TBD replace with Xlib calls?
     setup(graph_im.size().width, graph_im.size().height);
+
+    // Try to get keyboard input working
+    XIEventMask eventmask;
+    unsigned char mask[1] = { 0 }; /* the actual mask */
+
+    // only 1 worked for my laptop keyboard
+    eventmask.deviceid = 1;
+    eventmask.mask_len = sizeof(mask); /* always in bytes */
+    eventmask.mask = mask;
+    /* now set the mask */
+    XISetMask(mask, XI_ButtonPress);
+    XISetMask(mask, XI_Motion);
+    XISetMask(mask, XI_KeyPress);
+
+    /* select on the window */
+    XISelectEvents(display, win, &eventmask, 1);
   }
 
   ///////////////////////////////////////////////
@@ -816,10 +831,68 @@ class CamThing : public Output
   
   bool handleInput() 
   {
+    key = -1;
+    if (!display) return false;
+
+      while (XPending(display)) {
+
+      XEvent ev;
+      /* Get next event; blocks until an event occurs */
+      XNextEvent(display, &ev);
+      if (ev.xcookie.type == GenericEvent &&
+          ev.xcookie.extension == opcode &&
+          XGetEventData(display, &ev.xcookie))
+      //if (XCheckWindowEvent(display, win, PointerMotionMask | ButtonPressMask | ButtonReleaseMask, &ev))
+      {
+        VLOG(2) <<" event found"; 
+        XIDeviceEvent* evData = (XIDeviceEvent*)(ev.xcookie.data);
+        int deviceid = evData->deviceid;
+
+        switch(ev.xcookie.evtype)
+        {
+          case XI_Motion:
+            //LOG(INFO) <<  "motion";
+            setSignal(boost::lexical_cast<string>(deviceid) + "_x", evData->event_x);
+            setSignal(boost::lexical_cast<string>(deviceid) + "_y", evData->event_y);
+            VLOG(1) << deviceid << " " << evData->event_x << " " << evData->event_y;
+
+            break;
+
+          case XI_ButtonPress:
+            VLOG(1) << deviceid << " button: " << evData->detail;
+            setSignal(boost::lexical_cast<string>(deviceid) + "_" + 
+                boost::lexical_cast<string>(evData->detail), 1);
+
+            break;
+
+          case XI_ButtonRelease:
+            VLOG(1) << deviceid << " unclick " << evData->detail;
+            setSignal(boost::lexical_cast<string>(deviceid) + "_" + 
+                boost::lexical_cast<string>(evData->detail), 0);
+            break;
+          
+          case XI_KeyPress:
+            key = evData->detail;
+            VLOG(1) << deviceid << "key down" << key << " " << (char) key;
+            break;
+
+          case XI_KeyRelease:
+            VLOG(1) << deviceid << "key up" << evData->detail;
+            break;
+        } // switch 
+      } // correct event
+
+      XFreeEventData(display, &ev.xcookie);
+  
+      //usleep(1000); 
+    } // while
+
+    /*
     if (VLOG_IS_ON(10) || paused) 
       key = waitKey(0);
     else 
       key = waitKey(30);
+      */
 
     if (key < 0) return true;
 
