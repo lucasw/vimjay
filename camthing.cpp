@@ -836,6 +836,7 @@ class CamThing : public Output
 
       while (XPending(display)) {
 
+      XKeyPressedEvent key_data;
       XEvent ev;
       /* Get next event; blocks until an event occurs */
       XNextEvent(display, &ev);
@@ -872,8 +873,31 @@ class CamThing : public Output
             break;
           
           case XI_KeyPress:
-            key = evData->detail;
-            VLOG(1) << deviceid << "key down" << key << " " << (char) key;
+            // Assign info from our XIDeviceEvent to a standard XKeyPressedEvent which
+            // XLookupString() can actually understand:
+            key_data.type         = KeyPress;
+            key_data.root         = evData->root;
+            key_data.window       = evData->event;
+            key_data.subwindow    = evData->child;
+            key_data.time         = evData->time;
+            key_data.x            = evData->event_x;
+            key_data.y            = evData->event_y;
+            key_data.x_root       = evData->root_x;
+            key_data.y_root       = evData->root_y;
+            key_data.same_screen  = True;        
+            key_data.send_event   = False;
+            key_data.serial       = evData->serial;
+            key_data.display      = display;
+
+            key_data.keycode      = evData->detail;
+            key_data.state        = evData->mods.effective;   
+           
+            char asciiChar;
+            if (1 == XLookupString(((XKeyEvent*) (&key_data)), &asciiChar, 1, NULL, NULL)) {
+              // Mapped: Assign it.
+              key = (int) asciiChar;
+              VLOG(1) << deviceid << "key down" << key << " " << (char) key;
+            }
             break;
 
           case XI_KeyRelease:
