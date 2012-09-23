@@ -41,16 +41,14 @@ namespace bm {
   bool Output::update()
   {
     if (!ImageNode::update()) return false;
- 
-  
-    bool window_decorations_on = getSignal("decor");
-    setSignal("decor", window_decorations_on);
-
-    bm::setWindowDecorations(display, win, window_decorations_on);
   }
 
   bool Output::draw(cv::Point2f ui_offset)
   {
+    bool window_decorations_on = getSignal("decor");
+    setSignal("decor", window_decorations_on);
+    bm::setWindowDecorations(display, win, window_decorations_on);
+
     /*
     XWindowAttributes xwAttr;
     Status ret = XGetWindowAttributes( display, win, &xwAttr );

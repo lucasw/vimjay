@@ -207,7 +207,6 @@ namespace bm {
     }
     
     cv::putText(graph, port_info.str(), parent->loc + loc + ui_offset, 1, 1, col, 1);
-
   }
 
   //////////////////////////////////////////////////////////////////////////////////////////

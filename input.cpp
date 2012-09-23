@@ -143,27 +143,26 @@ Mouse::Mouse() :
 
 Mouse::~Mouse()
 {
-  run_thread = false;
+  //run_thread = false;
   //event_thread.join();
 }
-
+#if 0
 bool Mouse::update()
 {
   if (!Node::update()) return false;
-  
-  runThread();
 
   return true;
 }
+#endif
 
-void Mouse::runThread()
+bool Mouse::draw(cv::Point2f ui_offset)
 {
-  run_thread = true;
+  //run_thread = true;
 
   //while (run_thread)
     //bool getMouse(Display* display, int& deviceid, int& button, int& x, int& y, bool );
     {
-      if (!display) return;// continue;
+      if (!display) return false;// continue;
       //VLOG(1) << "mouse";
 
       XEvent ev;
@@ -219,7 +218,8 @@ void Mouse::runThread()
     } // while
 
   }
-
+    
+    return true;
   }
 } //  bm
 

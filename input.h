@@ -34,13 +34,13 @@ class Mouse : public Node
   Window win;
   int opcode;
   
-  bool run_thread;
-  boost::thread event_thread;
-  void runThread();
+  //bool run_thread;
+  //boost::thread event_thread;
+  //void runThread();
 
   Mouse();
   ~Mouse();
-  virtual bool update();
+  virtual bool draw(cv::Point2f ui_offset);
 };
 
 
