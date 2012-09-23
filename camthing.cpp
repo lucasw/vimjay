@@ -126,12 +126,13 @@ class CamThing : public Output
 
   // where the ui pointer is (currently controlled by keyboard
   cv::Point cursor;
-  // where the upper left coordinate of the window into the ui is
-  cv::Point2f ui_offset;
   // scale factor on drawing ui elements
   float zoom;
 
   public:
+  
+  // where the upper left coordinate of the window into the ui is
+  cv::Point2f ui_offset;
 
   // conveniently create and store node
   template <class nodeType>
@@ -300,6 +301,8 @@ class CamThing : public Output
   string source_port;
   int source_port_ind;
   
+  boost::thread node_thread;
+
   CamThing() : 
       selected_ind(0), 
       selected_node(NULL),
@@ -352,6 +355,10 @@ class CamThing : public Output
       /* select on the window */
       XISelectEvents(display, win, &eventmask, 1);
     }
+
+
+    update_nodes = true;
+    node_thread = boost::thread(&CamThing::runThread, this);
   }
 
   ///////////////////////////////////////////////
@@ -939,6 +946,8 @@ class CamThing : public Output
 
     valid_key = true;
     if( key == 'q' ) {
+      update_nodes = false;
+      node_thread.join();
       return false;
     }
     // TBD look for /, then make next letters type search for nodes with names container the following string
@@ -983,7 +992,7 @@ class CamThing : public Output
     else if (key == 'k') {
       selectPrevNode();
     }*/
-    else if (key == 'u') {
+    else if (key == 'g') {
       // TBD the node should catch this itself
       selectPort();
       
@@ -1021,7 +1030,19 @@ class CamThing : public Output
       selectNodeDirection(-1); 
     } else if (key == 'l') {  // RIGHT
       selectNodeDirection(1); 
-      
+     
+    } else if (key == 'i') {  // UP
+      ui_offset -= cv::Point2f(0,15);
+      VLOG(3) << "ui_offset " << ui_offset;
+    } else if (key == 'u') {  // DOWN
+      ui_offset += cv::Point2f(0,15); 
+      VLOG(3) << "ui_offset " << ui_offset;
+    } else if (key == 'y') {  // LEFT
+      ui_offset -= cv::Point2f(15,0); 
+      VLOG(3) << "ui_offset " << ui_offset;
+    } else if (key == 'o') {  // RIGHT
+      ui_offset += cv::Point2f(15,0); 
+      VLOG(3) << "ui_offset " << ui_offset;
     
     //else if (key == 'c') {
       // swap selected node input with source node input- TBD this doesn't work since  
@@ -1059,26 +1080,38 @@ class CamThing : public Output
     return true;
   }
 
+  bool update_nodes;
+  bool runThread() 
+  {
+    LOG(INFO) << "starting node update thread";
+    while (update_nodes) {
+
+      VLOG(4) << "";
+      if (!output_node) {
+        LOG_FIRST_N(ERROR,3) <<"no output_node";
+        usleep(20000);
+      }
+
+      if (!paused) {
+        output_node->setUpdate();
+        output_node->update();
+        clearAllNodeUpdates();
+      } else {
+        usleep(10000);
+      }
+    }
+    LOG(INFO) << "ending node update thread";
+    return true;
+  }
+
+
   virtual bool update() 
   {
-    //Output::update();
-
     // TBD capture key input in separate thread?
     count++;
    
     // have to do this before update to avoid some crashes
     if (!handleInput()) return false;
- 
-    // TBD put this in different thread 
-      { 
-        VLOG(4) << "";
-        if (!output_node) {
-          LOG(ERROR) <<"no output_node";
-          return false;
-        }
-        output_node->setUpdate();
-        output_node->update();
-      }
 
     return true;
   }
@@ -1173,6 +1206,8 @@ int main( int argc, char* argv[] )
   bm::CamThing* cam_thing = new bm::CamThing();
   #endif
 
+
+
   bool rv = true;
   while(rv) {
 
@@ -1199,8 +1234,7 @@ int main( int argc, char* argv[] )
     }
     #else
     rv = cam_thing->update();
-    cam_thing->draw(cv::Point2f(0,0));
-    cam_thing->clearAllNodeUpdates();
+    cam_thing->draw(cam_thing->ui_offset);
     #endif
   }
 

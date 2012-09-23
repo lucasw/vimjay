@@ -366,9 +366,9 @@ namespace bm {
     cv::Scalar col = cv::Scalar(vcol/fr);
 
     if (!(getSignal("enable") >= 1.0)) 
-      cv::circle(graph, loc, 10, cv::Scalar(0,0,100), -1);
+      cv::circle(graph, loc + ui_offset, 10, cv::Scalar(0,0,100), -1);
 
-    cv::circle(graph, loc, 24, col, 4);
+    cv::circle(graph, loc + ui_offset, 24, col, 4);
 
     const int ht = 10;
 
@@ -835,8 +835,8 @@ namespace bm {
       if (!isDirty(this,2)) fr = 5;
       cv::Scalar col = cv::Scalar(vcol/fr);
 
-      cv::rectangle(graph, loc + cv::Point2f(100,0) - cv::Point2f(2,2), 
-          loc + cv::Point2f(100,0) + cv::Point2f(sz.width,sz.height) + cv::Point2f(2,2), 
+      cv::rectangle(graph, loc + cv::Point2f(100,0) - cv::Point2f(2,2) + ui_offset, 
+          loc + cv::Point2f(100,0) + cv::Point2f(sz.width,sz.height) + cv::Point2f(2,2) + ui_offset, 
           col, CV_FILLED );
 
       bool draw_thumb = true;
@@ -850,8 +850,12 @@ namespace bm {
       }
 
       if (draw_thumb) {
-        if ((loc.x+ 100 + sz.width  < graph.cols) && (loc.y + sz.height < graph.rows)) {
-          cv::Mat graph_roi = graph(cv::Rect(loc.x + 100, loc.y, sz.width, sz.height));
+        float xth = loc.x + ui_offset.x + 100;
+        float yth = loc.y + ui_offset.y;
+
+        if ((xth > 0) && (yth > 0) && 
+            (xth + sz.width < graph.cols) && (yth + sz.height < graph.rows)) {
+          cv::Mat graph_roi = graph(cv::Rect(xth, yth, sz.width, sz.height));
           graph_roi = cv::Scalar(0, 0, 255);
           thumbnail.copyTo(graph_roi);
         }
@@ -1005,7 +1009,7 @@ namespace bm {
     // TBD make a graphic that shows a rolling oscilloscope value
     if (!graph.empty()) {
     cv::rectangle(graph, loc, 
-        loc + cv::Point2f( x * 50.0 , 5), 
+        loc + cv::Point2f( x * 50.0 , 5) + ui_offset, 
         cv::Scalar(255, 255, 100), CV_FILLED);
     }
 
@@ -1093,10 +1097,17 @@ namespace bm {
       cv::Mat thumbnail = cv::Mat(sz, CV_8UC3);
       cv::resize(frames[ind], thumbnail, sz, 0, 0, cv::INTER_NEAREST );
       //cv::resize(tmp->get(), thumbnail, cv::INTER_NEAREST );
-      cv::Mat graph_roi = graph(
-          cv::Rect(loc.x + 100 + i * sz.width, loc.y + sz.height*4, sz.width, sz.height));
-      graph_roi = cv::Scalar(0, 0, 255);
-      thumbnail.copyTo(graph_roi);
+
+      const float xth = loc.x + ui_offset.x + 100 + i * sz.width;
+      const float yth = loc.y + ui_offset.y + sz.height*4;
+
+      if ((xth > 0) && (yth > 0) && 
+          (xth + sz.width < graph.cols) && (yth + sz.height < graph.rows)) {
+
+        cv::Mat graph_roi = graph(cv::Rect(xth, yth, sz.width, sz.height));
+        graph_roi = cv::Scalar(0, 0, 255);
+        thumbnail.copyTo(graph_roi);
+      }
     }
 
     if (VLOG_IS_ON(9)) {

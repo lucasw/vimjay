@@ -334,9 +334,9 @@ namespace bm {
   {
     ImageNode::draw(ui_offset);
 
-    stringstream sstr;
-    sstr << getSignal("value");
-    cv::putText(graph, sstr.str(), loc + cv::Point2f(20,-30), 1, 1, cv::Scalar(200,200,200));
+    //stringstream sstr;
+    //sstr << getSignal("value");
+    //cv::putText(graph, sstr.str(), loc + cv::Point2f(20,-30), 1, 1, cv::Scalar(200,200,200));
   }
   
   bool TapInd::update()
@@ -362,9 +362,9 @@ namespace bm {
   {
     Tap::draw(ui_offset);
 
-    stringstream sstr;
-    sstr << (int)(getSignal("value"));
-    cv::putText(graph, sstr.str(), loc - cv::Point2f(-20,-30), 1, 1, cv::Scalar(200,200,200));
+    //stringstream sstr;
+    //sstr << (int)(getSignal("value"));
+    //cv::putText(graph, sstr.str(), loc - cv::Point2f(-20,-30), 1, 1, cv::Scalar(200,200,200));
   
     return true;
   }
