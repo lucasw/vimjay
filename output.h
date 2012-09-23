@@ -24,7 +24,7 @@ class Output : public ImageNode
   bool setup(const int width, const int height);
   
   virtual bool update();
-  virtual bool draw();
+  virtual bool draw(cv::Point2f ui_offset);
 };
 
 } // bm

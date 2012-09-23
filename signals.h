@@ -61,7 +61,7 @@ class SigTap : public Signal
   public:
   SigTap();// : Signal()
   virtual bool update();
-  virtual bool draw();
+  virtual bool draw(cv::Point2f ui_offset);
 };
 
 class SigTapInd : public Tap
@@ -69,7 +69,7 @@ class SigTapInd : public Tap
   public:
   SigTapInd() {}// : Signal()
   virtual bool update();
-  virtual bool draw();
+  virtual bool draw(cv::Point2f ui_offset);
 };
 
 // Arbitrary inputs 

@@ -330,9 +330,9 @@ namespace bm {
     return true;
   }
 
-  bool Tap::draw() 
+  bool Tap::draw(cv::Point2f ui_offset) 
   {
-    ImageNode::draw();
+    ImageNode::draw(ui_offset);
 
     stringstream sstr;
     sstr << getSignal("value");
@@ -358,9 +358,9 @@ namespace bm {
     return true;
   }
   
-  bool TapInd::draw() 
+  bool TapInd::draw(cv::Point2f ui_offset) 
   {
-    Tap::draw();
+    Tap::draw(ui_offset);
 
     stringstream sstr;
     sstr << (int)(getSignal("value"));

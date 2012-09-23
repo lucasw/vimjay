@@ -74,8 +74,7 @@ class Tap : public ImageNode
   void setup(Signal* new_signal =NULL, Buffer* new_buffer=NULL); 
   
   virtual bool update();
-  
-  virtual bool draw();
+  virtual bool draw(cv::Point2f ui_offset);
 };
 
 class TapInd : public Tap
@@ -87,7 +86,7 @@ class TapInd : public Tap
   // TBD make an sval?
   //int ind;
   virtual bool update();
-  virtual bool draw();
+  virtual bool draw(cv::Point2f ui_offset);
 };
 
 // Arbitrary inputs 

@@ -112,7 +112,7 @@ namespace bm {
     return "Unknown";
   }
 
-  void Connector::draw(cv::Mat graph) 
+  void Connector::draw(cv::Mat graph, cv::Point2f ui_offset) 
   {
    
     cv::Scalar hash_col = hashStringColor(/*parent->name +*/ typeToString(type) + name);
@@ -124,14 +124,14 @@ namespace bm {
       rect_col = cv::Scalar(180, 80, 80);
     }
     cv::rectangle(graph, 
-          parent->loc + loc, 
-          parent->loc + loc + cv::Point2f(name.size()*10, -10), 
+          parent->loc + loc + ui_offset, 
+          parent->loc + loc + ui_offset + cv::Point2f(name.size()*10, -10), 
           rect_col,
           CV_FILLED);
 
     cv::rectangle(graph, 
-          parent->loc + loc, 
-          parent->loc + loc + cv::Point2f(name.size()*10, -10), 
+          parent->loc + loc + ui_offset, 
+          parent->loc + loc + ui_offset + cv::Point2f(name.size()*10, -10), 
           hash_col);
      
     if (src) {
@@ -161,7 +161,10 @@ namespace bm {
 
       // draw dark outline
       for (int i = 1; i < connector_points.size(); i++) {
-        cv::line(graph, connector_points[i-1], connector_points[i], cv::Scalar(10,10,10), 4, CV_AA ); 
+        cv::line(graph, 
+            connector_points[i-1] + ui_offset, 
+            connector_points[i] + ui_offset, 
+            cv::Scalar(10,10,10), 4, CV_AA ); 
       }
       for (int i = 1; i < connector_points.size(); i++) {
         cv::Scalar col;
@@ -182,7 +185,10 @@ namespace bm {
         cv::Scalar hc1 = hash_col * cv::Scalar(wt2);
         col = hc1 + hc2; 
 
-        cv::line(graph, connector_points[i-1], connector_points[i], col, 2, CV_AA ); 
+        cv::line(graph, 
+          connector_points[i-1] + ui_offset, 
+          connector_points[i] + ui_offset, 
+          col, 2, CV_AA ); 
       }
     }
 
@@ -200,7 +206,7 @@ namespace bm {
       col = cv::Scalar(255,255,55);
     }
     
-    cv::putText(graph, port_info.str(), parent->loc + loc, 1, 1, col, 1);
+    cv::putText(graph, port_info.str(), parent->loc + loc + ui_offset, 1, 1, col, 1);
 
   }
 
@@ -326,7 +332,7 @@ namespace bm {
     return true;
   }
 
-  bool Node::draw() 
+  bool Node::draw(cv::Point2f ui_offset) 
   {
 
    // pos update
@@ -370,8 +376,8 @@ namespace bm {
     
     // draw rectangle around entire node
     cv::rectangle(graph, 
-          loc + cv::Point2f(-5, -15), 
-          loc + cv::Point2f(100, ports.size()*10 + 2), 
+          loc + cv::Point2f(-5, -15) + ui_offset, 
+          loc + cv::Point2f(100, ports.size()*10 + 2) + ui_offset, 
           vcol*0.2, //cv::Scalar(255,0,0),
           2);
     
@@ -379,11 +385,11 @@ namespace bm {
     for (int i = 0; i < ports.size(); i++) {
       if (i == selected_port_ind) ports[i]->highlight = true;
       else ports[i]->highlight = false;
-      ports[i]->draw(graph);
+      ports[i]->draw(graph, ui_offset);
     }
 
-    cv::putText(graph, name, loc - cv::Point2f(9, ht), 1, 1, cv::Scalar(115,115,115));
-    cv::putText(graph, name, loc - cv::Point2f(10, ht), 1, 1, cv::Scalar(255,255,255));
+    cv::putText(graph, name, loc - cv::Point2f(9, ht) + ui_offset, 1, 1, cv::Scalar(115,115,115));
+    cv::putText(graph, name, loc - cv::Point2f(10, ht) + ui_offset, 1, 1, cv::Scalar(255,255,255));
 
   }
 
@@ -809,7 +815,7 @@ namespace bm {
     return true;
   }
 
-  bool ImageNode::draw() 
+  bool ImageNode::draw(cv::Point2f ui_offset) 
   {
     if (graph.empty()) return false;
 
@@ -852,7 +858,7 @@ namespace bm {
       }
     }
     
-    bool rv = Node::draw();
+    bool rv = Node::draw(ui_offset);
 
     return rv;
   }
@@ -981,7 +987,7 @@ namespace bm {
     return true;
   }
 
-  bool Signal::draw()
+  bool Signal::draw(cv::Point2f ui_offset)
   {
     float step = getSignal("step");
     float min = getSignal("min");
@@ -1003,7 +1009,7 @@ namespace bm {
         cv::Scalar(255, 255, 100), CV_FILLED);
     }
 
-    return Node::draw();
+    return Node::draw(ui_offset);
   }
 
   bool Signal::load(cv::FileNodeIterator nd)
@@ -1068,7 +1074,7 @@ namespace bm {
     return true;
   }
 
-  bool Buffer::draw() 
+  bool Buffer::draw(cv::Point2f ui_offset) 
   {
     cv::Mat out = getImage("out");
     // draw some grabs of the beginning frame, and other partway through the buffer 
@@ -1104,7 +1110,7 @@ namespace bm {
     else
       vcol = cv::Scalar(55, 255, 90);
     
-    return ImageNode::draw();
+    return ImageNode::draw(ui_offset);
   }
 
   bool Buffer::add(cv::Mat& new_frame, bool restrict_size)

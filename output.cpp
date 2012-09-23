@@ -49,7 +49,7 @@ namespace bm {
     bm::setWindowDecorations(display, win, window_decorations_on);
   }
 
-  bool Output::draw()
+  bool Output::draw(cv::Point2f ui_offset)
   {
     /*
     XWindowAttributes xwAttr;
@@ -85,7 +85,7 @@ namespace bm {
     XPutImage(display, win,  gc, ximage, 0, 0, 0, 0, ximage->width, ximage->height);
     }
 
-    return ImageNode::draw();
+    return ImageNode::draw(ui_offset);
   }
 
 }

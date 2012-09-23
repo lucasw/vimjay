@@ -78,7 +78,7 @@ class Connector
   
   std::vector<cv::Point2f> connector_points;
 
-  void draw(cv::Mat);
+  void draw(cv::Mat, cv::Point2f ui_offset);
   bool highlight;
 
   bool writeable;  
@@ -154,7 +154,7 @@ class Node
   // process or not
   virtual bool update(); 
 
-  virtual bool draw(); 
+  virtual bool draw(cv::Point2f ui_offset); 
 
   virtual bool save(cv::FileStorage& fs);
   virtual bool load(cv::FileNodeIterator nd);
@@ -221,7 +221,7 @@ public:
 
   virtual bool update();
 
-  virtual bool draw();
+  virtual bool draw(cv::Point2f ui_offset);
   
   virtual bool handleKey(int key);
   
@@ -240,7 +240,7 @@ class Signal : public Node
  
   virtual bool handleKey(int key);
   virtual bool update();
-  virtual bool draw();
+  virtual bool draw(cv::Point2f ui_offset);
 
   virtual bool load(cv::FileNodeIterator nd);
   virtual bool save(cv::FileStorage& fs);
@@ -269,7 +269,7 @@ class Buffer : public ImageNode
   virtual bool update();
 
   bool add(cv::Mat& new_frame, bool restrict_size = true);
-  virtual bool draw(); 
+  virtual bool draw(cv::Point2f ui_offset);
    
   virtual cv::Mat get();
 

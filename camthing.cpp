@@ -106,6 +106,11 @@ string getId(Node* ptr)
     return (abi::__cxa_demangle(typeid(*ptr).name(), 0, 0, &status));
   }
 
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+
 class CamThing : public Output 
 {
   // TBD informal timer for the system
@@ -118,6 +123,13 @@ class CamThing : public Output
   Output* output_node;
   // TBD temp- currently need to connect output Xlib parameters to Mouse
   Mouse* input_node;
+
+  // where the ui pointer is (currently controlled by keyboard
+  cv::Point cursor;
+  // where the upper left coordinate of the window into the ui is
+  cv::Point2f ui_offset;
+  // scale factor on drawing ui elements
+  float zoom;
 
   public:
 
@@ -1001,11 +1013,11 @@ class CamThing : public Output
     }
     //////////////////////////////////////////////////
     // following may not be portable
-    else if (key == 'i') {  // UP
+    else if (key == 'k') {  // UP
       selectNodeDirection(-2); 
-    } else if (key == 'k') {  // DOWN
+    } else if (key == 'j') {  // DOWN
       selectNodeDirection(2); 
-    } else if (key == 'j') {  // LEFT
+    } else if (key == 'h') {  // LEFT
       selectNodeDirection(-1); 
     } else if (key == 'l') {  // RIGHT
       selectNodeDirection(1); 
@@ -1071,7 +1083,7 @@ class CamThing : public Output
     return true;
   }
  
-  virtual bool draw() 
+  virtual bool draw(cv::Point2f ui_offset) 
   {
     graph_im = cv::Scalar(0,0,0);
     cv::Mat out_node_im = output_node->getImage("out");
@@ -1084,7 +1096,9 @@ class CamThing : public Output
 
     if (draw_nodes) {
       if (source_node && selected_node) {
-        cv::line( graph_im, source_node->loc, selected_node->loc, cv::Scalar(70, 70, 70), 8, 4 );
+        cv::line( graph_im, 
+            source_node->loc + ui_offset, selected_node->loc + ui_offset, 
+            cv::Scalar(70, 70, 70), 8, 4 );
       }
 
       cv::putText(graph_im, command_text, cv::Point2f(10, graph_im.rows-40), 1, 1, 
@@ -1095,11 +1109,11 @@ class CamThing : public Output
 
       // TBD could all_nodes size have
       if (selected_node) {
-        cv::circle(graph_im, selected_node->loc, 18, cv::Scalar(0,220,1), -1);
+        cv::circle(graph_im, selected_node->loc + ui_offset, 18, cv::Scalar(0,220,1), -1);
       }
       if (source_node) {
-        cv::circle(graph_im, source_node->loc, 13, cv::Scalar(29,51,11), -1);
-        cv::circle(graph_im, source_node->loc, 12, cv::Scalar(229,151,51), -1);
+        cv::circle(graph_im, source_node->loc + ui_offset, 13, cv::Scalar(29,51,11), -1);
+        cv::circle(graph_im, source_node->loc + ui_offset, 12, cv::Scalar(229,151,51), -1);
       }
 
       // draw input and outputs
@@ -1115,12 +1129,12 @@ class CamThing : public Output
 
       // loop through
       for (int i = 0; i < all_nodes.size(); i++) {
-        all_nodes[i]->draw();
+        all_nodes[i]->draw(ui_offset);
       }
     }
 
     setImage("in", graph_im );
-    Output::draw();
+    Output::draw(ui_offset);
   } // CamThing::draw
 
   };
@@ -1185,7 +1199,7 @@ int main( int argc, char* argv[] )
     }
     #else
     rv = cam_thing->update();
-    cam_thing->draw();
+    cam_thing->draw(cv::Point2f(0,0));
     cam_thing->clearAllNodeUpdates();
     #endif
   }
