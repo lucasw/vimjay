@@ -318,23 +318,28 @@ class CamThing : public Output
       saveGraph("graph_load_test.yml");
     }
 
-    setup(graph_im.size().width, graph_im.size().height);
+    selectNextNode();
 
-    // Try to get keyboard input working
-    XIEventMask eventmask;
-    unsigned char mask[1] = { 0 }; /* the actual mask */
+    // Xlib stuff
+    {
+      setup(graph_im.size().width, graph_im.size().height);
 
-    // only 1 worked for my laptop keyboard
-    eventmask.deviceid = 1;
-    eventmask.mask_len = sizeof(mask); /* always in bytes */
-    eventmask.mask = mask;
-    /* now set the mask */
-    XISetMask(mask, XI_ButtonPress);
-    XISetMask(mask, XI_Motion);
-    XISetMask(mask, XI_KeyPress);
+      // Try to get keyboard input working
+      XIEventMask eventmask;
+      unsigned char mask[1] = { 0 }; /* the actual mask */
 
-    /* select on the window */
-    XISelectEvents(display, win, &eventmask, 1);
+      // only 1 worked for my laptop keyboard
+      eventmask.deviceid = 1;
+      eventmask.mask_len = sizeof(mask); /* always in bytes */
+      eventmask.mask = mask;
+      /* now set the mask */
+      XISetMask(mask, XI_ButtonPress);
+      XISetMask(mask, XI_Motion);
+      XISetMask(mask, XI_KeyPress);
+
+      /* select on the window */
+      XISelectEvents(display, win, &eventmask, 1);
+    }
   }
 
   ///////////////////////////////////////////////
@@ -959,12 +964,13 @@ class CamThing : public Output
         // TBD saw with selected_node?
       }
     }
+    /*
     else if (key == 'j') {
       selectNextNode();
     }
     else if (key == 'k') {
       selectPrevNode();
-    }
+    }*/
     else if (key == 'u') {
       // TBD the node should catch this itself
       selectPort();
@@ -995,13 +1001,13 @@ class CamThing : public Output
     }
     //////////////////////////////////////////////////
     // following may not be portable
-    else if (key == 65362) {  // UP
+    else if (key == 'i') {  // UP
       selectNodeDirection(-2); 
-    } else if (key == 65364) {  // DOWN
+    } else if (key == 'k') {  // DOWN
       selectNodeDirection(2); 
-    } else if (key == 65361) {  // LEFT
+    } else if (key == 'j') {  // LEFT
       selectNodeDirection(-1); 
-    } else if (key == 65363) {  // RIGHT
+    } else if (key == 'l') {  // RIGHT
       selectNodeDirection(1); 
       
     
