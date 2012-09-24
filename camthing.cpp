@@ -806,9 +806,15 @@ class CamThing : public Output
   bool draw_nodes;
   bool paused;
 
-  bool selectNodeDirection(const int dir) 
+
+  /*
+   *  -2 is  up
+   *  2 is down
+   *  -1 is left
+   *  1 is right
+   */
+  int getNodeDirection(const int dir) 
   {
- 
       // find closest node in y
       float cur_y = 0;
       if (selected_node) cur_y = selected_node->loc.y;
@@ -844,13 +850,20 @@ class CamThing : public Output
           min_ind = i;
         }
       }
+
+    return min_ind;
+  }
+
+  bool selectNodeDirection(const int dir) 
+  {
+    int min_ind = getNodeDirection(dir);
+      
       if (min_ind >= 0) {
         selected_node = all_nodes[min_ind];
         selected_ind = min_ind;
         return true;
       }
       return false;
-
   }
   
   bool handleInput() 
@@ -978,7 +991,8 @@ class CamThing : public Output
     }
     
     // Connection manipulation
-    else if (key == 'h') {
+    // jump back to selecting the source node
+    else if (key == 'b') {
       if (source_node) {
         selected_node = source_node;
         selected_ind = source_ind;
@@ -1132,6 +1146,19 @@ class CamThing : public Output
         cv::line( graph_im, 
             source_node->loc + ui_offset, selected_node->loc + ui_offset, 
             cv::Scalar(70, 70, 70), 8, 4 );
+      }
+
+      // draw potential neighbors to jump to with node selection commands
+      if (selected_node) {
+        int n_ind;
+
+        for (int i = -2; i <= 2; i++) {
+          n_ind = getNodeDirection(i);
+          if (n_ind < 0) continue;
+          cv::line( graph_im, 
+            all_nodes[n_ind]->loc + ui_offset, selected_node->loc + ui_offset, 
+            cv::Scalar(30 + i*2, 50 - i*5, 40 + i * 10), 8, 4 );
+        }
       }
 
       cv::putText(graph_im, command_text, cv::Point2f(10, graph_im.rows-40), 1, 1, 
