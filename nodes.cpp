@@ -983,7 +983,7 @@ namespace bm {
     
     setSignal("value", value);
 
-    VLOG(2) << "Signal " << name << " " << value;
+    VLOG(4) << "Signal " << name << " " << value;
     //is_dirty = true;
     setDirty();
 

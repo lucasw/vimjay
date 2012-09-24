@@ -29,6 +29,7 @@
 
 #include <deque>
 #include <boost/lexical_cast.hpp>
+#include <boost/timer.hpp>
 
 #include "opencv2/highgui/highgui.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
@@ -1132,6 +1133,8 @@ class CamThing : public Output
  
   virtual bool draw(cv::Point2f ui_offset) 
   {
+    boost::timer t1;
+
     graph_im = cv::Scalar(0,0,0);
     cv::Mat out_node_im = output_node->getImage("out");
     if (!out_node_im.empty()) {
@@ -1140,6 +1143,8 @@ class CamThing : public Output
     }
     else
       graph_im = cv::Scalar(0,0,0);
+    
+    VLOG(1) << "bg draw time" << t1.elapsed(); 
 
     if (draw_nodes) {
       if (source_node && selected_node) {
@@ -1175,6 +1180,7 @@ class CamThing : public Output
         cv::circle(graph_im, source_node->loc + ui_offset, 13, cv::Scalar(29,51,11), -1);
         cv::circle(graph_im, source_node->loc + ui_offset, 12, cv::Scalar(229,151,51), -1);
       }
+      VLOG(1) << "cv draw time" << t1.elapsed(); 
 
       // draw input and outputs
       /*
@@ -1186,15 +1192,20 @@ class CamThing : public Output
       } else {
       LOG(ERROR) << "out no data";
       }*/
-
+      
       // loop through
       for (int i = 0; i < all_nodes.size(); i++) {
         all_nodes[i]->draw(ui_offset);
       }
+      VLOG(2) << "node draw time " << t1.elapsed();
     }
 
     setImage("in", graph_im );
+    VLOG(2) << "ui draw time" << t1.elapsed(); 
+    /// TBD this is somewhat slow
     Output::draw(ui_offset);
+
+    VLOG(2) << "full draw time" << t1.elapsed(); 
   } // CamThing::draw
 
   };
