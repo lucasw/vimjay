@@ -419,9 +419,13 @@ bool matToXImage(cv::Mat& im, XImage* ximage, Window& win, Display& display, Scr
                  color.pixel |= (b << bshift);
                  color.pixel |= (g << gshift);
 
-                XPutPixel(ximage, x,y, color.pixel);
-            }
+                //XPutPixel(ximage, x,y, color.pixel);
+                ximage->data[y * ximage->width + x] = col[0];
+                //ximage->data[y * ximage->width + x*3+1] = col[1];
+                //ximage->data[y * ximage->width + x*3+2] = col[2];
+          }
         }
+        //ximage->data = (char*) im.data;
         VLOG(1) << "matToXImage put pixel time " << t1.elapsed();
         LOG_FIRST_N(INFO,1) << "done copying mat";
     } else { // Extremly slow alternative for non 24bit-depth

@@ -490,7 +490,7 @@ class CamThing : public Output
         (*it)["inputs"][i]["type"] >> type;
         (*it)["inputs"][i]["name"] >> port;
       
-        LOG(INFO) << "input " << ind << " \"" << node->name
+        VLOG(1) << "input " << ind << " \"" << node->name
             << "\", type " << type << " " << port;
         
         // TBD make function for this
@@ -512,7 +512,7 @@ class CamThing : public Output
     for (FileNodeIterator it = nd.begin(); it != nd.end(); ++it) {
       int ind;
       (*it)["ind"] >> ind;
-      LOG(INFO) << "second pass inputs " << ind << " " << CLTXT << all_nodes[ind]->name << CLNRM;
+      VLOG(1) << "second pass inputs " << ind << " " << CLTXT << all_nodes[ind]->name << CLNRM;
       for (int i = 0; i < (*it)["inputs"].size(); i++) {
         int input_ind;
         int type;
