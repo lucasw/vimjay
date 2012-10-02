@@ -496,6 +496,25 @@ namespace bm {
 
   //////////////////////////////////////////////////////
 
+  bool Node::getPrevPort(const conType type)
+  {
+    for (int i = ports.size()-1; i >= 0; i--) {
+      int ind = (i + selected_port_ind) % ports.size();
+      
+      VLOG(3) << ind << " : " << type << " " << ports[ind]->type << ", " 
+          << ports[ind]->name;
+
+      if ((type == NONE) || (type == ports[ind]->type)) {
+        selected_port_ind = ind;
+        selected_port = ports[ind]->name;
+        selected_type = ports[ind]->type;
+        return true;
+      }
+
+    }
+    return false;
+  }
+
   bool Node::getNextPort(const conType type)
   {
     
@@ -515,7 +534,6 @@ namespace bm {
     }
 
     return false;
-
   }
 
   /// TBD

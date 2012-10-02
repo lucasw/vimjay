@@ -159,6 +159,7 @@ class Node
   virtual bool save(cv::FileStorage& fs);
   virtual bool load(cv::FileNodeIterator nd);
 
+  bool getPrevPort(const conType type=NONE);
   bool getNextPort(const conType type=NONE); 
   
   bool getInputPort(

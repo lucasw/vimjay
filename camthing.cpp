@@ -753,7 +753,7 @@ class CamThing : public Output
     selected_node = all_nodes[selected_ind];
 
     selected_port = "";
-    selectPort(false);
+    selectPort(0);
 
     VLOG(1) << "selected node " << selected_node->name << " " << selected_ind;
   }
@@ -767,13 +767,18 @@ class CamThing : public Output
     selected_node = all_nodes[selected_ind];
 
     selected_port = "";
-    selectPort(false);
+    selectPort(0);
     
     VLOG(1) << "selected node " << selected_node->name << " " << selected_ind;
   }
 
   // TBD move into Node?
-  bool selectPort(bool next_port = true)
+  /*
+    upper port = -1
+    same port = 0
+    lower port = 1
+  */
+  bool selectPort(int next_port = 1)
   {
     if (!selected_node) {
       VLOG(1) << "selectPort: no selected_node";
@@ -783,14 +788,18 @@ class CamThing : public Output
     selected_node->draw_selected_port = true;
 
     // take the current port
-    if (!next_port) {
+    if (next_port == 0) {
       selected_type = selected_node->selected_type;
       selected_port = selected_node->selected_port;
       selected_port_ind = selected_node->selected_port_ind;
       return true;
     }
 
-    bool rv = selected_node->getNextPort(source_type);
+    bool rv;
+    if (next_port > 0) 
+      rv = selected_node->getNextPort(source_type);
+    if (next_port < 0)
+      rv = selected_node->getPrevPort(source_type);
     
     if (rv) {
     selected_type = selected_node->selected_type;
@@ -979,16 +988,17 @@ class CamThing : public Output
       // TBD increment a count so old saves aren't overwritten?
       saveGraph("temp_graph.yml");
     }
-    else if (key == 'a') {
-      gridGraph();
-    }
+    //else if (key == 'a') {
+    //  gridGraph();
+    //}
     else if (key == 'z') {
       draw_nodes = !draw_nodes;
     }
     else if (key == 's') {
-      if (selected_node)
+      if (selected_node) {
         // TBD make node function to do this without exposing setSignal 
         selected_node->setSignal("enable",  !((bool)selected_node->getSignal("enable")));
+      }
     }
     
     // Connection manipulation
@@ -1007,9 +1017,20 @@ class CamThing : public Output
     else if (key == 'k') {
       selectPrevNode();
     }*/
+    else if (key == 's') {
+      // jump to the node and port inputting into this port
+    }
     else if (key == 'g') {
+      // jump to the node and port this port is outputting to
+    }
+    else if (key == 'd') {
+      // select the above port
+      selectPort(-1);
+    }
+    else if (key == 'f') {
+      // select the next port down
       // TBD the node should catch this itself
-      selectPort();
+      selectPort(1);
       
       stringstream str;
       if (selected_node) {
