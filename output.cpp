@@ -80,9 +80,12 @@ namespace bm {
     VLOG(3) << "attr time" << t1.elapsed(); 
 
     // TBD is this necessary or does X do it for me if the window is resized?
-    cv::Size sz = cv::Size(screen_w, screen_h);
+    const cv::Size sz = cv::Size(screen_w, screen_h);
     cv::Mat scaled;
-    cv::resize(in, scaled, sz, 0, 0, cv::INTER_NEAREST );
+    if (sz == in.size()) 
+      scaled = in.clone();
+    else
+      cv::resize(in, scaled, sz, 0, 0, cv::INTER_NEAREST );
    
     VLOG(3) << "resize time" << t1.elapsed();
 

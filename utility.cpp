@@ -212,6 +212,7 @@ bool setWindowDecorations(Display* display, Window& win, bool decorations_on)
 // TBD may not need this function, user ought to keep ximage around and reuse it
 bool matToScreen(cv::Mat& tmp, Display* display, Window& win) 
 {
+  if (tmp.empty()) return false;
   // TBD handle size mismatches
   const int width = tmp.cols;
   const int height = tmp.rows;
@@ -333,6 +334,8 @@ cv::Mat XImage2OpenCVImage(XImage& _xImage, Display& _xDisplay, Screen& _xScreen
  */
 bool matToXImage(cv::Mat& im, XImage* ximage, Window& win, Display& display, Screen& screen) 
 {
+  if (im.empty()) return false;
+
     LOG_FIRST_N(INFO,1) 
       << ", width " << ximage->width 
       << ", height " << ximage->width 
