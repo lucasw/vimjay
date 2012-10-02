@@ -496,6 +496,33 @@ namespace bm {
 
   //////////////////////////////////////////////////////
 
+  int Node::getIndFromPointer(Connector* con)
+  {
+    if (con == NULL) return -1;
+    
+    for (int i = 0; i < ports.size(); i++) {
+      if (con == ports[i]) {
+        VLOG(3) << con->name << " " << i; 
+        return i; 
+      }
+    }
+
+    return -1;
+  }
+  // TBD selectPortByPointer
+
+  bool Node::selectPortByInd(const int ind)
+  {
+    if (ind < 0) return false;
+    if (ind >= ports.size())  return false;
+
+    selected_port_ind = ind;
+    selected_port = ports[ind]->name;
+    selected_type = ports[ind]->type;
+    
+    return true;
+  }
+
   bool Node::getPrevPort(const conType type)
   {
     for (int i = ports.size()-1; i >= 0; i--) {

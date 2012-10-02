@@ -112,7 +112,9 @@ class Node
   public:
   
   std::vector<Connector*> ports;
-  
+  int getIndFromPointer(Connector* con);
+  bool selectPortByInd(const int ind);
+ 
   // has this node been updated this timestep, or does it need to be updated this timestep
   // because of dependencies
   bool do_update;

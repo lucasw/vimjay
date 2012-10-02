@@ -403,8 +403,10 @@ bool matToXImage(cv::Mat& im, XImage* ximage, Window& win, Display& display, Scr
         VLOG(4) << "matToXImage setup time " << t1.elapsed();
     
         //boost::timer t2;
-        for (unsigned int y = 0; y < ximage->height; y++) {
-          for (unsigned int x = 0; x < ximage->width; x++) {
+        const int wd = ximage->width;
+        const int ht = ximage->height;
+        for (unsigned int y = 0; y < ht; y++) {
+          for (unsigned int x = 0; x < wd; x++) {
                 //colorChannel[0] = ((color.pixel >> bshift) & ((1 << bbits) - 1)) << (8 - bbits);
                 //colorChannel[1] = ((color.pixel >> gshift) & ((1 << gbits) - 1)) << (8 - gbits);
                 //colorChannel[2] = ((color.pixel >> rshift) & ((1 << rbits) - 1)) << (8 - rbits);
@@ -419,8 +421,10 @@ bool matToXImage(cv::Mat& im, XImage* ximage, Window& win, Display& display, Scr
                  color.pixel |= (b << bshift);
                  color.pixel |= (g << gshift);
 
-                //XPutPixel(ximage, x,y, color.pixel);
-                ximage->data[y * ximage->width + x] = col[0];
+                XPutPixel(ximage, x,y, color.pixel);
+                //if (ht < ht/4)
+                //  ximage->data[y * wd + x] = color.pixel;
+                  //ximage->data[y * wd + x] = col[0];
                 //ximage->data[y * ximage->width + x*3+1] = col[1];
                 //ximage->data[y * ximage->width + x*3+2] = col[2];
           }
