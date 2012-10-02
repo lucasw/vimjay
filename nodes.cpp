@@ -575,6 +575,8 @@ namespace bm {
   {
     con = NULL;
   
+    boost::mutex::scoped_lock l(port_mutex);
+
     for (int i = 0; i < ports.size(); i++) {
 
       VLOG(6) << i << " " << ports[i]->type << " " << ports[i]->name << ", " << type << " " << port;
@@ -615,6 +617,8 @@ namespace bm {
       con->name = port;
       con->parent = this;
       con->type = type;
+    
+      boost::mutex::scoped_lock l(port_mutex);
       con->loc = cv::Point2f(0, ports.size()*10);
 
       ports.push_back(con);
@@ -638,8 +642,8 @@ namespace bm {
         src_con->name = src_port;
         src_con->parent = src_node;
         src_con->type = type;
+        boost::mutex::scoped_lock l(port_mutex);
         src_con->loc = cv::Point2f(0, src_node->ports.size()*10);
-
         
         src_node->ports.push_back(src_con);
         VLOG(2) << con->parent->name << " new src Connector " << type << " " << src_con->name; 

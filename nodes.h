@@ -6,6 +6,7 @@
 #include <stdio.h>
 
 #include <boost/thread.hpp>
+#include <boost/thread/mutex.hpp>
 
 #include "opencv2/highgui/highgui.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
@@ -93,6 +94,8 @@ class Connector
   float value;
   // only used if conType == Image or Buffer
   cv::Mat im;
+
+
 };
 
 //typedef std::map<std::string, std::pair<Node*, std::string> > inputsItemType;
@@ -107,6 +110,8 @@ class Node
   // velocity and acceleration of node screen position 
   cv::Point2f acc;
   cv::Point2f vel;
+  
+  boost::mutex port_mutex;
 
   protected:
 
