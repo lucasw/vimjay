@@ -1165,7 +1165,7 @@ class CamThing : public Output
     else
       graph_im = cv::Scalar(0,0,0);
     
-    VLOG(1) << "bg draw time" << t1.elapsed(); 
+    VLOG(3) << "bg draw time" << t1.elapsed(); 
 
     if (draw_nodes) {
       if (source_node && selected_node) {
@@ -1222,7 +1222,7 @@ class CamThing : public Output
     }
 
     setImage("in", graph_im );
-    VLOG(2) << "ui draw time" << t1.elapsed(); 
+    VLOG(3) << "ui draw time" << t1.elapsed(); 
     /// TBD this is somewhat slow
     Output::draw(ui_offset);
 

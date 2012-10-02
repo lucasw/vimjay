@@ -1,5 +1,6 @@
 #include "utility.h"
 
+#include <boost/timer.hpp>
 #include <glog/logging.h>
 
 namespace bm {
@@ -332,6 +333,9 @@ cv::Mat XImage2OpenCVImage(XImage& _xImage, Display& _xDisplay, Screen& _xScreen
  */
 bool matToXImage(cv::Mat& im, XImage* ximage, Window& win, Display& display, Screen& screen) 
 {
+    
+    boost::timer t1;
+    
     XColor color;
     
     LOG_FIRST_N(INFO,1) << im.cols << " " << im.rows << ", " << ximage->width << " " << ximage->height;
@@ -395,9 +399,12 @@ bool matToXImage(cv::Mat& im, XImage* ximage, Window& win, Display& display, Scr
             << "bshift " << bshift << " bbits " << bbits 
             << ", gshift " << gshift << " gbits " << gbits 
             << ", rshift " << rshift << " rbits " << rbits;
-        for (unsigned int x = 0; x < ximage->width; x++) {
-            for (unsigned int y = 0; y < ximage->height; y++) {
-                color.pixel = XGetPixel(ximage, x, y);
+
+        VLOG(4) << "matToXImage setup time " << t1.elapsed();
+    
+        //boost::timer t2;
+        for (unsigned int y = 0; y < ximage->height; y++) {
+          for (unsigned int x = 0; x < ximage->width; x++) {
                 //colorChannel[0] = ((color.pixel >> bshift) & ((1 << bbits) - 1)) << (8 - bbits);
                 //colorChannel[1] = ((color.pixel >> gshift) & ((1 << gbits) - 1)) << (8 - gbits);
                 //colorChannel[2] = ((color.pixel >> rshift) & ((1 << rbits) - 1)) << (8 - rbits);
@@ -412,10 +419,10 @@ bool matToXImage(cv::Mat& im, XImage* ximage, Window& win, Display& display, Scr
                  color.pixel |= (b << bshift);
                  color.pixel |= (g << gshift);
 
-                //color.pixel = 0xf0f0f0;
                 XPutPixel(ximage, x,y, color.pixel);
             }
         }
+        VLOG(1) << "matToXImage put pixel time " << t1.elapsed();
         LOG_FIRST_N(INFO,1) << "done copying mat";
     } else { // Extremly slow alternative for non 24bit-depth
         LOG_FIRST_N(INFO,1) <<" slow route TBD";
