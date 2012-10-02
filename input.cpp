@@ -119,7 +119,7 @@ int main( int argc, char* argv[] )
 
   cv::Mat tmp;
   // BGR
-  tmp = cv::Mat(height, width, CV_8UC3, cv::Scalar(255,100,50));
+  tmp = cv::Mat(height, width, CV_8UC4, cv::Scalar(255,100,50));
  
   bm::matToScreen(tmp, display, win);
 

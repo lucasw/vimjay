@@ -885,7 +885,7 @@ namespace bm {
 
       cv::Size sz = cv::Size(Config::inst()->thumb_width, Config::inst()->thumb_height);
 
-      cv::Mat thumbnail = cv::Mat(sz, CV_8UC3);
+      cv::Mat thumbnail = cv::Mat(sz, CV_8UC4);
       //cv::resize(tmp->get(), thumbnail, thumbnail.size(), 0, 0, cv::INTER_NEAREST );
       cv::resize(tmp, thumbnail, sz, 0, 0, cv::INTER_NEAREST );
       //cv::resize(tmp->get(), thumbnail, cv::INTER_NEAREST );
@@ -1153,7 +1153,7 @@ namespace bm {
 
       cv::Size sz = cv::Size(Config::inst()->thumb_width * 0.25, Config::inst()->thumb_height * 0.25);
 
-      cv::Mat thumbnail = cv::Mat(sz, CV_8UC3);
+      cv::Mat thumbnail = cv::Mat(sz, CV_8UC4);
       cv::resize(frames[ind], thumbnail, sz, 0, 0, cv::INTER_NEAREST );
       //cv::resize(tmp->get(), thumbnail, cv::INTER_NEAREST );
 
@@ -1236,7 +1236,7 @@ namespace bm {
     if (frames.size() < 1) {
       VLOG(1) << "no frames returning gray";
       cv::Mat tmp = cv::Mat( 
-        Config::inst()->thumb_width, Config::inst()->thumb_height, CV_8UC3);
+        Config::inst()->thumb_width, Config::inst()->thumb_height, CV_8UC4);
       tmp = cv::Scalar(128);
       return tmp;
     }

@@ -66,7 +66,7 @@ ScreenCap::ScreenCap( )
   int widthX = Config::inst()->im_width; //screen->width / 4, heightY = screen->height / 4; 
   int heightY = Config::inst()->im_height;
   
-  cv::Mat out = cv::Mat(cv::Size(widthX, heightY), CV_8UC3);
+  cv::Mat out = cv::Mat(cv::Size(widthX, heightY), CV_8UC4);
   out = cv::Scalar(50,50,200);
 
   setSignal("startX", startX);
