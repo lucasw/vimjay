@@ -774,6 +774,7 @@ class CamThing : public Output
 
   bool selectPortSource() 
   {
+    VLOG(1) << "selecting port source";
     // jump to the node and port inputting into this port
     if (!selected_node) return false;
     if (selected_port_ind < 0) return false;
@@ -791,6 +792,34 @@ class CamThing : public Output
     selected_node->selectPortByInd(selected_port_ind);
     // keep a copy of the selected port local (TBD)
     selectPort(0);
+    
+    VLOG(2) << "selecting port source success";
+    return true;
+  }
+
+  bool selectPortDestination() 
+  {
+    VLOG(1) << "selecting port destination";
+    // jump to the node and port inputting into this port
+    if (!selected_node) return false;
+    if (selected_port_ind < 0) return false;
+    if (selected_port_ind >= selected_node->ports.size()) return false;
+
+    Connector* con = selected_node->ports[selected_port_ind];
+    if (!con->dst) return false;
+
+    selected_node = con->dst->parent;
+    selected_ind = getIndFromPointer(selected_node); 
+
+    selected_port_ind = selected_node->getIndFromPointer(con->dst);
+
+    // tell the node to select the port
+    selected_node->selectPortByInd(selected_port_ind);
+    // keep a copy of the selected port local (TBD)
+    selectPort(0);
+
+    VLOG(2) << "selecting port destination success";
+    return true;
   }
 
   /*
@@ -1043,8 +1072,7 @@ class CamThing : public Output
     }
     else if (key == 'g') {
       // jump to the node and port this port is outputting to
-      // selectPortDestination();
-      // TBD need to keep a dst pointer in Connector as well as src
+      selectPortDestination();
     }
     else if (key == 'd') {
       // select the above port

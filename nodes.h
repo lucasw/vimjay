@@ -67,6 +67,7 @@ class Connector
 
   // the Connector that is sourcing this one, if any
   Connector* src;
+  Connector* dst;
 
   Node* parent;
 

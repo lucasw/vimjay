@@ -75,6 +75,7 @@ namespace bm {
   Connector::Connector() :
     parent(NULL),
     src(NULL),
+    dst(NULL),
     writeable(true),
     type(SIGNAL),
     value(0),
@@ -312,8 +313,7 @@ namespace bm {
     {
       if (ports[i]->name != "enable")
         ports[i]->update();
-        //ports[i]->src->parent->update();
-        // TBD may wan to track per output dirtiness later?
+        // TBD may want to track per output dirtiness later?
       if (ports[i]->is_dirty) inputs_dirty = true;
     }
 
@@ -564,6 +564,9 @@ namespace bm {
   }
 
   /// TBD
+  /*
+    get a pointer to the port connected to this nodes port
+  */
   bool Node::getInputPort(
       const conType type, 
       const string port,
@@ -589,6 +592,11 @@ namespace bm {
     return false;
   }
 
+  /*
+    Connect a source connector port to this port
+
+    if src_node is NULL then any existing connecting port is disconnected.
+  */
   void Node::setInputPort(
       const conType type, 
       const std::string port,
@@ -614,6 +622,11 @@ namespace bm {
       VLOG(2) << "\"" << con->parent->name << "\"" <<CLTX2 << " new connector " << CLNRM 
           << type << " \"" << con->name << "\"";
     }
+      
+    // blank out existing dst connection if it exists, it will be overwritten next
+    if (con->src) {
+      con->src->dst = NULL;
+    }
 
     Connector* src_con = NULL;
     if (src_node) {
@@ -626,11 +639,13 @@ namespace bm {
         src_con->parent = src_node;
         src_con->type = type;
         src_con->loc = cv::Point2f(0, src_node->ports.size()*10);
+
         
         src_node->ports.push_back(src_con);
         VLOG(2) << con->parent->name << " new src Connector " << type << " " << src_con->name; 
       }
       
+      src_con->dst = con;
       VLOG(1) << "\"" << name << "\" setInputPort: " << type << " " << port << " from "
         << CLTXT /*<< inputs[type][port].first->name << " "*/  // not necessarily non-NULL
         << "\"" << src_port << "\"" << CLNRM; 
