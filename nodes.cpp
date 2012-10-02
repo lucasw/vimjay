@@ -243,6 +243,7 @@ namespace bm {
 
     do_update = true;
 
+    boost::mutex::scoped_lock l(port_mutex);
     for (int i = 0; i < ports.size(); i++) {
       if (ports[i]->src) ports[i]->src->parent->setUpdate();
     }
@@ -296,6 +297,7 @@ namespace bm {
     if (!do_update) return false;
     do_update = false; 
 
+    boost::mutex::scoped_lock l(port_mutex);
     // need to update enable no matter if it is false
     for (int i = 0; i < ports.size(); i++)
     {
@@ -372,7 +374,9 @@ namespace bm {
     const int ht = 10;
 
     int j = 0;
-    
+  
+    {
+      boost::mutex::scoped_lock l(port_mutex);
     // draw rectangle around entire node
     cv::rectangle(graph, 
           loc + cv::Point2f(-5, -15) + ui_offset, 
@@ -385,6 +389,7 @@ namespace bm {
       if (i == selected_port_ind) ports[i]->highlight = true;
       else ports[i]->highlight = false;
       ports[i]->draw(graph, ui_offset);
+    }
     }
 
     cv::putText(graph, name, loc - cv::Point2f(9, ht) + ui_offset, 1, 1, cv::Scalar(115,115,115));
@@ -500,6 +505,7 @@ namespace bm {
   {
     if (con == NULL) return -1;
     
+    boost::mutex::scoped_lock l(port_mutex);
     for (int i = 0; i < ports.size(); i++) {
       if (con == ports[i]) {
         VLOG(3) << con->name << " " << i; 
@@ -514,6 +520,7 @@ namespace bm {
   bool Node::selectPortByInd(const int ind)
   {
     if (ind < 0) return false;
+    boost::mutex::scoped_lock l(port_mutex);
     if (ind >= ports.size())  return false;
 
     selected_port_ind = ind;
@@ -525,6 +532,7 @@ namespace bm {
 
   bool Node::getPrevPort(const conType type)
   {
+    boost::mutex::scoped_lock l(port_mutex);
     for (int i = ports.size()-1; i >= 0; i--) {
       int ind = (i + selected_port_ind) % ports.size();
       
@@ -544,7 +552,7 @@ namespace bm {
 
   bool Node::getNextPort(const conType type)
   {
-    
+    boost::mutex::scoped_lock l(port_mutex);
     for (int i = 0; i < ports.size(); i++) {
       int ind = (i + 1 + selected_port_ind) % ports.size();
       
@@ -642,7 +650,7 @@ namespace bm {
         src_con->name = src_port;
         src_con->parent = src_node;
         src_con->type = type;
-        boost::mutex::scoped_lock l(port_mutex);
+        boost::mutex::scoped_lock l(src_node->port_mutex);
         src_con->loc = cv::Point2f(0, src_node->ports.size()*10);
         
         src_node->ports.push_back(src_con);
