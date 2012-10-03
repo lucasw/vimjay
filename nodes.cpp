@@ -243,7 +243,7 @@ namespace bm {
 
     do_update = true;
 
-    boost::mutex::scoped_lock l(port_mutex);
+    //boost::mutex::scoped_lock l(port_mutex);
     for (int i = 0; i < ports.size(); i++) {
       if (ports[i]->src) ports[i]->src->parent->setUpdate();
     }
@@ -297,7 +297,7 @@ namespace bm {
     if (!do_update) return false;
     do_update = false; 
 
-    boost::mutex::scoped_lock l(port_mutex);
+    //boost::mutex::scoped_lock l(port_mutex);
     // need to update enable no matter if it is false
     for (int i = 0; i < ports.size(); i++)
     {
@@ -392,7 +392,7 @@ namespace bm {
     }
     }
 
-    cv::putText(graph, name, loc - cv::Point2f(9, ht) + ui_offset, 1, 1, cv::Scalar(115,115,115));
+    cv::putText(graph, name, loc - cv::Point2f(9,  ht) + ui_offset, 1, 1, cv::Scalar(115,115,115));
     cv::putText(graph, name, loc - cv::Point2f(10, ht) + ui_offset, 1, 1, cv::Scalar(255,255,255));
 
   }

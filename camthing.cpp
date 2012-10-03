@@ -197,6 +197,11 @@ class CamThing : public Output
   /// save the graph to an output yaml file
   bool saveGraph(std::string graph_file="graph.yml") 
   {
+    bool old_paused = paused;
+    paused = true;
+    // TBD wait for lock to make sure pause is actually happening
+    while (is_updating) usleep(1000); // TBD keep count and error out
+
     LOG(INFO) << "saving graph " << graph_file;
     cv::FileStorage fs(graph_file, cv::FileStorage::WRITE);
 
@@ -249,6 +254,9 @@ class CamThing : public Output
     }
     fs << "]";
     fs.release();
+    
+    paused = old_paused;
+
     return true;
   }
 
@@ -359,7 +367,7 @@ class CamThing : public Output
 
 
     update_nodes = true;
-    node_thread = boost::thread(&CamThing::runThread, this);
+    node_thread = boost::thread(&CamThing::updateThread, this);
   }
 
   ///////////////////////////////////////////////
@@ -928,6 +936,8 @@ class CamThing : public Output
   
   bool handleInput() 
   {
+    count++;
+
     key = -1;
     if (!display) return false;
 
@@ -1168,7 +1178,9 @@ class CamThing : public Output
   }
 
   bool update_nodes;
-  bool runThread() 
+  bool is_updating;
+
+  bool updateThread() 
   {
     LOG(INFO) << "starting node update thread";
     while (update_nodes) {
@@ -1180,9 +1192,11 @@ class CamThing : public Output
       }
 
       if (!paused) {
+        is_updating = true;
         output_node->setUpdate();
         output_node->update();
         clearAllNodeUpdates();
+        is_updating = false;
       } else {
         usleep(10000);
       }
@@ -1191,17 +1205,12 @@ class CamThing : public Output
     return true;
   }
 
-
+#if 0
   virtual bool update() 
   {
-    // TBD capture key input in separate thread?
-    count++;
-   
-    // have to do this before update to avoid some crashes
-    if (!handleInput()) return false;
-
     return true;
   }
+  #endif
  
   virtual bool draw(cv::Point2f ui_offset) 
   {
@@ -1317,7 +1326,6 @@ int main( int argc, char* argv[] )
   #endif
 
 
-
   bool rv = true;
   while(rv) {
 
@@ -1343,7 +1351,9 @@ int main( int argc, char* argv[] )
 
     }
     #else
-    rv = cam_thing->update();
+    // have to do this before update to avoid some crashes
+    // input is handled in the same thread as drawing because of Xlib- TBD
+    rv = cam_thing->handleInput();
     cam_thing->draw(cam_thing->ui_offset);
     #endif
   }
