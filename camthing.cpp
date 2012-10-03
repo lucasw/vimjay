@@ -197,10 +197,7 @@ class CamThing : public Output
   /// save the graph to an output yaml file
   bool saveGraph(std::string graph_file="graph.yml") 
   {
-    bool old_paused = paused;
-    paused = true;
-    // TBD wait for lock to make sure pause is actually happening
-    while (is_updating) usleep(1000); // TBD keep count and error out
+    boost::mutex::scoped_lock l(update_mutex);
 
     LOG(INFO) << "saving graph " << graph_file;
     cv::FileStorage fs(graph_file, cv::FileStorage::WRITE);
@@ -255,7 +252,6 @@ class CamThing : public Output
     fs << "]";
     fs.release();
     
-    paused = old_paused;
 
     return true;
   }
@@ -373,6 +369,7 @@ class CamThing : public Output
   ///////////////////////////////////////////////
   bool loadGraph(const std::string graph_file)
   {
+    boost::mutex::scoped_lock l(update_mutex);
     LOG(INFO) << "loading graph " << graph_file;
     
     FileStorage fs; 
@@ -726,6 +723,7 @@ class CamThing : public Output
 
   bool selectTargetNode() 
   {
+    boost::mutex::scoped_lock l(update_mutex);
     // select the target node
     // connect to source node in best way possible, replacing the current input
     // TBD need to be able to select specific inputs
@@ -745,6 +743,8 @@ class CamThing : public Output
 
   bool removePortConnection() 
   {
+    boost::mutex::scoped_lock l(update_mutex);
+
     // disconnect current input
     if (selected_node && (selected_type != NONE) && (selected_port != "")) {
       selected_node->setInputPort(selected_type, selected_port, NULL, "");
@@ -1114,7 +1114,7 @@ class CamThing : public Output
     else if (key == 't') {
       selectTargetNode();
     } // set source_node to target input
-    else if (key == 'd') {
+    else if (key == 'c') {
       removePortConnection();
     }
     //////////////////////////////////////////////////
@@ -1178,7 +1178,7 @@ class CamThing : public Output
   }
 
   bool update_nodes;
-  bool is_updating;
+  boost::mutex update_mutex;
 
   bool updateThread() 
   {
@@ -1192,11 +1192,10 @@ class CamThing : public Output
       }
 
       if (!paused) {
-        is_updating = true;
+        boost::mutex::scoped_lock l(update_mutex);
         output_node->setUpdate();
         output_node->update();
         clearAllNodeUpdates();
-        is_updating = false;
       } else {
         usleep(10000);
       }

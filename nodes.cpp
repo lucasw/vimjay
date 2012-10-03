@@ -89,7 +89,7 @@ namespace bm {
   {
     is_dirty = set_dirty;
     set_dirty = false;
-    if (src) {
+    if (src && src->parent) {
       src->parent->update();
       if (src->parent->isDirty(this, 0)) {
         is_dirty = true;
