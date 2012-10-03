@@ -625,18 +625,26 @@ namespace bm {
     
     cv::Mat diff0 = getImage("in0");
     cv::Mat diff1 = getImage("in1");
+    {
+    boost::mutex::scoped_lock l(port_mutex);
 
-    if (diff0.empty() && !diff1.empty()) {
+    if (diff0.empty() && diff1.empty()) {
+      return false;
+    } else if (diff0.empty() && !diff1.empty()) {
       out = diff1;
-    } else if (!diff0.empty() && !diff1.empty()) {
+    } else if (!diff0.empty() && diff1.empty()) {
       out = diff0;
     } else if (diff0.size() != diff1.size()) {
       LOG(ERROR) << name << " size mismatch";
       return false;
+    } else if (diff0.type() != diff1.type()) {
+      return false;
+    } else if (diff0.size() == cv::Size(0,0)) {
+      return false;
+    } else {
+      out = diff0 > diff1;
     }
-
-    out = diff0 > diff1;
-
+    }
     /*
       TBD use actual function and have an int  input select among these options
 CMP_EQ src1 equal to src2.

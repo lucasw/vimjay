@@ -1,5 +1,5 @@
 %YAML:1.0
-date: "Mon Sep 10 22:46:41 2012\n"
+date: "Tue Oct  2 10:24:43 2012\n"
 nodes:
    -
       ind: 0
@@ -38,7 +38,7 @@ nodes:
          -
             type: 1
             name: ind
-            value: 1.0932810783386230e+01
+            value: 2.5942282676696777e+00
             src_ind: 8
             src_port: value
          -
@@ -94,7 +94,7 @@ nodes:
          -
             type: 1
             name: add0
-            value: 9.0971112251281738e-01
+            value: 3.5244077444076538e-01
             src_ind: -1
             src_port: ""
          -
@@ -105,18 +105,18 @@ nodes:
          -
             type: 1
             name: add1
-            value: -9.1887158155441284e-01
+            value: -2.1020832657814026e-01
             src_ind: -1
             src_port: ""
          -
             type: 2
             name: add2
-            src_ind: 0
+            src_ind: 2
             src_port: out
          -
             type: 1
             name: add2
-            value: 3.1381058692932129e-01
+            value: 6.8968069553375244e-01
             src_ind: -1
             src_port: ""
          -
@@ -179,13 +179,13 @@ nodes:
          -
             type: 1
             name: "2_x"
-            value: 1.3255047607421875e+02
+            value: 7.8110577392578125e+02
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: "2_y"
-            value: 2.7267337036132812e+02
+            value: 1.8065097045898438e+02
             src_ind: -1
             src_port: ""
          -
@@ -232,25 +232,25 @@ nodes:
          -
             type: 1
             name: angle
-            value: -2.4341306090354919e-01
+            value: -3.0902305245399475e-01
             src_ind: 7
             src_port: value
          -
             type: 1
             name: scale
-            value: 9.1667717695236206e-01
+            value: 1.0334174633026123e+00
             src_ind: 6
             src_port: value
          -
             type: 1
             name: center_x
-            value: 0.
+            value: 7.8110577392578125e+02
             src_ind: 4
             src_port: "2_x"
          -
             type: 1
             name: center_y
-            value: 2.7267337036132812e+02
+            value: 1.8065097045898438e+02
             src_ind: 4
             src_port: "2_y"
          -
@@ -262,7 +262,7 @@ nodes:
          -
             type: 2
             name: in
-            src_ind: 0
+            src_ind: 2
             src_port: out
          -
             type: 1
@@ -297,7 +297,7 @@ nodes:
          -
             type: 1
             name: value
-            value: 9.1667717695236206e-01
+            value: 1.0334174633026123e+00
             src_ind: -1
             src_port: ""
          -
@@ -333,7 +333,7 @@ nodes:
          -
             type: 1
             name: value
-            value: -2.4341306090354919e-01
+            value: -3.0902305245399475e-01
             src_ind: -1
             src_port: ""
          -
@@ -369,7 +369,7 @@ nodes:
          -
             type: 1
             name: value
-            value: 1.0932810783386230e+01
+            value: 2.5942282676696777e+00
             src_ind: -1
             src_port: ""
          -
@@ -441,13 +441,13 @@ nodes:
          -
             type: 1
             name: value
-            value: 1.0374971628189087e+00
+            value: 9.2500555515289307e-01
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: step
-            value: 2.5937429070472717e-01
+            value: -2.5937429070472717e-01
             src_ind: -1
             src_port: ""
          -
@@ -750,12 +750,12 @@ nodes:
          -
             type: 2
             name: out
-            src_ind: 2
-            src_port: out
+            src_ind: -1
+            src_port: ""
          -
             type: 2
             name: in
-            src_ind: 3
+            src_ind: 2
             src_port: out
          -
             type: 1
@@ -766,7 +766,7 @@ nodes:
          -
             type: 1
             name: enable
-            value: 1.0374971628189087e+00
+            value: 9.2500555515289307e-01
             src_ind: 10
             src_port: value
          -

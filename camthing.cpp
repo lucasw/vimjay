@@ -1199,6 +1199,7 @@ class CamThing : public Output
       } else {
         usleep(10000);
       }
+      usleep(1000);
     }
     LOG(INFO) << "ending node update thread";
     return true;
@@ -1216,7 +1217,7 @@ class CamThing : public Output
     boost::timer t1;
 
     graph_im = cv::Scalar(0,0,0);
-    cv::Mat out_node_im = output_node->getImage("out");
+    cv::Mat out_node_im = output_node->getImage("out").clone();
     if (false) { //(!out_node_im.empty()) {
       cv::resize(out_node_im * (draw_nodes ? 0.2 : 1.0),  graph_im,
           graph_im.size(), 0, 0, cv::INTER_NEAREST );

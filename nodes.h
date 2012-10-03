@@ -80,6 +80,8 @@ class Connector
   
   std::vector<cv::Point2f> connector_points;
 
+  bool setImage(cv::Mat im);
+
   void draw(cv::Mat, cv::Point2f ui_offset);
   bool highlight;
 
@@ -95,6 +97,7 @@ class Connector
   // only used if conType == Image or Buffer
   cv::Mat im;
 
+  boost::mutex im_mutex;
 
 };
 
@@ -111,9 +114,9 @@ class Node
   cv::Point2f acc;
   cv::Point2f vel;
   
-  boost::mutex port_mutex;
-
   protected:
+  
+  boost::mutex port_mutex;
 
   public:
   

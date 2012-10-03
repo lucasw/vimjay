@@ -113,6 +113,15 @@ namespace bm {
     return "Unknown";
   }
 
+  bool Connector::setImage(cv::Mat im)
+  {
+    boost::mutex::scoped_lock l(im_mutex);
+    this->im = im;
+    set_dirty = true;
+
+    return true;
+  }
+
   void Connector::draw(cv::Mat graph, cv::Point2f ui_offset) 
   {
    
@@ -697,8 +706,7 @@ namespace bm {
     // can't set signal if it is controlled by src port 
     if (con->src) return false;
 
-    con->im = im;
-    con->set_dirty = true;
+    con->setImage(im);
   
     return true;
   }
@@ -751,8 +759,11 @@ namespace bm {
     }
 
     VLOG(4) << name << " " << port << " " << " " << src_port;
-   
-    im = con->im;
+  
+    {
+      boost::mutex::scoped_lock l(con->im_mutex);
+      im = con->im;
+    }
     valid = true;
 
     return im;
@@ -892,7 +903,8 @@ namespace bm {
 
     // TBD if update is the only function to call getImage, then
     //  the imval will have been updated
-    cv::Mat tmp = getImage("out");
+    // TBD may not want to call getImage from draw thread, instead have a copy of the image stored somewhere
+    cv::Mat tmp = getImage("out").clone();
     if (!tmp.empty()) {
 
       cv::Size sz = cv::Size(Config::inst()->thumb_width, Config::inst()->thumb_height);
@@ -956,7 +968,7 @@ namespace bm {
     int write_count = getSignal("write_count");
     file_name << dir_name.str() << "/image_" << (write_count + 1000000) << ".png";
 
-    cv::Mat out = getImage("out");
+    cv::Mat out = getImage("out").clone();
     if (out.empty()) return false;
 
     cv::imwrite(file_name.str(), out);
@@ -1151,7 +1163,7 @@ namespace bm {
 
   bool Buffer::draw(cv::Point2f ui_offset) 
   {
-    cv::Mat out = getImage("out");
+    cv::Mat out = getImage("out").clone();
     // draw some grabs of the beginning frame, and other partway through the buffer 
     for (int i = 1; i < 4; i++) {
       int ind = i * frames.size() / 3;
