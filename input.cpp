@@ -157,6 +157,7 @@ bool Mouse::update()
 
 bool Mouse::draw(cv::Point2f ui_offset)
 {
+  Node::draw(ui_offset);
   //run_thread = true;
 
   //while (run_thread)

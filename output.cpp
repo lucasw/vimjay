@@ -77,7 +77,7 @@ namespace bm {
     setSignal("disp_w", screen_w);
     setSignal("disp_h", screen_h);
     
-    VLOG(3) << "attr time" << t1.elapsed(); 
+    VLOG(4) << "attr time" << t1.elapsed(); 
 
     // TBD is this necessary or does X do it for me if the window is resized?
     const cv::Size sz = cv::Size(screen_w, screen_h);
@@ -87,15 +87,15 @@ namespace bm {
     else
       cv::resize(in, scaled, sz, 0, 0, cv::INTER_NEAREST );
    
-    VLOG(3) << "resize time" << t1.elapsed();
+    VLOG(5) << "resize time" << t1.elapsed();
 
     XDestroyImage(ximage);
     ximage = XGetImage(display, DefaultRootWindow(display), 0, 0, screen_w, screen_h, AllPlanes, ZPixmap);
 
-    VLOG(1) << "get im time" << t1.elapsed();
+    VLOG(4) << "get im time" << t1.elapsed();
     // this is slow
     bm::matToXImage(scaled, ximage, win, *display, *screen);
-    VLOG(1) << "matToXImage time" << t1.elapsed();
+    VLOG(4) << "matToXImage time" << t1.elapsed();
     
     XPutImage(display, win,  gc, ximage, 0, 0, 0, 0, ximage->width, ximage->height);
     VLOG(3) << "put image time" << t1.elapsed();

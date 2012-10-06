@@ -1261,7 +1261,7 @@ class CamThing : public Output
         cv::circle(graph_im, source_node->loc + ui_offset, 13, cv::Scalar(29,51,11), -1);
         cv::circle(graph_im, source_node->loc + ui_offset, 12, cv::Scalar(229,151,51), -1);
       }
-      VLOG(1) << "cv draw time" << t1.elapsed(); 
+      VLOG(4) << "cv draw time" << t1.elapsed(); 
 
       // draw input and outputs
       /*
@@ -1278,15 +1278,15 @@ class CamThing : public Output
       for (int i = 0; i < all_nodes.size(); i++) {
         all_nodes[i]->draw(ui_offset);
       }
-      VLOG(2) << "node draw time " << t1.elapsed();
+      VLOG(4) << "node draw time " << t1.elapsed();
     }
 
     setImage("in", graph_im );
-    VLOG(3) << "ui draw time" << t1.elapsed(); 
+    VLOG(4) << "ui draw time" << t1.elapsed(); 
     /// TBD this is somewhat slow
     Output::draw(ui_offset);
 
-    VLOG(2) << "full draw time" << t1.elapsed(); 
+    VLOG(4) << "full draw time" << t1.elapsed(); 
   } // CamThing::draw
 
   };

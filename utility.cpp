@@ -456,7 +456,7 @@ bool matToXImage(cv::Mat& im, XImage* ximage, Window& win, Display& display, Scr
          // ximage->data = (char*) im.data;
          memcpy(ximage->data, im.data, wd*ht*4); 
         #endif
-        VLOG(1) << "matToXImage put pixel time " << t1.elapsed();
+        VLOG(4) << "matToXImage put pixel time " << t1.elapsed();
         LOG_FIRST_N(INFO,1) << "done copying mat";
     } else { // Extremly slow alternative for non 24bit-depth
         LOG_FIRST_N(INFO,1) <<" slow route TBD";
