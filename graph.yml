@@ -710,37 +710,9 @@ nodes:
             src_port: ""
    -
       ind: 19
-      typeid: "bm::Buffer"
-      name: buffer2
-      loc: [ 929., 408. ]
-      inputs:
-         -
-            type: 2
-            name: out
-            src_ind: -1
-            src_port: ""
-         -
-            type: 3
-            name: out
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: max_size
-            value: 100.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 2
-            name: in
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: enable
-            value: 0.
-            src_ind: -1
-            src_port: ""
+      typeid: "bm::Sobel"
+      name: sobel
+      loc: [ 909., 408. ]
    -
       ind: 20
       typeid: "bm::Output"
