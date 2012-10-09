@@ -407,6 +407,7 @@ namespace bm {
     cv::putText(graph_ui, name, loc - cv::Point2f(9,  ht) + ui_offset, 1, 1, cv::Scalar(115,115,115));
     cv::putText(graph_ui, name, loc - cv::Point2f(10, ht) + ui_offset, 1, 1, cv::Scalar(255,255,255));
 
+    return true;
   }
 
   bool Node::load(cv::FileNodeIterator nd)
@@ -902,7 +903,10 @@ namespace bm {
 
   bool ImageNode::draw(cv::Point2f ui_offset) 
   {
-    if (graph_ui.empty()) return false;
+    if (graph_ui.empty()) { 
+      LOG(ERROR) << "graph_ui is empty";
+      return false;
+    }
 
     // TBD if update is the only function to call getImage, then
     //  the imval will have been updated

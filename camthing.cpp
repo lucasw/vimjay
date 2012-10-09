@@ -1237,12 +1237,13 @@ class CamThing : public Output
 
   virtual bool draw(cv::Point2f ui_offset) 
   {
-    //ImageNode::draw(ui_offset);
-    Node::draw(ui_offset);
-
     boost::timer t1;
+    
+    if (graph_ui.empty()) {
+      LOG(ERROR) << "graph_ui empty";
+      return false;
+    }
 
-    graph_ui = cv::Scalar(0,0,0);
     cv::Mat out_node_im = output_node->getImage("out").clone();
     if (false) { //(!out_node_im.empty()) {
       cv::resize(out_node_im * (draw_nodes ? 0.2 : 1.0),  graph_ui,
@@ -1251,6 +1252,14 @@ class CamThing : public Output
     else
       graph_ui = cv::Scalar(0,0,0);
     
+    
+    if (!ImageNode::draw(ui_offset)) {
+    //if (!Node::draw(ui_offset)) {
+      LOG(ERROR) << "something wrong with node drawing";
+      return false;
+    }
+
+   
     VLOG(3) << "bg draw time" << t1.elapsed(); 
 
     if (draw_nodes) {

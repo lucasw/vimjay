@@ -832,7 +832,7 @@ nodes:
       ind: 22
       typeid: "bm::CamThing"
       name: cam_thing
-      loc: [ 200., 200. ]
+      loc: [ 300., 250. ]
       inputs:
          -
             type: 2

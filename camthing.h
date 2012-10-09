@@ -19,8 +19,8 @@ namespace bm {
     public:
       static Config* inst();
 
-      int width;
-      int height;
+      int ui_width;
+      int ui_height;
       int thumb_width;
       int thumb_height;
       int im_width;
