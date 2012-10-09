@@ -122,7 +122,7 @@ namespace bm {
     return true;
   }
 
-  void Connector::draw(cv::Mat graph, cv::Point2f ui_offset) 
+  void Connector::draw(cv::Mat graph_ui, cv::Point2f ui_offset) 
   {
    
     cv::Scalar hash_col = hashStringColor(/*parent->name +*/ typeToString(type) + name);
@@ -133,13 +133,13 @@ namespace bm {
     if (highlight) {
       rect_col = cv::Scalar(180, 80, 80);
     }
-    cv::rectangle(graph, 
+    cv::rectangle(graph_ui, 
           parent->loc + loc + ui_offset, 
           parent->loc + loc + ui_offset + cv::Point2f(name.size()*10, -10), 
           rect_col,
           CV_FILLED);
 
-    cv::rectangle(graph, 
+    cv::rectangle(graph_ui, 
           parent->loc + loc + ui_offset, 
           parent->loc + loc + ui_offset + cv::Point2f(name.size()*10, -10), 
           hash_col);
@@ -171,7 +171,7 @@ namespace bm {
 
       // draw dark outline
       for (int i = 1; i < connector_points.size(); i++) {
-        cv::line(graph, 
+        cv::line(graph_ui, 
             connector_points[i-1] + ui_offset, 
             connector_points[i] + ui_offset, 
             cv::Scalar(10,10,10), 4, CV_AA ); 
@@ -195,7 +195,7 @@ namespace bm {
         cv::Scalar hc1 = hash_col * cv::Scalar(wt2);
         col = hc1 + hc2; 
 
-        cv::line(graph, 
+        cv::line(graph_ui, 
           connector_points[i-1] + ui_offset, 
           connector_points[i] + ui_offset, 
           col, 2, CV_AA ); 
@@ -216,7 +216,7 @@ namespace bm {
       col = cv::Scalar(255,255,55);
     }
     
-    cv::putText(graph, port_info.str(), parent->loc + loc + ui_offset, 1, 1, col, 1);
+    cv::putText(graph_ui, port_info.str(), parent->loc + loc + ui_offset, 1, 1, col, 1);
   }
 
   //////////////////////////////////////////////////////////////////////////////////////////
@@ -230,12 +230,12 @@ namespace bm {
   }
 
 /*
-  Node::Node(string name, cv::Point loc, cv::Mat graph ) : 
+  Node::Node(string name, cv::Point loc, cv::Mat graph_ui ) : 
     selected_type(NONE),
     selected_port_ind(-1),
     name(name),
     loc(loc),
-    graph(graph),
+    graph_ui(graph_ui),
     do_update(false)
   {
 
@@ -355,30 +355,33 @@ namespace bm {
       loc.x = 0;
       vel.x = abs(vel.x)*0.5;
     }
-    if (loc.x > graph.cols) {
-      loc.x = graph.cols;
+    if (loc.x > graph_ui.cols) {
+      loc.x = graph_ui.cols;
       vel.x = -abs(vel.x)*0.5;
     }
     if (loc.y < 0) {
       loc.y = 0;
       vel.y = abs(vel.y)*0.5;
     }
-    if (loc.y > graph.rows) {
-      loc.y = graph.rows;
+    if (loc.y > graph_ui.rows) {
+      loc.y = graph_ui.rows;
       vel.y = -abs(vel.y)*0.5;
     }
     //////////////////////////////
 
-    if (graph.empty()) return false;
+    if (graph_ui.empty()) {  
+      LOG(ERROR) << "graph empty";
+      return false;
+    }
     
     int fr = 1;
     if (!isDirty(this,1)) fr = 5;
     cv::Scalar col = cv::Scalar(vcol/fr);
 
     if (!(getSignal("enable") >= 1.0)) 
-      cv::circle(graph, loc + ui_offset, 10, cv::Scalar(0,0,100), -1);
+      cv::circle(graph_ui, loc + ui_offset, 10, cv::Scalar(0,0,100), -1);
 
-    cv::circle(graph, loc + ui_offset, 24, col, 4);
+    cv::circle(graph_ui, loc + ui_offset, 24, col, 4);
 
     const int ht = 10;
 
@@ -387,7 +390,7 @@ namespace bm {
     {
       boost::mutex::scoped_lock l(port_mutex);
     // draw rectangle around entire node
-    cv::rectangle(graph, 
+    cv::rectangle(graph_ui, 
           loc + cv::Point2f(-5, -15) + ui_offset, 
           loc + cv::Point2f(100, ports.size()*10 + 2) + ui_offset, 
           vcol*0.2, //cv::Scalar(255,0,0),
@@ -397,12 +400,12 @@ namespace bm {
     for (int i = 0; i < ports.size(); i++) {
       if (i == selected_port_ind) ports[i]->highlight = true;
       else ports[i]->highlight = false;
-      ports[i]->draw(graph, ui_offset);
+      ports[i]->draw(graph_ui, ui_offset);
     }
     }
 
-    cv::putText(graph, name, loc - cv::Point2f(9,  ht) + ui_offset, 1, 1, cv::Scalar(115,115,115));
-    cv::putText(graph, name, loc - cv::Point2f(10, ht) + ui_offset, 1, 1, cv::Scalar(255,255,255));
+    cv::putText(graph_ui, name, loc - cv::Point2f(9,  ht) + ui_offset, 1, 1, cv::Scalar(115,115,115));
+    cv::putText(graph_ui, name, loc - cv::Point2f(10, ht) + ui_offset, 1, 1, cv::Scalar(255,255,255));
 
   }
 
@@ -899,7 +902,7 @@ namespace bm {
 
   bool ImageNode::draw(cv::Point2f ui_offset) 
   {
-    if (graph.empty()) return false;
+    if (graph_ui.empty()) return false;
 
     // TBD if update is the only function to call getImage, then
     //  the imval will have been updated
@@ -918,17 +921,17 @@ namespace bm {
       if (!isDirty(this,2)) fr = 5;
       cv::Scalar col = cv::Scalar(vcol/fr);
 
-      cv::rectangle(graph, loc + cv::Point2f(100,0) - cv::Point2f(2,2) + ui_offset, 
+      cv::rectangle(graph_ui, loc + cv::Point2f(100,0) - cv::Point2f(2,2) + ui_offset, 
           loc + cv::Point2f(100,0) + cv::Point2f(sz.width,sz.height) + cv::Point2f(2,2) + ui_offset, 
           col, CV_FILLED );
 
       bool draw_thumb = true;
-      if (loc.x + sz.width >= graph.cols) {
-        LOG(ERROR) << name << " bad subregion " << loc.x << " " << sz.width << " " << graph.cols;
+      if (loc.x + sz.width >= graph_ui.cols) {
+        LOG(ERROR) << name << " bad subregion " << loc.x << " " << sz.width << " " << graph_ui.cols;
         draw_thumb = false;
       }
-      if (loc.y + sz.height >= graph.rows) {
-        LOG(ERROR) << name << " bad subregion " << loc.y << " " << sz.height << " " << graph.rows;
+      if (loc.y + sz.height >= graph_ui.rows) {
+        LOG(ERROR) << name << " bad subregion " << loc.y << " " << sz.height << " " << graph_ui.rows;
         draw_thumb = false;
       }
 
@@ -937,8 +940,8 @@ namespace bm {
         float yth = loc.y + ui_offset.y;
 
         if ((xth > 0) && (yth > 0) && 
-            (xth + sz.width < graph.cols) && (yth + sz.height < graph.rows)) {
-          cv::Mat graph_roi = graph(cv::Rect(xth, yth, sz.width, sz.height));
+            (xth + sz.width < graph_ui.cols) && (yth + sz.height < graph_ui.rows)) {
+          cv::Mat graph_roi = graph_ui(cv::Rect(xth, yth, sz.width, sz.height));
           graph_roi = cv::Scalar(0, 0, 255);
           thumbnail.copyTo(graph_roi);
         }
@@ -1090,8 +1093,8 @@ namespace bm {
     }
 
     // TBD make a graphic that shows a rolling oscilloscope value
-    if (!graph.empty()) {
-    cv::rectangle(graph, loc, 
+    if (!graph_ui.empty()) {
+    cv::rectangle(graph_ui, loc, 
         loc + cv::Point2f( x * 50.0 , 5) + ui_offset, 
         cv::Scalar(255, 255, 100), CV_FILLED);
     }
@@ -1185,9 +1188,9 @@ namespace bm {
       const float yth = loc.y + ui_offset.y + sz.height*4;
 
       if ((xth > 0) && (yth > 0) && 
-          (xth + sz.width < graph.cols) && (yth + sz.height < graph.rows)) {
+          (xth + sz.width < graph_ui.cols) && (yth + sz.height < graph_ui.rows)) {
 
-        cv::Mat graph_roi = graph(cv::Rect(xth, yth, sz.width, sz.height));
+        cv::Mat graph_roi = graph_ui(cv::Rect(xth, yth, sz.width, sz.height));
         graph_roi = cv::Scalar(0, 0, 255);
         thumbnail.copyTo(graph_roi);
       }

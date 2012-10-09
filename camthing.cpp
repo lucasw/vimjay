@@ -62,8 +62,8 @@ namespace bm {
     if (!instance) { 
       instance = new Config;
 
-      instance->width = 1280;
-      instance->height = 720; 
+      instance->ui_width = 1280;
+      instance->ui_height = 720; 
       instance->thumb_width = 40; 
       instance->thumb_height = 30;
       instance->im_width = 640;
@@ -87,8 +87,8 @@ namespace bm {
       return false;
     }
 
-    fs["width"] >> width;
-    fs["height"] >> height;
+    fs["ui_width"] >> ui_width;
+    fs["ui_height"] >> ui_height;
     fs["thumb_width"] >> thumb_width;
     fs["thumb_height"] >> thumb_height;
     fs["im_width"] >> im_width;
@@ -96,9 +96,9 @@ namespace bm {
     fs["out_width"] >> out_width;
     fs["out_height"] >> out_height;
     
-    LOG(INFO) << width << " " << height;
-    LOG(INFO) << thumb_width << " " << thumb_height;
-    LOG(INFO) << im_width << " " << im_height;
+    LOG(INFO) << "UI " << ui_width << " " << ui_height;
+    LOG(INFO) << "thumb " << thumb_width << " " << thumb_height;
+    LOG(INFO) << "output " << im_width << " " << im_height;
   }
 
 string getId(Node* ptr) 
@@ -142,11 +142,11 @@ class CamThing : public Output
       VLOG(1) << CLVAL << all_nodes.size()  << CLTX2 
           << " new node " << CLNRM << name << " " << loc.x << ", " << loc.y;
 
-      nodeType* node = new nodeType();//name, loc, graph_im);
+      nodeType* node = new nodeType();//name, loc, graph_ui);
       
       node->name = name;
       node->loc = loc;
-      node->graph = graph_im;
+      node->graph_ui = graph_ui;
 
       all_nodes.push_back(node);
 
@@ -262,8 +262,8 @@ class CamThing : public Output
     const int wd = (sqrt(all_nodes.size()));
     const int ht = all_nodes.size()/wd + 0.5;
     
-    float dx = graph_im.cols / (wd + 1.5);
-    float dy = graph_im.rows / (ht);
+    float dx = graph_ui.cols / (wd + 1.5);
+    float dy = graph_ui.rows / (ht);
     
     LOG(INFO) << "making " << all_nodes.size() << " graph items into grid " << wd << " " << dx << " " << dy;
 
@@ -289,7 +289,6 @@ class CamThing : public Output
   cv::Mat test_im;
 
   cv::Mat cam_image;
-  cv::Mat graph_im;
 
   // TBD make struct for these two
   int selected_ind;
@@ -328,8 +327,13 @@ class CamThing : public Output
 
     // TBD make internal type a gflag
     // or have a config file that loads it and resolution also
-    graph_im = cv::Mat(cv::Size(Config::inst()->width, Config::inst()->height), MAT_FORMAT_C3);
-    graph_im = cv::Scalar(0);
+    graph_ui = cv::Mat(cv::Size(Config::inst()->ui_width, Config::inst()->ui_height), MAT_FORMAT_C3);
+    graph_ui = cv::Scalar(0);
+
+
+    //node->name = name;
+    //node->loc = loc;
+
 
     if (FLAGS_graph_file =="") {
       defaultGraph();
@@ -342,7 +346,7 @@ class CamThing : public Output
 
     // Xlib stuff
     {
-      setup(graph_im.size().width, graph_im.size().height);
+      setup(graph_ui.size().width, graph_ui.size().height);
 
       // Try to get keyboard input working
       XIEventMask eventmask;
@@ -406,6 +410,15 @@ class CamThing : public Output
         test_im = cam_in->getImage("out").clone();
         test_im = cv::Scalar(200,200,200);
 
+      } else if (type_id.compare("bm::CamThing") == 0) {
+        VLOG(1) << CLVAL << all_nodes.size()  << CLTX2 
+          << " new node " << CLNRM << name << " " << loc.x << ", " << loc.y;
+        // the node already exists
+        //node = getNode<ScreenCap>(name, loc);
+        node = this;
+        node->loc = loc;
+        node->name = name;
+        all_nodes.push_back(node);
       } else if (type_id.compare("bm::ScreenCap") == 0) {
         node = getNode<ScreenCap>(name, loc);
         node->update();
@@ -513,7 +526,9 @@ class CamThing : public Output
 
     // second pass for inputs (the first pass was necessary to create them 
     // all in right order
+    VLOG(1) << " ";
     LOG(INFO) << "second pass inputs";
+    VLOG(1) << " ";
     for (FileNodeIterator it = nd.begin(); it != nd.end(); ++it) {
       int ind;
       (*it)["ind"] >> ind;
@@ -962,19 +977,19 @@ class CamThing : public Output
             //LOG(INFO) <<  "motion";
             setSignal(boost::lexical_cast<string>(deviceid) + "_x", evData->event_x);
             setSignal(boost::lexical_cast<string>(deviceid) + "_y", evData->event_y);
-            VLOG(1) << deviceid << " " << evData->event_x << " " << evData->event_y;
+            VLOG(2) << deviceid << " " << evData->event_x << " " << evData->event_y;
 
             break;
 
           case XI_ButtonPress:
-            VLOG(1) << deviceid << " button: " << evData->detail;
+            VLOG(2) << deviceid << " button: " << evData->detail;
             setSignal(boost::lexical_cast<string>(deviceid) + "_" + 
                 boost::lexical_cast<string>(evData->detail), 1);
 
             break;
 
           case XI_ButtonRelease:
-            VLOG(1) << deviceid << " unclick " << evData->detail;
+            VLOG(2) << deviceid << " unclick " << evData->detail;
             setSignal(boost::lexical_cast<string>(deviceid) + "_" + 
                 boost::lexical_cast<string>(evData->detail), 0);
             break;
@@ -1003,12 +1018,12 @@ class CamThing : public Output
             if (1 == XLookupString(((XKeyEvent*) (&key_data)), &asciiChar, 1, NULL, NULL)) {
               // Mapped: Assign it.
               key = (int) asciiChar;
-              VLOG(1) << deviceid << "key down" << key << " " << (char) key;
+              VLOG(2) << deviceid << "key down" << key << " " << (char) key;
             }
             break;
 
           case XI_KeyRelease:
-            VLOG(1) << deviceid << "key up" << evData->detail;
+            VLOG(2) << deviceid << "key up" << evData->detail;
             break;
         } // switch 
       } // correct event
@@ -1205,31 +1220,42 @@ class CamThing : public Output
     return true;
   }
 
-#if 0
+#if 1
   virtual bool update() 
   {
+    //ImageNode::update();
+    Node::update();
+
+    cv::Mat out = getImage("out");
+    if (out.empty()) out = cv::Mat(cv::Size(Config::inst()->im_width, Config::inst()->im_height), MAT_FORMAT_C3);
+    cv::resize(graph_ui, out,
+          out.size(), 0, 0, cv::INTER_NEAREST );
+    setImage("out", out);          
     return true;
   }
-  #endif
- 
+#endif
+
   virtual bool draw(cv::Point2f ui_offset) 
   {
+    //ImageNode::draw(ui_offset);
+    Node::draw(ui_offset);
+
     boost::timer t1;
 
-    graph_im = cv::Scalar(0,0,0);
+    graph_ui = cv::Scalar(0,0,0);
     cv::Mat out_node_im = output_node->getImage("out").clone();
     if (false) { //(!out_node_im.empty()) {
-      cv::resize(out_node_im * (draw_nodes ? 0.2 : 1.0),  graph_im,
-          graph_im.size(), 0, 0, cv::INTER_NEAREST );
+      cv::resize(out_node_im * (draw_nodes ? 0.2 : 1.0),  graph_ui,
+          graph_ui.size(), 0, 0, cv::INTER_NEAREST );
     }
     else
-      graph_im = cv::Scalar(0,0,0);
+      graph_ui = cv::Scalar(0,0,0);
     
     VLOG(3) << "bg draw time" << t1.elapsed(); 
 
     if (draw_nodes) {
       if (source_node && selected_node) {
-        cv::line( graph_im, 
+        cv::line( graph_ui, 
             source_node->loc + ui_offset, selected_node->loc + ui_offset, 
             cv::Scalar(70, 70, 70), 8, 4 );
       }
@@ -1241,13 +1267,13 @@ class CamThing : public Output
         for (int i = -2; i <= 2; i++) {
           n_ind = getNodeDirection(i);
           if (n_ind < 0) continue;
-          cv::line( graph_im, 
+          cv::line( graph_ui, 
             all_nodes[n_ind]->loc + ui_offset, selected_node->loc + ui_offset, 
             cv::Scalar(30 + i*2, 50 - i*5, 40 + i * 10), 8, 4 );
         }
       }
 
-      cv::putText(graph_im, command_text, cv::Point2f(10, graph_im.rows-40), 1, 1, 
+      cv::putText(graph_ui, command_text, cv::Point2f(10, graph_ui.rows-40), 1, 1, 
           cv::Scalar(200,205,195), 1);
       if (command_text.size() > 0) { 
         VLOG(5) << "command_text " << command_text;
@@ -1255,11 +1281,11 @@ class CamThing : public Output
 
       // TBD could all_nodes size have
       if (selected_node) {
-        cv::circle(graph_im, selected_node->loc + ui_offset, 18, cv::Scalar(0,220,1), -1);
+        cv::circle(graph_ui, selected_node->loc + ui_offset, 18, cv::Scalar(0,220,1), -1);
       }
       if (source_node) {
-        cv::circle(graph_im, source_node->loc + ui_offset, 13, cv::Scalar(29,51,11), -1);
-        cv::circle(graph_im, source_node->loc + ui_offset, 12, cv::Scalar(229,151,51), -1);
+        cv::circle(graph_ui, source_node->loc + ui_offset, 13, cv::Scalar(29,51,11), -1);
+        cv::circle(graph_ui, source_node->loc + ui_offset, 12, cv::Scalar(229,151,51), -1);
       }
       VLOG(4) << "cv draw time" << t1.elapsed(); 
 
@@ -1276,14 +1302,16 @@ class CamThing : public Output
       
       // loop through
       for (int i = 0; i < all_nodes.size(); i++) {
-        all_nodes[i]->draw(ui_offset);
+        if (all_nodes[i] != this)
+          all_nodes[i]->draw(ui_offset);
       }
       VLOG(4) << "node draw time " << t1.elapsed();
     }
 
-    setImage("in", graph_im );
+    // commenting this out breaks the drawing, not sure why
+    setImage("in", graph_ui );
     VLOG(4) << "ui draw time" << t1.elapsed(); 
-    /// TBD this is somewhat slow
+    
     Output::draw(ui_offset);
 
     VLOG(4) << "full draw time" << t1.elapsed(); 

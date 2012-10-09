@@ -141,7 +141,7 @@ class Node
 
   std::string name;
   cv::Point2f loc;
-  cv::Mat graph;
+  cv::Mat graph_ui;
   cv::Scalar vcol;
 
   // these are for ui display purposes, shows the current potential connection
@@ -154,7 +154,7 @@ class Node
  
   Node();
 
-  //Node(std::string name, cv::Point loc, cv::Mat graph ); 
+  //Node(std::string name, cv::Point loc, cv::Mat graph_ui ); 
   
   // TBD need to delete all the connectors
   virtual ~Node() {}
@@ -229,7 +229,7 @@ public:
   //int write_count;
     
   ImageNode();// : Node()
-  //ImageNode(std::string name, cv::Point loc, cv::Mat graph ); 
+  //ImageNode(std::string name, cv::Point loc, cv::Mat graph_ui ); 
 
   virtual bool update();
 

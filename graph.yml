@@ -1,5 +1,5 @@
 %YAML:1.0
-date: "Tue Oct  2 10:24:43 2012\n"
+date: "Mon Oct  8 16:18:25 2012\n"
 nodes:
    -
       ind: 0
@@ -38,7 +38,7 @@ nodes:
          -
             type: 1
             name: ind
-            value: 2.5942282676696777e+00
+            value: 0.
             src_ind: 8
             src_port: value
          -
@@ -232,25 +232,25 @@ nodes:
          -
             type: 1
             name: angle
-            value: -3.0902305245399475e-01
+            value: 0.
             src_ind: 7
             src_port: value
          -
             type: 1
             name: scale
-            value: 1.0334174633026123e+00
+            value: 1.
             src_ind: 6
             src_port: value
          -
             type: 1
             name: center_x
-            value: 7.8110577392578125e+02
+            value: 0.
             src_ind: 4
             src_port: "2_x"
          -
             type: 1
             name: center_y
-            value: 1.8065097045898438e+02
+            value: 0.
             src_ind: 4
             src_port: "2_y"
          -
@@ -363,7 +363,7 @@ nodes:
          -
             type: 1
             name: max
-            value: 18.
+            value: 1.
             src_ind: 0
             src_port: cur_size
          -
@@ -713,6 +713,41 @@ nodes:
       typeid: "bm::Sobel"
       name: sobel
       loc: [ 909., 408. ]
+      inputs:
+         -
+            type: 2
+            name: out
+            src_ind: -1
+            src_port: ""
+         -
+            type: 2
+            name: in
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: xorder
+            value: 1.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: yorder
+            value: 1.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: ksize
+            value: 3.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: scale
+            value: 8.0000001192092896e-01
+            src_ind: -1
+            src_port: ""
    -
       ind: 20
       typeid: "bm::Output"
@@ -738,7 +773,7 @@ nodes:
          -
             type: 1
             name: enable
-            value: 9.2500555515289307e-01
+            value: 0.
             src_ind: 10
             src_port: value
          -
@@ -791,5 +826,21 @@ nodes:
             type: 1
             name: enable
             value: 0.
+            src_ind: -1
+            src_port: ""
+   -
+      ind: 22
+      typeid: "bm::CamThing"
+      name: cam_thing
+      loc: [ 200., 200. ]
+      inputs:
+         -
+            type: 2
+            name: out
+            src_ind: -1
+            src_port: ""
+         -
+            type: 2
+            name: in
             src_ind: -1
             src_port: ""
