@@ -153,6 +153,97 @@ class CamThing : public Output
       return node;
     }
 
+  
+    Node* getNodeByName(string type_id, string name = "", cv::Point2f loc=cv::Point2f(0.0, 0.0))
+    {
+      Node* node = NULL;
+
+      if (type_id.compare("bm::Webcam") == 0) {
+        // TBD make a version of getNode that takes a type_id string
+        Webcam* cam_in = getNode<Webcam>(name, loc);
+        node = cam_in;
+
+        test_im = cam_in->getImage("out").clone();
+        test_im = cv::Scalar(200,200,200);
+
+      } else if (type_id.compare("bm::CamThing") == 0) {
+        // TBD  don't allow duplicate camthings
+        VLOG(1) << CLVAL << all_nodes.size()  << CLTX2 
+          << " new node " << CLNRM << name << " " << loc.x << ", " << loc.y;
+        // the node already exists
+        //node = getNode<ScreenCap>(name, loc);
+        node = this;
+        node->loc = loc;
+        node->name = name;
+        all_nodes.push_back(node);
+      } else if (type_id.compare("bm::ScreenCap") == 0) {
+        node = getNode<ScreenCap>(name, loc);
+        node->update();
+      } else if (type_id.compare("bm::ImageNode") == 0) {
+        node = getNode<ImageNode>(name, loc);
+      } else if (type_id.compare("bm::Sobel") == 0) {
+        node = getNode<Sobel>(name, loc);
+      } else if (type_id.compare("bm::GaussianBlur") == 0) {
+        node = getNode<GaussianBlur>(name, loc);
+      } else if (type_id.compare("bm::Buffer") == 0) {
+        node = getNode<Buffer>(name, loc);
+      } else if (type_id.compare("bm::ImageDir") == 0) {
+        node = getNode<ImageDir>(name, loc);
+      } else if (type_id.compare("bm::Add") == 0) {
+        node = getNode<Add>(name, loc);
+      } else if (type_id.compare("bm::Multiply") == 0) {
+        node = getNode<Multiply>(name, loc);
+      } else if (type_id.compare("bm::AbsDiff") == 0) {
+        node = getNode<AbsDiff>(name, loc);
+      } else if (type_id.compare("bm::Greater") == 0) {
+        node = getNode<Greater>(name, loc);
+      } else if (type_id.compare("bm::Resize") == 0) {
+        node = getNode<Resize>(name, loc);
+      } else if (type_id.compare("bm::Flip") == 0) {
+        node = getNode<Flip>(name, loc);
+      } else if (type_id.compare("bm::Rot2D") == 0) {
+        node = getNode<Rot2D>(name, loc);
+      } else if (type_id.compare("bm::Signal") == 0) {
+        node = getNode<Signal>(name, loc);
+      } else if (type_id.compare("bm::Saw") == 0) {
+        node = getNode<Saw>(name, loc);
+      } else if (type_id.compare("bm::Tap") == 0) {
+        node = getNode<Tap>(name, loc);
+      } else if (type_id.compare("bm::TapInd") == 0) {
+        node = getNode<TapInd>(name, loc);
+      } else if (type_id.compare("bm::Bezier") == 0) {
+        node = getNode<Bezier>(name, loc);
+      } else if (type_id.compare("bm::Random") == 0) {
+        node = getNode<Random>(name, loc);
+      } else if (type_id.compare("bm::Mouse") == 0) {
+        node = getNode<Mouse>(name, loc);
+
+        input_node = (Mouse*) node;
+        if (output_node) {
+          input_node->display = output_node->display;
+          input_node->win = output_node->win;
+          input_node->opcode = output_node->opcode;
+        }
+      } else if (type_id.compare("bm::Output") == 0) {
+        node = getNode<Output>(name, loc);
+        output_node = (Output*)node;
+        output_node->setup(Config::inst()->out_width, Config::inst()->out_height);
+      
+        // TBD need better way to share X11 info- Config probably
+        if (input_node) {
+          input_node->display = output_node->display;
+          input_node->win = output_node->win;
+          input_node->opcode = output_node->opcode;
+        }
+      } else {
+        LOG(WARNING) << "unknown node type " << type_id << ", assuming imageNode";
+        node = getNode<ImageNode>(name, loc);
+      }
+
+      return node;
+    }
+
+
   // delete all the nodes
   bool clearNodes()
   {
@@ -401,86 +492,11 @@ class CamThing : public Output
       bool enable;
       (*it)["enable"] >> enable;
       
-      Node* node;
-      if (type_id.compare("bm::Webcam") == 0) {
-        // TBD make a version of getNode that takes a type_id string
-        Webcam* cam_in = getNode<Webcam>(name, loc);
-        node = cam_in;
-
-        test_im = cam_in->getImage("out").clone();
-        test_im = cv::Scalar(200,200,200);
-
-      } else if (type_id.compare("bm::CamThing") == 0) {
-        VLOG(1) << CLVAL << all_nodes.size()  << CLTX2 
-          << " new node " << CLNRM << name << " " << loc.x << ", " << loc.y;
-        // the node already exists
-        //node = getNode<ScreenCap>(name, loc);
-        node = this;
-        node->loc = loc;
-        node->name = name;
-        all_nodes.push_back(node);
-      } else if (type_id.compare("bm::ScreenCap") == 0) {
-        node = getNode<ScreenCap>(name, loc);
-        node->update();
-      } else if (type_id.compare("bm::ImageNode") == 0) {
-        node = getNode<ImageNode>(name, loc);
-      } else if (type_id.compare("bm::Sobel") == 0) {
-        node = getNode<Sobel>(name, loc);
-      } else if (type_id.compare("bm::GaussianBlur") == 0) {
-        node = getNode<GaussianBlur>(name, loc);
-      } else if (type_id.compare("bm::Buffer") == 0) {
-        node = getNode<Buffer>(name, loc);
-      } else if (type_id.compare("bm::ImageDir") == 0) {
-        node = getNode<ImageDir>(name, loc);
-      } else if (type_id.compare("bm::Add") == 0) {
-        node = getNode<Add>(name, loc);
-      } else if (type_id.compare("bm::Multiply") == 0) {
-        node = getNode<Multiply>(name, loc);
-      } else if (type_id.compare("bm::AbsDiff") == 0) {
-        node = getNode<AbsDiff>(name, loc);
-      } else if (type_id.compare("bm::Greater") == 0) {
-        node = getNode<Greater>(name, loc);
-      } else if (type_id.compare("bm::Resize") == 0) {
-        node = getNode<Resize>(name, loc);
-      } else if (type_id.compare("bm::Flip") == 0) {
-        node = getNode<Flip>(name, loc);
-      } else if (type_id.compare("bm::Rot2D") == 0) {
-        node = getNode<Rot2D>(name, loc);
-      } else if (type_id.compare("bm::Signal") == 0) {
-        node = getNode<Signal>(name, loc);
-      } else if (type_id.compare("bm::Saw") == 0) {
-        node = getNode<Saw>(name, loc);
-      } else if (type_id.compare("bm::Tap") == 0) {
-        node = getNode<Tap>(name, loc);
-      } else if (type_id.compare("bm::TapInd") == 0) {
-        node = getNode<TapInd>(name, loc);
-      } else if (type_id.compare("bm::Bezier") == 0) {
-        node = getNode<Bezier>(name, loc);
-      } else if (type_id.compare("bm::Random") == 0) {
-        node = getNode<Random>(name, loc);
-      } else if (type_id.compare("bm::Mouse") == 0) {
-        node = getNode<Mouse>(name, loc);
-
-        input_node = (Mouse*) node;
-        if (output_node) {
-          input_node->display = output_node->display;
-          input_node->win = output_node->win;
-          input_node->opcode = output_node->opcode;
-        }
-      } else if (type_id.compare("bm::Output") == 0) {
-        node = getNode<Output>(name, loc);
-        output_node = (Output*)node;
-        output_node->setup(Config::inst()->out_width, Config::inst()->out_height);
+      Node* node = getNodeByName(type_id, name, loc);
       
-        // TBD need better way to share X11 info- Config probably
-        if (input_node) {
-          input_node->display = output_node->display;
-          input_node->win = output_node->win;
-          input_node->opcode = output_node->opcode;
-        }
-      } else {
-        LOG(WARNING) << "unknown node type " << type_id << ", assuming imageNode";
-        node = getNode<ImageNode>(name, loc);
+      if (node == NULL) { 
+        LOG(ERROR) << "couldn't get node made " << type_id << " " << name;
+        continue;
       }
 
       if (dynamic_cast<ImageNode*>(node)) {
@@ -1073,6 +1089,17 @@ class CamThing : public Output
       if (selected_node) {
         // TBD make node function to do this without exposing setSignal 
         selected_node->setSignal("enable",  !((bool)selected_node->getSignal("enable")));
+      }
+    }
+    else if (key == ']') {
+      // duplicate selected_node node
+      // TBD make it possible to deselect all nodes, so the node specific keys can be reused?
+      if (selected_node == this) {
+        LOG(WARNING) << "can't duplicate camthing";
+      }
+      else if (selected_node) {
+        LOG(INFO) << " duplicating selected_node";
+        getNodeByName(getId(selected_node), selected_node->name + "_2", selected_node->loc + cv::Point2f(100,10));
       }
     }
     

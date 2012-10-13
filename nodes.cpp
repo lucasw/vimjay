@@ -457,7 +457,6 @@ namespace bm {
   bool Node::handleKey(int key)
   {
     bool valid_key = true;
- 
 
     VLOG(1) << selected_type << " \"" << selected_port << "\"";
     if ((selected_type == SIGNAL) && (selected_port != "")) { 
@@ -477,7 +476,7 @@ namespace bm {
       }
       else if (key == 'n') {
         value = 0;
-      } 
+      }
       else {
         valid_key = false;
       }
