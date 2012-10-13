@@ -991,7 +991,7 @@ namespace bm {
     write_count++;
     setSignal("write_count", write_count);
 
-    LOG(INFO) << name << " wrote " << CLTXT << file_name << CLNRM;
+    LOG(INFO) << name << " wrote " << CLTXT << file_name.str() << CLNRM;
     // TBD register that these frames have been saved somewhere so it is easy to load
     // them up again?
   }

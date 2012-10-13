@@ -94,7 +94,7 @@ namespace bm {
 
     XDestroyImage(ximage);
     ximage = XGetImage(display, DefaultRootWindow(display), 0, 0, screen_w, screen_h, AllPlanes, ZPixmap);
-
+    
     VLOG(4) << "get im time" << t1.elapsed();
     // this is slow
     bm::matToXImage(scaled, ximage, win, *display, *screen);

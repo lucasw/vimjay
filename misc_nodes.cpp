@@ -137,7 +137,7 @@ namespace bm {
     do_capture = true;
     run_thread = true;
 
-    cv::namedWindow("webcam", CV_GUI_NORMAL);
+    //cv::namedWindow("webcam", CV_GUI_NORMAL);
 
 
     while(run_thread) {
@@ -173,14 +173,17 @@ namespace bm {
         if (MAT_FORMAT == CV_16S) scale = 255;
         if (MAT_FORMAT == CV_32F) scale = 1.0/255.0;
         if (MAT_FORMAT == CV_8U) scale = 1.0;
+        cv::Mat tmp0 = cv::Mat(new_out.size(), CV_8UC4, cv::Scalar(0)); 
+        // just calling reshape(4) doesn't do the channel reassignment like this does
+        int ch[] = {0,0, 1,1, 2,2}; 
+        mixChannels(&new_out, 1, &tmp0, 1, ch, 3 );
         cv::Mat tmp;
-        new_out.convertTo(tmp, MAT_FORMAT,scale); //, 1.0/(255.0));//*255.0*255.0*255.0));
+        tmp0.convertTo(tmp, MAT_FORMAT,scale); //, 1.0/(255.0));//*255.0*255.0*255.0));
 
         cv::Size sz = cv::Size(Config::inst()->im_width, Config::inst()->im_height);
         cv::Mat tmp1;
         cv::resize(tmp, tmp1, sz, 0, 0, cv::INTER_NEAREST );
         
-        imshow("webcam",tmp);
 
         //out_lock.lock();
         setImage("out", tmp1);
@@ -209,6 +212,7 @@ namespace bm {
 
   bool Webcam::update()
   {
+    // don't call ImageNode update because it will clobber the "out" image set in the thread
     Node::update();
     //ImageNode::update();
 
@@ -253,7 +257,7 @@ namespace bm {
    for (int i=0; i < files.size(); i++) {
       const string next_im = files[i];
       cv::Mat tmp0 = cv::imread( next_im );
-      cv::Mat tmp0b = tmp0.reshape(4);
+      cv::Mat tmp0b = tmp0.reshape(4); // convert to 8UC4
      
       if (tmp0b.data == NULL) { //.empty()) {
         LOG(WARNING) << name << " not an image? " << next_im;
