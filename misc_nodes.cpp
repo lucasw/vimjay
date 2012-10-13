@@ -475,7 +475,7 @@ namespace bm {
     if (valid_key) return true;
    
     valid_key = true;
-    if (key == ']') {
+    if (key == '[') {
     
       // add an input addition port, TBD move to function
       int add_num = 0;

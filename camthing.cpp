@@ -786,7 +786,8 @@ class CamThing : public Output
     // connect to source node in best way possible, replacing the current input
     // TBD need to be able to select specific inputs
     if (source_node && selected_node && 
-        (source_type != NONE) && (selected_port != "") && (source_port != "")) {
+        (source_type != NONE) && (selected_port != "") && (source_port != "")
+        && (selected_port != "out")) {
 
       // TBD a Buffer should act as an ImageNode if that is the only
       // input available
@@ -873,6 +874,8 @@ class CamThing : public Output
 
     Connector* con = selected_node->ports[selected_port_ind];
     if (!con->dst) return false;
+    
+    const string src = con->parent->name;
 
     selected_node = con->dst->parent;
     selected_ind = getIndFromPointer(selected_node); 
@@ -884,7 +887,8 @@ class CamThing : public Output
     // keep a copy of the selected port local (TBD)
     selectPort(0);
 
-    VLOG(2) << "selecting port destination success";
+    const string dst = selected_node->name;
+    VLOG(2) << "selecting port destination success: " << src << " to " << dst;
     return true;
   }
 
