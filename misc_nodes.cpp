@@ -137,6 +137,9 @@ namespace bm {
     do_capture = true;
     run_thread = true;
 
+    cv::namedWindow("webcam", CV_GUI_NORMAL);
+
+
     while(run_thread) {
       if (do_capture && error_count < 20) {
         /// TBD need to make this in separate thread
@@ -176,6 +179,8 @@ namespace bm {
         cv::Size sz = cv::Size(Config::inst()->im_width, Config::inst()->im_height);
         cv::Mat tmp1;
         cv::resize(tmp, tmp1, sz, 0, 0, cv::INTER_NEAREST );
+        
+        imshow("webcam",tmp);
 
         //out_lock.lock();
         setImage("out", tmp1);

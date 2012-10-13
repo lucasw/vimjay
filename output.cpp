@@ -40,6 +40,8 @@ namespace bm {
     gc = XCreateGC(display, win, 0, NULL);
     ximage = XGetImage(display, DefaultRootWindow(display), 0, 0, width, height, AllPlanes, ZPixmap);
     screen = DefaultScreenOfDisplay(display);
+
+    XStoreName(display, win, name.c_str());
   }
 
   bool Output::update()

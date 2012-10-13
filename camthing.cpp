@@ -586,7 +586,8 @@ class CamThing : public Output
 
     LOG(INFO) << all_nodes.size() << " nodes total";
     //output_node->loc = cv::Point2f(graph.cols - (test_im.cols/2+100), 20);
-    
+   
+    return true;
 
   } // loadGraph
 

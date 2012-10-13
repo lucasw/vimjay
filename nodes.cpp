@@ -895,7 +895,7 @@ namespace bm {
       cv::Mat out = getImage("out");
       if (out.empty()) {
         cv::Size sz = cv::Size(Config::inst()->im_width, Config::inst()->im_height);
-        out = cv::Mat(sz, MAT_FORMAT_C3);
+        out = cv::Mat(sz, MAT_FORMAT_C3, cv::Scalar(0));
         setImage("out", out);
         setDirty();
       }
