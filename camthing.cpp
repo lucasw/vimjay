@@ -384,9 +384,9 @@ class CamThing : public Output
   // TBD make struct for these two
   int selected_ind;
   Node* selected_node;
-  conType selected_type;
-  string selected_port;
-  int selected_port_ind;
+  //conType selected_port_type;
+  //string selected_port;
+  //int selected_port_ind;
 
   // store a node to be connected to a different selected node
   int source_ind;
@@ -401,9 +401,9 @@ class CamThing : public Output
   CamThing() : 
       selected_ind(0), 
       selected_node(NULL),
-      selected_type(NONE),
-      selected_port(""),
-      selected_port_ind(0),
+      //selected_port_type(NONE),
+      //selected_port(""),
+      //selected_port_ind(0),
       source_ind(0),
       source_node(NULL),
       source_type(NONE),
@@ -757,15 +757,16 @@ class CamThing : public Output
     saveGraph("default_graph.yml");
   }
 
-  void selectSourceNode() 
+  bool selectSourceNode() 
   {
-    if (source_node != all_nodes[selected_ind]) {
+
+    if (selected_node && (source_node != selected_node)) {
       // select source node
       source_ind = selected_ind;
-      source_node = all_nodes[source_ind];
-      source_port = selected_port;
+      source_node = selected_node; //all_nodes[source_ind];
+      source_port = selected_node->selected_port;
 
-      source_type = selected_type;
+      source_type = selected_node->selected_type;
       //if (source_type == "ImageNode") source_type = "ImageOut";
       //if (source_type == "ImageOut") source_type = "ImageNode";
       VLOG(1) << "selected source node " << source_type << " " << source_port; 
@@ -786,12 +787,12 @@ class CamThing : public Output
     // connect to source node in best way possible, replacing the current input
     // TBD need to be able to select specific inputs
     if (source_node && selected_node && 
-        (source_type != NONE) && (selected_port != "") && (source_port != "")
-        && (selected_port != "out")) {
+        (source_type != NONE) && (selected_node->selected_port != "") && (source_port != "")
+        && (selected_node->selected_port != "out")) {
 
       // TBD a Buffer should act as an ImageNode if that is the only
       // input available
-      selected_node->setInputPort(source_type, selected_port, source_node, source_port);
+      selected_node->setInputPort(source_type, selected_node->selected_port, source_node, source_port);
       
       //VLOG(1) << 
       return true;
@@ -805,8 +806,8 @@ class CamThing : public Output
     boost::mutex::scoped_lock l(update_mutex);
 
     // disconnect current input
-    if (selected_node && (selected_type != NONE) && (selected_port != "")) {
-      selected_node->setInputPort(selected_type, selected_port, NULL, "");
+    if (selected_node && (selected_node->selected_type != NONE) && (selected_node->selected_port != "")) {
+      selected_node->setInputPort(selected_node->selected_type, selected_node->selected_port, NULL, "");
     }
   }
 
@@ -819,7 +820,7 @@ class CamThing : public Output
     if (selected_ind >= all_nodes.size()) selected_ind = 0;
     selected_node = all_nodes[selected_ind];
 
-    selected_port = "";
+    //selected_port = "";
     selectPort(0);
 
     VLOG(1) << "selected node " << selected_node->name << " " << selected_ind;
@@ -833,7 +834,7 @@ class CamThing : public Output
     if (selected_ind < 0) selected_ind = all_nodes.size()-1;
     selected_node = all_nodes[selected_ind];
 
-    selected_port = "";
+    //selected_port = "";
     selectPort(0);
     
     VLOG(1) << "selected node " << selected_node->name << " " << selected_ind;
@@ -844,19 +845,19 @@ class CamThing : public Output
     VLOG(1) << "selecting port source";
     // jump to the node and port inputting into this port
     if (!selected_node) return false;
-    if (selected_port_ind < 0) return false;
-    if (selected_port_ind >= selected_node->ports.size()) return false;
+    if (selected_node->selected_port_ind < 0) return false;
+    if (selected_node->selected_port_ind >= selected_node->ports.size()) return false;
 
-    Connector* con = selected_node->ports[selected_port_ind];
+    Connector* con = selected_node->ports[selected_node->selected_port_ind];
     if (!con->src) return false;
 
     selected_node = con->src->parent;
     selected_ind = getIndFromPointer(selected_node); 
 
-    selected_port_ind = selected_node->getIndFromPointer(con->src);
+    selected_node->selected_port_ind = selected_node->getIndFromPointer(con->src);
 
     // tell the node to select the port
-    selected_node->selectPortByInd(selected_port_ind);
+    selected_node->selectPortByInd(selected_node->selected_port_ind);
     // keep a copy of the selected port local (TBD)
     selectPort(0);
     
@@ -869,10 +870,10 @@ class CamThing : public Output
     VLOG(1) << "selecting port destination";
     // jump to the node and port inputting into this port
     if (!selected_node) return false;
-    if (selected_port_ind < 0) return false;
-    if (selected_port_ind >= selected_node->ports.size()) return false;
+    if (selected_node->selected_port_ind < 0) return false;
+    if (selected_node->selected_port_ind >= selected_node->ports.size()) return false;
 
-    Connector* con = selected_node->ports[selected_port_ind];
+    Connector* con = selected_node->ports[selected_node->selected_port_ind];
     if (!con->dst) return false;
     
     const string src = con->parent->name;
@@ -880,10 +881,10 @@ class CamThing : public Output
     selected_node = con->dst->parent;
     selected_ind = getIndFromPointer(selected_node); 
 
-    selected_port_ind = selected_node->getIndFromPointer(con->dst);
+    selected_node->selected_port_ind = selected_node->getIndFromPointer(con->dst);
 
     // tell the node to select the port
-    selected_node->selectPortByInd(selected_port_ind);
+    selected_node->selectPortByInd(selected_node->selected_port_ind);
     // keep a copy of the selected port local (TBD)
     selectPort(0);
 
@@ -909,9 +910,9 @@ class CamThing : public Output
 
     // take the current port
     if (next_port == 0) {
-      selected_type = selected_node->selected_type;
-      selected_port = selected_node->selected_port;
-      selected_port_ind = selected_node->selected_port_ind;
+      //selected_port_type = selected_node->selected_type;
+      //selected_port      = selected_node->selected_port;
+      //selected_port_ind  = selected_node->selected_port_ind;
       return true;
     }
 
@@ -922,9 +923,9 @@ class CamThing : public Output
       rv = selected_node->getPrevPort(source_type);
     
     if (rv) {
-      selected_type = selected_node->selected_type;
-      selected_port = selected_node->selected_port;
-      selected_port_ind = selected_node->selected_port_ind;
+      //selected_port_type = selected_node->selected_type;
+      //selected_port = selected_node->selected_port;
+      //selected_port_ind = selected_node->selected_port_ind;
     }
 
     return rv;
@@ -1164,22 +1165,23 @@ class CamThing : public Output
     else if (key == 'f') {
       // select the next port down
       // TBD the node should catch this itself
-      selectPort(1);
-      
-      stringstream str;
-      if (selected_node) {
-        str << selected_node->name << " : ";
-        str << "matching " << source_type << " \"" << source_port << "\" with ";
-      } else {
-        str <<"selecting";
-      }
-      
-      str 
-          << selected_type << " \"" << selected_port << "\" "
+      const bool rv = selectPort(1);
+      if (rv) { 
+        stringstream str;
+        if (selected_node) {
+          str << selected_node->name << " : ";
+          str << "matching " << source_type << " \"" << source_port << "\" with ";
+        } else {
+          str <<"selecting";
+        }
+
+        str 
+          << selected_node->selected_type << " \"" << selected_node->selected_port << "\" "
           << CLTXT 
-          << selected_ind << " " << selected_port_ind << " " 
+          << selected_ind << " " << selected_node->selected_port_ind << " " 
           << CLNRM;
-      VLOG(1) << str.str();
+        VLOG(1) << str.str();
+      }
     } 
     else if (key == 'r') {
       selectSourceNode();
