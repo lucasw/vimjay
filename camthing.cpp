@@ -426,12 +426,10 @@ class CamThing : public Output
     //node->loc = loc;
 
 
-    if (FLAGS_graph_file =="") {
+    if ((FLAGS_graph_file =="") || (!loadGraph(FLAGS_graph_file))) {
       defaultGraph();
-    } else {
-      loadGraph(FLAGS_graph_file);
-      saveGraph("graph_load_test.yml");
-    }
+    } 
+    saveGraph("graph_load_test.yml");
 
     selectNextNode();
 
@@ -594,44 +592,72 @@ class CamThing : public Output
 
   void defaultGraph() 
   {
+    LOG(INFO) << "creating default graph";
     Node* node;
     
-    // create a bunch of nodes but don't connect them, user will do that
-    //node = getNode<ScreenCap>(name, loc);
-    //node->update();
+    // create a bunch of nodes of every type (TBD make sure new ones get added)
+    // but don't connect them, user will do that
     
     cv::Point2f loc = cv::Point2f(400,400);
     
+    node = this;
+    node->loc = loc;
+    node->name = "cam_thing";
+    all_nodes.push_back(node);
+
+    // Images
+    // inputs
+    node = getNode<Webcam>("web_cam", loc);
+    node->update();
+
+    node = getNode<ScreenCap>("screen_cap", loc);
+    node->update();
+
     ImageDir* im_dir = getNode<ImageDir>("image_dir", loc);
     im_dir->dir = "../data/";
     im_dir->loadImages();
 
+    // process
+    getNode<Buffer>("buffer", loc);
+    getNode<FilterFIR>("filter_fir", loc);
+
     node = getNode<Sobel>("sobel", loc);
-    node = getNode<Add>("add0", loc);
-    node = getNode<Add>("add1", loc);
-    //node = getNode<Fir>("fir", loc);
-    node = getNode<Resize>("resize", loc);
+    node = getNode<GaussianBlur>("sobel", loc);
     node = getNode<Rot2D>("rot2d", loc);
-    node = getNode<Signal>("signal0", loc);
-    node = getNode<Signal>("signal1", loc);
-    node = getNode<Saw>("saw0", loc);
-    node = getNode<Saw>("saw1", loc);
-    node = getNode<Saw>("saw2", loc);
+    node = getNode<Resize>("resize", loc);
+    node = getNode<Flip>("flip", loc);
+
+    node = getNode<Add>("add", loc);
+    node = getNode<Multiply>("multiply", loc);
+    node = getNode<AbsDiff>("abs_diff", loc);
+    node = getNode<Greater>("greater", loc);
+    
+    // generate
+    node = getNode<Bezier>("bezier", loc);
+
     node = getNode<Tap>("tap0", loc);
-    node = getNode<Tap>("tap1", loc);
-    node = getNode<Tap>("tap2", loc);
     node = getNode<TapInd>("tapind0", loc);
-    node = getNode<TapInd>("tapind1", loc);
-    node = getNode<TapInd>("tapind2", loc);
-    node = getNode<Buffer>("buffer0", loc);
-    node = getNode<Buffer>("buffer1", loc);
-    node = getNode<Buffer>("buffer2", loc);
 
-    node = getNode<ImageNode>("output", loc);
-    cv::Mat tmp;
-    node->setImage("in", tmp); 
+    // Signals
+    // inputs
+    node = getNode<Mouse>("mouse", loc);
+    input_node = (Mouse*) node;
 
-    //node = getNode<Output>("out", loc);
+    // generate
+    node = getNode<Signal>("signal0", loc);
+    node = getNode<Saw>("saw", loc);
+    node = getNode<Random>("random", loc);
+    
+    node = getNode<Output>("output", loc);
+    output_node = (Output*)node;
+    output_node->setup(Config::inst()->out_width, Config::inst()->out_height);
+
+    // TBD need better way to share X11 info- Config probably
+    if (input_node) {
+      input_node->display = output_node->display;
+      input_node->win = output_node->win;
+      input_node->opcode = output_node->opcode;
+    }
 
     gridGraph(); 
 

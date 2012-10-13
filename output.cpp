@@ -23,6 +23,7 @@
 #include <boost/timer.hpp>
 #include <glog/logging.h>
 
+#include "camthing.h"
 #include "utility.h"
 
 namespace bm {

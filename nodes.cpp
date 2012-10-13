@@ -890,7 +890,17 @@ namespace bm {
     //setImage("out_old", ;
     // TBD any reason to call this here?
     cv::Mat in = getImage("in");
-    if (in.empty()) return true; 
+    if (in.empty()) {
+      // create a default image
+      cv::Mat out = getImage("out");
+      if (out.empty()) {
+        cv::Size sz = cv::Size(Config::inst()->im_width, Config::inst()->im_height);
+        out = cv::Mat(sz, MAT_FORMAT_C3);
+        setImage("out", out);
+        setDirty();
+      }
+      return true; 
+    }
     
     setImage("out", in);
     setDirty();
