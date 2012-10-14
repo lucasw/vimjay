@@ -1142,32 +1142,35 @@ namespace bm {
     setImage("in", tmp);
   }
  
-  bool Buffer::update()
+  bool Buffer::manualUpdate()
   {
-    bool rv = Node::update(); // ImageNode::update();
-    if (!rv) return false;
-   
-    if (!isDirty(this,21)) { return true;}
-   
-    float val = getSignal("max_size");
-    max_size = val;
-    if (max_size < 1) max_size = 1;
-   
-    // TBD this is kind of confusing, out is being used as 
-    // and input and an output
     cv::Mat in = getImage("in");
     if (!in.empty()) 
       add(in); 
     
     setSignal("cur_size", frames.size());
-
     if (frames.size() <= 0) return false;
-   
-    const int ind =  ((int)getSignal("ind"))%frames.size();
+    const int ind =  ((int)getSignal("ind")) % frames.size();
     setSignal("ind", ind);
+  }
 
-    // TBD may not always want to do this
-    cv::Mat out = frames[ind];
+  bool Buffer::update()
+  {
+    bool rv = Node::update(); // ImageNode::update();
+    if (!rv) return false;
+  
+    // don't want to buffer identical images
+    if (!isDirty(this,21)) { return true;}
+  
+    /*
+    float val = getSignal("max_size");
+    max_size = val;
+    if (max_size < 1) max_size = 1;
+    */
+    manualUpdate();
+
+        // TBD may not always want to do this
+    cv::Mat out = frames[(int)getSignal("ind")];
     setImage("out", out);
 
 
@@ -1243,8 +1246,6 @@ namespace bm {
 
     frames.push_back(new_frame);
     
-     
-
     if (restrict_size) {
       while (frames.size() > max_size) frames.pop_front();
     }

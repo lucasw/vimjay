@@ -41,8 +41,12 @@ void FilterFIR::setup(const std::vector<float> new_xi)
 
 bool FilterFIR::update()
 {
-  bool rv = Buffer::update();
+  bool rv = Node::update();
   if (!rv) return false;
+  
+  if (!isDirty(this,22)) { return true;}
+  
+  manualUpdate();
 
   cv::Mat out;
 
@@ -77,7 +81,6 @@ bool FilterFIR::update()
 
 bool FilterFIR::handleKey(int key)
 {
-  LOG(INFO)<<" fir handlekey";
   bool valid_key = Buffer::handleKey(key);
   if (valid_key) return true;
 
@@ -96,6 +99,8 @@ bool FilterFIR::handleKey(int key)
       }
       add_num++;
     }
+
+    setSignal("max_size", add_num+1);
 
     // add a new addition port
     const std::string port = "xi" + boost::lexical_cast<std::string>(add_num);

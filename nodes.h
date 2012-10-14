@@ -278,11 +278,13 @@ class Buffer : public ImageNode
   
   int max_size;
  
+  bool manualUpdate();
   virtual bool update();
 
   bool add(cv::Mat& new_frame, bool restrict_size = true);
   virtual bool draw(cv::Point2f ui_offset);
    
+  
   virtual cv::Mat get();
 
   cv::Mat get(const float fr);
