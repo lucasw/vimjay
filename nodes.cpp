@@ -1000,7 +1000,8 @@ namespace bm {
   {
     bool valid_key = Node::handleKey(key);
     if (valid_key) return true;
-    
+   
+    valid_key = true;
     if (key == 'p') {
       writeImage(); 
     } 
@@ -1165,6 +1166,7 @@ namespace bm {
     const int ind =  ((int)getSignal("ind"))%frames.size();
     setSignal("ind", ind);
 
+    // TBD may not always want to do this
     cv::Mat out = frames[ind];
     setImage("out", out);
 
@@ -1303,22 +1305,26 @@ namespace bm {
     stringstream dir_name;
     // TBD define path to data somewhere to be reused by all
     dir_name << "../data/" << t1 << "_" << name;
-    
+   
+    if (frames.size() == 0) return false;
+
     boost::filesystem::create_directories(dir_name.str());
-    LOG(INFO) << name << " writing Buffer images to disk " << CLTXT << dir_name.str() << CLNRM;
+    LOG(INFO) << name << " writing " << frames.size() 
+        << " Buffer images to disk " << CLTXT << dir_name.str() << CLNRM;
 
     // TBD move to another thread
     for (int i = 0; i < frames.size(); i++) {
       stringstream file_name;
       file_name << dir_name.str() << "/buffer_" << (i + 1000000) << ".jpg";
       cv::imwrite(file_name.str(), frames[i]);
-     
+      VLOG(1) << file_name.str();  
       int write_count = getSignal("write_count");
       write_count++;
       setSignal("write_count", write_count);
     }
     // TBD register that these frames have been saved somewhere so it is easy to load
     // them up again?
+    return true;
   }
 
   bool Buffer::load(cv::FileNodeIterator nd)

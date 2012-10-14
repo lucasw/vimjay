@@ -21,6 +21,8 @@
 
 #include "filter.h"
 
+#include <boost/lexical_cast.hpp>
+
 #include <glog/logging.h>
 
 // filter Node objects
@@ -44,42 +46,72 @@ bool FilterFIR::update()
 
   cv::Mat out;
 
-  for (int i = 0; i < xi.size() && i < frames.size(); i++) {
+  int addnum =  0;
+  for (int i = 0; i < ports.size(); i++) {
+    if (ports[i]->type != SIGNAL) continue;
+    const std::string port = ports[i]->name;
 
-    cv::Mat tmp = frames[frames.size() - i - 1] * xi[i];  
-    if (i == 0) {
-      out = tmp;
-    } else {
-      out += tmp;
+    if (port.substr(0,2) != "xi") continue;
+    float val = getSignal(port);
+
+    cv::Mat tmp = frames[frames.size() - addnum - 1];  
+
+    if (addnum == 0) 
+      out = tmp * val;
+    else {
+      if (val > 0) {
+        out += tmp * val;
+      } else 
+        out -= tmp * -val;
     }
+    
+    addnum++;
+    
+    if (addnum >= frames.size()) break;
   }
 
   setImage("out", out);
 
   return true;
 }
- 
-  bool FilterFIR::load(cv::FileNodeIterator nd)
-  {
-    Buffer::load(nd);
 
-    for (int i = 0; i < (*nd)["xi"].size(); i++) {
-      float new_coeff;
-      (*nd)["xi"][i] >> new_coeff;
-      xi.push_back(new_coeff);
-    }
-  }
-
-bool FilterFIR::save(cv::FileStorage& fs) 
+bool FilterFIR::handleKey(int key)
 {
-  Buffer::save(fs);
+  LOG(INFO)<<" fir handlekey";
+  bool valid_key = Buffer::handleKey(key);
+  if (valid_key) return true;
 
-  fs << "xi" << "[:";
-  for (int j = 0; j < xi.size(); j++) {
-    fs << xi[j];
+  valid_key = true;
+  if (key == '[') {
+
+    // add an input addition port, TBD move to function
+    int add_num = 0;
+    for (int i = 0; i < ports.size(); i++) {
+      if (ports[i]->type != SIGNAL) continue;
+      const std::string port = ports[i]->name;
+
+      if (port.substr(0,2) != "xi") {
+        VLOG(1) << name << " : " << port.substr(0,2) << " " << port;
+        continue;
+      }
+      add_num++;
+    }
+
+    // add a new addition port
+    const std::string port = "xi" + boost::lexical_cast<std::string>(add_num);
+    setInputPort(SIGNAL, port, NULL, "value"); // this allows other signals to connect to replace nf
+
+    // TBD make a way to delete a port
+  } else {
+    valid_key = false;
   }
-  fs << "]";
+
+  // TBD 
+  if (valid_key) setDirty();
+
+  return valid_key;
 }
+
 
 Sobel::Sobel()
 {

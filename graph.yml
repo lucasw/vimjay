@@ -216,7 +216,7 @@ nodes:
             src_port: ""
    -
       ind: 5
-      typeid: "bm::ImageNode"
+      typeid: "bm::FilterFIR"
       name: filter_fir
       loc: [ 58., 180. ]
       inputs:

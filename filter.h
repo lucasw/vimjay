@@ -20,8 +20,7 @@ class FilterFIR : public Buffer
   void setup(const std::vector<float> new_xi);
   virtual bool update();
  
-  virtual bool load(cv::FileNodeIterator nd);
-  virtual bool save(cv::FileStorage& fs);
+  virtual bool handleKey(int key);
 
 };
 

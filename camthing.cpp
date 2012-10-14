@@ -139,11 +139,12 @@ class CamThing : public Output
   template <class nodeType>
     nodeType* getNode(string name = "", cv::Point2f loc=cv::Point2f(0.0, 0.0))
     {
-      VLOG(1) << CLVAL << all_nodes.size()  << CLTX2 
-          << " new node " << CLNRM << name << " " << loc.x << ", " << loc.y;
-
       nodeType* node = new nodeType();//name, loc, graph_ui);
       
+      VLOG(1) << CLVAL << all_nodes.size()  << CLTX2 
+          << " new node " << CLNRM << " " << getId(node) << " "  
+          << name << " " << loc.x << ", " << loc.y;
+
       node->name = name;
       node->loc = loc;
       node->graph_ui = graph_ui;
@@ -187,6 +188,8 @@ class CamThing : public Output
         node = getNode<GaussianBlur>(name, loc);
       } else if (type_id.compare("bm::Buffer") == 0) {
         node = getNode<Buffer>(name, loc);
+      } else if (type_id.compare("bm::FilterFIR") == 0) {
+        node = getNode<FilterFIR>(name, loc);
       } else if (type_id.compare("bm::ImageDir") == 0) {
         node = getNode<ImageDir>(name, loc);
       } else if (type_id.compare("bm::Add") == 0) {
@@ -623,7 +626,7 @@ class CamThing : public Output
     getNode<FilterFIR>("filter_fir", loc);
 
     node = getNode<Sobel>("sobel", loc);
-    node = getNode<GaussianBlur>("sobel", loc);
+    node = getNode<GaussianBlur>("blur", loc);
     node = getNode<Rot2D>("rot2d", loc);
     node = getNode<Resize>("resize", loc);
     node = getNode<Flip>("flip", loc);
