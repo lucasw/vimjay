@@ -125,7 +125,8 @@ namespace bm {
     setSignal("max", 0);
     setSignal("max_size", 100);
     setSignal("cur_size", 0);
-    
+   
+    VLOG(1) <<" setting out image";
     cv::Mat tmp;
     cv::Size sz = cv::Size(Config::inst()->im_width, Config::inst()->im_height);
     tmp = cv::Mat(sz, MAT_FORMAT_C3, cv::Scalar(0));
@@ -157,6 +158,11 @@ namespace bm {
   bool SigBuffer::draw(cv::Point2f ui_offset)
   {
     cv::Mat vis = getImage("out");
+    if (vis.empty()) {
+      LOG(WARNING) << "out is empty";
+      cv::Size sz = cv::Size(Config::inst()->im_width, Config::inst()->im_height);
+      vis = cv::Mat(sz, MAT_FORMAT_C3, cv::Scalar(0));
+    }
     // TBD error check the mat
     vis = cv::Scalar(0);
 
@@ -170,11 +176,14 @@ namespace bm {
 
       float sc = fabs(max);
       if (fabs(min) > sc) sc = fabs(min);
-
-      float div = sigs.size()/(float)vis.cols;
+      sc *= 2.1;
+    
+      float div = (float)sigs.size()/(float)vis.cols;
 
       int inc = 1;
       if (div > 1.0) inc = (int) div;
+      
+      VLOG(5) <<sigs.size()<<":"<< div << " " << inc << " " << sc;
 
       for (int i = 0; i < (int)sigs.size() - 1; i += inc) {
         const float val = sigs[i];
@@ -183,13 +192,14 @@ namespace bm {
         if (val < new_min) new_min = val;
 
         cv::line( vis,
-          cv::Point2f((float)i/div,       vis.rows * (0.5 + val/sc)),
+          cv::Point2f((float)(i)/div,     vis.rows * (0.5 + val/sc)),
           cv::Point2f((float)(i + 1)/div, vis.rows * (0.5 + val2/sc)),
-          cv::Scalar(255), 8, 4);
+          cv::Scalar(255), (div + 1), 4);
       }
-      
-      setSignal("min", min);
-      setSignal("max", max);
+     
+      // an external signal will override, but no way for manual input to override
+      setSignal("min", new_min);
+      setSignal("max", new_max);
     }
 
     setImage("out", vis);
