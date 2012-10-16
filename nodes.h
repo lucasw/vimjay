@@ -283,7 +283,6 @@ class Buffer : public ImageNode
 
   bool add(cv::Mat& new_frame, bool restrict_size = true);
   virtual bool draw(cv::Point2f ui_offset);
-   
   
   virtual cv::Mat get();
 

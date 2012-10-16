@@ -350,7 +350,7 @@ nodes:
    -
       ind: 7
       typeid: "bm::GaussianBlur"
-      name: sobel
+      name: blur
       loc: [ 524., 180. ]
       inputs:
          -

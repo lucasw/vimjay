@@ -210,6 +210,8 @@ class CamThing : public Output
         node = getNode<Signal>(name, loc);
       } else if (type_id.compare("bm::Saw") == 0) {
         node = getNode<Saw>(name, loc);
+      } else if (type_id.compare("bm::SigBuffer") == 0) {
+        node = getNode<SigBuffer>(name, loc);
       } else if (type_id.compare("bm::Tap") == 0) {
         node = getNode<Tap>(name, loc);
       } else if (type_id.compare("bm::TapInd") == 0) {
@@ -611,8 +613,8 @@ class CamThing : public Output
 
     // Images
     // inputs
-    node = getNode<Webcam>("web_cam", loc);
-    node->update();
+    //node = getNode<Webcam>("web_cam", loc);
+    //node->update();
 
     node = getNode<ScreenCap>("screen_cap", loc);
     node->update();
@@ -651,6 +653,8 @@ class CamThing : public Output
     node = getNode<Signal>("signal0", loc);
     node = getNode<Saw>("saw", loc);
     node = getNode<Random>("random", loc);
+    
+    node = getNode<SigBuffer>("sig_buf", loc);
     
     node = getNode<Output>("output", loc);
     output_node = (Output*)node;

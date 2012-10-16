@@ -117,6 +117,88 @@ namespace bm {
     return true;
   }
 
+  SigBuffer::SigBuffer() 
+  {
+    setSignal("in", 0);
+
+    setSignal("min", 0);
+    setSignal("max", 0);
+    setSignal("max_size", 100);
+    setSignal("cur_size", 0);
+    
+    cv::Mat tmp;
+    cv::Size sz = cv::Size(Config::inst()->im_width, Config::inst()->im_height);
+    tmp = cv::Mat(sz, MAT_FORMAT_C3, cv::Scalar(0));
+    setImage("out", tmp);
+  }
+
+  bool SigBuffer::update()
+  {
+    const bool rv = Node::update();
+    if (!rv) return false;
+
+    int max_size = getSignal("max_size");
+    if (max_size < 0) max_size = 0;
+
+    const float new_sig = getSignal("in");
+    // TBD wait to be dirty, or sample signal anyway?  Control behaviour with parameter?
+    // probably should check to see if it is dirty
+    sigs.push_back(new_sig);
+
+    while (sigs.size() > max_size) sigs.pop_front(); 
+    
+    setSignal("cur_size", sigs.size());
+    
+    setDirty();
+
+    return true;
+  }
+
+  bool SigBuffer::draw(cv::Point2f ui_offset)
+  {
+    cv::Mat vis = getImage("out");
+    // TBD error check the mat
+    vis = cv::Scalar(0);
+
+    // update the vis image- TBD add option to disable this?
+    if (isDirty(this, 24)) {
+
+      float new_min = 1e6;
+      float new_max = -1e6;
+      const float min = getSignal("min");
+      const float max = getSignal("max");
+
+      float sc = fabs(max);
+      if (fabs(min) > sc) sc = fabs(min);
+
+      float div = sigs.size()/(float)vis.cols;
+
+      int inc = 1;
+      if (div > 1.0) inc = (int) div;
+
+      for (int i = 0; i < (int)sigs.size() - 1; i += inc) {
+        const float val = sigs[i];
+        const float val2 = sigs[i+1];
+        if (val > new_max) new_max = val;
+        if (val < new_min) new_min = val;
+
+        cv::line( vis,
+          cv::Point2f((float)i/div,       vis.rows * (0.5 + val/sc)),
+          cv::Point2f((float)(i + 1)/div, vis.rows * (0.5 + val2/sc)),
+          cv::Scalar(255), 8, 4);
+      }
+      
+      setSignal("min", min);
+      setSignal("max", max);
+    }
+
+    setImage("out", vis);
+
+    return ImageNode::draw(ui_offset);
+  }
+
+  //bool SigBuffer::writeSignals();
+
 
 #ifdef NOT_YET_IMPLEMENTED
 ///////////////////////////////////////////////////////////

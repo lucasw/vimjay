@@ -38,12 +38,22 @@ class Random : public Signal
   //virtual bool handleKey(int key);
 };
 
+/////////////////////////////////
+class SigBuffer : public ImageNode
+{
+  protected:
+  std::deque<float> sigs;
+
+  public:
+  SigBuffer();
+  virtual bool update();
+  virtual bool draw(cv::Point2f ui_offset);
+  
+  //bool writeSignals();
+};
+
 #ifdef NOT_YET_IMPLEMENTED
 /////////////////////////////////
-class SigBuffer : public Signal
-{
-
-}
 
 class SigFile : public SigBuffer
 {
