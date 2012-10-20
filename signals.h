@@ -49,6 +49,10 @@ class SigBuffer : public ImageNode
   virtual bool update();
   virtual bool draw(cv::Point2f ui_offset);
   
+  float get(const float fr);
+  float get(int ind);
+
+
   //bool writeSignals();
 };
 

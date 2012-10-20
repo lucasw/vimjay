@@ -149,7 +149,9 @@ namespace bm {
     while (sigs.size() > max_size) sigs.pop_front(); 
     
     setSignal("cur_size", sigs.size());
-    
+   
+    setSignal("out", sigs[0]);
+
     setDirty();
 
     return true;
@@ -208,6 +210,36 @@ namespace bm {
   }
 
   //bool SigBuffer::writeSignals();
+
+  // not the same as the inherited get on purpose
+  // many callers per time step could be calling this
+  float SigBuffer::get(const float fr) 
+  {
+    const int ind = (int)(fr * (float)sigs.size());
+    //if (fr < 0) {
+    //  ind = frames.size() - ind;
+    //}
+    
+    return get(ind);
+  }
+
+  float SigBuffer::get(int ind)
+  {
+    if (sigs.size() < 1) {
+      VLOG(1) << "no sigs returning 0";
+      return 0;
+    }
+    //if (ind > sigs.size() - 1) ind = sigs.size() - 1;
+    //if (ind < 0) ind = 0;
+    ind %= sigs.size();
+  
+    VLOG(2) << name << " ind " << ind;
+
+    //VLOG_EVERY_N(1,10) 
+    //LOG_EVERY_N(INFO, 10) << ind << " " << sigs.size();
+    return sigs[ind];
+  }
+
 
 
 #ifdef NOT_YET_IMPLEMENTED
