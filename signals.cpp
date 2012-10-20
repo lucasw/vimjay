@@ -141,17 +141,18 @@ namespace bm {
   SigBuffer::SigBuffer() 
   {
     setSignal("in", 0);
+    
+    VLOG(1) <<" setting out image";
+    cv::Mat tmp;
+    cv::Size sz = cv::Size(Config::inst()->im_width, Config::inst()->im_height);
+    tmp = cv::Mat(sz, MAT_FORMAT_C3, cv::Scalar(0));
+    setImage("out", tmp);
 
     setSignal("min", 0);
     setSignal("max", 0);
     setSignal("max_size", 100);
     setSignal("cur_size", 0);
    
-    VLOG(1) <<" setting out image";
-    cv::Mat tmp;
-    cv::Size sz = cv::Size(Config::inst()->im_width, Config::inst()->im_height);
-    tmp = cv::Mat(sz, MAT_FORMAT_C3, cv::Scalar(0));
-    setImage("out", tmp);
   }
 
   bool SigBuffer::update()
@@ -682,10 +683,10 @@ CMP_NE
   ////////////////////////////////////////
   Resize::Resize() 
   {
-    setSignal("fx", 0.2);
-    setSignal("fy", 0.2);
     cv::Mat tmp;
     setImage("in", tmp);
+    setSignal("fx", 0.2);
+    setSignal("fy", 0.2);
   }
 
   bool Resize::update()

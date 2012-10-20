@@ -285,9 +285,8 @@ class Buffer : public ImageNode
   virtual bool draw(cv::Point2f ui_offset);
   
   virtual cv::Mat get();
-
-  cv::Mat get(const float fr);
-  cv::Mat get(int ind);
+  virtual cv::Mat get(const float fr);
+  virtual cv::Mat get(int ind);
 
   // TBD get(int ind), negative ind index from last
   
@@ -297,7 +296,27 @@ class Buffer : public ImageNode
   virtual bool writeImage();
 };
 
-  
+ 
+////////////////////////////////
+// Accessed just like a buffer, but there is no deque, just ordered inputs like Add/Multiply have
+// TBD make a base classs with things common between Mux and Buffer held there
+
+// TBD need to think about making every port have an enable will prevent it from getting updated. 
+// Here that 'means if a mux input isn't getting used it shouldn't be updated.
+// Would this be easier to handle if it wasn't modelled after a Buffer, with separate Tap nodes
+// that pull out any input they choose?  The solution is every get call would set the update enable
+// to true for the port that it got a copy of, and the update stage will follow those enables and 
+// then clear them for the next round
+class Mux : public Buffer
+{
+  public:
+
+  Mux(); 
+ 
+  virtual bool update();
+  virtual bool handleKey(int key);
+};
+ 
 
 };
 #endif // ifdef __NODES_H__

@@ -45,14 +45,13 @@ namespace bm {
 
   Rot2D::Rot2D()
   {
-
+    cv::Mat tmp;
+    setImage("in",tmp);
     setSignal("angle", 0);
     setSignal("scale", 1.0);
     setSignal("center_x", 0.0);
     setSignal("center_y", 0.0);
     setSignal("border", 0.0);
-    cv::Mat tmp;
-    setImage("in",tmp);
   }
 
   bool Rot2D::update()
@@ -469,6 +468,7 @@ namespace bm {
     return true;
   }
 
+  // TBD am duplicating this code a lot
   bool Add::handleKey(int key)
   {
     bool valid_key = ImageNode::handleKey(key);
@@ -678,10 +678,10 @@ CMP_NE
   ////////////////////////////////////////
   Resize::Resize() 
   {
-    setSignal("fx", 0.2);
-    setSignal("fy", 0.2);
     cv::Mat tmp;
     setImage("in", tmp);
+    setSignal("fx", 0.2);
+    setSignal("fy", 0.2);
   }
 
   bool Resize::update()
@@ -729,9 +729,9 @@ CMP_NE
   ////////////////////////////////////////
   Flip::Flip() 
   {
-    setSignal("flip_code", 0);
     cv::Mat tmp;
     setImage("in", tmp);
+    setSignal("flip_code", 0);
   }
 
   bool Flip::update()

@@ -87,6 +87,8 @@ namespace bm {
 
   bool Connector::update()
   {
+    // TBD do_update
+
     is_dirty = set_dirty;
     set_dirty = false;
     if (src && src->parent) {
@@ -227,8 +229,10 @@ namespace bm {
     do_update(false)
   {
     vcol = cv::Scalar(200,200,200);
-  }
 
+    setSignal("enable", 1.0);
+  }
+  
 /*
   Node::Node(string name, cv::Point loc, cv::Mat graph_ui ) : 
     selected_type(NONE),
@@ -1017,9 +1021,9 @@ namespace bm {
   {
     vcol = cv::Scalar(0,255,255);
 
+    setSignal("value", 0);
     setSignal("min", 0);
     setSignal("max", 1);
-    setSignal("value", 0);
     setSignal("step", 0.1);
   }
 
@@ -1133,13 +1137,13 @@ namespace bm {
     //LOG(INFO) << "new buffer max_size " << this->max_size;
     vcol = cv::Scalar(200, 30, 200);
 
+    cv::Mat tmp;
+    setImage("in", tmp);
     // not really an input, but using inputs since outputs aren't distinct
     setInputPort(BUFFER, "out", NULL, "");
 
     //setImage("image", cv::Mat());
     setSignal("max_size", 100);
-    cv::Mat tmp;
-    setImage("in", tmp);
   }
  
   bool Buffer::manualUpdate()
@@ -1339,6 +1343,101 @@ namespace bm {
 
     //fs << "max_size" << max_size;
   }
+  
+   //////////////////////////////////////////////////////////////////////////////////////////
+  Mux::Mux() 
+  {
+    //this->max_size = max_size;
+    //LOG(INFO) << "new buffer max_size " << this->max_size;
+    vcol = cv::Scalar(200, 30, 200);
+
+    // not really an input, but using inputs since outputs aren't distinct
+    setInputPort(BUFFER, "out", NULL, "");
+
+    setSignal("cur_size", 2);
+    cv::Mat tmp;
+    setImage("inp0", tmp);
+    setImage("inp1", tmp);
+  }
+ 
+
+  bool Mux::update()
+  {
+    bool rv = Node::update(); // ImageNode::update();
+    if (!rv) return false;
+  
+    // don't want to buffer identical images
+    if (!isDirty(this,21)) { return true;}
+ 
+    // first pass to determine size
+    int cur_size = 0;
+    for (int i = 0; i < ports.size(); i++) {
+      if (ports[i]->type != IMAGE) continue;
+      const string port = ports[i]->name;
+      if (port.substr(0,3) != "inp") {
+        VLOG(5) << name << " : " << port.substr(0,3) << " " << port;
+        continue;
+      }
+      cur_size++;
+    }
+    frames.resize(cur_size);
+    setSignal("cur_size", cur_size);
+   
+    // second pass to copy Mat references into frames
+    int ind = 0;
+    for (int i = 0; (i < ports.size()) && (ind < frames.size()); i++) {
+      if (ports[i]->type != IMAGE) continue;
+      const string port = ports[i]->name;
+      if (port.substr(0,2) != "inp") {
+        VLOG(5) << name << " : " << port.substr(0,3) << " " << port;
+        continue;
+      }
+
+      frames[ind] = getImage(port);
+      ind++;
+    }
+
+    return true;
+  }
+
+  bool Mux::handleKey(int key)
+  {
+    bool valid_key = Buffer::handleKey(key);
+    if (valid_key) return true;
+   
+    valid_key = true;
+    if (key == '[') {
+    
+      // add an input addition port, TBD move to function
+      int add_num = 0;
+      for (int i = 0; i < ports.size(); i++) {
+        if (ports[i]->type != IMAGE) continue;
+        const string port = ports[i]->name;
+        
+        if (port.substr(0,3) != "inp") {
+          VLOG(1) << name << " : " << port.substr(0,2) << " " << port;
+          continue;
+        }
+        add_num++;
+      }
+      setSignal("cur_size", add_num+1);
+
+      // add a new addition port
+      const string port = "inp" + boost::lexical_cast<string>(add_num);
+      setInputPort(IMAGE, port, NULL, "out");
+       
+      // TBD make a way to delete a port
+    } else {
+      valid_key = false;
+    }
+
+    // TBD 
+    if (valid_key) setDirty();
+    
+    return valid_key;
+  }
+
+
   //////////////////////////////////////////////////////////////////////////////////////////
 
 }  // namespace bm

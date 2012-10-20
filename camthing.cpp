@@ -188,6 +188,8 @@ class CamThing : public Output
         node = getNode<GaussianBlur>(name, loc);
       } else if (type_id.compare("bm::Buffer") == 0) {
         node = getNode<Buffer>(name, loc);
+      } else if (type_id.compare("bm::Mux") == 0) {
+        node = getNode<Mux>(name, loc);
       } else if (type_id.compare("bm::FilterFIR") == 0) {
         node = getNode<FilterFIR>(name, loc);
       } else if (type_id.compare("bm::ImageDir") == 0) {
@@ -372,7 +374,8 @@ class CamThing : public Output
       
       cv::Point loc = cv::Point2f( x*dx + dx/4.0, y*dy + dy/4.0 );
       
-      LOG(INFO) << ind << " " << all_nodes[ind]->name << " " 
+      LOG(INFO) << ind << " " << getId(all_nodes[ind]) << " "
+          <<  all_nodes[ind]->name << " " 
           << all_nodes[ind]->loc.x << " " << all_nodes[ind]->loc.y 
           << " -> " << loc.x << " " << loc.y ;
       
@@ -627,6 +630,7 @@ class CamThing : public Output
 
     // process
     getNode<Buffer>("buffer", loc);
+    getNode<Mux>("mux", loc);
     getNode<FilterFIR>("filter_fir", loc);
 
     node = getNode<Sobel>("sobel", loc);
