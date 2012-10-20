@@ -220,6 +220,8 @@ class CamThing : public Output
         node = getNode<Bezier>(name, loc);
       } else if (type_id.compare("bm::Random") == 0) {
         node = getNode<Random>(name, loc);
+      } else if (type_id.compare("bm::Gaussian") == 0) {
+        node = getNode<Gaussian>(name, loc);
       } else if (type_id.compare("bm::Mouse") == 0) {
         node = getNode<Mouse>(name, loc);
 
@@ -653,6 +655,7 @@ class CamThing : public Output
     node = getNode<Signal>("signal0", loc);
     node = getNode<Saw>("saw", loc);
     node = getNode<Random>("random", loc);
+    node = getNode<Gaussian>("gaussian", loc);
     
     node = getNode<SigBuffer>("sig_buf", loc);
     

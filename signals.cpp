@@ -117,6 +117,27 @@ namespace bm {
     return true;
   }
 
+  Gaussian::Gaussian()
+  { 
+  }
+
+  bool Gaussian::update() 
+  {
+    // don't call Signal::update because it will contradict this update
+    if (!Node::update()) return false;
+    
+    const float min = getSignal("min");
+    const float max = getSignal("max");
+    const float rnd = rng.gaussian( fabs(max-min) );
+    float value = rnd + min;
+    
+    setSignal("value", value);
+    setDirty();
+
+    VLOG(3) << "Signal " << name << " " << value;
+    return true;
+  }
+
   SigBuffer::SigBuffer() 
   {
     setSignal("in", 0);
@@ -196,7 +217,7 @@ namespace bm {
         cv::line( vis,
           cv::Point2f((float)(i)/div,     vis.rows * (0.5 + val/sc)),
           cv::Point2f((float)(i + 1)/div, vis.rows * (0.5 + val2/sc)),
-          cv::Scalar(255), (div + 1), 4);
+          cv::Scalar(255,255,255), (div + 1), 4);
       }
      
       // an external signal will override, but no way for manual input to override

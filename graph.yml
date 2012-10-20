@@ -763,7 +763,7 @@ nodes:
             src_port: ""
    -
       ind: 20
-      typeid: "bm::Random"
+      typeid: "bm::Gaussian"
       name: random
       loc: [ 58., 612. ]
       inputs:

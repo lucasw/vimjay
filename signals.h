@@ -38,6 +38,16 @@ class Random : public Signal
   //virtual bool handleKey(int key);
 };
 
+class Gaussian : public Signal
+{
+  cv::RNG rng; 
+
+  public:
+  Gaussian(); 
+  virtual bool update();
+  //virtual bool handleKey(int key);
+};
+
 /////////////////////////////////
 class SigBuffer : public ImageNode
 {
