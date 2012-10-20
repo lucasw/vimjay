@@ -42,6 +42,7 @@ namespace bm {
     screen = DefaultScreenOfDisplay(display);
 
     XStoreName(display, win, name.c_str());
+    setSignal("decor",1);
   }
 
   bool Output::update()

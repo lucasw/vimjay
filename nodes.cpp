@@ -898,6 +898,7 @@ namespace bm {
       // create a default image
       cv::Mat out = getImage("out");
       if (out.empty()) {
+        // TBD make Config return mat just like this
         cv::Size sz = cv::Size(Config::inst()->im_width, Config::inst()->im_height);
         out = cv::Mat(sz, MAT_FORMAT_C3, cv::Scalar(0));
         setImage("out", out);
@@ -1193,11 +1194,13 @@ namespace bm {
     for (int i = 1; i < 4; i++) {
       int ind = i * frames.size() / 3;
       if (i == 3) ind = frames.size() - 1;
-      if (ind >= frames.size())  continue;
+      if (ind >= frames.size()) continue;
 
       if (frames[ind].empty()) { 
-        LOG(ERROR) << "frames " << i << CLERR << " is empty" << CLNRM;  continue; }
+        VLOG(1) << "frames " << i << CLERR << " is empty" << CLNRM;  continue; 
+      }
 
+      // TBD make this optional
       if (out.empty()) out = frames[0];//.clone();
 
       cv::Size sz = cv::Size(Config::inst()->thumb_width * 0.25, Config::inst()->thumb_height * 0.25);
@@ -1271,6 +1274,7 @@ namespace bm {
   cv::Mat Buffer::get(const float fr) 
   {
     const int ind = (int)(fr * (float)frames.size());
+    VLOG(1) << ind << " " << fr << " " << frames.size();
     //if (fr < 0) {
     //  ind = frames.size() - ind;
     //}
@@ -1344,7 +1348,7 @@ namespace bm {
     //fs << "max_size" << max_size;
   }
   
-   //////////////////////////////////////////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////////////////////////////////////
   Mux::Mux() 
   {
     //this->max_size = max_size;
@@ -1352,12 +1356,16 @@ namespace bm {
     vcol = cv::Scalar(200, 30, 200);
 
     // not really an input, but using inputs since outputs aren't distinct
-    setInputPort(BUFFER, "out", NULL, "");
 
     setSignal("cur_size", 2);
     cv::Mat tmp;
+    cv::Size sz = cv::Size(Config::inst()->im_width, Config::inst()->im_height);
+    tmp = cv::Mat(sz, MAT_FORMAT_C3, cv::Scalar(0));
     setImage("inp0", tmp);
     setImage("inp1", tmp);
+    frames.resize(2);
+    frames[0] = tmp;
+    frames[1] = tmp;
   }
  
 
@@ -1388,7 +1396,7 @@ namespace bm {
     for (int i = 0; (i < ports.size()) && (ind < frames.size()); i++) {
       if (ports[i]->type != IMAGE) continue;
       const string port = ports[i]->name;
-      if (port.substr(0,2) != "inp") {
+      if (port.substr(0,3) != "inp") {
         VLOG(5) << name << " : " << port.substr(0,3) << " " << port;
         continue;
       }

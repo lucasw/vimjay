@@ -49,7 +49,7 @@ typedef struct Hints{
 
 bool matToScreen(cv::Mat& tmp, Display* display, Window& win);
 
-cv::Mat XImage2OpenCVImage(XImage& _xImage, Display& _xDisplay, Screen& _xScreen);
+cv::Mat XImage2OpenCVImage(XImage& ximage, Display& _xDisplay, Screen& _xScreen);
 
 bool matToXImage(cv::Mat& im, XImage* ximage, Window& win, Display& display, Screen& screen);
 

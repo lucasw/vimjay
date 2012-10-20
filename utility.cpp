@@ -235,17 +235,17 @@ bool matToScreen(cv::Mat& tmp, Display* display, Window& win)
 
 /**
  * This is the function to demonstrate the conversion XImage to IplImage
- * @param _xImage the X image object
+ * @param ximage the X image object
  * @param _xDisplay the X display, for init see main() below
  * @param _xScreen the X screen, for init see main() below
  * @return
  */
-cv::Mat XImage2OpenCVImage(XImage& _xImage, Display& _xDisplay, Screen& _xScreen) 
+cv::Mat XImage2OpenCVImage(XImage& ximage, Display& _xDisplay, Screen& _xScreen) 
 {
     XColor color;
     //    cout << "WxH: " << imageData->width << "x" << imageData->height << ": " << imageData->data[0] << imageData->data[1] << imageData->data[2] << imageData->format << endl;
-    //IplImage* ocvImage = cvCreateImage(cv::Size(_xImage.width, _xImage.height), IPL_DEPTH_8U, 3);
-    cv::Mat tmp = cv::Mat(cv::Size(_xImage.width, _xImage.height), CV_8UC4);
+    //IplImage* ocvImage = cvCreateImage(cv::Size(ximage.width, ximage.height), IPL_DEPTH_8U, 3);
+    cv::Mat tmp = cv::Mat(cv::Size(ximage.width, ximage.height), CV_8UC4);
 
     if (_xScreen.depths->depth == 24) {
         // Some of the following code is borrowed from http://www.roard.com/docs/cookbook/cbsu19.html ("Screen grab with X11" - by Marko Riedel, with an idea by Alexander Malmberg)
@@ -300,9 +300,13 @@ cv::Mat XImage2OpenCVImage(XImage& _xImage, Display& _xDisplay, Screen& _xScreen
             bbits = 8;
         }
 
-        for (unsigned int x = 0; x < _xImage.width; x++) {
-            for (unsigned int y = 0; y < _xImage.height; y++) {
-                color.pixel = XGetPixel(&_xImage, x, y);
+       const int wd = ximage.width;
+       const int ht = ximage.height;
+       memcpy(tmp.data, ximage.data, wd*ht*4); 
+       #if 0
+        for (unsigned int x = 0; x < ximage.width; x++) {
+            for (unsigned int y = 0; y < ximage.height; y++) {
+                color.pixel = XGetPixel(&ximage, x, y);
                 colorChannel[0] = ((color.pixel >> bshift) & ((1 << bbits) - 1)) << (8 - bbits);
                 colorChannel[1] = ((color.pixel >> gshift) & ((1 << gbits) - 1)) << (8 - gbits);
                 colorChannel[2] = ((color.pixel >> rshift) & ((1 << rbits) - 1)) << (8 - rbits);
@@ -310,11 +314,12 @@ cv::Mat XImage2OpenCVImage(XImage& _xImage, Display& _xDisplay, Screen& _xScreen
                 tmp.at<cv::Vec4b> (y,x) = col;
             }
         }
+        #endif
     } else { // Extremly slow alternative for non 24bit-depth
         Colormap colmap = DefaultColormap(&_xDisplay, DefaultScreen(&_xDisplay));
-        for (unsigned int x = 0; x < _xImage.width; x++) {
-            for (unsigned int y = 0; y < _xImage.height; y++) {
-                color.pixel = XGetPixel(&_xImage, x, y);
+        for (unsigned int x = 0; x < ximage.width; x++) {
+            for (unsigned int y = 0; y < ximage.height; y++) {
+                color.pixel = XGetPixel(&ximage, x, y);
                 XQueryColor(&_xDisplay, colmap, &color);
                 cv::Vec4b col = cv::Vec4b(color.blue, color.green, color.red,0);
                 tmp.at<cv::Vec4b> (y,x) = col;
