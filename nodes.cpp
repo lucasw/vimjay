@@ -221,6 +221,22 @@ namespace bm {
     cv::putText(graph_ui, port_info.str(), parent->loc + loc + ui_offset, 1, 1, col, 1);
   }
 
+  // Buffers are different than Signals and Images because it isn't desirable to copy them (though maybe the overhead isn't that bad for small buffers?)
+  // especially the image types.  Signal buffers may need different treatment, or some master templating scheme
+  // needs to take care of it.
+  #if 0
+  Buffer* Connector::getBuffer()
+  {
+    Buffer* im_in = NULL;
+    
+    if (
+   
+    //dynamic_cast<Buffer*> (con->src->parent);
+  
+  }
+  #endif
+  
+  //////////////////////////////////////////////////////////////////////////////////////////
   //////////////////////////////////////////////////////////////////////////////////////////
   Node::Node() : 
     selected_type(NONE),
@@ -822,6 +838,7 @@ namespace bm {
 
     if ((!con->src) || (!con->src->parent)) return tmp;
 
+    //Buffer* im_in = con->getBuffer(); // dynamic_cast<Buffer*> (con->src->parent);
     Buffer* im_in = dynamic_cast<Buffer*> (con->src->parent);
 
     if (!im_in) {
@@ -834,7 +851,6 @@ namespace bm {
 
     return image;
   }
-
 
   cv::Mat Node::getBuffer(
     const std::string port,
@@ -868,7 +884,40 @@ namespace bm {
 
     return image;
   }
- 
+
+  #if 0
+  Node* Node::getBuffer(
+    const std::string port)
+  {
+  }
+  #endif
+
+  // Buffers are different from Signals and Images, they don't have a lower level type like float or Mat they contain- the Buffer node is instead
+  // passed around
+  bool Node::setBuffer(
+    const std::string port
+  )
+  {
+    Connector* con = NULL;
+    string src_port;
+    if (!getInputPort(BUFFER, port, con, src_port)) {
+      // create it since it doesn't exist
+      setInputPort(BUFFER, port, NULL, "");
+      // now get it again TBD actually check rv
+      if (!getInputPort(BUFFER, port, con, src_port)) {
+        LOG(ERROR) << "still can't get connector";
+        return false;
+      }
+    }
+    
+    // can't set signal if it is controlled by src port 
+    //if (con->src) return false;
+
+    con->set_dirty = true;
+
+    return true;
+  }
+
   //////////////////////////////////////////////////////////////////////////////////////////
   ImageNode::ImageNode() : Node()
   {
@@ -1444,6 +1493,128 @@ namespace bm {
     
     return valid_key;
   }
+
+
+  ////////////////////////
+  // Muxes of Buffers are interesting since there is no Buffer of Buffers object and associated Taps,
+  // this makes a connection so any Tap operating on a Buffer coming through the out of this node will get forwarded to
+  // the proper source Buffer determined by ind.  A properly templated Buffer type might be able to make this simpler and more 
+  // inuitive.
+  MuxBuffer::MuxBuffer() :
+    selected_buffer(NULL) 
+  {
+    vcol = cv::Scalar(200, 30, 200);
+
+    setSignal("ind",0);
+    setSignal("cur_size", 2);
+    setBuffer("inp0");
+    setBuffer("inp1");
+    setBuffer("out");
+  }
+ 
+
+  bool MuxBuffer::update()
+  {
+    bool rv = Node::update(); // ImageNode::update();
+    if (!rv) return false;
+  
+    // don't want to buffer identical images
+    if (!isDirty(this, 21)) { return true; } 
+
+    int cur_size = getSignal("cur_size");
+    const int ind = ((int)getSignal("ind")) % cur_size;
+
+    // first pass to determine size
+    cur_size = 0;
+    for (int i = 0; i < ports.size(); i++) {
+      if (ports[i]->type != BUFFER) continue;
+      const string port = ports[i]->name;
+      if (port.substr(0,3) != "inp") {
+        VLOG(5) << name << " : " << port.substr(0,3) << " " << port;
+        continue;
+      }
+      if (cur_size == ind) {
+        if ((ports[i]->src) && (ports[i]->src->parent)) {
+          selected_buffer = dynamic_cast<Buffer*> (ports[i]->src->parent);
+        }
+      }
+      cur_size++;
+    }
+    frames.resize(cur_size);
+    setSignal("cur_size", cur_size);
+  
+    #if 0
+    // second pass to copy Mat references into frames
+    int ind = 0;
+    for (int i = 0; (i < ports.size()) && (ind < frames.size()); i++) {
+      if (ports[i]->type != BUFFER) continue;
+      const string port = ports[i]->name;
+      if (port.substr(0,3) != "inp") {
+        VLOG(5) << name << " : " << port.substr(0,3) << " " << port;
+        continue;
+      }
+
+      frames[ind] = getImage(port);
+      ind++;
+    }
+    #endif
+
+    return true;
+  }
+
+  // not the same as the inherited get on purpose
+  // many callers per time step could be calling this
+  cv::Mat MuxBuffer::get(const float fr) 
+  {
+    cv::Mat tmp;
+    if (!selected_buffer) return tmp;
+    return selected_buffer->get(fr);
+  }
+
+  cv::Mat MuxBuffer::get(int ind)
+  {
+    cv::Mat tmp;
+    if (!selected_buffer) return tmp;
+    return selected_buffer->get(ind);
+  }
+
+  bool MuxBuffer::handleKey(int key)
+  {
+    bool valid_key = Buffer::handleKey(key);
+    if (valid_key) return true;
+   
+    valid_key = true;
+    if (key == '[') {
+    
+      // add an input addition port, TBD move to function
+      int add_num = 0;
+      for (int i = 0; i < ports.size(); i++) {
+        if (ports[i]->type != IMAGE) continue;
+        const string port = ports[i]->name;
+        
+        if (port.substr(0,3) != "inp") {
+          VLOG(1) << name << " : " << port.substr(0,2) << " " << port;
+          continue;
+        }
+        add_num++;
+      }
+      setSignal("cur_size", add_num+1);
+
+      // add a new addition port
+      const string port = "inp" + boost::lexical_cast<string>(add_num);
+      setInputPort(IMAGE, port, NULL, "out");
+       
+      // TBD make a way to delete a port
+    } else {
+      valid_key = false;
+    }
+
+    // TBD 
+    if (valid_key) setDirty();
+    
+    return valid_key;
+  }
+
 
 
   //////////////////////////////////////////////////////////////////////////////////////////

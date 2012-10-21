@@ -48,6 +48,7 @@ namespace bm {
 static bool bool_val;
 
 class Node;
+//class Buffer;
 
 enum conType {  
   NONE,
@@ -99,6 +100,7 @@ class Connector
 
   boost::mutex im_mutex;
 
+  //Buffer* getBuffer();
 };
 
 //typedef std::map<std::string, std::pair<Node*, std::string> > inputsItemType;
@@ -203,6 +205,7 @@ class Node
 
   bool setSignal(const std::string port, const float val);
 
+  // TBD rename these, they are really getBufferImage or similar
   cv::Mat getBuffer(
     const std::string port,
     const float val);
@@ -212,6 +215,12 @@ class Node
     const std::string port,
     const int val);
     //cv::Mat& image);
+
+  //cv::Mat getBuffer(
+  //  const std::string port,
+
+  // There is no way to store a Buffer outside of a node, so all setting does is creating a connector port
+  bool setBuffer(const std::string port);
 
   virtual bool handleKey(int key);
 };
@@ -315,6 +324,20 @@ class Mux : public Buffer
   virtual bool handleKey(int key);
 };
  
+class MuxBuffer : public Buffer
+{
+  Buffer* selected_buffer;
+
+  public:
+  MuxBuffer(); 
+ 
+  virtual cv::Mat get(const float fr);
+  virtual cv::Mat get(int ind);
+
+  virtual bool update();
+  virtual bool handleKey(int key);
+};
+
 
 };
 #endif // ifdef __NODES_H__

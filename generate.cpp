@@ -74,6 +74,32 @@ bool Bezier::update()
   return true;
 }
 
+Noise::Noise()
+{
+  setSignal("mean", 10);
+  setSignal("stddev", 128);
+}
+
+bool Noise::update()
+{
+  if (!Node::update()) return false;
+  
+  cv::Mat out = cv::Mat(cv::Size(Config::inst()->im_width, Config::inst()->im_height), MAT_FORMAT_C3);
+
+  int type = (int)getSignal("type");
+  if (type == 0) {
+    // uniform
+    cv::randu(out, cv::Scalar(0,0,0,0), cv::Scalar(255,255,255,255)); 
+  } else {
+    int mean = getSignal("mean");
+    int stddev = getSignal("stddev");
+    // TBD handle alpha channel
+    cv::randn(out, cv::Scalar(mean,mean,mean,mean), cv::Scalar(stddev,stddev,stddev,stddev)); 
+
+  }
+  setImage("out", out);
+}
+
 
 } // namespace bm
 

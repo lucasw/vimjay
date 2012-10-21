@@ -48,6 +48,7 @@ misc_nodes.cpp
 signals.cpp
 filter.cpp
 generate.cpp
+structure.cpp
 screencap.cpp
 utility.cpp
 output.cpp

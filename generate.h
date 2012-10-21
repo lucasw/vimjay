@@ -18,5 +18,13 @@ class Bezier : public ImageNode
   virtual bool update();
 };
 
+class Noise : public ImageNode
+{
+  public:
+  Noise();
+  virtual bool update();
+};
+
+
 } // namespace bm
 #endif // __FILTER_H__

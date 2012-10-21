@@ -86,7 +86,7 @@ namespace bm {
 
     cv::Mat rot = cv::getRotationMatrix2D(center, angle, scale);
     cv::Mat tmp;
-    cv::warpAffine(tmp_in, tmp, rot, tmp_in.size(), INTER_NEAREST, BORDER_REFLECT);
+    cv::warpAffine(tmp_in, tmp, rot, tmp_in.size(), INTER_NEAREST, border_type);
 
     setImage("out", tmp);
   }
@@ -331,7 +331,7 @@ namespace bm {
     if (isDirty(this,4)) {
       float value = getSignal("value");     
       
-      VLOG(1) << name << " update " << value;
+      VLOG(5) << name << " update " << value;
       cv::Mat out; // = getImage("out");
       out = getBuffer("buffer", value); //, tmp)) return false;
       
