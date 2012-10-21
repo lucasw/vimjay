@@ -45,6 +45,7 @@
 #include "screencap.h"
 #include "output.h"
 #include "input.h"
+#include "structure.h"
 
 using namespace cv;
 using namespace std;
@@ -218,8 +219,12 @@ class CamThing : public Output
         node = getNode<Tap>(name, loc);
       } else if (type_id.compare("bm::TapInd") == 0) {
         node = getNode<TapInd>(name, loc);
+      } else if (type_id.compare("bm::Contour") == 0) {
+        node = getNode<Contour>(name, loc);
       } else if (type_id.compare("bm::Bezier") == 0) {
         node = getNode<Bezier>(name, loc);
+      } else if (type_id.compare("bm::Noise") == 0) {
+        node = getNode<Noise>(name, loc);
       } else if (type_id.compare("bm::Random") == 0) {
         node = getNode<Random>(name, loc);
       } else if (type_id.compare("bm::Gaussian") == 0) {
@@ -646,9 +651,13 @@ class CamThing : public Output
     
     // generate
     node = getNode<Bezier>("bezier", loc);
+    node = getNode<Noise>("noise", loc);
 
     node = getNode<Tap>("tap0", loc);
     node = getNode<TapInd>("tapind0", loc);
+
+    // structure
+    node = getNode<Contour>("contour", loc);
 
     // Signals
     // inputs

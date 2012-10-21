@@ -36,7 +36,7 @@ FilterFIR::FilterFIR()
 void FilterFIR::setup(const std::vector<float> new_xi)
 {
   xi = new_xi;
-  max_size = new_xi.size();
+  setSignal("max_size", new_xi.size());
 }
 
 bool FilterFIR::update()

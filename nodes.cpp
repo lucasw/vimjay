@@ -1254,7 +1254,7 @@ namespace bm {
     frames.push_back(new_frame);
     
     if (restrict_size) {
-      while (frames.size() > max_size) frames.pop_front();
+      while (frames.size() > getSignal("max_size")) frames.pop_front();
     }
 
     VLOG(4) << name << " sz " << frames.size();
@@ -1274,7 +1274,7 @@ namespace bm {
   cv::Mat Buffer::get(const float fr) 
   {
     const int ind = (int)(fr * (float)frames.size());
-    VLOG(1) << ind << " " << fr << " " << frames.size();
+    VLOG(6) << ind << " " << fr << " " << frames.size();
     //if (fr < 0) {
     //  ind = frames.size() - ind;
     //}

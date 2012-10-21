@@ -276,8 +276,6 @@ class Buffer : public ImageNode
 
   Buffer(); 
   
-  int max_size;
- 
   bool manualUpdate();
   virtual bool update();
 
