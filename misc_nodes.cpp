@@ -256,17 +256,19 @@ namespace bm {
    for (int i=0; i < files.size(); i++) {
       const string next_im = files[i];
       cv::Mat new_out = cv::imread( next_im );
-
+   
+      if (new_out.data == NULL) { //.empty()) {
+        LOG(WARNING) << name << " not an image? " << next_im;
+        continue;
+      }
+   
+     
       cv::Mat tmp0 = cv::Mat(new_out.size(), CV_8UC4, cv::Scalar(0)); 
         // just calling reshape(4) doesn't do the channel reassignment like this does
         int ch[] = {0,0, 1,1, 2,2}; 
         mixChannels(&new_out, 1, &tmp0, 1, ch, 3 );
 
-      if (tmp0.data == NULL) { //.empty()) {
-        LOG(WARNING) << name << " not an image? " << next_im;
-        continue;
-      }
-      
+         
       VLOG(1) << name << " " << i << " loaded image " << next_im;
 
       cv::Size sz = cv::Size(Config::inst()->im_width, Config::inst()->im_height);

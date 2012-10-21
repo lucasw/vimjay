@@ -1,5 +1,5 @@
 %YAML:1.0
-date: "Fri Oct 19 17:24:35 2012\n"
+date: "Sat Oct 20 22:16:48 2012\n"
 nodes:
    -
       ind: 0
@@ -44,13 +44,13 @@ nodes:
          -
             type: 1
             name: "2_x"
-            value: 8.6844946289062500e+02
+            value: 3.7357037353515625e+02
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: "2_y"
-            value: 8.8394165039062500e-02
+            value: 4.8818969726562500e-01
             src_ind: -1
             src_port: ""
          -
@@ -155,7 +155,7 @@ nodes:
          -
             type: 1
             name: enable
-            value: 0.
+            value: 1.
             src_ind: -1
             src_port: ""
          -
@@ -242,7 +242,7 @@ nodes:
             src_port: ""
    -
       ind: 5
-      typeid: "bm::MuxBuffer"
+      typeid: "bm::Mux"
       name: mux_buffer
       loc: [ 1034., 36. ]
       inputs:
@@ -275,14 +275,24 @@ nodes:
             src_port: ""
          -
             type: 1
-            name: ind
-            value: -2.
+            name: cur_size
+            value: 2.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 2
+            name: inp0
+            src_ind: -1
+            src_port: ""
+         -
+            type: 2
+            name: inp1
             src_ind: -1
             src_port: ""
          -
             type: 1
-            name: cur_size
-            value: 2.
+            name: ind
+            value: 0.
             src_ind: -1
             src_port: ""
          -
@@ -733,12 +743,6 @@ nodes:
             src_port: ""
          -
             type: 1
-            name: type
-            value: 0.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
             name: mean
             value: 10.
             src_ind: -1
@@ -747,6 +751,12 @@ nodes:
             type: 1
             name: stddev
             value: 128.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: type
+            value: 0.
             src_ind: -1
             src_port: ""
    -
@@ -797,7 +807,7 @@ nodes:
          -
             type: 1
             name: value
-            value: 1.4171178340911865e+00
+            value: 3.0682368278503418e+00
             src_ind: 24
             src_port: value
          -
@@ -848,13 +858,13 @@ nodes:
          -
             type: 1
             name: "2_x"
-            value: 4.9749783325195312e+02
+            value: 1.5341200256347656e+02
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: "2_y"
-            value: 4.4406433105468750e+01
+            value: 4.7539294433593750e+02
             src_ind: -1
             src_port: ""
    -
@@ -944,7 +954,7 @@ nodes:
          -
             type: 1
             name: value
-            value: 1.4171178340911865e+00
+            value: 3.0682368278503418e+00
             src_ind: -1
             src_port: ""
          -
@@ -1092,7 +1102,7 @@ nodes:
       ind: 28
       typeid: "bm::Buffer"
       name: buffer_2
-      loc: [ 740., 1.3600006103515625e+02 ]
+      loc: [ 740., 136. ]
       inputs:
          -
             type: 1
