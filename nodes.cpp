@@ -1214,6 +1214,7 @@ namespace bm {
 
   bool Buffer::update()
   {
+    //VLOG(1) << name << " buffer update";
     bool rv = Node::update(); // ImageNode::update();
     if (!rv) return false;
   
@@ -1519,7 +1520,7 @@ namespace bm {
 
   bool MuxBuffer::update()
   {
-    VLOG(1) << "mux buffer update";
+    //VLOG(1) << name << "mux buffer update";
     bool rv = Node::update(); // ImageNode::update();
     if (!rv) return false;
   

@@ -192,7 +192,7 @@ class CamThing : public Output
       } else if (type_id.compare("bm::Mux") == 0) {
         node = getNode<Mux>(name, loc);
       } else if (type_id.compare("bm::MuxBuffer") == 0) {
-        node = getNode<Mux>(name, loc);
+        node = getNode<MuxBuffer>(name, loc);
       } else if (type_id.compare("bm::FilterFIR") == 0) {
         node = getNode<FilterFIR>(name, loc);
       } else if (type_id.compare("bm::ImageDir") == 0) {

@@ -242,7 +242,7 @@ nodes:
             src_port: ""
    -
       ind: 5
-      typeid: "bm::Mux"
+      typeid: "bm::MuxBuffer"
       name: mux_buffer
       loc: [ 1034., 36. ]
       inputs:
