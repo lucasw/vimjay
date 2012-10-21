@@ -80,7 +80,7 @@ namespace bm {
     type(SIGNAL),
     value(0),
     name(""),
-    is_dirty(true)
+    is_dirty(false)
   {
 
   }
@@ -130,6 +130,8 @@ namespace bm {
     cv::Scalar hash_col = hashStringColor(/*parent->name +*/ typeToString(type) + name);
     VLOG(6) << name << " " << hash_col[0] << " " << hash_col[1] << " " << hash_col[2];
 
+    const int bval = 150 + is_dirty * 105;
+    hash_col *= (is_dirty ? 1.0 :0.6);
     // draw a box around the port
     cv::Scalar rect_col = cv::Scalar(40,50,40);
     if (highlight) {
@@ -209,13 +211,14 @@ namespace bm {
 
     // color based on type late
     cv::Scalar col = cv::Scalar(200,200,200);
+
     if (type == SIGNAL) {
-      col = cv::Scalar(55,255,255);
+      col = cv::Scalar(55, bval, bval);
       port_info << " " << value;
     } else if (type == IMAGE) {
-      col = cv::Scalar(255,55,255);
+      col = cv::Scalar(bval,55,bval);
     } else if (type == BUFFER) {
-      col = cv::Scalar(255,255,55);
+      col = cv::Scalar(bval,bval,55);
     }
     
     cv::putText(graph_ui, port_info.str(), parent->loc + loc + ui_offset, 1, 1, col, 1);
@@ -342,6 +345,7 @@ namespace bm {
 
     for (int i = 0; i < ports.size(); i++)
     {
+      // already updated if named enable
       if (ports[i]->name != "enable")
         ports[i]->update();
         // TBD may want to track per output dirtiness later?
@@ -1507,14 +1511,15 @@ namespace bm {
 
     setSignal("ind",0);
     setSignal("cur_size", 2);
+    setBuffer("out");
     setBuffer("inp0");
     setBuffer("inp1");
-    setBuffer("out");
   }
  
 
   bool MuxBuffer::update()
   {
+    VLOG(1) << "mux buffer update";
     bool rv = Node::update(); // ImageNode::update();
     if (!rv) return false;
   
@@ -1567,7 +1572,9 @@ namespace bm {
   cv::Mat MuxBuffer::get(const float fr) 
   {
     cv::Mat tmp;
-    if (!selected_buffer) return tmp;
+    if (!selected_buffer) {
+      return tmp;
+    }
     return selected_buffer->get(fr);
   }
 
