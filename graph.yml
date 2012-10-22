@@ -1,5 +1,5 @@
 %YAML:1.0
-date: "Sun Oct 21 20:54:55 2012\n"
+date: "Sun Oct 21 21:29:40 2012\n"
 nodes:
    -
       ind: 0
@@ -44,13 +44,19 @@ nodes:
          -
             type: 1
             name: "2_x"
-            value: 4.5710815429687500e+02
+            value: 4.6650305175781250e+02
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: "2_y"
-            value: 1.6128173828125000e+01
+            value: 4.2395111083984375e+02
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: "2_1"
+            value: 1.
             src_ind: -1
             src_port: ""
    -
@@ -154,7 +160,7 @@ nodes:
          -
             type: 1
             name: enable
-            value: 1.
+            value: 0.
             src_ind: -1
             src_port: ""
          -
@@ -762,7 +768,7 @@ nodes:
          -
             type: 1
             name: value
-            value: 9.6322971582412720e-01
+            value: 3.5601556301116943e-01
             src_ind: 24
             src_port: value
          -
@@ -770,6 +776,12 @@ nodes:
             name: buffer
             src_ind: 4
             src_port: out
+         -
+            type: 1
+            name: actual_ind
+            value: 35.
+            src_ind: -1
+            src_port: ""
    -
       ind: 20
       typeid: "bm::TapInd"
@@ -838,6 +850,24 @@ nodes:
             value: 0.
             src_ind: -1
             src_port: ""
+         -
+            type: 1
+            name: "2_x"
+            value: 6.0391223144531250e+02
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: "2_y"
+            value: 4.6777700805664062e+02
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: "2_1"
+            value: 0.
+            src_ind: -1
+            src_port: ""
    -
       ind: 23
       typeid: "bm::Signal"
@@ -889,7 +919,7 @@ nodes:
          -
             type: 1
             name: value
-            value: 9.6322971582412720e-01
+            value: 3.5601556301116943e-01
             src_ind: -1
             src_port: ""
          -
@@ -907,7 +937,7 @@ nodes:
          -
             type: 1
             name: step
-            value: 1.7970100452657789e-04
+            value: -7.6120556332170963e-04
             src_ind: -1
             src_port: ""
    -

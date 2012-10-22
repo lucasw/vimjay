@@ -766,7 +766,8 @@ namespace bm {
  // get an imagenode image from this nodes imagenode inputs
   cv::Mat Node::getImage(
     const string port,
-    bool& valid)
+    bool& valid,
+    bool& is_dirty)
   {
     /*
     string type = "ImageNode";
@@ -792,6 +793,7 @@ namespace bm {
     {
       boost::mutex::scoped_lock l(con->im_mutex);
       im = con->im;
+      is_dirty = con->is_dirty;
     }
     valid = true;
 
@@ -1207,8 +1209,9 @@ namespace bm {
  
   bool Buffer::manualUpdate()
   {
-    cv::Mat in = getImage("in");
-    if (!in.empty()) 
+    bool b1, con_is_dirty;
+    cv::Mat in = getImage("in", b1, con_is_dirty);
+    if (!in.empty() && con_is_dirty) 
       add(in); 
     
     setSignal("cur_size", frames.size());

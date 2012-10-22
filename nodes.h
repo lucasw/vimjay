@@ -193,7 +193,8 @@ class Node
   // nodes probably shouldn't call them?
   cv::Mat getImage(
       const std::string port,
-      bool& valid = bool_val);//,
+      bool& valid = bool_val,
+      bool& is_dirty = bool_val);//,
       //bool& is_dirty);
       //const bool require_dirty= false);
   
