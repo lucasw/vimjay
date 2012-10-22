@@ -625,11 +625,11 @@ class CamThing : public Output
 
     // Images
     // inputs
-    //node = getNode<Webcam>("web_cam", loc);
+    node = getNode<Webcam>("web_cam", loc);
     //node->update();
 
     node = getNode<ScreenCap>("screen_cap", loc);
-    node->update();
+    //node->update();
 
     ImageDir* im_dir = getNode<ImageDir>("image_dir", loc);
     im_dir->dir = "../data/";

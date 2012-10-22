@@ -314,7 +314,6 @@ namespace bm {
 
     getSignal("value");
     getBuffer("buffer",0);
-    
     setInputPort(BUFFER,"buffer", NULL, "out");
     //getImage("Buffer");
   }
@@ -335,7 +334,9 @@ namespace bm {
       
       VLOG(5) << name << " update " << value;
       cv::Mat out; // = getImage("out");
-      out = getBuffer("buffer", value); //, tmp)) return false;
+      int actual_ind;
+      out = getBuffer("buffer", value, actual_ind); //, tmp)) return false;
+      setSignal("actual_ind", actual_ind);
       
       if (out.empty()) return false;
 
@@ -360,7 +361,9 @@ namespace bm {
 
       VLOG(2) << name << " update " << ind;
       cv::Mat out; //= getImage("out");
-      out = getBuffer("buffer", ind);
+      int actual_ind;
+      out = getBuffer("buffer", ind, actual_ind);
+      setSignal("actual_ind", actual_ind);
       if (out.empty())  return false;
 
       setImage("out", out);

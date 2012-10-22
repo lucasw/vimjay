@@ -18,6 +18,7 @@
 
 namespace bm {
 
+static int ind;
 // TBD need threshold filter
 // resize (or build resizing into input/output
 // image directory loading- just a no input buffer after finished (need to resize every loaded image)
@@ -208,12 +209,16 @@ class Node
   // TBD rename these, they are really getBufferImage or similar
   cv::Mat getBuffer(
     const std::string port,
-    const float val);
+    const float val,
+    int& actual_ind = ind
+    );
     //cv::Mat& image);
 
   cv::Mat getBuffer(
     const std::string port,
-    const int val);
+    const int val,
+    int& actual_ind = ind
+    );
     //cv::Mat& image);
 
   //cv::Mat getBuffer(
@@ -274,7 +279,6 @@ class Signal : public Node
   */
 };
 
-
 ////////////////////////////////
 class Buffer : public ImageNode
 {
@@ -292,8 +296,8 @@ class Buffer : public ImageNode
   virtual bool draw(cv::Point2f ui_offset);
   
   virtual cv::Mat get();
-  virtual cv::Mat get(const float fr);
-  virtual cv::Mat get(int ind);
+  virtual cv::Mat get(const float fr, int& actual_ind=ind);
+  virtual cv::Mat get(int ind, int& actual_ind=ind);
 
   // TBD get(int ind), negative ind index from last
   
@@ -331,8 +335,8 @@ class MuxBuffer : public Buffer
   public:
   MuxBuffer(); 
  
-  virtual cv::Mat get(const float fr);
-  virtual cv::Mat get(int ind);
+  virtual cv::Mat get(const float fr, int& actual_ind=ind);
+  virtual cv::Mat get(int ind, int& actual_ind= ind);
 
   virtual bool update();
   virtual bool handleKey(int key);

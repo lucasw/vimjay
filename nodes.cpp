@@ -95,7 +95,8 @@ namespace bm {
       src->parent->update();
       if (src->parent->isDirty(this, 0)) {
         is_dirty = true;
-        
+        //set_dirty=true;
+
         // now get dirtied data
         value = src->value;
         im = src->im;
@@ -277,6 +278,7 @@ namespace bm {
 
     //boost::mutex::scoped_lock l(port_mutex);
     for (int i = 0; i < ports.size(); i++) {
+      // TBD look for per-port enable here
       if (ports[i]->src) ports[i]->src->parent->setUpdate();
     }
     
@@ -825,7 +827,8 @@ namespace bm {
 
   cv::Mat Node::getBuffer(
     const std::string port,
-    const float val)
+    const float val,
+    int& actual_ind)
   {
    
     cv::Mat tmp;
@@ -850,7 +853,7 @@ namespace bm {
       return tmp;
     }
 
-    cv::Mat image = im_in->get(val);
+    cv::Mat image = im_in->get(val, actual_ind);
     con->im = image;
 
     return image;
@@ -858,7 +861,9 @@ namespace bm {
 
   cv::Mat Node::getBuffer(
     const std::string port,
-    const int val)
+    const int val,
+    int& actual_ind
+    )
     //cv::Mat& image)
   {
     
@@ -883,7 +888,7 @@ namespace bm {
       return tmp;
     }
 
-    cv::Mat image = im_in->get(val);
+    cv::Mat image = im_in->get(val,actual_ind);
     con->im = image;
 
     return image;
@@ -1219,7 +1224,8 @@ namespace bm {
     if (!rv) return false;
   
     // don't want to buffer identical images
-    if (!isDirty(this,21)) { return true;}
+    const bool rv1 = isDirty(this,21);
+    if (!rv1) { return true;}
   
     /*
     float val = getSignal("max_size");
@@ -1237,7 +1243,12 @@ namespace bm {
       VLOG(15) << frames.size();
       imshow(name, out);
     }
-
+    
+    // clear any dirtiness derived from setting the image or cur ind etc.
+    const bool rv2 = isDirty(this,21);
+    const bool rv3 = isDirty(this,21);
+    LOG(INFO) << "buf dirty " << rv1 << " " << rv2 << " " << rv3;
+  
     return true;
   }
 
@@ -1249,8 +1260,10 @@ namespace bm {
       int ind = i * frames.size() / 3;
       if (i == 3) ind = frames.size() - 1;
       if (ind >= frames.size()) continue;
+      
+      cv::Mat frame = frames[ind];
 
-      if (frames[ind].empty()) { 
+      if (frame.empty()) { 
         VLOG(1) << "frames " << i << CLERR << " is empty" << CLNRM;  continue; 
       }
 
@@ -1260,7 +1273,7 @@ namespace bm {
       cv::Size sz = cv::Size(Config::inst()->thumb_width * 0.25, Config::inst()->thumb_height * 0.25);
 
       cv::Mat thumbnail = cv::Mat(sz, CV_8UC4);
-      cv::resize(frames[ind], thumbnail, sz, 0, 0, cv::INTER_NEAREST );
+      cv::resize(frame, thumbnail, sz, 0, 0, cv::INTER_NEAREST );
       //cv::resize(tmp->get(), thumbnail, cv::INTER_NEAREST );
 
       const float xth = loc.x + ui_offset.x + 100 + i * sz.width;
@@ -1272,12 +1285,6 @@ namespace bm {
         cv::Mat graph_roi = graph_ui(cv::Rect(xth, yth, sz.width, sz.height));
         graph_roi = cv::Scalar(0, 0, 255);
         thumbnail.copyTo(graph_roi);
-      }
-    }
-
-    if (VLOG_IS_ON(9)) {
-      for (int i = 0; i < frames.size() ; i++) {
-        imshow(name + boost::lexical_cast<string>(i), frames[i]);
       }
     }
     
@@ -1325,9 +1332,10 @@ namespace bm {
 
   // not the same as the inherited get on purpose
   // many callers per time step could be calling this
-  cv::Mat Buffer::get(const float fr) 
+  cv::Mat Buffer::get(const float fr, int& actual_ind) 
   {
     const int ind = (int)(fr * (float)frames.size());
+    actual_ind = ind;
     VLOG(6) << ind << " " << fr << " " << frames.size();
     //if (fr < 0) {
     //  ind = frames.size() - ind;
@@ -1336,7 +1344,7 @@ namespace bm {
     return get(ind);
   }
 
-  cv::Mat Buffer::get(int ind)
+  cv::Mat Buffer::get(int ind, int& actual_ind)
   {
     if (frames.size() < 1) {
       VLOG(1) << "no frames returning gray";
@@ -1348,6 +1356,7 @@ namespace bm {
     //if (ind > frames.size() - 1) ind = frames.size() - 1;
     //if (ind < 0) ind = 0;
     ind %= frames.size();
+    actual_ind = ind;
   
     VLOG(2) << name << " ind " << ind;
 
@@ -1570,20 +1579,20 @@ namespace bm {
 
   // not the same as the inherited get on purpose
   // many callers per time step could be calling this
-  cv::Mat MuxBuffer::get(const float fr) 
+  cv::Mat MuxBuffer::get(const float fr, int& actual_ind) 
   {
     cv::Mat tmp;
     if (!selected_buffer) {
       return tmp;
     }
-    return selected_buffer->get(fr);
+    return selected_buffer->get(fr, actual_ind);
   }
 
-  cv::Mat MuxBuffer::get(int ind)
+  cv::Mat MuxBuffer::get(int ind, int& actual_ind)
   {
     cv::Mat tmp;
     if (!selected_buffer) return tmp;
-    return selected_buffer->get(ind);
+    return selected_buffer->get(ind, actual_ind);
   }
 
   bool MuxBuffer::handleKey(int key)
