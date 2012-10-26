@@ -58,10 +58,36 @@ enum conType {
   BUFFER
 };
 
+// base class for Connector and Node to inherit from
+class Elem
+{
+  protected:
+
+  // this structure tracks arbitrary numbers of callers to see if there have been
+  // change since the last call
+  std::map<const void*, std::map<int, bool> > dirty_hash;  
+ 
+  public:
+  Elem();
+
+  std::string name;
+  // is the output of this node different from the last  timestep
+  //bool is_dirty;
+  // has the node changed since the last time the pointer 
+  // parameter supplied has called this function (and cleared it)
+  bool isDirty(
+      const void* caller, 
+      const int ind=0, 
+      const bool clear_dirty=true);
+  
+  bool setDirty();
+
+};
+
 // TBD original chose this type because of access convenience, but since 
 // accessor function prevent others from using it directly then the convenience 
 // is irrelavent.  Probably should just have a vector of structs
-class Connector
+class Connector : public Elem
 {
   public:
   Connector();
@@ -75,7 +101,6 @@ class Connector
   Node* parent;
 
   // src types
-  std::string name;
   conType type;
  
   cv::Point2f loc;
@@ -87,11 +112,8 @@ class Connector
   void draw(cv::Mat, cv::Point2f ui_offset);
   bool highlight;
 
+  // TBD
   bool writeable;  
-
-  // TBD 
-  bool is_dirty;
-  bool set_dirty;
 
   // TBD could even have a float val or Mat here to store the last value
   // only used if conType == Signal, TBD subclass?
@@ -107,12 +129,9 @@ class Connector
 //typedef std::map<std::string, std::pair<Node*, std::string> > inputsItemType;
 //typedef std::map<std::string, inputsItemType > inputsType;
 
-class Node
+class Node : public Elem
 {
-  // this structure tracks arbitrary numbers of callers to see if there have been
-  // change since the last call
-  std::map<const void*, std::map<int, bool> > dirty_hash;  
- 
+
   // velocity and acceleration of node screen position 
   cv::Point2f acc;
   cv::Point2f vel;
@@ -131,18 +150,6 @@ class Node
   // because of dependencies
   bool do_update;
 
-  // is the output of this node different from the last  timestep
-  //bool is_dirty;
-  // has the node changed since the last time the pointer 
-  // parameter supplied has called this function (and cleared it)
-  bool isDirty(
-      const void* caller, 
-      const int ind=0, 
-      const bool clear_dirty=true);
-  
-  bool setDirty();
-
-  std::string name;
   cv::Point2f loc;
   cv::Mat graph_ui;
   cv::Scalar vcol;

@@ -72,15 +72,60 @@ namespace bm {
     return cv::Scalar(r,g,b);
   }
 
+  //////////////////////////////////////////////////////////////////////////////////////
+
+  Elem::Elem() : name("undefined")
+  {
+
+  }
+
+  bool Elem::isDirty(const void* caller, const int ind, const bool clear) 
+  {
+    VLOG(4) << name << " " << this << " isDirty " << caller 
+        << " " << ind << " " << clear;
+
+    // first stage
+    map<const void*, map<int, bool> >::iterator caller_map;  
+    caller_map = dirty_hash.find(caller);
+
+    if (caller_map == dirty_hash.end()) {
+      dirty_hash[caller][ind] = false;
+      return true;
+    }
+    
+    // second stage
+    map<int, bool>::iterator is_dirty;  
+    is_dirty = caller_map->second.find(ind);
+    if (is_dirty == caller_map->second.end()) {
+      dirty_hash[caller][ind] = false;
+      return true;
+    }
+
+    const bool rv = is_dirty->second;
+    if (clear) {
+      dirty_hash[caller][ind] = false;
+    }
+    return rv;
+  }
+
+  bool Elem::setDirty()
+  {
+    for (map<const void*, map<int, bool> >::iterator it = dirty_hash.begin(); it != dirty_hash.end(); it++) {
+      for (map<int,bool>::iterator it2 = it->second.begin(); it2 != it->second.end(); it2++) {
+        it2->second = true;
+      }
+    }
+
+  }
+
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////
   Connector::Connector() :
     parent(NULL),
     src(NULL),
     dst(NULL),
     writeable(true),
     type(SIGNAL),
-    value(0),
-    name(""),
-    is_dirty(false)
+    value(0)
   {
 
   }
@@ -89,13 +134,10 @@ namespace bm {
   {
     // TBD do_update
 
-    is_dirty = set_dirty;
-    set_dirty = false;
     if (src && src->parent) {
       src->parent->update();
       if (src->parent->isDirty(this, 0)) {
-        is_dirty = true;
-        //set_dirty=true;
+        setDirty();
 
         // now get dirtied data
         value = src->value;
@@ -120,8 +162,7 @@ namespace bm {
   {
     boost::mutex::scoped_lock l(im_mutex);
     this->im = im;
-    set_dirty = true;
-
+    setDirty();
     return true;
   }
 
@@ -130,6 +171,8 @@ namespace bm {
    
     cv::Scalar hash_col = hashStringColor(/*parent->name +*/ typeToString(type) + name);
     VLOG(6) << name << " " << hash_col[0] << " " << hash_col[1] << " " << hash_col[2];
+
+    bool is_dirty = isDirty(this, 0);
 
     const int bval = 150 + is_dirty * 105;
     hash_col *= (is_dirty ? 1.0 :0.6);
@@ -285,44 +328,6 @@ namespace bm {
     return true;
   }
 
-  bool Node::isDirty(const void* caller, const int ind, const bool clear) 
-  {
-    VLOG(4) << name << " " << this << " isDirty " << caller 
-        << " " << ind << " " << clear;
-
-    // first stage
-    map<const void*, map<int, bool> >::iterator caller_map;  
-    caller_map = dirty_hash.find(caller);
-
-    if (caller_map == dirty_hash.end()) {
-      dirty_hash[caller][ind] = false;
-      return true;
-    }
-    
-    // second stage
-    map<int, bool>::iterator is_dirty;  
-    is_dirty = caller_map->second.find(ind);
-    if (is_dirty == caller_map->second.end()) {
-      dirty_hash[caller][ind] = false;
-      return true;
-    }
-
-    const bool rv = is_dirty->second;
-    if (clear) {
-      dirty_hash[caller][ind] = false;
-    }
-    return rv;
-  }
-
-  bool Node::setDirty()
-  {
-    for (map<const void*, map<int, bool> >::iterator it = dirty_hash.begin(); it != dirty_hash.end(); it++) {
-      for (map<int,bool>::iterator it2 = it->second.begin(); it2 != it->second.end(); it2++) {
-        it2->second = true;
-      }
-    }
-
-  }
 
   // the rv is so that an inheriting function will know whether to 
   // process or not
@@ -351,7 +356,7 @@ namespace bm {
       if (ports[i]->name != "enable")
         ports[i]->update();
         // TBD may want to track per output dirtiness later?
-      if (ports[i]->is_dirty) inputs_dirty = true;
+      if (ports[i]->isDirty(this, 1)) inputs_dirty = true;
     }
 
     // the inheriting object needs to set is_dirty as appropriate if it
@@ -756,7 +761,7 @@ namespace bm {
 
     con->value = val;
     if (val != val_orig) {
-      con->set_dirty = true;
+      con->setDirty();
     }
 
     return true;
@@ -792,7 +797,7 @@ namespace bm {
     {
       boost::mutex::scoped_lock l(con->im_mutex);
       im = con->im;
-      is_dirty = con->is_dirty;
+      is_dirty = con->isDirty(this, 2);
     }
     valid = true;
 
@@ -923,7 +928,7 @@ namespace bm {
     // can't set signal if it is controlled by src port 
     //if (con->src) return false;
 
-    con->set_dirty = true;
+    con->setDirty();
 
     return true;
   }
@@ -1149,7 +1154,6 @@ namespace bm {
     setSignal("value", value);
 
     VLOG(4) << "Signal " << name << " " << value;
-    //is_dirty = true;
     setDirty();
 
     return true;
@@ -1249,7 +1253,7 @@ namespace bm {
     // clear any dirtiness derived from setting the image or cur ind etc.
     const bool rv2 = isDirty(this,21);
     const bool rv3 = isDirty(this,21);
-    LOG(INFO) << "buf dirty " << rv1 << " " << rv2 << " " << rv3;
+    VLOG(6) << "buf dirty " << rv1 << " " << rv2 << " " << rv3;
   
     return true;
   }
@@ -1302,7 +1306,6 @@ namespace bm {
   {
     if (new_frame.empty()) {
       LOG(ERROR) << name << CLERR << " new_frame is empty" << CLNRM;
-      //is_dirty = false;
       return false;// TBD LOG(ERROR)
     }
     
@@ -1322,6 +1325,14 @@ namespace bm {
 
     VLOG(4) << name << " sz " << frames.size();
     
+    {
+      Connector* con;
+      string src_port;
+      if (getInputPort(BUFFER, "out", con, src_port)) {
+        con->setDirty();
+      }
+    }
+   
     // TBD is_dirty wouldn't be true for callers that want frames indexed from beginning if no pop_front has been done.
     setDirty();
 
