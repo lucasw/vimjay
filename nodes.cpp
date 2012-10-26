@@ -742,23 +742,22 @@ namespace bm {
  
   bool Node::setSignal(const std::string port, float val)
   {
+    const float val_orig = getSignal(port);
+    
     Connector* con = NULL;
     string src_port;
     if (!getInputPort(SIGNAL, port, con, src_port)) {
-      // create it since it doesn't exist
-      setInputPort(SIGNAL, port, NULL, "");
-      // now get it again TBD actually check rv
-      if (!getInputPort(SIGNAL, port, con, src_port)) {
-        LOG(ERROR) << "still can't get connector";
-        return false;
-      }
+      LOG(ERROR) << "still can't get connector";
+      return false;
     }
     
     // can't set signal if it is controlled by src port 
     if (con->src) return false;
 
     con->value = val;
-    con->set_dirty = true;
+    if (val != val_orig) {
+      con->set_dirty = true;
+    }
 
     return true;
   }
