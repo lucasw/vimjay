@@ -41,6 +41,7 @@
 #include "misc_nodes.h" 
 #include "signals.h"
 #include "filter.h"
+#include "cluster.h"
 #include "generate.h"
 #include "screencap.h"
 #include "output.h"
@@ -195,6 +196,8 @@ class CamThing : public Output
         node = getNode<MuxBuffer>(name, loc);
       } else if (type_id.compare("bm::FilterFIR") == 0) {
         node = getNode<FilterFIR>(name, loc);
+      } else if (type_id.compare("bm::Cluster") == 0) {
+        node = getNode<Cluster>(name, loc);
       } else if (type_id.compare("bm::ImageDir") == 0) {
         node = getNode<ImageDir>(name, loc);
       } else if (type_id.compare("bm::Add") == 0) {
@@ -640,6 +643,7 @@ class CamThing : public Output
     getNode<Mux>("mux", loc);
     getNode<MuxBuffer>("mux_buffer", loc);
     getNode<FilterFIR>("filter_fir", loc);
+    getNode<Cluster>("cluster", loc);
 
     node = getNode<Sobel>("sobel", loc);
     node = getNode<GaussianBlur>("blur", loc);

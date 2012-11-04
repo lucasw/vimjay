@@ -47,6 +47,7 @@ nodes.cpp
 misc_nodes.cpp
 signals.cpp
 filter.cpp
+cluster.cpp
 generate.cpp
 structure.cpp
 screencap.cpp
