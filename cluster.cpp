@@ -23,6 +23,7 @@
 
 #include <stdio.h>
 #include <glog/logging.h>
+#include <boost/lexical_cast.hpp>
 
 #include "cluster.h"
 
@@ -34,11 +35,12 @@ Cluster::Cluster()
   setImage("in", tmp);
 	setSignal("dist_weight", 0.5);
   setSignal("margin", 0.3);
-  setSignal("num", 5);
+  setSignal("num", 3);
 }
 
-void initCluster(cluster_center& cc, int wd, int ht)
+void initCluster(cluster_center& cc, int wd, int ht, bool do_rand = false)
 {
+  if (do_rand) {
   cc.x = rand()%wd;
   cc.y = rand()%ht;
 
@@ -49,7 +51,23 @@ void initCluster(cluster_center& cc, int wd, int ht)
 
   LOG(INFO) << cc.x << " " << cc.y << " " 
     << r << " " << g << " " << b << " "
-    << cc.rgb[0] << " " << cc.rgb[1] << " " << cc.rgb[2];
+    <<(int) cc.rgb.val[0] << " " << (int)cc.rgb.val[1] << " " << (int)cc.rgb.val[2];
+    cc.max_x = wd;
+    cc.max_y = ht;
+    cc.min_x = 0;
+    cc.min_y = 0;
+
+  } else {
+    cc.x = 0;
+    cc.y = 0;
+    cc.rgb = cv::Vec4b(0,0,0,0);
+
+    cc.max_x = 0;
+    cc.max_y = 0;
+    cc.min_x = wd;
+    cc.min_y = ht;
+  }
+
   cc.numpix = 0;
   cc.aggr_x = 0;
   cc.aggr_y = 0;
@@ -57,10 +75,6 @@ void initCluster(cluster_center& cc, int wd, int ht)
   cc.aggr_g = 0;
   cc.aggr_b = 0;
 
-  cc.max_x = 0;
-  cc.max_y = 0;
-  cc.min_x = wd;
-  cc.min_y = ht;
 }
 
 
@@ -122,13 +136,13 @@ bool Cluster::update()
     initCluster(nc[k], in.cols, in.rows);
 
     if (k >= old_size) {
-      LOG(INFO) << old_size << " " << nc.size();
-      initCluster(clusters[k], in.cols, in.rows); 
+      initCluster(clusters[k], in.cols, in.rows, true); 
+      LOG(INFO) << k << " " << old_size << " " << nc.size() << ", " << clusters[k].x;
     }
   }
 
-  for (int y=0; y < in.rows; ++y) {
-  for (int x=0; x < in.cols; ++x) {
+  for (int y = 0; y < in.rows; ++y) {
+  for (int x = 0; x < in.cols; ++x) {
     
     cv::Vec4b src2 = in.at<cv::Vec4b> (y,x);
 
@@ -162,9 +176,9 @@ bool Cluster::update()
 
 	  nc[dist_ind].aggr_x += x;
 	  nc[dist_ind].aggr_y += y;
-	  nc[dist_ind].aggr_r += src2[0];
-	  nc[dist_ind].aggr_g += src2[1];
-	  nc[dist_ind].aggr_b += src2[2];
+	  nc[dist_ind].aggr_r += src2.val[0];
+	  nc[dist_ind].aggr_g += src2.val[1];
+	  nc[dist_ind].aggr_b += src2.val[2];
 	  nc[dist_ind].numpix += 1.0;
 
     // use the old cluster center color 
@@ -174,18 +188,27 @@ bool Cluster::update()
 
   setImage("out", out);
 
+  //setSignal("num", nc.size());
   /// update cluster_centers
   for (int k = 0; k < nc.size(); k++) {
-    if (nc[k].numpix <= 0) continue;
+    if (nc[k].numpix > 0) {
+      nc[k].x = (int)  (nc[k].aggr_x/nc[k].numpix);
+      nc[k].y = (int)  (nc[k].aggr_y/nc[k].numpix);
+      nc[k].rgb = cv::Vec4b(
+          (unsigned char) (nc[k].aggr_r/nc[k].numpix),
+          (unsigned char) (nc[k].aggr_g/nc[k].numpix),
+          (unsigned char) (nc[k].aggr_b/nc[k].numpix),
+          0
+          );
+    }
 
-    nc[k].x = (int)  (nc[k].aggr_x/nc[k].numpix);
-    nc[k].y = (int)  (nc[k].aggr_y/nc[k].numpix);
-    nc[k].rgb = cv::Vec4b(
-              (unsigned char) (nc[k].aggr_r/nc[k].numpix),
-              (unsigned char) (nc[k].aggr_g/nc[k].numpix),
-              (unsigned char) (nc[k].aggr_b/nc[k].numpix),
-              0
-              );
+    setSignal("x" + boost::lexical_cast<std::string>(k), nc[k].x);
+    setSignal("y" + boost::lexical_cast<std::string>(k), nc[k].y);
+    setSignal("r" + boost::lexical_cast<std::string>(k), nc[k].rgb.val[0]);
+    setSignal("g" + boost::lexical_cast<std::string>(k), nc[k].rgb.val[1]);
+    setSignal("b" + boost::lexical_cast<std::string>(k), nc[k].rgb.val[2]);
+    setSignal("p" + boost::lexical_cast<std::string>(k), nc[k].numpix);
+
   }
 
   clusters = nc;
