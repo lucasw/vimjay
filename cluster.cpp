@@ -97,7 +97,7 @@ float Cluster::find_dist(
 	float space_dist = (dx*dx + dy*dy)/max_space_dist;
 
 	/// add parameter weighting later
-	return ((1.0-dist_weight)*color_dist*color_dist + dist_weight*space_dist*space_dist);
+	return ((1.0-dist_weight) * color_dist + dist_weight * space_dist);
 }
 
 bool Cluster::update()
@@ -107,7 +107,7 @@ bool Cluster::update()
   cv::Mat in = getImage("in");
   if (in.empty()) return false;
 	
-  float max_space_dist = sqrtf(in.cols + in.rows);
+  float max_space_dist = (in.cols*in.cols + in.rows*in.rows);
 
   cv::Mat out = in.clone();
 	/*
@@ -156,8 +156,9 @@ bool Cluster::update()
 		  if ((x < cc.max_x*upper+5) && (x > cc.min_x*lower-5) &&
 				  (y < cc.max_y*upper+5) && (y > cc.min_y*lower-5)) {
 
-			  const float kdist = find_dist(src2[0], src2[1], src2[2], x,y, 
-					  cc.rgb[0], cc.rgb[1], cc.rgb[2], cc.x, cc.y,
+			  const float kdist = find_dist(
+            src2.val[0],   src2.val[1],   src2.val[2],   x, y, 
+					  cc.rgb.val[0], cc.rgb.val[1], cc.rgb.val[2], cc.x, cc.y,
 					  max_space_dist, dist_weight); //, inst->color_weight);
 
         // store the closest match
@@ -204,6 +205,10 @@ bool Cluster::update()
 
     setSignal("x" + boost::lexical_cast<std::string>(k), nc[k].x);
     setSignal("y" + boost::lexical_cast<std::string>(k), nc[k].y);
+    setSignal("mnx" + boost::lexical_cast<std::string>(k), nc[k].min_x);
+    setSignal("mny" + boost::lexical_cast<std::string>(k), nc[k].min_y);
+    setSignal("mxx" + boost::lexical_cast<std::string>(k), nc[k].max_x);
+    setSignal("mxy" + boost::lexical_cast<std::string>(k), nc[k].max_y);
     setSignal("r" + boost::lexical_cast<std::string>(k), nc[k].rgb.val[0]);
     setSignal("g" + boost::lexical_cast<std::string>(k), nc[k].rgb.val[1]);
     setSignal("b" + boost::lexical_cast<std::string>(k), nc[k].rgb.val[2]);

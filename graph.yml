@@ -1,5 +1,5 @@
 %YAML:1.0
-date: "Sat Nov  3 23:10:37 2012\n"
+date: "Sun Nov  4 20:52:49 2012\n"
 nodes:
    -
       ind: 0
@@ -44,13 +44,13 @@ nodes:
          -
             type: 1
             name: "2_x"
-            value: 5.9216241455078125e+02
+            value: 4.8202648925781250e+02
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: "2_y"
-            value: 2.2897003173828125e+02
+            value: 4.4167022705078125e+02
             src_ind: -1
             src_port: ""
          -
@@ -346,7 +346,7 @@ nodes:
          -
             type: 1
             name: dist_weight
-            value: 2.6689594984054565e-01
+            value: 7.4383184313774109e-02
             src_ind: -1
             src_port: ""
          -
@@ -359,6 +359,186 @@ nodes:
             type: 1
             name: num
             value: 3.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: x0
+            value: 318.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: y0
+            value: 239.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: mnx0
+            value: 0.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: mny0
+            value: 0.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: mxx0
+            value: 639.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: mxy0
+            value: 479.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: r0
+            value: 80.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: g0
+            value: 98.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: b0
+            value: 111.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: p0
+            value: 302734.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: x1
+            value: 255.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: y1
+            value: 106.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: mnx1
+            value: 229.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: mny1
+            value: 80.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: mxx1
+            value: 281.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: mxy1
+            value: 132.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: r1
+            value: 106.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: g1
+            value: 153.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: b1
+            value: 162.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: p1
+            value: 2233.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: x2
+            value: 442.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: y2
+            value: 427.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: mnx2
+            value: 416.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: mny2
+            value: 401.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: mxx2
+            value: 468.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: mxy2
+            value: 453.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: r2
+            value: 46.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: g2
+            value: 36.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: b2
+            value: 37.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: p2
+            value: 2233.
             src_ind: -1
             src_port: ""
    -
@@ -559,7 +739,7 @@ nodes:
       ind: 14
       typeid: "bm::Add"
       name: add
-      loc: [ 443., 270. ]
+      loc: [ 2.3300018310546875e+02, 3.2999984741210938e+02 ]
       inputs:
          -
             type: 1
@@ -780,7 +960,7 @@ nodes:
       ind: 20
       typeid: "bm::Tap"
       name: tap0
-      loc: [ 443., 390. ]
+      loc: [ 2.3300007629394531e+02, 4.4999987792968750e+02 ]
       inputs:
          -
             type: 1
@@ -966,7 +1146,7 @@ nodes:
       ind: 26
       typeid: "bm::Random"
       name: random
-      loc: [ 443., 510. ]
+      loc: [ 2.3300004577636719e+02, 6.2999987792968750e+02 ]
       inputs:
          -
             type: 1
