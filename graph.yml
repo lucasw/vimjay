@@ -1,5 +1,5 @@
 %YAML:1.0
-date: "Mon Nov  5 11:31:52 2012\n"
+date: "Mon Nov  5 15:20:37 2012\n"
 nodes:
    -
       ind: 0
@@ -44,19 +44,13 @@ nodes:
          -
             type: 1
             name: "2_x"
-            value: 4.0408251953125000e+02
+            value: 3.5515325927734375e+02
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: "2_y"
-            value: 1.6598910522460938e+02
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: "2_1"
-            value: 1.
+            value: 6.9330215454101562e+01
             src_ind: -1
             src_port: ""
    -
@@ -171,8 +165,8 @@ nodes:
          -
             type: 2
             name: in
-            src_ind: 31
-            src_port: out
+            src_ind: -1
+            src_port: ""
          -
             type: 3
             name: out
@@ -181,24 +175,6 @@ nodes:
          -
             type: 1
             name: max_size
-            value: 100.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: cur_size
-            value: 56.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: ind
-            value: 0.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: write_count
             value: 100.
             src_ind: -1
             src_port: ""
@@ -364,625 +340,145 @@ nodes:
          -
             type: 1
             name: dist_weight
-            value: 9.2963510751724243e-01
+            value: 5.0000000000000000e-01
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: margin
-            value: 7.0664249360561371e-02
+            value: 3.0000001192092896e-01
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: num
-            value: 3.1576848030090332e+00
+            value: 3.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: wrap
+            value: 0.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: manhat
+            value: 0.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: time
+            value: 2.7000001072883606e-01
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: x0
-            value: 139.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: y0
-            value: 237.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: mnx0
-            value: 0.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: mny0
-            value: 0.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: mxx0
-            value: 328.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: mxy0
-            value: 479.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: r0
-            value: 111.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: g0
-            value: 111.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: b0
-            value: 109.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: p0
-            value: 133418.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: x1
-            value: 468.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: y1
-            value: 106.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: mnx1
-            value: 238.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: mny1
-            value: 0.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: mxx1
-            value: 639.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: mxy1
-            value: 271.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: r1
-            value: 180.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: g1
-            value: 184.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: b1
-            value: 181.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: p1
-            value: 78565.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: x2
-            value: 448.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: y2
-            value: 352.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: mnx2
-            value: 232.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: mny2
-            value: 181.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: mxx2
-            value: 639.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: mxy2
-            value: 479.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: r2
-            value: 76.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: g2
-            value: 79.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: b2
-            value: 84.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: p2
-            value: 95217.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: write_count
-            value: 5.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: x3
-            value: 265.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: y3
-            value: 99.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: mnx3
-            value: 123.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: mny3
-            value: 0.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: mxx3
-            value: 434.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: mxy3
-            value: 263.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: r3
-            value: 145.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: g3
             value: 147.
             src_ind: -1
             src_port: ""
          -
             type: 1
-            name: b3
-            value: 142.
+            name: y0
+            value: 202.
             src_ind: -1
             src_port: ""
          -
             type: 1
-            name: p3
-            value: 51852.
+            name: r0
+            value: 188.
             src_ind: -1
             src_port: ""
          -
             type: 1
-            name: x4
-            value: 239.
+            name: g0
+            value: 187.
             src_ind: -1
             src_port: ""
          -
             type: 1
-            name: y4
-            value: 392.
+            name: b0
+            value: 186.
             src_ind: -1
             src_port: ""
          -
             type: 1
-            name: mnx4
-            value: 0.
+            name: p0
+            value: 118733.
             src_ind: -1
             src_port: ""
          -
             type: 1
-            name: mny4
-            value: 216.
+            name: x1
+            value: 575.
             src_ind: -1
             src_port: ""
          -
             type: 1
-            name: mxx4
-            value: 467.
+            name: y1
+            value: 175.
             src_ind: -1
             src_port: ""
          -
             type: 1
-            name: mxy4
-            value: 479.
+            name: r1
+            value: 206.
             src_ind: -1
             src_port: ""
          -
             type: 1
-            name: r4
-            value: 160.
+            name: g1
+            value: 208.
             src_ind: -1
             src_port: ""
          -
             type: 1
-            name: g4
-            value: 122.
+            name: b1
+            value: 211.
             src_ind: -1
             src_port: ""
          -
             type: 1
-            name: b4
-            value: 99.
+            name: p1
+            value: 41121.
             src_ind: -1
             src_port: ""
          -
             type: 1
-            name: p4
-            value: 48633.
+            name: x2
+            value: 386.
             src_ind: -1
             src_port: ""
          -
             type: 1
-            name: x5
-            value: 0.
+            name: y2
+            value: 287.
             src_ind: -1
             src_port: ""
          -
             type: 1
-            name: y5
-            value: 0.
+            name: r2
+            value: 59.
             src_ind: -1
             src_port: ""
          -
             type: 1
-            name: mnx5
-            value: 640.
+            name: g2
+            value: 48.
             src_ind: -1
             src_port: ""
          -
             type: 1
-            name: mny5
-            value: 480.
+            name: b2
+            value: 57.
             src_ind: -1
             src_port: ""
          -
             type: 1
-            name: mxx5
-            value: 0.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: mxy5
-            value: 0.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: r5
-            value: 0.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: g5
-            value: 0.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: b5
-            value: 0.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: p5
-            value: 0.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: x6
-            value: 0.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: y6
-            value: 0.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: mnx6
-            value: 640.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: mny6
-            value: 480.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: mxx6
-            value: 0.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: mxy6
-            value: 0.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: r6
-            value: 0.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: g6
-            value: 0.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: b6
-            value: 0.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: p6
-            value: 0.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: x7
-            value: 148.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: y7
-            value: 78.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: mnx7
-            value: 0.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: mny7
-            value: 0.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: mxx7
-            value: 293.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: mxy7
-            value: 181.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: r7
-            value: 83.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: g7
-            value: 119.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: b7
-            value: 126.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: p7
-            value: 46476.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: x8
-            value: 314.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: y8
-            value: 163.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: mnx8
-            value: 196.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: mny8
-            value: 41.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: mxx8
-            value: 413.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: mxy8
-            value: 283.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: r8
-            value: 55.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: g8
-            value: 67.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: b8
-            value: 77.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: p8
-            value: 44107.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: x9
-            value: 365.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: y9
-            value: 52.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: mnx9
-            value: 232.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: mny9
-            value: 0.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: mxx9
-            value: 478.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: mxy9
-            value: 153.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: r9
-            value: 102.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: g9
-            value: 137.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: b9
-            value: 146.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: p9
-            value: 22876.
+            name: p2
+            value: 147346.
             src_ind: -1
             src_port: ""
    -
@@ -1005,8 +501,8 @@ nodes:
          -
             type: 2
             name: in
-            src_ind: 8
-            src_port: out
+            src_ind: -1
+            src_port: ""
          -
             type: 1
             name: xorder
@@ -1035,7 +531,7 @@ nodes:
       ind: 10
       typeid: "bm::GaussianBlur"
       name: blur
-      loc: [ 837., 420. ]
+      loc: [ 837., 150. ]
       inputs:
          -
             type: 1
@@ -1183,7 +679,7 @@ nodes:
       ind: 14
       typeid: "bm::Add"
       name: add
-      loc: [ 593., 600. ]
+      loc: [ 2.6300015258789062e+02, 270. ]
       inputs:
          -
             type: 1
@@ -1199,29 +695,12 @@ nodes:
          -
             type: 2
             name: add0
-            src_ind: 8
-            src_port: out
+            src_ind: -1
+            src_port: ""
          -
             type: 1
             name: add0
-            value: 1.5643637180328369e+00
-            src_ind: -1
-            src_port: ""
-         -
-            type: 2
-            name: add1
-            src_ind: 9
-            src_port: out
-         -
-            type: 1
-            name: add1
-            value: 2.3486785888671875e+00
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: write_count
-            value: 5.
+            value: 2.
             src_ind: -1
             src_port: ""
    -
@@ -1267,7 +746,7 @@ nodes:
       ind: 16
       typeid: "bm::AbsDiff"
       name: abs_diff
-      loc: [ 837., 480. ]
+      loc: [ 837., 270. ]
       inputs:
          -
             type: 1
@@ -1417,17 +896,11 @@ nodes:
             value: 128.
             src_ind: -1
             src_port: ""
-         -
-            type: 1
-            name: type
-            value: 0.
-            src_ind: -1
-            src_port: ""
    -
       ind: 20
       typeid: "bm::Tap"
       name: tap0
-      loc: [ 233., 450. ]
+      loc: [ 1.9356271362304688e+02, 390. ]
       inputs:
          -
             type: 1
@@ -1483,7 +956,7 @@ nodes:
       ind: 22
       typeid: "bm::Contour"
       name: contour
-      loc: [ 837., 570. ]
+      loc: [ 837., 390. ]
       inputs:
          -
             type: 1
@@ -1516,24 +989,6 @@ nodes:
          -
             type: 1
             name: "0_x"
-            value: 0.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: "2_x"
-            value: 6.0669354248046875e+02
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: "2_y"
-            value: 6.9463897705078125e+01
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: "2_1"
             value: 0.
             src_ind: -1
             src_port: ""
@@ -1588,19 +1043,19 @@ nodes:
          -
             type: 1
             name: value
-            value: 8.6677187681198120e-01
+            value: 0.
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: min
-            value: 1.6677181422710419e-01
+            value: 0.
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: max
-            value: 9.6208864450454712e-01
+            value: 1.
             src_ind: -1
             src_port: ""
          -
@@ -1613,7 +1068,7 @@ nodes:
       ind: 26
       typeid: "bm::Random"
       name: random
-      loc: [ 233., 630. ]
+      loc: [ 443., 510. ]
       inputs:
          -
             type: 1
@@ -1624,25 +1079,25 @@ nodes:
          -
             type: 1
             name: value
-            value: 3.1576848030090332e+00
+            value: 0.
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: min
-            value: 3.
+            value: 0.
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: max
-            value: 5.
+            value: 1.
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: step
-            value: 4.3046720325946808e-02
+            value: 1.0000000149011612e-01
             src_ind: -1
             src_port: ""
    -
@@ -1685,7 +1140,7 @@ nodes:
       ind: 28
       typeid: "bm::SigBuffer"
       name: sig_buf
-      loc: [ 837., 630. ]
+      loc: [ 837., 510. ]
       inputs:
          -
             type: 1
@@ -1766,117 +1221,5 @@ nodes:
             type: 1
             name: disp_h
             value: 480.
-            src_ind: -1
-            src_port: ""
-   -
-      ind: 30
-      typeid: "bm::Add"
-      name: add_2
-      loc: [ 693., 370. ]
-      inputs:
-         -
-            type: 1
-            name: enable
-            value: 1.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 2
-            name: out
-            src_ind: -1
-            src_port: ""
-         -
-            type: 2
-            name: add0
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: add0
-            value: 2.
-            src_ind: -1
-            src_port: ""
-   -
-      ind: 31
-      typeid: "bm::Add"
-      name: add_2
-      loc: [ 873., 160. ]
-      inputs:
-         -
-            type: 1
-            name: enable
-            value: 1.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 2
-            name: out
-            src_ind: -1
-            src_port: ""
-         -
-            type: 2
-            name: add0
-            src_ind: 14
-            src_port: out
-         -
-            type: 1
-            name: add0
-            value: 1.0628819465637207e+00
-            src_ind: -1
-            src_port: ""
-         -
-            type: 2
-            name: add1
-            src_ind: 31
-            src_port: out
-         -
-            type: 1
-            name: add1
-            value: -7.9774570465087891e-01
-            src_ind: -1
-            src_port: ""
-   -
-      ind: 32
-      typeid: "bm::Add"
-      name: add_2_2
-      loc: [ 853., 290. ]
-      inputs:
-         -
-            type: 1
-            name: enable
-            value: 1.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 2
-            name: out
-            src_ind: -1
-            src_port: ""
-         -
-            type: 2
-            name: add0
-            src_ind: 1
-            src_port: out
-         -
-            type: 1
-            name: add0
-            value: 3.0993637442588806e-01
-            src_ind: -1
-            src_port: ""
-         -
-            type: 2
-            name: add1
-            src_ind: 32
-            src_port: out
-         -
-            type: 1
-            name: add1
-            value: 6.9538313150405884e-01
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: write_count
-            value: 1.
             src_ind: -1
             src_port: ""

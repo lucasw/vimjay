@@ -37,6 +37,8 @@ Cluster::Cluster()
 	setSignal("dist_weight", 0.5);
   setSignal("margin", 0.3);
   setSignal("num", 3);
+  setSignal("wrap",0);
+  setSignal("manhat",0);
   setSignal("time", 0);
 }
 
@@ -84,25 +86,30 @@ float Cluster::find_dist(
 		int r1, int g1, int b1, int x1, int y1,
 		int r2, int g2, int b2, int x2, int y2,
 		float max_space_dist, float dist_weight,
-    const int wd, const int ht) //, float color_weight)
+    const bool use_manhat) //, float color_weight)
 {
 	/// make this a define?
 	float max_color_dist = (255*255*3);
+  if (use_manhat) max_color_dist = 255*3;
 
 	float dr = r1-r2;
 	float dg = g1-g2;
 	float db = b1-b2;
 
-	float color_dist = (dr*dr + dg*dg + db*db)/max_color_dist; 
+	float color_dist;
+  if (!use_manhat) 
+    color_dist = (dr*dr + dg*dg + db*db)/max_color_dist;
+  else
+    color_dist = (abs(dr) + abs(dg) + abs(db))/max_color_dist;
 
 	float dx = x1-x2;
-  if (fabs(dx + wd) < fabs(dx)) dx += wd;
-  else if (fabs(dx - wd) < fabs(dx)) dx -= wd;
 	float dy = y1-y2;
-  if (fabs(dy + ht) < fabs(dy)) dy += ht;
-  else if (fabs(dy - ht) < fabs(dy)) dy -= ht;
-
-	float space_dist = (dx*dx + dy*dy)/max_space_dist;
+  
+	float space_dist;
+  if (!use_manhat)
+    space_dist = (dx*dx + dy*dy)/max_space_dist;
+  else
+    space_dist = (abs(dx) + abs(dy))/max_space_dist;
 
 	/// add parameter weighting later
 	return ((1.0-dist_weight) * color_dist + dist_weight * space_dist);
@@ -117,7 +124,9 @@ bool Cluster::update()
   cv::Mat in = getImage("in");
   if (in.empty()) return false;
 	
+  const bool use_manhat = getSignal("manhat") > 0.5;
   float max_space_dist = (in.cols*in.cols + in.rows*in.rows);
+  if (use_manhat) max_space_dist = (in.cols + in.rows); 
 
   cv::Mat out = in.clone();
 	/*
@@ -151,6 +160,10 @@ bool Cluster::update()
     }
   }
 
+  const bool wrap = getSignal("wrap") > 0.5;
+  const int wd = in.cols;
+  const int ht = in.rows;
+
   for (int y = 0; y < in.rows; ++y) {
   for (int x = 0; x < in.cols; ++x) {
     
@@ -162,16 +175,41 @@ bool Cluster::update()
     // search through all clusters for nearest one
 	  for (int k = 0; k < clusters.size(); k++) {
 		  struct cluster_center cc = clusters[k];	
+  
+      int x2 = x;
+      int y2 = y;
 
-		  if ((x < cc.max_x*upper+5) && (x > cc.min_x*lower-5) &&
-				  (y < cc.max_y*upper+5) && (y > cc.min_y*lower-5)) {
+      if (wrap) {
+        float dx = cc.x - x2;
+	      float dy = cc.y - y2;
 
-        int x2 = x;
-        int y2 = y;
+        if (dx + wd < -dx) x2 -= wd;
+        else if ( -(dx - wd) < dx) x2 += wd;
+        
+        if (dy + ht < - y2) y2 -= ht;
+        else if ( -(dy - ht) < dy) y2 += ht;
+
+      }
+    
+      // There might be an inevitable amount of oscillation in wrap mode where
+      // points that might be within range in multiple directions
+      // will flip-flop between them.
+      // could try to smooth motion of colors and centers
+      const float span_x = (cc.max_x - cc.min_x)*(upper)+10;
+      const float span_y = (cc.max_y - cc.min_y)*upper;
+      const int mid_x = (cc.max_x + cc.min_x)/2;
+      const int mid_y = (cc.max_y + cc.min_y)/2;
+		  if ((x2 < mid_x + span_x/2) && (x2 > mid_x - span_x/2) &&
+				  (y2 < mid_y + span_y/2) && (y2 > mid_y - span_y/2)) {
+
 			  const float kdist = find_dist(
             src2.val[0],   src2.val[1],   src2.val[2],   x2, y2, 
 					  cc.rgb.val[0], cc.rgb.val[1], cc.rgb.val[2], cc.x, cc.y,
-					  max_space_dist, dist_weight, in.cols, in.rows); //, inst->color_weight);
+					  max_space_dist, dist_weight,
+            use_manhat);
+            //in.cols, in.rows);
+            //,
+            //wrap); //, inst->color_weight);
 
         // store the closest match
 			  if (kdist < dist) {
@@ -196,6 +234,10 @@ bool Cluster::update()
 
     // use the old cluster center color 
 	  out.at<cv::Vec4b>(y,x) = clusters[dist_ind].rgb;
+    // TBD optionally provide a scaled image that encodes distance from centers
+	  //out.at<cv::Vec4b>(y,x) = cv::Vec4b(dist*1024, dist*512,
+    //    dist*256, 0);
+    //    clusters[dist_ind].rgb.val[2],0);
 
   }} // xy loop throug input image
 
@@ -217,10 +259,12 @@ bool Cluster::update()
 
     setSignal("x" + boost::lexical_cast<std::string>(k), nc[k].x);
     setSignal("y" + boost::lexical_cast<std::string>(k), nc[k].y);
+    if (false) {
     setSignal("mnx" + boost::lexical_cast<std::string>(k), nc[k].min_x);
     setSignal("mny" + boost::lexical_cast<std::string>(k), nc[k].min_y);
     setSignal("mxx" + boost::lexical_cast<std::string>(k), nc[k].max_x);
     setSignal("mxy" + boost::lexical_cast<std::string>(k), nc[k].max_y);
+    }
     setSignal("r" + boost::lexical_cast<std::string>(k), nc[k].rgb.val[0]);
     setSignal("g" + boost::lexical_cast<std::string>(k), nc[k].rgb.val[1]);
     setSignal("b" + boost::lexical_cast<std::string>(k), nc[k].rgb.val[2]);
