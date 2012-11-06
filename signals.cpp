@@ -138,6 +138,7 @@ namespace bm {
     return true;
   }
 
+  /////////////////////////////////////////////////////////////////////////////
   SigBuffer::SigBuffer() 
   {
     setSignal("in", 0);
@@ -147,6 +148,8 @@ namespace bm {
     cv::Size sz = cv::Size(Config::inst()->im_width, Config::inst()->im_height);
     tmp = cv::Mat(sz, MAT_FORMAT_C3, cv::Scalar(0));
     setImage("out", tmp);
+    setSignal("out", 0);
+    //setSigBuffer("out",
 
     setSignal("min", 0);
     setSignal("max", 0);
@@ -187,11 +190,12 @@ namespace bm {
       cv::Size sz = cv::Size(Config::inst()->im_width, Config::inst()->im_height);
       vis = cv::Mat(sz, MAT_FORMAT_C3, cv::Scalar(0));
     }
-    // TBD error check the mat
-    vis = cv::Scalar(0);
 
     // update the vis image- TBD add option to disable this?
     if (isDirty(this, 24)) {
+    
+      // TBD error check the mat
+      vis = cv::Scalar(0);
 
       float new_min = 1e6;
       float new_max = -1e6;
@@ -224,9 +228,9 @@ namespace bm {
       // an external signal will override, but no way for manual input to override
       setSignal("min", new_min);
       setSignal("max", new_max);
+    
+      setImage("out", vis);
     }
-
-    setImage("out", vis);
 
     return ImageNode::draw(ui_offset);
   }
