@@ -117,8 +117,10 @@ float Cluster::find_dist(
 
 bool Cluster::update()
 {
-  Node::update();
+  if (!Node::update()) return false;
 
+  if (!isDirty(this, 40)) return true;
+  
   boost::timer t1;
 
   cv::Mat in = getImage("in");
@@ -274,7 +276,7 @@ bool Cluster::update()
 
   clusters = nc;
     
-  setSignal("time", t1.elapsed());
+  //setSignal("time", t1.elapsed());
 }
 
 } //bm
