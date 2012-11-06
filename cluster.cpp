@@ -21,6 +21,7 @@
 #include <assert.h>
 #include <math.h>
 
+#include <boost/timer.hpp>
 #include <stdio.h>
 #include <glog/logging.h>
 #include <boost/lexical_cast.hpp>
@@ -36,6 +37,7 @@ Cluster::Cluster()
 	setSignal("dist_weight", 0.5);
   setSignal("margin", 0.3);
   setSignal("num", 3);
+  setSignal("time", 0);
 }
 
 void initCluster(cluster_center& cc, int wd, int ht, bool do_rand = false)
@@ -109,6 +111,8 @@ float Cluster::find_dist(
 bool Cluster::update()
 {
   Node::update();
+
+  boost::timer t1;
 
   cv::Mat in = getImage("in");
   if (in.empty()) return false;
@@ -225,6 +229,8 @@ bool Cluster::update()
   }
 
   clusters = nc;
+    
+  setSignal("time", t1.elapsed());
 }
 
 } //bm
