@@ -228,6 +228,8 @@ class CamThing : public Output
         node = getNode<Contour>(name, loc);
       } else if (type_id.compare("bm::Bezier") == 0) {
         node = getNode<Bezier>(name, loc);
+      } else if (type_id.compare("bm::Circle") == 0) {
+        node = getNode<Circle>(name, loc);
       } else if (type_id.compare("bm::Noise") == 0) {
         node = getNode<Noise>(name, loc);
       } else if (type_id.compare("bm::Random") == 0) {
@@ -658,6 +660,7 @@ class CamThing : public Output
     
     // generate
     node = getNode<Bezier>("bezier", loc);
+    node = getNode<Circle>("circle", loc);
     node = getNode<Noise>("noise", loc);
 
     node = getNode<Tap>("tap0", loc);

@@ -18,6 +18,14 @@ class Bezier : public ImageNode
   virtual bool update();
 };
 
+class Circle : public ImageNode
+{
+  public:
+  Circle();
+  virtual bool update();
+};
+
+
 class Noise : public ImageNode
 {
   public:

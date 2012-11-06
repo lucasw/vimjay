@@ -28,6 +28,7 @@ namespace bm {
 
 Bezier::Bezier()
 {
+  // TBD take x and y sigbuf inputs
   setSignal("x0",10);
   setSignal("y0",10);
   
@@ -74,6 +75,57 @@ bool Bezier::update()
   return true;
 }
 
+//////////////////////////////////////////////////
+
+Circle::Circle()
+{
+  // hard to enforce these all being the same size
+  //setSigBuf("x");
+  //setSigBuf("y");
+  //setSigBuf("r");
+  setSignal("x", 300);
+  setSignal("y", 300);
+  setSignal("radius", 50);
+  setSignal("r", 255);
+  setSignal("g", 255);
+  setSignal("b", 255);
+  setSignal("thickness", -1);
+}
+
+bool Circle::update()
+{
+  if (!Node::update()) return false;
+
+
+  // if any inputs have changed this will go on to draw
+  const bool id1 = isDirty(this,30);
+  LOG(INFO) << id1;
+  if (!id1) {
+    return true;
+  }
+
+  cv::Mat out = cv::Mat(cv::Size(Config::inst()->im_width, Config::inst()->im_height), 
+      MAT_FORMAT_C3);
+  out = cv::Scalar(0,0,0,0);
+ 
+  const bool filled = getSignal("filled") > 0.5;
+  cv::circle(out, 
+    cv::Point(getSignal("x"), getSignal("y")), 
+    getSignal("radius"), 
+    cv::Scalar(
+      getSignal("b"),
+      getSignal("g"),
+      getSignal("r")),
+    getSignal("thickness")); 
+  
+  setImage("out", out);
+  // clear this isDirty in advance of next loop
+  const bool id2 = isDirty(this,30);
+  const bool id3 = isDirty(this,30);
+  LOG(INFO) << id2 << " " << id3;
+}
+
+//////////////////////////////////////////////////
 Noise::Noise()
 {
   setSignal("mean", 10);

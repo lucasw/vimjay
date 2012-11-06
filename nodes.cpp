@@ -136,10 +136,9 @@ namespace bm {
 
     if (src && src->parent) {
       src->parent->update();
-      if (src->parent->isDirty(this, 0)) {
+      //if (src->parent->isDirty(this, 0)) {
       // TBD
-      //if (src->isDirty(this, 0)) { 
-        setDirty();
+      if (src->isDirty(this, 0)) { 
 
         // now get dirtied data
         value = src->value;
@@ -147,6 +146,8 @@ namespace bm {
 
         // TBD get copy of sigbuf
         // sigbuf = src->sigbuf;
+        
+        setDirty();
       }
     } 
   }
@@ -167,6 +168,8 @@ namespace bm {
 
   bool Connector::setImage(cv::Mat im)
   {
+    if (im.empty()) return false;
+
     boost::mutex::scoped_lock l(im_mutex);
     this->im = im;
     setDirty();
@@ -998,13 +1001,13 @@ namespace bm {
         cv::Size sz = cv::Size(Config::inst()->im_width, Config::inst()->im_height);
         out = cv::Mat(sz, MAT_FORMAT_C3, cv::Scalar(0));
         setImage("out", out);
-        setDirty();
+        //setDirty();
       }
       return true; 
     }
     
     setImage("out", in);
-    setDirty();
+    //setDirty();
  
     //VLOG(4) << name << " update: " <<  out.refcount << " " << out_old.refcount;
   
@@ -1186,7 +1189,7 @@ namespace bm {
     setSignal("value", value);
 
     VLOG(4) << "Signal " << name << " " << value;
-    setDirty();
+    //setDirty();
 
     return true;
   }
