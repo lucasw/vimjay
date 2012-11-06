@@ -63,7 +63,8 @@ class Cluster : public ImageNode
   float find_dist(
 		int r1, int g1, int b1, int x1, int y1,
 		int r2, int g2, int b2, int x2, int y2,
-		float max_space_dist, float dist_weight); //, float color_weight)
+		const float max_space_dist, const float dist_weight,
+    const int wd, const int ht); //, float color_weight)
   
   virtual bool update();
 };

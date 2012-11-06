@@ -81,7 +81,8 @@ void initCluster(cluster_center& cc, int wd, int ht, bool do_rand = false)
 float Cluster::find_dist(
 		int r1, int g1, int b1, int x1, int y1,
 		int r2, int g2, int b2, int x2, int y2,
-		float max_space_dist, float dist_weight) //, float color_weight)
+		float max_space_dist, float dist_weight,
+    const int wd, const int ht) //, float color_weight)
 {
 	/// make this a define?
 	float max_color_dist = (255*255*3);
@@ -93,7 +94,12 @@ float Cluster::find_dist(
 	float color_dist = (dr*dr + dg*dg + db*db)/max_color_dist; 
 
 	float dx = x1-x2;
+  if (fabs(dx + wd) < fabs(dx)) dx += wd;
+  else if (fabs(dx - wd) < fabs(dx)) dx -= wd;
 	float dy = y1-y2;
+  if (fabs(dy + ht) < fabs(dy)) dy += ht;
+  else if (fabs(dy - ht) < fabs(dy)) dy -= ht;
+
 	float space_dist = (dx*dx + dy*dy)/max_space_dist;
 
 	/// add parameter weighting later
@@ -156,10 +162,12 @@ bool Cluster::update()
 		  if ((x < cc.max_x*upper+5) && (x > cc.min_x*lower-5) &&
 				  (y < cc.max_y*upper+5) && (y > cc.min_y*lower-5)) {
 
+        int x2 = x;
+        int y2 = y;
 			  const float kdist = find_dist(
-            src2.val[0],   src2.val[1],   src2.val[2],   x, y, 
+            src2.val[0],   src2.val[1],   src2.val[2],   x2, y2, 
 					  cc.rgb.val[0], cc.rgb.val[1], cc.rgb.val[2], cc.x, cc.y,
-					  max_space_dist, dist_weight); //, inst->color_weight);
+					  max_space_dist, dist_weight, in.cols, in.rows); //, inst->color_weight);
 
         // store the closest match
 			  if (kdist < dist) {
