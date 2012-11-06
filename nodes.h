@@ -51,11 +51,13 @@ static bool bool_val;
 class Node;
 //class Buffer;
 
+// TBD need to template this
 enum conType {  
   NONE,
   SIGNAL,
   IMAGE,
-  BUFFER
+  BUFFER,
+  SIGBUF
 };
 
 // base class for Connector and Node to inherit from
@@ -95,6 +97,8 @@ class Connector : public Elem
   bool update();
 
   // the Connector that is sourcing this one, if any
+  // this is somewhat odd, the connector is in three parts- the src, this, and dst
+  // and each has a copy of the data
   Connector* src;
   Connector* dst;
 
@@ -120,6 +124,9 @@ class Connector : public Elem
   float value;
   // only used if conType == Image or Buffer
   cv::Mat im;
+
+  // TBD could store a copy of a sigbuf here
+  // std::vector<float> sigbuf;
 
   boost::mutex im_mutex;
 
@@ -231,9 +238,14 @@ class Node : public Elem
 
   //cv::Mat getBuffer(
   //  const std::string port,
+  
+  // getSigBuf()
 
   // There is no way to store a Buffer outside of a node, so all setting does is creating a connector port
   bool setBuffer(const std::string port);
+  
+  bool setSigBuf(const std::string port);
+
 
   virtual bool handleKey(int key);
 };

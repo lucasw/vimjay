@@ -137,11 +137,16 @@ namespace bm {
     if (src && src->parent) {
       src->parent->update();
       if (src->parent->isDirty(this, 0)) {
+      // TBD
+      //if (src->isDirty(this, 0)) { 
         setDirty();
 
         // now get dirtied data
         value = src->value;
         im = src->im;
+
+        // TBD get copy of sigbuf
+        // sigbuf = src->sigbuf;
       }
     } 
   }
@@ -154,6 +159,8 @@ namespace bm {
       return "Signal";
     } else if (type == BUFFER) {
       return "Buffer";
+    } else if (type == SIGBUF) {
+      return "SigBuf";
     }
     return "Unknown";
   }
@@ -263,6 +270,8 @@ namespace bm {
       col = cv::Scalar(bval,55,bval);
     } else if (type == BUFFER) {
       col = cv::Scalar(bval,bval,55);
+    } else if (type == SIGBUF) {
+      col = cv::Scalar(bval,bval/2 + 55/2,bval/2+55/2);
     }
     
     cv::putText(graph_ui, port_info.str(), parent->loc + loc + ui_offset, 1, 1, col, 1);
@@ -933,6 +942,29 @@ namespace bm {
     return true;
   }
 
+  bool Node::setSigBuf(
+    const std::string port
+  )
+  {
+    Connector* con = NULL;
+    string src_port;
+    if (!getInputPort(SIGBUF, port, con, src_port)) {
+      // create it since it doesn't exist
+      setInputPort(SIGBUF, port, NULL, "");
+      // now get it again TBD actually check rv
+      if (!getInputPort(SIGBUF, port, con, src_port)) {
+        LOG(ERROR) << "still can't get connector";
+        return false;
+      }
+    }
+    
+    // can't set signal if it is controlled by src port 
+    //if (con->src) return false;
+
+    con->setDirty();
+
+    return true;
+  }
   //////////////////////////////////////////////////////////////////////////////////////////
   ImageNode::ImageNode() : Node()
   {
@@ -1204,7 +1236,8 @@ namespace bm {
     cv::Mat tmp;
     setImage("in", tmp);
     // not really an input, but using inputs since outputs aren't distinct
-    setInputPort(BUFFER, "out", NULL, "");
+    setBuffer("out");
+    //setInputPort(BUFFER, "out", NULL, "");
 
     //setImage("image", cv::Mat());
     setSignal("max_size", 100);

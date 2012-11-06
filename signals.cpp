@@ -149,7 +149,7 @@ namespace bm {
     tmp = cv::Mat(sz, MAT_FORMAT_C3, cv::Scalar(0));
     setImage("out", tmp);
     setSignal("out", 0);
-    //setSigBuffer("out",
+    setSigBuf("out");
 
     setSignal("min", 0);
     setSignal("max", 0);
