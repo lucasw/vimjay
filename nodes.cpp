@@ -123,7 +123,7 @@ namespace bm {
     parent(NULL),
     src(NULL),
     dst(NULL),
-    writeable(true),
+    //writeable(true),
     type(SIGNAL),
     value(0)
   {
@@ -143,7 +143,10 @@ namespace bm {
         // now get dirtied data
         value = src->value;
         im = src->im;
-
+       
+        // if a connector has a src then it can't be an output
+        // (at least until it gets overridden as an output)
+        output = false;
         // TBD get copy of sigbuf
         // sigbuf = src->sigbuf;
         
@@ -173,6 +176,8 @@ namespace bm {
     boost::mutex::scoped_lock l(im_mutex);
     this->im = im;
     setDirty();
+
+    output = true;
     return true;
   }
 
@@ -201,7 +206,16 @@ namespace bm {
           parent->loc + loc + ui_offset, 
           parent->loc + loc + ui_offset + cv::Point2f(name.size()*10, -10), 
           hash_col);
-     
+    
+    if (!output) {
+      cv::rectangle(graph_ui,
+          parent->loc + loc + ui_offset,
+          parent->loc + loc + ui_offset - cv::Point2f(5, 5),
+          cv::Scalar(255,255,255),
+          CV_FILLED);
+
+    }
+
     if (src) {
 
       cv::Scalar dst_hash_col = hashStringColor(/*src->parent->name +*/ typeToString(src->type) + src->name);
@@ -368,7 +382,7 @@ namespace bm {
       if (ports[i]->name != "enable")
         ports[i]->update();
         // TBD may want to track per output dirtiness later?
-      if (ports[i]->isDirty(this, 1)) inputs_dirty = true;
+      if (!ports[i]->output && ports[i]->isDirty(this, 1)) inputs_dirty = true;
     }
 
     // the inheriting object needs to set is_dirty as appropriate if it
@@ -772,6 +786,7 @@ namespace bm {
     if (con->src) return false;
 
     con->value = val;
+    con->output = true;
     if (val != val_orig) {
       con->setDirty();
     }
@@ -805,7 +820,8 @@ namespace bm {
     }
 
     VLOG(4) << name << " " << port << " " << " " << src_port;
-  
+     
+    // TBD output = false; ?
     {
       boost::mutex::scoped_lock l(con->im_mutex);
       im = con->im;

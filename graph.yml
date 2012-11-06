@@ -1,5 +1,5 @@
 %YAML:1.0
-date: "Mon Nov  5 17:41:18 2012\n"
+date: "Mon Nov  5 21:47:07 2012\n"
 nodes:
    -
       ind: 0
@@ -44,13 +44,13 @@ nodes:
          -
             type: 1
             name: "2_x"
-            value: 5.8483276367187500e+02
+            value: 5.5957983398437500e+02
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: "2_y"
-            value: 5.3123321533203125e+00
+            value: 4.5107049560546875e+02
             src_ind: -1
             src_port: ""
          -
@@ -149,6 +149,18 @@ nodes:
             type: 1
             name: max_size
             value: 100.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: cur_size
+            value: 18.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: ind
+            value: 5.
             src_ind: -1
             src_port: ""
    -
@@ -341,7 +353,7 @@ nodes:
          -
             type: 2
             name: in
-            src_ind: 1
+            src_ind: 3
             src_port: out
          -
             type: 1
@@ -358,7 +370,7 @@ nodes:
          -
             type: 1
             name: num
-            value: 3.
+            value: 7.
             src_ind: -1
             src_port: ""
          -
@@ -376,115 +388,259 @@ nodes:
          -
             type: 1
             name: time
-            value: 2.8999999165534973e-01
+            value: 4.6999999880790710e-01
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: x0
-            value: 126.
+            value: 114.
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: y0
-            value: 208.
+            value: 109.
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: r0
-            value: 123.
+            value: 52.
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: g0
-            value: 124.
+            value: 42.
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: b0
-            value: 121.
+            value: 50.
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: p0
-            value: 110673.
+            value: 52382.
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: x1
-            value: 495.
+            value: 0.
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: y1
-            value: 169.
+            value: 0.
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: r1
-            value: 194.
+            value: 0.
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: g1
-            value: 201.
+            value: 0.
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: b1
-            value: 195.
+            value: 0.
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: p1
-            value: 101997.
+            value: 0.
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: x2
-            value: 354.
+            value: 319.
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: y2
-            value: 350.
+            value: 371.
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: r2
-            value: 44.
+            value: 75.
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: g2
-            value: 48.
+            value: 65.
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: b2
-            value: 51.
+            value: 77.
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: p2
-            value: 94530.
+            value: 46072.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: x3
+            value: 523.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: y3
+            value: 110.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: r3
+            value: 54.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: g3
+            value: 42.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: b3
+            value: 49.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: p3
+            value: 52988.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: x4
+            value: 105.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: y4
+            value: 355.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: r4
+            value: 56.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: g4
+            value: 43.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: b4
+            value: 53.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: p4
+            value: 52767.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: x5
+            value: 317.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: y5
+            value: 144.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: r5
+            value: 90.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: g5
+            value: 70.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: b5
+            value: 90.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: p5
+            value: 49888.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: x6
+            value: 532.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: y6
+            value: 355.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: r6
+            value: 57.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: g6
+            value: 43.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: b6
+            value: 52.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: p6
+            value: 53103.
             src_ind: -1
             src_port: ""
    -
@@ -1303,7 +1459,7 @@ nodes:
          -
             type: 2
             name: in
-            src_ind: 19
+            src_ind: 8
             src_port: out
          -
             type: 1
@@ -1326,6 +1482,6 @@ nodes:
          -
             type: 1
             name: in
-            value: 0.
+            value: 300.
             src_ind: 19
             src_port: x

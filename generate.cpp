@@ -99,7 +99,7 @@ bool Circle::update()
 
   // if any inputs have changed this will go on to draw
   const bool id1 = isDirty(this,30);
-  LOG(INFO) << id1;
+  //LOG(INFO) << id1;
   if (!id1) {
     return true;
   }
@@ -108,7 +108,6 @@ bool Circle::update()
       MAT_FORMAT_C3);
   out = cv::Scalar(0,0,0,0);
  
-  const bool filled = getSignal("filled") > 0.5;
   cv::circle(out, 
     cv::Point(getSignal("x"), getSignal("y")), 
     getSignal("radius"), 
@@ -122,7 +121,7 @@ bool Circle::update()
   // clear this isDirty in advance of next loop
   const bool id2 = isDirty(this,30);
   const bool id3 = isDirty(this,30);
-  LOG(INFO) << id2 << " " << id3;
+  //LOG(INFO) << id2 << " " << id3;
 }
 
 //////////////////////////////////////////////////

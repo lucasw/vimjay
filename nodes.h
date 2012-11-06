@@ -91,11 +91,17 @@ class Elem
 // is irrelavent.  Probably should just have a vector of structs
 class Connector : public Elem
 {
+  protected:
+
   public:
   Connector();
 
   bool update();
 
+  // whether the dirtiness should force an update of the associated node
+  // determined by usage, not explicitly set
+  bool output;
+  
   // the Connector that is sourcing this one, if any
   // this is somewhat odd, the connector is in three parts- the src, this, and dst
   // and each has a copy of the data
@@ -115,9 +121,6 @@ class Connector : public Elem
 
   void draw(cv::Mat, cv::Point2f ui_offset);
   bool highlight;
-
-  // TBD
-  bool writeable;  
 
   // TBD could even have a float val or Mat here to store the last value
   // only used if conType == Signal, TBD subclass?
