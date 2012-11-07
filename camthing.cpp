@@ -813,6 +813,7 @@ class CamThing : public Output
     }
   }
 
+  // make a connection
   bool selectTargetNode() 
   {
     boost::mutex::scoped_lock l(update_mutex);
@@ -820,8 +821,12 @@ class CamThing : public Output
     // connect to source node in best way possible, replacing the current input
     // TBD need to be able to select specific inputs
     if (source_node && selected_node && 
-        (source_type != NONE) && (selected_node->selected_port != "") && (source_port != "")
-        && (selected_node->selected_port != "out")) {
+        (source_type != NONE) && 
+        (selected_node->selected_port != "") && 
+        (source_port != "") && 
+        (selected_node->selected_port != "") && 
+        (selected_node->selected_port != "out")
+        ) {
 
       // TBD a Buffer should act as an ImageNode if that is the only
       // input available

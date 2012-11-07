@@ -957,7 +957,7 @@ namespace bm {
     //if (con->src) return false;
 
     con->setDirty();
-
+    con->output = true;
     return true;
   }
 
@@ -981,6 +981,7 @@ namespace bm {
     //if (con->src) return false;
 
     con->setDirty();
+    con->output = true;
 
     return true;
   }
