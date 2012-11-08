@@ -2,20 +2,20 @@
   
   Copyright 2012 Lucas Walter
 
-     This file is part of Camthing.
+     This file is part of Vimjay.
 
-    Camthing is free software: you can redistribute it and/or modify
+    Vimjay is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
 
-    Camthing is distributed in the hope that it will be useful,
+    Vimjay is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with Camthing.  If not, see <http://www.gnu.org/licenses/>.
+    along with Vimjay.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include "camthing.h"
@@ -24,8 +24,6 @@
 #include <sstream>
 #include <stdio.h>
 #include <time.h>
-#include <typeinfo>
-#include <cxxabi.h> // non portable
 
 #include <deque>
 #include <boost/lexical_cast.hpp>
@@ -37,6 +35,7 @@
 #include <glog/logging.h>
 #include <gflags/gflags.h>
 
+#include "config.h"
 #include "nodes.h" 
 #include "misc_nodes.h" 
 #include "signals.h"
@@ -52,62 +51,9 @@ using namespace cv;
 using namespace std;
 
 DEFINE_string(graph_file, "../graph.yml", "yaml file to load with graph in it");
-DEFINE_string(config_file, "../config.yml", "configuration settings for ui and output");
 
 //DEFINE_bool(
 namespace bm {
-
-  Config* Config::instance = NULL;
-
-  Config* Config::inst()  
-  {
-    if (!instance) { 
-      instance = new Config;
-
-      instance->ui_width = 1280;
-      instance->ui_height = 720; 
-      instance->thumb_width = 40; 
-      instance->thumb_height = 30;
-      instance->im_width = 640;
-      instance->im_height = 480;
-
-      instance->load(FLAGS_config_file);
-    }
-
-    return instance;
-  }
-
-  bool Config::load(const string config_file)
-  {
-    LOG(INFO) << "loading config " << config_file;
-    
-    FileStorage fs; 
-    fs.open(config_file, FileStorage::READ);
-    
-    if (!fs.isOpened()) {
-      LOG(ERROR) << "couldn't open " << config_file;
-      return false;
-    }
-
-    fs["ui_width"] >> ui_width;
-    fs["ui_height"] >> ui_height;
-    fs["thumb_width"] >> thumb_width;
-    fs["thumb_height"] >> thumb_height;
-    fs["im_width"] >> im_width;
-    fs["im_height"] >> im_height;
-    fs["out_width"] >> out_width;
-    fs["out_height"] >> out_height;
-    
-    LOG(INFO) << "UI " << ui_width << " " << ui_height;
-    LOG(INFO) << "thumb " << thumb_width << " " << thumb_height;
-    LOG(INFO) << "output " << im_width << " " << im_height;
-  }
-
-string getId(Node* ptr) 
-  {
-    int status; 
-    return (abi::__cxa_demangle(typeid(*ptr).name(), 0, 0, &status));
-  }
 
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
@@ -630,7 +576,7 @@ class CamThing : public Output
 
     // Images
     // inputs
-    node = getNode<Webcam>("web_cam", loc);
+    //node = getNode<Webcam>("web_cam", loc);
     //node->update();
 
     node = getNode<ScreenCap>("screen_cap", loc);

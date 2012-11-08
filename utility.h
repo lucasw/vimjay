@@ -8,6 +8,8 @@
 
 #include "opencv2/imgproc/imgproc.hpp"
 
+#include "nodes.h"
+
 // bash color codes
 #define CLNRM "\e[0m"
 #define CLWRN "\e[0;43m"
@@ -25,6 +27,10 @@
 //#define MAT_FORMAT CV_32F
 
 namespace bm {
+
+class Node;
+
+std::string getId(Node* ptr);
 
 std::string logMat(const cv::Mat& m);
 

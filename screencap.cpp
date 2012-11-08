@@ -1,23 +1,26 @@
+/*
+  
+  Copyright 2012 Lucas Walter
 
-/**
- * Example program showing conversion of an image in the X11 XImage format to the openCV format IplImage
- * (by demonstrating the XImage2OpenCVImage function below)
- * The minimalistic program takes a screenshot of a specified area using XGetImage(...),
- * converts the resulting XImage to IplImage and shows the resulting openCV image until the user presses a key.
- *
- * Compile with opencv linker flags (`pkg-config --libs opencv`) e.g.
- * $ g++ ximage2opencvimage.cpp -L `pkg-config --libs opencv` -o ximage2opencvimage && ./ximage2opencvimage
- *
- * @File:   ximage2opencvimage.cpp
- * @Author: Jan Hendriks
- * @e-mail: dahoc3150@yahoo.com
- * @URL:    http://gawe-design.de
- *
- * Created on 8. March 2011, 20:01
+     This file is part of Vimjay.
+
+    Vimjay is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Vimjay is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Vimjay.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+
 #include "screencap.h"
-#include "camthing.h"
+#include "config.h"
 
 #include <glog/logging.h>
 

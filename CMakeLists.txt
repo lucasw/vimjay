@@ -42,6 +42,7 @@ find_package(OpenCV)
 ###############################################################################
 
 add_executable(${PROJECT_NAME}
+config.cpp
 camthing.cpp
 nodes.cpp
 misc_nodes.cpp

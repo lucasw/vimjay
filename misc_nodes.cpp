@@ -2,20 +2,20 @@
   
   Copyright 2012 Lucas Walter
 
-     This file is part of Camthing.
+     This file is part of Vimjay.
 
-    Camthing is free software: you can redistribute it and/or modify
+    Vimjay is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
 
-    Camthing is distributed in the hope that it will be useful,
+    Vimjay is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with Camthing.  If not, see <http://www.gnu.org/licenses/>.
+    along with Vimjay.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include "misc_nodes.h"
@@ -35,7 +35,7 @@
 
 #include <deque>
 
-#include "camthing.h"
+#include "config.h"
 
 using namespace cv;
 using namespace std;
