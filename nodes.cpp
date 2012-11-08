@@ -1061,7 +1061,7 @@ namespace bm {
 
       bool draw_thumb = true;
       if (loc.x + sz.width >= graph_ui.cols) {
-        LOG(ERROR) << name << " bad subregion " << loc.x << " " << sz.width << " " << graph_ui.cols;
+        //LOG(ERROR) << name << " bad subregion " << loc.x << " " << sz.width << " " << graph_ui.cols;
         draw_thumb = false;
       }
       if (loc.y + sz.height >= graph_ui.rows) {

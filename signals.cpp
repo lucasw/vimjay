@@ -138,6 +138,34 @@ namespace bm {
     return true;
   }
 
+  Trig::Trig()
+  { 
+    setSignal("in",0);
+    setSignal("radius",1);
+    setSignal("rad_deg_nrm",2);
+    setSignal("cos",0);
+    setSignal("sin",0);
+    setSignal("tan",0);
+  }
+
+  bool Trig::update()
+  {
+    if (!Node::update()) return false;
+    
+    const int rad_deg_nrm = getSignal("rad_deg_nrm");
+    float in = getSignal("in");
+    const float radius = getSignal("radius"); 
+    // convert deg to radians
+    if (rad_deg_nrm == 1) in *= M_PI/180.0;
+    // convert from normalized radians to radians
+    if (rad_deg_nrm == 2) in *= M_PI; 
+    
+    setSignal("cos", radius*cos(in));
+    setSignal("sin", radius*sin(in));
+    setSignal("tan", radius*tan(in));
+
+    return true;
+  }
   /////////////////////////////////////////////////////////////////////////////
   SigBuffer::SigBuffer() 
   {

@@ -66,6 +66,15 @@ class SigBuffer : public ImageNode
   //bool writeSignals();
 };
 
+class Trig : public Node
+{
+  public:
+  Trig(); 
+  virtual bool update();
+  //virtual bool handleKey(int key);
+};
+
+
 #ifdef NOT_YET_IMPLEMENTED
 /////////////////////////////////
 
