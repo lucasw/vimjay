@@ -1,5 +1,5 @@
 %YAML:1.0
-date: "Wed Nov  7 11:32:15 2012\n"
+date: "Wed Nov  7 19:31:57 2012\n"
 nodes:
    -
       ind: 0
@@ -44,13 +44,13 @@ nodes:
          -
             type: 1
             name: "2_x"
-            value: 2.1525442504882812e+02
+            value: 6.3407751464843750e+02
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: "2_y"
-            value: 7.7745834350585938e+01
+            value: 6.0553399658203125e+02
             src_ind: -1
             src_port: ""
          -
@@ -132,6 +132,18 @@ nodes:
             type: 1
             name: max_size
             value: 100.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: cur_size
+            value: 18.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: ind
+            value: 10.
             src_ind: -1
             src_port: ""
    -
@@ -485,19 +497,19 @@ nodes:
          -
             type: 1
             name: angle
-            value: 2.4586898803710938e+02
+            value: 2.1195678710937500e+00
             src_ind: 23
             src_port: "2_x"
          -
             type: 1
             name: scale
-            value: 2.6693515777587891e+01
+            value: 2.4643009185791016e+01
             src_ind: 27
             src_port: value
          -
             type: 1
             name: center_x
-            value: 4.5700172424316406e+01
+            value: 4.3200210571289062e+01
             src_ind: 24
             src_port: value
          -
@@ -644,13 +656,13 @@ nodes:
          -
             type: 2
             name: mul0
-            src_ind: -1
-            src_port: ""
+            src_ind: 30
+            src_port: out
          -
             type: 2
             name: mul1
-            src_ind: -1
-            src_port: ""
+            src_ind: 2
+            src_port: out
          -
             type: 1
             name: mul0
@@ -964,7 +976,7 @@ nodes:
       ind: 23
       typeid: "bm::Mouse"
       name: mouse
-      loc: [ 1034., 4.1999969482421875e+02 ]
+      loc: [ 1034., 420. ]
       inputs:
          -
             type: 1
@@ -981,13 +993,13 @@ nodes:
          -
             type: 1
             name: "2_x"
-            value: 2.4586898803710938e+02
+            value: 2.1195678710937500e+00
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: "2_y"
-            value: 1.3067239379882812e+02
+            value: 2.2550677490234375e+02
             src_ind: -1
             src_port: ""
          -
@@ -1011,7 +1023,7 @@ nodes:
          -
             type: 1
             name: value
-            value: 4.5700172424316406e+01
+            value: 4.3200210571289062e+01
             src_ind: -1
             src_port: ""
          -
@@ -1119,7 +1131,7 @@ nodes:
          -
             type: 1
             name: value
-            value: 2.6693515777587891e+01
+            value: 2.4643009185791016e+01
             src_ind: -1
             src_port: ""
          -
@@ -1218,7 +1230,7 @@ nodes:
          -
             type: 2
             name: in
-            src_ind: 3
+            src_ind: 14
             src_port: out
          -
             type: 1
@@ -1248,7 +1260,7 @@ nodes:
       ind: 30
       typeid: "bm::Add"
       name: add_2
-      loc: [ 3.7599996948242188e+02, 6.0999963378906250e+02 ]
+      loc: [ 376., 610. ]
       inputs:
          -
             type: 1
