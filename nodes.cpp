@@ -1346,7 +1346,13 @@ namespace bm {
         thumbnail.copyTo(graph_roi);
       }
     }
-    
+   
+    int max_size = getSignal("max_size");
+    if (max_size < 1) {
+      max_size = 1;
+      setSignal("max_size", max_size);
+    }
+  
     if (frames.size() < getSignal("max_size"))
       vcol = cv::Scalar(200, 30, 200);
     else
