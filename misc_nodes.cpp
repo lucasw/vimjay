@@ -88,23 +88,23 @@ namespace bm {
     float ht = Config::inst()->im_height;
     std::vector<cv::Point2f> in_p;
     std::vector<cv::Point2f> out_p;
-    in_p.push_back(cv::Point2f(0,0));
+    in_p.push_back(cv::Point2f(0,  0));
     in_p.push_back(cv::Point2f(wd, 0));
     in_p.push_back(cv::Point2f(wd, ht));
-    in_p.push_back(cv::Point2f(0, ht));
+    in_p.push_back(cv::Point2f(0,  ht));
     
     float ca = scale * cos(angle);
     float sa = scale * sin(angle);
     
     float xt0 = ca * -wd/2 - sa * -ht/2;
-    float xt1 = ca * -wd/2 - sa *  ht/2;
+    float xt1 = ca *  wd/2 - sa * -ht/2;
     float xt2 = ca *  wd/2 - sa *  ht/2;
-    float xt3 = ca *  wd/2 - sa * -ht/2;
+    float xt3 = ca * -wd/2 - sa *  ht/2;
 
     float yt0 = sa * -wd/2 + ca * -ht/2;
-    float yt1 = sa * -wd/2 + ca *  ht/2;
+    float yt1 = sa *  wd/2 + ca * -ht/2;
     float yt2 = sa *  wd/2 + ca *  ht/2;
-    float yt3 = sa *  wd/2 + ca * -ht/2;
+    float yt3 = sa * -wd/2 + ca *  ht/2;
     
     //cv::Point2f offset = cv::Point(wd*scale/2, ht*scale/2);
 
