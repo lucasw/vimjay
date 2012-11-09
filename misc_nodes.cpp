@@ -49,8 +49,8 @@ namespace bm {
     setImage("in",tmp);
     setSignal("angle", 0);
     setSignal("scale", 1.0);
-    setSignal("center_x", 0.0);
-    setSignal("center_y", 0.0);
+    setSignal("center_x", Config::inst()->im_width/2 );
+    setSignal("center_y", Config::inst()->im_height/2 );
     setSignal("border", 0.0);
   }
 
@@ -67,7 +67,7 @@ namespace bm {
     tmp_in = getImage("in");
     if (tmp_in.empty()) return false;
 
-    float angle = getSignal("angle");    
+    float angle = getSignal("angle") * M_PI/180.0;    
     float scale = getSignal("scale");    
 
     cv::Point2f center;
@@ -78,16 +78,60 @@ namespace bm {
     border %= 5;
 
     int border_type = BORDER_CONSTANT;
-    if (border == 1) border_type = BORDER_REPLICATE;
-    if (border == 2) border_type = BORDER_REFLECT;
-    if (border == 3) border_type = BORDER_REFLECT_101;
-    if (border == 4) border_type = BORDER_WRAP;
+    if (border == 1) border_type = BORDER_REFLECT;
+    if (border == 2) border_type = BORDER_WRAP;
+    if (border == 3) border_type = BORDER_REPLICATE;
+    if (border == 4) border_type = BORDER_REFLECT_101;
     //VLOG(1) << name << " " << is_dirty << " " << im_in->name << " " << im_in->is_dirty;
 
-    cv::Mat rot = cv::getRotationMatrix2D(center, angle, scale);
-    cv::Mat tmp;
-    cv::warpAffine(tmp_in, tmp, rot, tmp_in.size(), INTER_NEAREST, border_type);
+    float wd = Config::inst()->im_width;
+    float ht = Config::inst()->im_height;
+    std::vector<cv::Point2f> in_p;
+    std::vector<cv::Point2f> out_p;
+    in_p.push_back(cv::Point2f(0,0));
+    in_p.push_back(cv::Point2f(wd, 0));
+    in_p.push_back(cv::Point2f(wd, ht));
+    in_p.push_back(cv::Point2f(0, ht));
+    
+    float ca = scale * cos(angle);
+    float sa = scale * sin(angle);
+    
+    float xt0 = ca * -wd/2 - sa * -ht/2;
+    float xt1 = ca * -wd/2 - sa *  ht/2;
+    float xt2 = ca *  wd/2 - sa *  ht/2;
+    float xt3 = ca *  wd/2 - sa * -ht/2;
 
+    float yt0 = sa * -wd/2 + ca * -ht/2;
+    float yt1 = sa * -wd/2 + ca *  ht/2;
+    float yt2 = sa *  wd/2 + ca *  ht/2;
+    float yt3 = sa *  wd/2 + ca * -ht/2;
+    
+    //cv::Point2f offset = cv::Point(wd*scale/2, ht*scale/2);
+
+    out_p.push_back(center + cv::Point2f(xt0,yt0));
+    out_p.push_back(center + cv::Point2f(xt1,yt1));
+    out_p.push_back(center + cv::Point2f(xt2,yt2));
+    out_p.push_back(center + cv::Point2f(xt3,yt3));
+
+    setSignal("x0", out_p[0].x);
+    setSignal("y0", out_p[0].y);
+    setSignal("x1", out_p[1].x);
+    setSignal("y1", out_p[1].y);
+    setSignal("x2", out_p[2].x);
+    setSignal("y2", out_p[2].y);
+    setSignal("x3", out_p[3].x);
+    setSignal("y3", out_p[3].y);
+
+    cv::Mat transform = cv::getPerspectiveTransform(in_p, out_p);
+
+    cv::Mat tmp;
+    cv::warpPerspective(tmp_in, tmp, transform, 
+        tmp_in.size(), INTER_NEAREST, border_type);
+
+    //cv::Point2f shift;
+    //shift.x = getSignal("shift_x");     
+    //shift.y = getSignal("shift_y")
+ 
     setImage("out", tmp);
   }
 
