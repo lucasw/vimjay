@@ -31,6 +31,17 @@ class Undistort : public ImageNode
   virtual bool update();
 };
 
+class Remap : public ImageNode
+{
+  // don't expose these to ui with set/getSignals
+  cv::Mat base_x;
+  cv::Mat base_y;
+
+  public:
+  Remap();
+  virtual bool update();
+};
+
 class Webcam : public ImageNode
 {
 

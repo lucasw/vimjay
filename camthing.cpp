@@ -162,6 +162,8 @@ class CamThing : public Output
         node = getNode<Rot2D>(name, loc);
       } else if (type_id.compare("bm::Undistort") == 0) {
         node = getNode<Undistort>(name, loc);
+      } else if (type_id.compare("bm::Remap") == 0) {
+        node = getNode<Remap>(name, loc);
       } else if (type_id.compare("bm::Signal") == 0) {
         node = getNode<Signal>(name, loc);
       } else if (type_id.compare("bm::Saw") == 0) {
@@ -591,6 +593,10 @@ class CamThing : public Output
     im_dir->loadImages();
 
     // process
+    node = getNode<Rot2D>("rot2d", loc);
+    node = getNode<Undistort>("undistort", loc);
+    node = getNode<Remap>("remap", loc);
+    
     getNode<Buffer>("buffer", loc);
     getNode<Mux>("mux", loc);
     getNode<MuxBuffer>("mux_buffer", loc);
@@ -599,8 +605,6 @@ class CamThing : public Output
 
     node = getNode<Sobel>("sobel", loc);
     node = getNode<GaussianBlur>("blur", loc);
-    node = getNode<Rot2D>("rot2d", loc);
-    node = getNode<Undistort>("undistort", loc);
     node = getNode<Resize>("resize", loc);
     node = getNode<Flip>("flip", loc);
 

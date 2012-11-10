@@ -203,6 +203,85 @@ namespace bm {
     setImage("out",out);
     return true;
   }
+
+  Remap::Remap()
+  {
+    cv::Mat in;
+    setImage("in", in);
+    cv::Mat offx;
+    setImage("offx", offx);
+    setSignal("scalex", 1.0);
+    cv::Mat offy;
+    setImage("offy", offy);
+    setSignal("scaley", 1.0);
+
+    base_x = cv::Mat( cv::Size(Config::inst()->im_width, Config::inst()->im_height),
+      CV_32FC1);
+    base_y = base_x.clone();
+
+    for (int i = 0; i < base_x.rows; i++) {
+    for (int j = 0; j < base_x.cols; j++) {
+      base_x.at<float>(i,j) = j;
+      base_y.at<float>(i,j) = i;
+    }
+    }
+
+  } 
+
+  bool Remap::update()
+  {
+    if (!Node::update()) return false;
+    
+    if (!isDirty(this,40)) return true;
+
+    cv::Mat in = getImage("in");
+    if (in.empty()) return false;
+
+    cv::Mat offx = getImage("offx");
+    cv::Mat offy = getImage("offy");
+
+    cv::Mat offx_scaled;
+    cv::Mat offy_scaled;
+
+    //if (offy.empty() && offx.empty()) {
+    if (offy.empty() || offx.empty()) {
+      setImage("out", in);
+      return false;
+    } /* else if (offy.empty() && !offx.empty()) {
+      offy_scaled = cv::Mat(base_x.size(), CV_16SC1, cv::Scalar(0));
+      offx.convertTo(offx_scaled, CV_16SC1, getSignal("scalex"));
+    } else if (!offy.empty() && offx.empty()) {
+      offx_scaled = cv::Mat(base_x.size(), CV_16SC1, cv::Scalar(0));
+      offy.convertTo(offy_scaled, CV_16SC1, getSignal("scaley"));
+    } else {
+      offx.convertTo(offx_scaled, CV_16SC1, getSignal("scalex"));
+      offy.convertTo(offy_scaled, CV_16SC1, getSignal("scaley"));
+    }*/
+
+    cv::Mat out;
+  #if 1
+    cv::Mat offx8, offy8;
+    cv::cvtColor(offx, offx8, CV_RGB2GRAY);
+    cv::cvtColor(offy, offy8, CV_RGB2GRAY);
+      
+    offx8.convertTo(offx_scaled, CV_32FC1, getSignal("scalex"));
+    offy8.convertTo(offy_scaled, CV_32FC1, getSignal("scaley"));
+    
+    cv::Mat dist_x = base_x + offx_scaled;
+    cv::Mat dist_y = base_y + offy_scaled;
+  
+    cv::Mat dist_xy16, dist_int;
+    cv::convertMaps(dist_x, dist_y, dist_xy16, dist_int, CV_16SC2, true);
+
+    cv::remap(in, out, dist_xy16, cv::Mat(), cv::INTER_NEAREST, cv::BORDER_REPLICATE);
+   #else
+    cv::remap(in, out, base_x, base_y, cv::INTER_NEAREST);
+    #endif
+    setImage("out", out);
+
+    return true;
+  }
+
   ////////////////////////////////////////////////////////////
   Webcam::Webcam() : error_count(0)
   {
