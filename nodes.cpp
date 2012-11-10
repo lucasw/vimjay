@@ -1108,7 +1108,12 @@ namespace bm {
     cv::Mat out = getImage("out").clone();
     if (out.empty()) return false;
 
-    cv::imwrite(file_name.str(), out);
+    cv::Mat tmp0 = cv::Mat(out.size(), CV_8UC3, cv::Scalar(0));  
+    // just calling reshape(4) doesn't do the channel reassignment like this does
+    int ch[] = {0,0, 1,1, 2,2};
+    cv::mixChannels(&out, 1, &tmp0, 1, ch, 3 );
+
+    cv::imwrite(file_name.str(), tmp0);
     write_count++;
     setSignal("write_count", write_count);
 
