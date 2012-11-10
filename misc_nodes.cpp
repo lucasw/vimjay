@@ -62,10 +62,10 @@ namespace bm {
     if (ports.size() < 1) return false;
    
     bool im_dirty;
-    cv::Mat tmp_in;
+    cv::Mat in;
     // "image" is the default image input name
-    tmp_in = getImage("in");
-    if (tmp_in.empty()) return false;
+    in = getImage("in");
+    if (in.empty()) return false;
 
     float angle = getSignal("angle") * M_PI/180.0;    
     float scale = getSignal("scale");    
@@ -86,13 +86,16 @@ namespace bm {
 
     float wd = Config::inst()->im_width;
     float ht = Config::inst()->im_height;
+    
+#if 0
     std::vector<cv::Point2f> in_p;
     std::vector<cv::Point2f> out_p;
+    // the four corners of the screen
     in_p.push_back(cv::Point2f(0,  0));
     in_p.push_back(cv::Point2f(wd, 0));
     in_p.push_back(cv::Point2f(wd, ht));
     in_p.push_back(cv::Point2f(0,  ht));
-    
+ 
     float ca = scale * cos(angle);
     float sa = scale * sin(angle);
     
@@ -105,34 +108,53 @@ namespace bm {
     float yt1 = sa *  wd/2 + ca * -ht/2;
     float yt2 = sa *  wd/2 + ca *  ht/2;
     float yt3 = sa * -wd/2 + ca *  ht/2;
-    
-    //cv::Point2f offset = cv::Point(wd*scale/2, ht*scale/2);
-
+   
     out_p.push_back(center + cv::Point2f(xt0,yt0));
     out_p.push_back(center + cv::Point2f(xt1,yt1));
     out_p.push_back(center + cv::Point2f(xt2,yt2));
     out_p.push_back(center + cv::Point2f(xt3,yt3));
+#endif
+    
 
-    setSignal("x0", out_p[0].x);
-    setSignal("y0", out_p[0].y);
-    setSignal("x1", out_p[1].x);
-    setSignal("y1", out_p[1].y);
-    setSignal("x2", out_p[2].x);
-    setSignal("y2", out_p[2].y);
-    setSignal("x3", out_p[3].x);
-    setSignal("y3", out_p[3].y);
+    /// This implements a standard rotozoom
+    cv::Mat in_p = (cv::Mat_<float>(2,4) << 
+        0, wd, wd, 0, 
+        0, 0,  ht, ht); 
 
-    cv::Mat transform = cv::getPerspectiveTransform(in_p, out_p);
+    cv::Mat offset = (cv::Mat_<float>(2,4) << 
+        wd/2, wd/2, wd/2, wd/2, 
+        ht/2, ht/2, ht/2, ht/2); 
 
-    cv::Mat tmp;
-    cv::warpPerspective(tmp_in, tmp, transform, 
-        tmp_in.size(), INTER_NEAREST, border_type);
+    cv::Mat center_m = (cv::Mat_<float>(2,4) << 
+        center.x, center.x, center.x, center.x, 
+        center.y, center.y, center.y, center.y); 
+
+    cv::Mat rot = (cv::Mat_<float>(2, 2) <<
+        cos(angle), -sin(angle), sin(angle), cos(angle));
+  
+    // TBD reformat the matrices so all the transposes aren't necessary
+    cv::Mat out_p =  (in_p - offset).t() * rot.t() * scale + center_m.t();
+    cv::Mat transform = cv::getPerspectiveTransform(in_p.t(), out_p);
+
+    cv::Mat out;
+    cv::warpPerspective(in, out, transform, 
+        in.size(), INTER_NEAREST, border_type);
+    /////
+
+    setSignal("x0", out_p.at<float>(0,0));
+    setSignal("x1", out_p.at<float>(0,1));
+    setSignal("x2", out_p.at<float>(0,2));
+    setSignal("x3", out_p.at<float>(0,3));
+    setSignal("y0", out_p.at<float>(1,0));
+    setSignal("y1", out_p.at<float>(1,1));
+    setSignal("y2", out_p.at<float>(1,2));
+    setSignal("y3", out_p.at<float>(1,3));
 
     //cv::Point2f shift;
     //shift.x = getSignal("shift_x");     
     //shift.y = getSignal("shift_y")
  
-    setImage("out", tmp);
+    setImage("out", out);
   }
 
   ////////////////////////////////////////////////////////////
