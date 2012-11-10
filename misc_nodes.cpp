@@ -52,6 +52,7 @@ namespace bm {
     setSignal("center_x", Config::inst()->im_width/2 );
     setSignal("center_y", Config::inst()->im_height/2 );
     setSignal("border", 0.0);
+    setSignal("manual_xy", 0.0);
   }
 
   bool Rot2D::update()
@@ -86,41 +87,36 @@ namespace bm {
 
     float wd = Config::inst()->im_width;
     float ht = Config::inst()->im_height;
-    
-#if 0
-    std::vector<cv::Point2f> in_p;
-    std::vector<cv::Point2f> out_p;
-    // the four corners of the screen
-    in_p.push_back(cv::Point2f(0,  0));
-    in_p.push_back(cv::Point2f(wd, 0));
-    in_p.push_back(cv::Point2f(wd, ht));
-    in_p.push_back(cv::Point2f(0,  ht));
- 
-    float ca = scale * cos(angle);
-    float sa = scale * sin(angle);
-    
-    float xt0 = ca * -wd/2 - sa * -ht/2;
-    float xt1 = ca *  wd/2 - sa * -ht/2;
-    float xt2 = ca *  wd/2 - sa *  ht/2;
-    float xt3 = ca * -wd/2 - sa *  ht/2;
 
-    float yt0 = sa * -wd/2 + ca * -ht/2;
-    float yt1 = sa *  wd/2 + ca * -ht/2;
-    float yt2 = sa *  wd/2 + ca *  ht/2;
-    float yt3 = sa * -wd/2 + ca *  ht/2;
-   
-    out_p.push_back(center + cv::Point2f(xt0,yt0));
-    out_p.push_back(center + cv::Point2f(xt1,yt1));
-    out_p.push_back(center + cv::Point2f(xt2,yt2));
-    out_p.push_back(center + cv::Point2f(xt3,yt3));
-#endif
-    
-
-    /// This implements a standard rotozoom
     cv::Mat in_p = (cv::Mat_<float>(2,4) << 
         0, wd, wd, 0, 
-        0, 0,  ht, ht); 
+        0, 0,  ht, ht);
 
+    // By getting the xy parameters that were set in the last cycle, it is possible
+    // to override the angle/scale/center parameters by setting these directly
+    cv::Mat out_p = in_p.clone().t();  
+    
+    out_p.at<float>(0,0) = getSignal("x0");
+    out_p.at<float>(1,0) = getSignal("x1");
+    out_p.at<float>(2,0) = getSignal("x2");
+    out_p.at<float>(3,0) = getSignal("x3");
+    out_p.at<float>(0,1) = getSignal("y0");
+    out_p.at<float>(1,1) = getSignal("y1"); 
+    out_p.at<float>(2,1) = getSignal("y2");
+    out_p.at<float>(3,1) = getSignal("y3"); 
+    
+    cv::Mat out;
+    // TBD make inter_nearest changeable
+    cv::Mat transform = cv::getPerspectiveTransform(in_p.t(), out_p);
+    cv::warpPerspective(in, out, transform, 
+        in.size(), INTER_NEAREST, border_type);
+    setImage("out", out);
+
+    if (getSignal("manual_xy") < 0.5) {
+     //////////////////////////////////////////////////
+    /// This implements a standard rotozoom
+    // now compute the xy parameters for the next cycle using the current
+    // scale/ center/ angle values
     cv::Mat offset = (cv::Mat_<float>(2,4) << 
         wd/2, wd/2, wd/2, wd/2, 
         ht/2, ht/2, ht/2, ht/2); 
@@ -133,28 +129,21 @@ namespace bm {
         cos(angle), -sin(angle), sin(angle), cos(angle));
   
     // TBD reformat the matrices so all the transposes aren't necessary
-    cv::Mat out_p =  (in_p - offset).t() * rot.t() * scale + center_m.t();
-    cv::Mat transform = cv::getPerspectiveTransform(in_p.t(), out_p);
+    out_p =  (in_p - offset).t() * rot.t() * scale + center_m.t();
 
-    cv::Mat out;
-    cv::warpPerspective(in, out, transform, 
-        in.size(), INTER_NEAREST, border_type);
-    /////
+       /////
+    LOG(INFO) << out_p.rows << " " << out_p.cols;
 
     setSignal("x0", out_p.at<float>(0,0));
-    setSignal("x1", out_p.at<float>(0,1));
-    setSignal("x2", out_p.at<float>(0,2));
-    setSignal("x3", out_p.at<float>(0,3));
-    setSignal("y0", out_p.at<float>(1,0));
+    setSignal("x1", out_p.at<float>(1,0));
+    setSignal("x2", out_p.at<float>(2,0));
+    setSignal("x3", out_p.at<float>(3,0));
+    setSignal("y0", out_p.at<float>(0,1));
     setSignal("y1", out_p.at<float>(1,1));
-    setSignal("y2", out_p.at<float>(1,2));
-    setSignal("y3", out_p.at<float>(1,3));
-
-    //cv::Point2f shift;
-    //shift.x = getSignal("shift_x");     
-    //shift.y = getSignal("shift_y")
+    setSignal("y2", out_p.at<float>(2,1));
+    setSignal("y3", out_p.at<float>(3,1));
+    }
  
-    setImage("out", out);
   }
 
   ////////////////////////////////////////////////////////////
