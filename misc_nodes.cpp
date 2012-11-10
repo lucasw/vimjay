@@ -62,6 +62,8 @@ namespace bm {
     // anything to rotate?
     if (ports.size() < 1) return false;
    
+    if (!isDirty(this,40)) return true;
+
     bool im_dirty;
     cv::Mat in;
     // "image" is the default image input name
@@ -131,9 +133,6 @@ namespace bm {
     // TBD reformat the matrices so all the transposes aren't necessary
     out_p =  (in_p - offset).t() * rot.t() * scale + center_m.t();
 
-       /////
-    LOG(INFO) << out_p.rows << " " << out_p.cols;
-
     setSignal("x0", out_p.at<float>(0,0));
     setSignal("x1", out_p.at<float>(1,0));
     setSignal("x2", out_p.at<float>(2,0));
@@ -151,6 +150,50 @@ namespace bm {
     }}
   }
 
+  //
+  Undistort::Undistort()
+  {
+    cv::Mat tmp;
+    setImage("in",tmp);
+    setSignal("fx", Config::inst()->im_width/2 );
+    setSignal("fy", Config::inst()->im_width/2 );
+    setSignal("cx", Config::inst()->im_width/2 );
+    setSignal("cy", Config::inst()->im_height/2 );
+    setSignal("d0", 0 );
+    setSignal("d1", 0 );
+    setSignal("d2", 0 );
+    setSignal("d3", 0 );
+  }
+
+  bool Undistort::update()
+  {
+    if (!Node::update()) return false;
+    
+    if (!isDirty(this,40)) return true;
+
+    cv::Mat in = getImage("in");
+    if (in.empty()) return false;
+
+    cv::Mat intrinsics = (cv::Mat_<float>(3,3) <<
+        getSignal("fx"), 0, getSignal("cx"),
+        0, getSignal("fy"), getSignal("cy"),
+        0, 0, 1
+        );
+
+    // TBD with 1/1000 scale factor
+    cv::Mat dist = (cv::Mat_<float>(4,1) <<
+        getSignal("d0")/1000.0,
+        getSignal("d1")/1000.0,
+        getSignal("d2")/1000.0,
+        getSignal("d3")/1000.0
+        );
+
+    cv::Mat out;
+
+    cv::undistort(in, out, intrinsics, dist);
+    setImage("out",out);
+    return true;
+  }
   ////////////////////////////////////////////////////////////
   Webcam::Webcam() : error_count(0)
   {

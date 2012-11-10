@@ -160,6 +160,8 @@ class CamThing : public Output
         node = getNode<Flip>(name, loc);
       } else if (type_id.compare("bm::Rot2D") == 0) {
         node = getNode<Rot2D>(name, loc);
+      } else if (type_id.compare("bm::Undistort") == 0) {
+        node = getNode<Undistort>(name, loc);
       } else if (type_id.compare("bm::Signal") == 0) {
         node = getNode<Signal>(name, loc);
       } else if (type_id.compare("bm::Saw") == 0) {
@@ -598,6 +600,7 @@ class CamThing : public Output
     node = getNode<Sobel>("sobel", loc);
     node = getNode<GaussianBlur>("blur", loc);
     node = getNode<Rot2D>("rot2d", loc);
+    node = getNode<Undistort>("undistort", loc);
     node = getNode<Resize>("resize", loc);
     node = getNode<Flip>("flip", loc);
 
@@ -1096,7 +1099,7 @@ class CamThing : public Output
     }
     else if( key == 'w' ) {
       // TBD increment a count so old saves aren't overwritten?
-      saveGraph("temp_graph.yml");
+      saveGraph("../temp_graph.yml");
     }
     //else if (key == 'a') {
     //  gridGraph();

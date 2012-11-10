@@ -24,6 +24,13 @@ class Rot2D : public ImageNode
   virtual bool update();
 };
 
+class Undistort : public ImageNode
+{
+  public:
+  Undistort();
+  virtual bool update();
+};
+
 class Webcam : public ImageNode
 {
 
