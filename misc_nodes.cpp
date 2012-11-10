@@ -163,6 +163,11 @@ namespace bm {
     setSignal("d1", 0 );
     setSignal("d2", 0 );
     setSignal("d3", 0 );
+    
+    setSignal("d4", 0 );
+    setSignal("d5", 0 );
+    setSignal("d6", 0 );
+    setSignal("d7", 0 );
   }
 
   bool Undistort::update()
@@ -179,13 +184,17 @@ namespace bm {
         0, getSignal("fy"), getSignal("cy"),
         0, 0, 1
         );
-
-    // TBD with 1/1000 scale factor
-    cv::Mat dist = (cv::Mat_<float>(4,1) <<
-        getSignal("d0")/1000.0,
-        getSignal("d1")/1000.0,
-        getSignal("d2")/1000.0,
-        getSignal("d3")/1000.0
+    // has to be size 4, 5, or 8
+    // TBD with 1/100 scale factor
+    cv::Mat dist = (cv::Mat_<float>(8,1) <<
+        getSignal("d0")/100.0,
+        getSignal("d1")/100.0,
+        getSignal("d2")/100.0,
+        getSignal("d3")/100.0,
+        getSignal("d4")/100.0,
+        getSignal("d5")/100.0,
+        getSignal("d6")/100.0,
+        getSignal("d7")/1000.0
         );
 
     cv::Mat out;
