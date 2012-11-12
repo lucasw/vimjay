@@ -51,6 +51,8 @@ namespace bm {
     setSignal("scale", 1.0);
     setSignal("center_x", Config::inst()->im_width/2 );
     setSignal("center_y", Config::inst()->im_height/2 );
+    setSignal("off_x", Config::inst()->im_width/2 );
+    setSignal("off_y", Config::inst()->im_height/2 );
     setSignal("border", 0.0);
     setSignal("manual_xy", 0.0);
   }
@@ -77,6 +79,9 @@ namespace bm {
     center.x = getSignal("center_x");     
     center.y = getSignal("center_y");
     
+    float off_x = getSignal("off_x");     
+    float off_y = getSignal("off_y");
+
     int border = getSignal("border");
     border %= 5;
 
@@ -120,8 +125,10 @@ namespace bm {
     // now compute the xy parameters for the next cycle using the current
     // scale/ center/ angle values
     cv::Mat offset = (cv::Mat_<float>(2,4) << 
-        wd/2, wd/2, wd/2, wd/2, 
-        ht/2, ht/2, ht/2, ht/2); 
+      off_x, off_x, off_x, off_x, 
+      off_y, off_y, off_y, off_y); 
+      //  wd/2, wd/2, wd/2, wd/2, 
+      //  ht/2, ht/2, ht/2, ht/2); 
 
     cv::Mat center_m = (cv::Mat_<float>(2,4) << 
         center.x, center.x, center.x, center.x, 
