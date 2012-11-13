@@ -885,6 +885,7 @@ CMP_NE
     setImage("in", tmp);
     setSignal("fx", 0.2);
     setSignal("fy", 0.2);
+    setSignal("mode", 0);
   }
 
   bool Resize::update()
@@ -916,12 +917,23 @@ CMP_NE
   if (dsize.height > sz.height) dsize.height= sz.height;
   if (dsize.width > sz.width) dsize.width = sz.width;
 
+  // scale image down
   cv::Mat tmp;
   cv::resize(in, tmp, dsize, 0, 0, cv::INTER_NEAREST);
   // then scale back to input size
   cv::Mat out;
 
-  cv::resize(tmp, out, sz, 0, 0, cv::INTER_NEAREST);
+  int mode = getSignal("mode");
+  mode %= 5;
+
+  int mode_type = cv::INTER_NEAREST;
+  if (mode == 1) mode_type = cv::INTER_LINEAR;
+  if (mode == 2) mode_type = cv::INTER_AREA;
+  if (mode == 3) mode_type = cv::INTER_CUBIC;
+  if (mode == 4) mode_type = cv::INTER_LANCZOS4;
+  
+  // scale it back up to standard size
+  cv::resize(tmp, out, sz, 0, 0, mode_type);
   setImage("out", out);
   VLOG(1) << fx << " " << fy << " " 
       << tmp.size().width << " " << tmp.size().height
