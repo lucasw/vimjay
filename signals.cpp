@@ -359,8 +359,10 @@ bool SigAdd::handleKey(int key)
     }
 
     // add a new addition port
-    const string port = "mula" + boost::lexical_cast<string>(add_num);
-    setSignal("port",0);
+    const string port_a = "mula" + boost::lexical_cast<string>(add_num);
+    const string port_b = "mulb" + boost::lexical_cast<string>(add_num);
+    setSignal(port_a, 1);
+    setSignal(port_b, 0);
 
     // TBD make a way to delete a port
   } else {
