@@ -449,7 +449,7 @@ namespace bm {
     // draw rectangle around entire node
     cv::rectangle(graph_ui, 
           loc + cv::Point2f(-5, -15) + ui_offset, 
-          loc + cv::Point2f(100, ports.size()*10 + 2) + ui_offset, 
+          loc + cv::Point2f(140, ports.size()*10 + 2) + ui_offset, 
           vcol*0.2, //cv::Scalar(255,0,0),
           2);
     
@@ -1055,8 +1055,10 @@ namespace bm {
       if (!isDirty(this,2)) fr = 5;
       cv::Scalar col = cv::Scalar(vcol/fr);
 
-      cv::rectangle(graph_ui, loc + cv::Point2f(100,0) - cv::Point2f(2,2) + ui_offset, 
-          loc + cv::Point2f(100,0) + cv::Point2f(sz.width,sz.height) + cv::Point2f(2,2) + ui_offset, 
+      cv::Point2f thumb_offset = cv::Point2f(0, -sz.height - 20);
+      cv::rectangle(graph_ui, 
+          loc + thumb_offset + ui_offset - cv::Point2f(2,2) + ui_offset, 
+          loc + thumb_offset + ui_offset + cv::Point2f(2,2) + cv::Point2f(sz.width, sz.height), 
           col, CV_FILLED );
 
       bool draw_thumb = true;
@@ -1065,13 +1067,13 @@ namespace bm {
         draw_thumb = false;
       }
       if (loc.y + sz.height >= graph_ui.rows) {
-        LOG(ERROR) << name << " bad subregion " << loc.y << " " << sz.height << " " << graph_ui.rows;
+        VLOG(5) << name << " bad subregion " << loc.y << " " << sz.height << " " << graph_ui.rows;
         draw_thumb = false;
       }
 
       if (draw_thumb) {
-        float xth = loc.x + ui_offset.x + 100;
-        float yth = loc.y + ui_offset.y;
+        float xth = loc.x + ui_offset.x + thumb_offset.x;
+        float yth = loc.y + ui_offset.y + thumb_offset.y;
 
         if ((xth > 0) && (yth > 0) && 
             (xth + sz.width < graph_ui.cols) && (yth + sz.height < graph_ui.rows)) {

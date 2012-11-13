@@ -328,8 +328,9 @@ class CamThing : public Output
     const int wd = (sqrt(all_nodes.size()));
     const int ht = all_nodes.size()/wd + 0.5;
     
+    const float tht = Config::inst()->thumb_height;
     float dx = graph_ui.cols / (wd + 1.5);
-    float dy = graph_ui.rows / (ht);
+    float dy = (graph_ui.rows-tht) / (ht);
     
     LOG(INFO) << "making " << all_nodes.size() << " graph items into grid " << wd << " " << dx << " " << dy;
 
@@ -338,7 +339,7 @@ class CamThing : public Output
       const int ind = y*(wd+1) + x;
       if (ind >= all_nodes.size()) continue;
       
-      cv::Point loc = cv::Point2f( x*dx + dx/4.0, y*dy + dy/4.0 );
+      cv::Point loc = cv::Point2f( x*dx + dx/4.0, tht + y*dy + dy/4.0 );
       
       LOG(INFO) << ind << " " << getId(all_nodes[ind]) << " "
           <<  all_nodes[ind]->name << " " 

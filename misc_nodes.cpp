@@ -149,12 +149,14 @@ namespace bm {
     setSignal("y2", out_p.at<float>(2,1));
     setSignal("y3", out_p.at<float>(3,1));
     }
- 
+
+    #if 0
     for (int i = 0; i < transform.rows; i++) {
     for (int j = 0; j < transform.cols; j++) {
       std::string name = "m" + boost::lexical_cast<string>(i) + boost::lexical_cast<string>(j);
       setSignal(name, out_p.at<float>(i,j));
     }}
+    #endif
   }
 
   //
