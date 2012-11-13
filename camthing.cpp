@@ -166,6 +166,8 @@ class CamThing : public Output
         node = getNode<Remap>(name, loc);
       } else if (type_id.compare("bm::Signal") == 0) {
         node = getNode<Signal>(name, loc);
+      } else if (type_id.compare("bm::SigAdd") == 0) {
+        node = getNode<SigAdd>(name, loc);
       } else if (type_id.compare("bm::Saw") == 0) {
         node = getNode<Saw>(name, loc);
       } else if (type_id.compare("bm::SigBuffer") == 0) {
@@ -630,6 +632,7 @@ class CamThing : public Output
     input_node = (Mouse*) node;
 
     // generate
+    node = getNode<SigAdd>("sigadd", loc);
     node = getNode<Signal>("signal0", loc);
     node = getNode<Saw>("saw", loc);
     node = getNode<Random>("random", loc);

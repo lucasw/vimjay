@@ -23,7 +23,7 @@
 #include <boost/timer.hpp>
 #include <glog/logging.h>
 
-#include "camthing.h"
+#include "config.h"
 #include "utility.h"
 
 namespace bm {
@@ -80,6 +80,8 @@ namespace bm {
     int screen_h = xwAttr.height;
     setSignal("disp_w", screen_w);
     setSignal("disp_h", screen_h);
+    setSignal("im_w", Config::inst()->im_width);
+    setSignal("im_h", Config::inst()->im_height);
     
     VLOG(4) << "attr time" << t1.elapsed(); 
 

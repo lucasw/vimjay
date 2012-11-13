@@ -294,6 +294,84 @@ namespace bm {
     return sigs[ind];
   }
 
+  
+// Sig add is similar in structure to the image multiply, 
+// so it has pairs of signal inputs that are each multiplied together
+// but then each set is summed
+SigAdd::SigAdd()
+{
+  setSignal("out",0);
+  setSignal("mula0",1);
+  setSignal("mulb0",0);
+}
+
+bool SigAdd::update()
+{
+  if (!Node::update()) return false;
+
+  if (!isDirty(this, 5)) {
+    VLOG(1) << name << " not dirty ";
+    return true;
+  }
+
+  float sum = 0;
+
+  for (int i = 0 ; i < ports.size(); i++) {
+    if (ports[i]->type != SIGNAL) continue;
+    const string port_a = ports[i]->name;
+
+    if (port_a.substr(0,4) != "mula") {
+      VLOG(1) << name << " : " << port_a.substr(0,4) << " " << port_a;
+      continue;
+    }
+  
+    const string port_b = "mulb" + port_a.substr(4);
+
+    sum += getSignal(port_a) * getSignal(port_b);  
+    
+  }
+
+  setSignal("out", sum);
+
+  return true;
+
+}
+
+bool SigAdd::handleKey(int key)
+{
+  bool valid_key = Node::handleKey(key);
+  if (valid_key) return true;
+
+  valid_key = true;
+  if (key == '[') {
+
+    // add an input addition port, TBD move to function
+    int add_num = 0;
+    for (int i = 0; i < ports.size(); i++) {
+      if (ports[i]->type != SIGNAL) continue;
+      const string port = ports[i]->name;
+
+      if (port.substr(0,4) != "mula") {
+        VLOG(1) << name << " : " << port.substr(0,4) << " " << port;
+        continue;
+      }
+      add_num++;
+    }
+
+    // add a new addition port
+    const string port = "mula" + boost::lexical_cast<string>(add_num);
+    setSignal("port",0);
+
+    // TBD make a way to delete a port
+  } else {
+    valid_key = false;
+  }
+
+  // TBD 
+  if (valid_key) setDirty();
+
+  return valid_key;
+}
 
 
 #ifdef NOT_YET_IMPLEMENTED
@@ -434,121 +512,6 @@ namespace bm {
   {
     Tap::draw(ui_offset);
     return true;
-  }
-
-  ///////////////////////////////////////////
-  SigAdd::SigAdd() 
-  {
-    setSignal("add0", 1.0);
-    vcol = cv::Scalar(200, 200, 50);
-  }
- 
-  bool Add::update()
-  {
-    if (!Node::update()) return false;
-
-    //VLOG(1) << "name " << is_dirty << " " << p1->name << " " << p1->is_dirty << ", " << p2->name << " " << p2->is_dirty ;
-    if (!isDirty(this, 5)) { 
-      VLOG(1) << name << " not dirty ";
-      return true; 
-    }
-      // TBD accomodate bad mats somewhere
-
-      cv::Size sz;
-
-      bool done_something = false;
-      
-      cv::Mat out;
-
-      // TBD should these vectors just be stored with some incrementing string?
-      // TBD loop through all input ImageNodes and input signals (or vector values, need to be able
-      // to handle either)
-      // TBD instead of having nf, loop through all svals and match on ones that start with add
-      // and then run getSignal on those strings
-      for (int i = 0; i < ports.size(); i++) {
-        if (ports[i]->type != IMAGE) continue;
-
-        const string port = ports[i]->name;
-        
-        if (port.substr(0,3) != "add") {
-          VLOG(5) << name << " : " << port.substr(0,3) << " " << port;
-          continue;
-        }
-        
-        cv::Mat tmp_in;
-        bool im_dirty;
-        //const string port = "add" + boost::lexical_cast<string>(i);
-        tmp_in = getImage(port);
-        if (tmp_in.empty()) {
-          //VLOG(5) << name << " : " << port << " image is empty"; 
-          continue;
-        }
-
-        float val = getSignal(port);
-        
-        // with 8-bit unsigned it is necessary to have initial coefficients positive
-        // zero minus anything will just be zero 
-        if (!done_something) {
-          out = tmp_in * val;
-          sz = tmp_in.size();
-          done_something = true;
-        } else { 
-
-          if (sz != tmp_in.size()) {
-            LOG(ERROR) << name << " size mismatch " << sz.width << " " << sz.height 
-                << " != " << tmp_in.size().width << " " << tmp_in.size().height ;
-            continue;
-          }
-         
-          if (val > 0)
-            out += tmp_in * val;
-          else 
-            out -= tmp_in * -val;
-
-        }
-      } // nf loop
-    
-    //VLOG(1) << name << " " << "update";
-    setImage("out", out);
-
-    return true;
-  }
-
-  bool Add::handleKey(int key)
-  {
-    bool valid_key = ImageNode::handleKey(key);
-    if (valid_key) return true;
-   
-    valid_key = true;
-    if (key == 'o') {
-    
-      // add an input addition port, TBD move to function
-      int add_num = 0;
-      for (int i = 0; i < ports.size(); i++) {
-        if (ports[i]->type != IMAGE) continue;
-        const string port = ports[i]->name;
-        
-        if (port.substr(0,3) != "add") {
-          VLOG(1) << name << " : " << port.substr(0,3) << " " << port;
-          continue;
-        }
-        add_num++;
-      }
-
-      // add a new addition port
-      const string port = "add" + boost::lexical_cast<string>(add_num);
-      setInputPort(IMAGE, port, NULL, "out");
-      setInputPort(SIGNAL, port, NULL, "value"); // this allows other signals to connect to replace nf
-       
-      // TBD make a way to delete a port
-    } else {
-      valid_key = false;
-    }
-
-    // TBD 
-    if (valid_key) setDirty();
-    
-    return valid_key;
   }
 
   

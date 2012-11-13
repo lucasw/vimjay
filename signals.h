@@ -74,6 +74,15 @@ class Trig : public Node
   //virtual bool handleKey(int key);
 };
 
+// Arbitrary inputs, TBD use multiple inheritance 
+class SigAdd : public Node
+{
+  public:
+  SigAdd(); // : Signal()
+  virtual bool update();
+  virtual bool handleKey(int key);
+};
+
 
 #ifdef NOT_YET_IMPLEMENTED
 /////////////////////////////////
@@ -105,14 +114,6 @@ class SigTapInd : public Tap
   virtual bool draw(cv::Point2f ui_offset);
 };
 
-// Arbitrary inputs 
-class SigAdd : public Signal
-{
-  public:
-  Add(); // : Signal()
-  virtual bool update();
-  virtual bool handleKey(int key);
-};
 
 class SigMultiply : public Signal
 {
