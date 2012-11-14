@@ -38,6 +38,15 @@ class GaussianBlur : public ImageNode
   virtual bool update();
 };
 
+class OpticalFlow : public ImageNode
+{
+  // a CV_32F image, so not suitable for use in a signal/connector
+  cv::Mat flow;
+
+  public:
+  OpticalFlow();
+  virtual bool update();
+};
 
 
 // TBD an IIR could be generated from a FIR chained to another FIR with an add block at the end

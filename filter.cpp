@@ -22,6 +22,7 @@
 #include "filter.h"
 
 #include <boost/lexical_cast.hpp>
+#include <opencv2/video/tracking.hpp>
 
 #include <glog/logging.h>
 
@@ -211,5 +212,77 @@ bool Sobel::update()
     return true;
   }
 
+  
+  OpticalFlow::OpticalFlow()
+  {
+    cv::Mat tmp, tmp2, tmp3;
+    setImage("prev", tmp);
+    setImage("next", tmp2);
+    setImage("flow8", tmp3);
+    setSignal("pyr_scale",0.5);
+    setSignal("levels",1);
+    setSignal("winsize",16);
+    setSignal("iterations",2);
+    setSignal("poly_n",5);
+    setSignal("poly_sigma",1.1);
+    
+    setSignal("scale",1.0);
+  }
+
+  bool OpticalFlow::update()
+  {
+    if (!Node::update()) return false;
+
+    if (!isDirty(this, 5)) { 
+      VLOG(1) << name << " not dirty ";
+      return true; 
+    }
+ 
+    float pyr_scale = getSignal("pyr_scale");
+    // TBD add min/max and type to setSignal()
+    if (pyr_scale < 0.1) pyr_scale = 0.1;
+    if (pyr_scale > 0.9) pyr_scale = 0.9;
+    setSignal("pyr_scale", pyr_scale);
+
+    int levels = getSignal("levels");
+    if (levels < 1) levels = 1;
+    setSignal("levels", levels);
+
+    int winsize = getSignal("winsize");
+    if (winsize < 4) winsize = 4;
+    setSignal("winsize", winsize);
+
+    int iterations = getSignal("iterations");
+    if (iterations < 1) iterations = 1;
+    setSignal("iterations", iterations);
+
+    int poly_n = getSignal("poly_n");
+    if (poly_n < 2) poly_n = 2;
+    setSignal("poly_n", poly_n);
+
+    float poly_sigma = getSignal("poly_sigma");
+  
+    // clear previous setSignal dirtiness
+    isDirty(this, 5);
+
+    cv::Mat prev = getImage("prev");
+    cv::Mat next = getImage("next");
+    if (prev.empty() || next.empty()) return true;
+   
+    cv::Mat prevm, nextm;
+
+    cv::cvtColor(prev, prevm, CV_BGR2GRAY);
+    cv::cvtColor(next, nextm, CV_BGR2GRAY);
+
+    cv::calcOpticalFlowFarneback(prevm, nextm, flow, 
+        pyr_scale, levels, winsize, iterations, poly_n, poly_sigma, 0);
+    
+    cv::Mat flow8;
+
+    flow.convertTo(flow8, CV_8UC4, getSignal("scale"));
+    setImage("flow8", flow8);
+
+    return true;
+  }
 } // namespace bm
 
