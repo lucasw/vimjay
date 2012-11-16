@@ -50,7 +50,7 @@
 using namespace cv;
 using namespace std;
 
-DEFINE_string(graph_file, "../graph.yml", "yaml file to load with graph in it");
+DEFINE_string(graph, "../temp_graph.yml", "yaml file to load with graph in it");
 
 //DEFINE_bool(
 namespace bm {
@@ -405,7 +405,7 @@ class CamThing : public Output
     //node->loc = loc;
 
 
-    if ((FLAGS_graph_file =="") || (!loadGraph(FLAGS_graph_file))) {
+    if ((FLAGS_graph == "") || (!loadGraph(FLAGS_graph))) {
       defaultGraph();
     } 
     saveGraph("graph_load_test.yml");
@@ -1106,7 +1106,7 @@ class CamThing : public Output
       // TBD load the graph in a temp object, then copy it over only if successful
       LOG(INFO) << "reloading graph file";
       clearNodes();
-      loadGraph(FLAGS_graph_file);
+      loadGraph(FLAGS_graph);
     }
     else if( key == 'w' ) {
       // TBD increment a count so old saves aren't overwritten?

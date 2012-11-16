@@ -215,10 +215,11 @@ bool Sobel::update()
   
   OpticalFlow::OpticalFlow()
   {
-    cv::Mat tmp, tmp2, tmp3;
+    cv::Mat tmp, tmp2, tmp3, tmp4;
     setImage("prev", tmp);
     setImage("next", tmp2);
-    setImage("flow8", tmp3);
+    setImage("flowx", tmp3);
+    setImage("flowy", tmp4);
     setSignal("pyr_scale",0.5);
     setSignal("levels",1);
     setSignal("winsize",16);
@@ -278,14 +279,21 @@ bool Sobel::update()
         pyr_scale, levels, winsize, iterations, poly_n, poly_sigma, 0);
     
     cv::Mat flow8_2;
-
     flow.convertTo(flow8_2, CV_8UC2, getSignal("scale"));
     
-    cv::Mat flow8 = cv::Mat(flow8_2.size(), CV_8UC4, cv::Scalar(0));
-    int ch[] = {0,0, 1,1}; 
-    mixChannels(&flow8_2, 1, &flow8, 1, ch, 2 );
-        
-    setImage("flow8", flow8);
+    {
+      cv::Mat flowx = cv::Mat(flow8_2.size(), CV_8UC4, cv::Scalar(0));
+      int ch[] = {0,0, 0,1, 0,2}; 
+      mixChannels(&flow8_2, 1, &flowx, 1, ch, 3);
+      setImage("flowx", flowx);
+    }
+    {
+      cv::Mat flowy = cv::Mat(flow8_2.size(), CV_8UC4, cv::Scalar(0));
+      int ch[] = {1,0, 1,1, 1,2}; 
+      mixChannels(&flow8_2, 1, &flowy, 1, ch, 3);
+      setImage("flowy", flowy);
+    }   
+    
 
     return true;
   }

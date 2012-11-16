@@ -892,8 +892,12 @@ CMP_NE
 
   bool Resize::update()
   {
-  if (!ImageNode::update()) return false;
+  if (!Node::update()) return false;
  
+  if (!isDirty(this, 5)) { 
+      VLOG(2) << name << " not dirty ";
+      return true; 
+  }
   cv::Mat in = getImage("in");
 
   if (in.empty()) {
@@ -922,12 +926,14 @@ CMP_NE
   // scale image down
   cv::Mat tmp;
   cv::resize(in, tmp, dsize, 0, 0, cv::INTER_NEAREST);
+  setSignal("sz_x", dsize.width);
+  setSignal("sz_y", dsize.height);
   // then scale back to input size
   cv::Mat out;
 
   int mode = getSignal("mode");
   mode %= 5;
-
+  setSignal("mode", mode);
   int mode_type = cv::INTER_NEAREST;
   if (mode == 1) mode_type = cv::INTER_LINEAR;
   if (mode == 2) mode_type = cv::INTER_AREA;
