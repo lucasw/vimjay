@@ -279,7 +279,7 @@ bool Sobel::update()
         pyr_scale, levels, winsize, iterations, poly_n, poly_sigma, 0);
     
     cv::Mat flow8_2;
-    flow.convertTo(flow8_2, CV_8UC2, getSignal("scale"));
+    flow.convertTo(flow8_2, CV_8UC2, getSignal("scale"), 128);
     
     {
       cv::Mat flowx = cv::Mat(flow8_2.size(), CV_8UC4, cv::Scalar(0));
