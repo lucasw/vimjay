@@ -1,5 +1,5 @@
 %YAML:1.0
-date: "Thu Nov 15 21:44:14 2012\n"
+date: "Thu Nov 15 22:05:55 2012\n"
 nodes:
    -
       ind: 0
@@ -56,13 +56,13 @@ nodes:
          -
             type: 1
             name: "2_x"
-            value: 1.0783472900390625e+03
+            value: 7.7864648437500000e+02
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: "2_y"
-            value: 2.9018081665039062e+01
+            value: 2.1960891723632812e+01
             src_ind: -1
             src_port: ""
          -
@@ -75,7 +75,7 @@ nodes:
       ind: 1
       typeid: "bm::ScreenCap"
       name: screen_cap
-      loc: [ 246., 72. ]
+      loc: [ 246., 4.9200006103515625e+02 ]
       inputs:
          -
             type: 1
@@ -451,7 +451,7 @@ nodes:
       ind: 7
       typeid: "bm::Mux"
       name: mux
-      loc: [ 246., 168. ]
+      loc: [ 246., 2.8799993896484375e+02 ]
       inputs:
          -
             type: 1
@@ -500,7 +500,7 @@ nodes:
       ind: 8
       typeid: "bm::MuxBuffer"
       name: mux_buffer
-      loc: [ 443., 168. ]
+      loc: [ 3.8300009155273438e+02, 1.9799995422363281e+02 ]
       inputs:
          -
             type: 1
@@ -555,7 +555,7 @@ nodes:
       ind: 9
       typeid: "bm::FilterFIR"
       name: filter_fir
-      loc: [ 340., 198. ]
+      loc: [ 340., 4.0799963378906250e+02 ]
       inputs:
          -
             type: 1
@@ -726,7 +726,7 @@ nodes:
       ind: 13
       typeid: "bm::Resize"
       name: resize
-      loc: [ 246., 264. ]
+      loc: [ 246., 4.1399996948242188e+02 ]
       inputs:
          -
             type: 1
@@ -810,7 +810,7 @@ nodes:
          -
             type: 2
             name: in
-            src_ind: 2
+            src_ind: 37
             src_port: out
          -
             type: 2
@@ -837,7 +837,7 @@ nodes:
          -
             type: 2
             name: next
-            src_ind: 3
+            src_ind: 38
             src_port: out
          -
             type: 1
@@ -896,7 +896,7 @@ nodes:
          -
             type: 1
             name: interp
-            value: 2.5392952561378479e-01
+            value: 2.5657659769058228e-01
             src_ind: 29
             src_port: value
    -
@@ -1278,13 +1278,13 @@ nodes:
          -
             type: 1
             name: "2_x"
-            value: 1.2362487792968750e+01
+            value: 6.1923645019531250e+01
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: "2_y"
-            value: 2.3292236328125000e+00
+            value: 4.2153762817382812e+02
             src_ind: -1
             src_port: ""
          -
@@ -1374,7 +1374,7 @@ nodes:
          -
             type: 1
             name: value
-            value: 2.5392952561378479e-01
+            value: 2.5657659769058228e-01
             src_ind: -1
             src_port: ""
          -
@@ -1392,7 +1392,7 @@ nodes:
          -
             type: 1
             name: step
-            value: -9.3258820474147797e-02
+            value: -4.9561556428670883e-02
             src_ind: -1
             src_port: ""
    -
@@ -1701,5 +1701,97 @@ nodes:
             type: 1
             name: step
             value: 1.0000000149011612e-01
+            src_ind: -1
+            src_port: ""
+   -
+      ind: 37
+      typeid: "bm::ImageDir"
+      name: image_dir
+      loc: [ 2.3300006103515625e+02, 1.5199977111816406e+02 ]
+      dir: "../data/slowmo"
+      inputs:
+         -
+            type: 1
+            name: enable
+            value: 1.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 2
+            name: out
+            src_ind: -1
+            src_port: ""
+         -
+            type: 2
+            name: in
+            src_ind: -1
+            src_port: ""
+         -
+            type: 3
+            name: out
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: max_size
+            value: 100.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: cur_size
+            value: 2.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: ind
+            value: 0.
+            src_ind: -1
+            src_port: ""
+   -
+      ind: 38
+      typeid: "bm::ImageDir"
+      name: image_dir
+      loc: [ 2.3300010681152344e+02, 5.2000030517578125e+01 ]
+      dir: "../data/slowmo/"
+      inputs:
+         -
+            type: 1
+            name: enable
+            value: 1.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 2
+            name: out
+            src_ind: -1
+            src_port: ""
+         -
+            type: 2
+            name: in
+            src_ind: -1
+            src_port: ""
+         -
+            type: 3
+            name: out
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: max_size
+            value: 100.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: cur_size
+            value: 2.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: ind
+            value: 1.
             src_ind: -1
             src_port: ""
