@@ -227,6 +227,8 @@ namespace bm {
     base_x = cv::Mat( cv::Size(Config::inst()->im_width, Config::inst()->im_height),
       CV_32FC1);
     base_y = base_x.clone();
+    base_xy = cv::Mat( cv::Size(Config::inst()->im_width, Config::inst()->im_height),
+      CV_32FC2);
 
     for (int i = 0; i < base_x.rows; i++) {
     for (int j = 0; j < base_x.cols; j++) {
@@ -234,6 +236,11 @@ namespace bm {
       base_y.at<float>(i,j) = i;
     }
     }
+
+    int ch1[] = {0, 0};
+    mixChannels(&base_x, 1, &base_xy, 1, ch1, 1);
+    int ch2[] = {0, 1};
+    mixChannels(&base_y, 1, &base_xy, 1, ch2, 1);
 
   } 
 
@@ -932,6 +939,7 @@ CMP_NE
   cv::Mat out;
 
   int mode = getSignal("mode");
+  mode += 5;
   mode %= 5;
   setSignal("mode", mode);
   int mode_type = cv::INTER_NEAREST;

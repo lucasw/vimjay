@@ -212,22 +212,26 @@ bool Sobel::update()
     return true;
   }
 
-  
+  ///////////////////////////////////////////////////////////////////////////// 
   OpticalFlow::OpticalFlow()
   {
     cv::Mat tmp, tmp2, tmp3, tmp4;
-    setImage("prev", tmp);
+    //setImage("prev", tmp);
     setImage("next", tmp2);
-    setImage("flowx", tmp3);
-    setImage("flowy", tmp4);
+    //setImage("flowx", tmp3);
+    //setImage("flowy", tmp4);
     setSignal("pyr_scale",0.5);
     setSignal("levels",1);
     setSignal("winsize",16);
     setSignal("iterations",2);
     setSignal("poly_n",5);
     setSignal("poly_sigma",1.1);
+    setSignal("mode",0);
     
     setSignal("scale",1.0);
+    setSignal("offset",128);
+
+    setSignal("interp", 0.5);
   }
 
   bool OpticalFlow::update()
@@ -262,39 +266,60 @@ bool Sobel::update()
     setSignal("poly_n", poly_n);
 
     float poly_sigma = getSignal("poly_sigma");
-  
+
+    int mode = getSignal("mode");
+    mode += 4;
+    mode %= 4;
+    setSignal("mode", mode);
+    int flow_mode = 0;
+    if (mode == 1) flow_mode = cv::OPTFLOW_USE_INITIAL_FLOW;
+    if (mode == 2) flow_mode = cv::OPTFLOW_USE_INITIAL_FLOW & cv::OPTFLOW_FARNEBACK_GAUSSIAN;
+    if (mode == 3) flow_mode = cv::OPTFLOW_FARNEBACK_GAUSSIAN;
+
+
     // clear previous setSignal dirtiness
     isDirty(this, 5);
 
-    cv::Mat prev = getImage("prev");
+    cv::Mat prev = getImage("in");
     cv::Mat next = getImage("next");
     if (prev.empty() || next.empty()) return true;
-   
+
+
     cv::Mat prevm, nextm;
 
     cv::cvtColor(prev, prevm, CV_BGR2GRAY);
     cv::cvtColor(next, nextm, CV_BGR2GRAY);
 
     cv::calcOpticalFlowFarneback(prevm, nextm, flow, 
-        pyr_scale, levels, winsize, iterations, poly_n, poly_sigma, 0);
+        pyr_scale, levels, winsize, 
+        iterations, poly_n, poly_sigma, flow_mode);
     
     cv::Mat flow8_2;
-    flow.convertTo(flow8_2, CV_8UC2, getSignal("scale"), 128);
+    flow.convertTo(flow8_2, CV_8UC2, getSignal("scalex"), getSignal("offset"));
     
     {
-      cv::Mat flowx = cv::Mat(flow8_2.size(), CV_8UC4, cv::Scalar(0));
+      cv::Mat offx = cv::Mat(flow8_2.size(), CV_8UC4, cv::Scalar(0));
       int ch[] = {0,0, 0,1, 0,2}; 
-      mixChannels(&flow8_2, 1, &flowx, 1, ch, 3);
-      setImage("flowx", flowx);
+      mixChannels(&flow8_2, 1, &offx, 1, ch, 3);
+      setImage("offx", offx);
     }
     {
-      cv::Mat flowy = cv::Mat(flow8_2.size(), CV_8UC4, cv::Scalar(0));
+      cv::Mat offy = cv::Mat(flow8_2.size(), CV_8UC4, cv::Scalar(0));
       int ch[] = {1,0, 1,1, 1,2}; 
-      mixChannels(&flow8_2, 1, &flowy, 1, ch, 3);
-      setImage("flowy", flowy);
+      mixChannels(&flow8_2, 1, &offy, 1, ch, 3);
+      setImage("offy", offy);
     }   
-    
-
+   
+    /// Do interpolation, should make optional
+    {
+      const float interp = getSignal("interp");
+      
+      cv::Mat out;
+      cv::remap(prev, out, base_xy + flow*interp, cv::Mat(), cv::INTER_NEAREST, cv::BORDER_REPLICATE);
+      
+      setImage("out", out);
+    }
+  
     return true;
   }
 } // namespace bm

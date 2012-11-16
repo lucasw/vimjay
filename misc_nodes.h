@@ -33,9 +33,11 @@ class Undistort : public ImageNode
 
 class Remap : public ImageNode
 {
-  // don't expose these to ui with set/getSignals
+protected:
+// don't expose these to ui with set/getSignals
   cv::Mat base_x;
   cv::Mat base_y;
+  cv::Mat base_xy;
 
   public:
   Remap();

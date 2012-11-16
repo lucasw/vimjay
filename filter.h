@@ -2,6 +2,7 @@
 #define __FILTER_H__
 
 #include "nodes.h"
+#include "misc_nodes.h"
 
 //#include <iostream>
 //#include <stdio.h>
@@ -38,7 +39,7 @@ class GaussianBlur : public ImageNode
   virtual bool update();
 };
 
-class OpticalFlow : public ImageNode
+class OpticalFlow : public Remap
 {
   // a CV_32F image, so not suitable for use in a signal/connector
   cv::Mat flow;
