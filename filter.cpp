@@ -277,9 +277,14 @@ bool Sobel::update()
     cv::calcOpticalFlowFarneback(prevm, nextm, flow, 
         pyr_scale, levels, winsize, iterations, poly_n, poly_sigma, 0);
     
-    cv::Mat flow8;
+    cv::Mat flow8_2;
 
-    flow.convertTo(flow8, CV_8UC4, getSignal("scale"));
+    flow.convertTo(flow8_2, CV_8UC2, getSignal("scale"));
+    
+    cv::Mat flow8 = cv::Mat(flow8_2.size(), CV_8UC4, cv::Scalar(0));
+    int ch[] = {0,0, 1,1}; 
+    mixChannels(&flow8_2, 1, &flow8, 1, ch, 2 );
+        
     setImage("flow8", flow8);
 
     return true;

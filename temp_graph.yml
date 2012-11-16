@@ -1,5 +1,5 @@
 %YAML:1.0
-date: "Tue Nov 13 22:47:06 2012\n"
+date: "Wed Nov 14 09:19:08 2012\n"
 nodes:
    -
       ind: 0
@@ -56,13 +56,19 @@ nodes:
          -
             type: 1
             name: "2_x"
-            value: 1.5627355957031250e+02
+            value: 6.1259002685546875e+02
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: "2_y"
-            value: 1.2182922363281250e+02
+            value: 3.4164007568359375e+02
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: "2_1"
+            value: 1.
             src_ind: -1
             src_port: ""
    -
@@ -149,7 +155,7 @@ nodes:
          -
             type: 1
             name: ind
-            value: 7.
+            value: 11.
             src_ind: -1
             src_port: ""
    -
@@ -172,8 +178,8 @@ nodes:
          -
             type: 2
             name: in
-            src_ind: -1
-            src_port: ""
+            src_ind: 2
+            src_port: out
          -
             type: 1
             name: angle
@@ -189,13 +195,13 @@ nodes:
          -
             type: 1
             name: center_x
-            value: 320.
+            value: 351.
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: center_y
-            value: 240.
+            value: 284.
             src_ind: -1
             src_port: ""
          -
@@ -220,6 +226,54 @@ nodes:
             type: 1
             name: manual_xy
             value: 0.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: x0
+            value: 31.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: x1
+            value: 671.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: x2
+            value: 671.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: x3
+            value: 31.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: y0
+            value: 44.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: y1
+            value: 44.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: y2
+            value: 524.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: y3
+            value: 524.
             src_ind: -1
             src_port: ""
    -
@@ -513,7 +567,7 @@ nodes:
       ind: 9
       typeid: "bm::FilterFIR"
       name: filter_fir
-      loc: [ 640., 168. ]
+      loc: [ 640., 643. ]
       inputs:
          -
             type: 1
@@ -752,7 +806,7 @@ nodes:
       ind: 15
       typeid: "bm::OpticalFlow"
       name: optical_flow
-      loc: [ 640., 264. ]
+      loc: [ 640., 294. ]
       inputs:
          -
             type: 1
@@ -773,7 +827,7 @@ nodes:
          -
             type: 2
             name: next
-            src_ind: 6
+            src_ind: 3
             src_port: out
          -
             type: 2
@@ -795,7 +849,7 @@ nodes:
          -
             type: 1
             name: winsize
-            value: 46.
+            value: 22.
             src_ind: -1
             src_port: ""
          -
@@ -807,21 +861,21 @@ nodes:
          -
             type: 1
             name: poly_n
-            value: 5.
+            value: 4.
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: poly_sigma
-            value: 1.3778098821640015e+00
+            value: 2.1453416347503662e+00
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: scale
-            value: 1.2103852539062500e+03
-            src_ind: -1
-            src_port: ""
+            value: 6.8584814453125000e+02
+            src_ind: 29
+            src_port: value
    -
       ind: 16
       typeid: "bm::Add"
@@ -1201,13 +1255,13 @@ nodes:
          -
             type: 1
             name: "2_x"
-            value: 3.8533712768554688e+02
+            value: 6.0845941162109375e+02
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: "2_y"
-            value: 1.3911743164062500e+01
+            value: 2.6094311523437500e+02
             src_ind: -1
             src_port: ""
          -
@@ -1297,25 +1351,25 @@ nodes:
          -
             type: 1
             name: value
-            value: 0.
+            value: 6.8584814453125000e+02
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: min
-            value: 0.
+            value: 15.
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: max
-            value: 1.
+            value: 1.7114716796875000e+03
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: step
-            value: 1.0000000149011612e-01
+            value: 5.5904014587402344e+01
             src_ind: -1
             src_port: ""
    -
@@ -1546,5 +1600,11 @@ nodes:
             type: 1
             name: im_h
             value: 480.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: write_count
+            value: 3.
             src_ind: -1
             src_port: ""
