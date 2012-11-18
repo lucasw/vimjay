@@ -240,7 +240,7 @@ bool Sobel::update()
     if (!Node::update()) return false;
 
     if (!isDirty(this, 5)) { 
-      VLOG(1) << name << " not dirty ";
+      VLOG(5) << name << " not dirty ";
       return true; 
     }
  
