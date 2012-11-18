@@ -306,8 +306,11 @@ class Signal : public Node
 class Buffer : public ImageNode
 {
   protected: 
+  boost::mutex frames_mutex;
   std::deque<cv::Mat> frames;
-  
+ 
+  bool setOut();
+
   public:
 
   Buffer(); 

@@ -1276,11 +1276,20 @@ namespace bm {
     cv::Mat in = getImage("in", b1, con_is_dirty);
     if (!in.empty() && con_is_dirty) 
       add(in); 
-    
-    setSignal("cur_size", frames.size());
-    if (frames.size() <= 0) return false;
-    const int ind =  ((int)getSignal("ind")) % frames.size();
+   
+    const int cur_size =  frames.size();
+    setSignal("cur_size", cur_size);
+    if (cur_size <= 0) return false;
+    const int ind =  ((int)getSignal("ind")) % cur_size;
     setSignal("ind", ind);
+  }
+
+  bool Buffer::setOut()
+  {
+    boost::mutex::scoped_lock l(frames_mutex);
+    cv::Mat out = frames[(int)getSignal("ind")];
+    setImage("out", out);
+    return true;
   }
 
   bool Buffer::update()
@@ -1301,19 +1310,11 @@ namespace bm {
     manualUpdate();
 
         // TBD may not always want to do this
-    cv::Mat out = frames[(int)getSignal("ind")];
-    setImage("out", out);
+    setOut();
 
-
-    if (VLOG_IS_ON(5)) {
-      VLOG(15) << frames.size();
-      imshow(name, out);
-    }
-    
     // clear any dirtiness derived from setting the image or cur ind etc.
     const bool rv2 = isDirty(this,21);
-    const bool rv3 = isDirty(this,21);
-    VLOG(6) << "buf dirty " << rv1 << " " << rv2 << " " << rv3;
+    // TBD don't have to do that anymore, out dirtiness is overlooked?
   
     return true;
   }
@@ -1322,15 +1323,16 @@ namespace bm {
   {
     cv::Mat out = getImage("out").clone();
     // draw some grabs of the beginning frame, and other partway through the buffer 
+    boost::mutex::scoped_lock l(frames_mutex);
     for (int i = 1; i < 4; i++) {
       int ind = i * frames.size() / 3;
       if (i == 3) ind = frames.size() - 1;
       if (ind >= frames.size()) continue;
       
-      cv::Mat frame = frames[ind];
+      cv::Mat frame = frames[ind].clone(); // seemd to be a segfault related to this
 
       if (frame.empty()) { 
-        VLOG(1) << "frames " << i << CLERR << " is empty" << CLNRM;  continue; 
+        VLOG(2) << "frames " << i << CLERR << " is empty" << CLNRM;  continue; 
       }
 
       // TBD make this optional
@@ -1374,7 +1376,9 @@ namespace bm {
       LOG(ERROR) << name << CLERR << " new_frame is empty" << CLNRM;
       return false;// TBD LOG(ERROR)
     }
-    
+   
+    {
+    boost::mutex::scoped_lock l(frames_mutex);
     if ((frames.size() > 0) && 
         (new_frame.refcount == frames[frames.size()-1].refcount)) {
       new_frame = new_frame.clone();
@@ -1390,7 +1394,8 @@ namespace bm {
     }
 
     VLOG(4) << name << " sz " << frames.size();
-    
+    }
+
     {
       Connector* con;
       string src_port;
@@ -1425,6 +1430,7 @@ namespace bm {
 
   cv::Mat Buffer::get(int ind, int& actual_ind)
   {
+    boost::mutex::scoped_lock l(frames_mutex);
     if (frames.size() < 1) {
       VLOG(1) << "no frames returning gray";
       cv::Mat tmp = cv::Mat( 
@@ -1457,6 +1463,7 @@ namespace bm {
     // TBD define path to data somewhere to be reused by all
     dir_name << "../data/" << t1 << "_" << name;
    
+    boost::mutex::scoped_lock l(frames_mutex);
     if (frames.size() == 0) return false;
 
     boost::filesystem::create_directories(dir_name.str());
@@ -1530,6 +1537,9 @@ namespace bm {
       }
       cur_size++;
     }
+  
+    {
+    boost::mutex::scoped_lock l(frames_mutex);
     frames.resize(cur_size);
     setSignal("cur_size", cur_size);
    
@@ -1542,10 +1552,14 @@ namespace bm {
         VLOG(5) << name << " : " << port.substr(0,3) << " " << port;
         continue;
       }
-
+      
+      VLOG(4) << "port " << ind << " " << port;
       frames[ind] = getImage(port);
       ind++;
     }
+    }
+    
+    setOut();
 
     return true;
   }
@@ -1634,6 +1648,7 @@ namespace bm {
       }
       cur_size++;
     }
+    boost::mutex::scoped_lock l(frames_mutex);
     frames.resize(cur_size);
     setSignal("cur_size", cur_size);
   

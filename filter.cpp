@@ -232,6 +232,7 @@ bool Sobel::update()
     setSignal("offset",128);
 
     setSignal("interp", 0.5);
+    setSignal("interp_mode",0);
   }
 
   bool OpticalFlow::update()
@@ -295,8 +296,8 @@ bool Sobel::update()
         iterations, poly_n, poly_sigma, flow_mode);
     
     cv::Mat flow8_2;
-    flow.convertTo(flow8_2, CV_8UC2, getSignal("scalex"), getSignal("offset"));
-    
+    flow.convertTo(flow8_2, CV_8UC2, getSignal("scale"), getSignal("offset"));
+    // TBD use scalex and scaley to separately scale those? 
     {
       cv::Mat offx = cv::Mat(flow8_2.size(), CV_8UC4, cv::Scalar(0));
       int ch[] = {0,0, 0,1, 0,2}; 
@@ -313,10 +314,31 @@ bool Sobel::update()
     /// Do interpolation, should make optional
     {
       const float interp = getSignal("interp");
+      int interp_mode = getSignal("interp_mode");
+      interp_mode += 3;
+      interp_mode %= 3;
+      setSignal("interp_mode", interp_mode);
       
-      cv::Mat out;
-      cv::remap(prev, out, base_xy + flow*interp, cv::Mat(), cv::INTER_NEAREST, cv::BORDER_REPLICATE);
-      
+    
+      cv::Mat out_forward, out_reverse, out;
+
+      if ((interp_mode == 0) || (interp_mode == 2)) {
+        cv::remap(prev, out_forward, base_xy - flow*interp, cv::Mat(), cv::INTER_NEAREST, cv::BORDER_REPLICATE);
+      }
+      if ((interp_mode == 1) || (interp_mode == 2)) {
+        cv::remap(next, out_reverse, base_xy + flow*(1.0 - interp), cv::Mat(), cv::INTER_NEAREST, cv::BORDER_REPLICATE);
+      }
+
+      if (interp_mode == 0) {
+        out = out_forward;
+      }
+      else if (interp_mode == 1) {
+        out = out_reverse;
+      }
+      else if (interp_mode == 2) {
+        out = out_forward * (1.0 - interp) + out_reverse * interp;
+      }
+
       setImage("out", out);
     }
   

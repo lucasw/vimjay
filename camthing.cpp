@@ -525,7 +525,7 @@ class CamThing : public Output
     for (FileNodeIterator it = nd.begin(); it != nd.end(); ++it) {
       int ind;
       (*it)["ind"] >> ind;
-      VLOG(1) << "second pass inputs " << ind << " " << CLTXT << all_nodes[ind]->name << CLNRM;
+      VLOG(2) << "second pass inputs " << ind << " " << CLTXT << all_nodes[ind]->name << CLNRM;
       for (int i = 0; i < (*it)["inputs"].size(); i++) {
         int input_ind;
         int type;
@@ -540,7 +540,7 @@ class CamThing : public Output
         (*it)["inputs"][i]["value"] >> value;
         
         if (input_ind >= 0) {
-        VLOG(1) << "input " 
+        VLOG(2) << "input " 
             << " " << input_ind << ", type " << type << " " << port << " " << input_ind
             << " " << src_port;
       
