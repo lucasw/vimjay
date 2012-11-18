@@ -43,6 +43,7 @@ class OpticalFlow : public Remap
 {
   // a CV_32F image, so not suitable for use in a signal/connector
   cv::Mat flow;
+  cv::Mat flow_reverse;
 
   public:
   OpticalFlow();

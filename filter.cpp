@@ -333,7 +333,12 @@ i       dst(x,y) = src(map_x(x,y), map_y(x,y))
         cv::remap(prev, out_forward, base_xy - flow*interp, cv::Mat(), cv::INTER_NEAREST, cv::BORDER_REPLICATE);
       }
       if ((interp_mode == 1) || (interp_mode == 2)) {
-        cv::remap(next, out_reverse, base_xy + flow*(1.0 - interp), cv::Mat(), cv::INTER_NEAREST, cv::BORDER_REPLICATE);
+
+        //cv::Mat flow_reverse;
+        cv::calcOpticalFlowFarneback(nextm, prevm, flow_reverse, 
+          pyr_scale, levels, winsize, 
+          iterations, poly_n, poly_sigma, flow_mode);
+        cv::remap(next, out_reverse, base_xy - flow_reverse*(1.0 - interp), cv::Mat(), cv::INTER_NEAREST, cv::BORDER_REPLICATE);
       }
 
       cv::Mat test;

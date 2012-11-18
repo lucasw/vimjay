@@ -1,5 +1,5 @@
 %YAML:1.0
-date: "Fri Nov 16 14:49:42 2012\n"
+date: "Sat Nov 17 22:44:49 2012\n"
 nodes:
    -
       ind: 0
@@ -56,13 +56,13 @@ nodes:
          -
             type: 1
             name: "2_x"
-            value: 4.7071060180664062e+02
+            value: 1.0434567871093750e+03
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: "2_y"
-            value: 1.7231750488281250e-01
+            value: 4.1844458007812500e+02
             src_ind: -1
             src_port: ""
          -
@@ -418,7 +418,7 @@ nodes:
       ind: 6
       typeid: "bm::Buffer"
       name: buffer
-      loc: [ 49., 168. ]
+      loc: [ 49., 3.4800003051757812e+02 ]
       inputs:
          -
             type: 1
@@ -434,8 +434,8 @@ nodes:
          -
             type: 2
             name: in
-            src_ind: -1
-            src_port: ""
+            src_ind: 15
+            src_port: out
          -
             type: 3
             name: out
@@ -444,7 +444,25 @@ nodes:
          -
             type: 1
             name: max_size
-            value: 100.
+            value: 2.5416116714477539e+01
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: cur_size
+            value: 25.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: ind
+            value: 0.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: write_count
+            value: 25.
             src_ind: -1
             src_port: ""
    -
@@ -859,19 +877,19 @@ nodes:
          -
             type: 1
             name: levels
-            value: 1.
+            value: 2.
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: winsize
-            value: 9.
+            value: 31.
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: iterations
-            value: 2.
+            value: 1.
             src_ind: -1
             src_port: ""
          -
@@ -883,7 +901,7 @@ nodes:
          -
             type: 1
             name: poly_sigma
-            value: 1.1000000238418579e+00
+            value: 1.1391911506652832e+00
             src_ind: -1
             src_port: ""
          -
@@ -907,13 +925,13 @@ nodes:
          -
             type: 1
             name: interp
-            value: 0.
-            src_ind: -1
-            src_port: ""
+            value: 4.7351387143135071e-01
+            src_ind: 28
+            src_port: value
          -
             type: 1
             name: interp_mode
-            value: 0.
+            value: 2.
             src_ind: -1
             src_port: ""
          -
@@ -1306,13 +1324,13 @@ nodes:
          -
             type: 1
             name: "2_x"
-            value: 4.9318777465820312e+02
+            value: 1.4479370117187500e+00
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: "2_y"
-            value: 2.7102215576171875e+02
+            value: 1.3497436523437500e+01
             src_ind: -1
             src_port: ""
          -
@@ -1336,19 +1354,19 @@ nodes:
          -
             type: 1
             name: out
-            value: 0.
+            value: 3.1824281811714172e-01
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: mula0
-            value: 1.
+            value: 1.5154420398175716e-02
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: mulb0
-            value: 0.
+            value: 21.
             src_ind: -1
             src_port: ""
    -
@@ -1366,7 +1384,7 @@ nodes:
          -
             type: 1
             name: value
-            value: 3.0000001192092896e-01
+            value: 4.7351387143135071e-01
             src_ind: -1
             src_port: ""
          -
@@ -1384,7 +1402,7 @@ nodes:
          -
             type: 1
             name: step
-            value: 1.0000000149011612e-01
+            value: 4.3046720325946808e-02
             src_ind: -1
             src_port: ""
    -
@@ -1621,7 +1639,7 @@ nodes:
          -
             type: 2
             name: in
-            src_ind: 15
+            src_ind: 6
             src_port: out
          -
             type: 1
