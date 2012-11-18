@@ -336,28 +336,31 @@ i       dst(x,y) = src(map_x(x,y), map_y(x,y))
         cv::remap(next, out_reverse, base_xy + flow*(1.0 - interp), cv::Mat(), cv::INTER_NEAREST, cv::BORDER_REPLICATE);
       }
 
+      cv::Mat test;
       if (interp_mode == 0) {
         out = out_forward;
+        test = prev.clone();
       }
       else if (interp_mode == 1) {
         out = out_reverse;
+        test = next.clone();
       }
       else if (interp_mode == 2) {
         out = out_forward * (1.0 - interp) + out_reverse * interp;
+        test = prev/2 + next/2;
       }
 
       setImage("out", out);
 
       // TBD temp/optional
       // make test image
-      cv::Mat test = prev/2 + next/2;
-      for (int i = 0; i < flow.rows; i += 16) {
-      for (int j = 0; j < flow.cols; j += 16) {
+      for (int i = 0; i < flow.rows; i += 14) {
+      for (int j = 0; j < flow.cols; j += 14) {
         float dx = flow.at<cv::Point2f>(i,j).x;
         float dy = flow.at<cv::Point2f>(i,j).y;
         if ((dx > 2.0) || (dy > 2.0)) {
         cv::Point2f p1 = cv::Point2f(j, i);
-        cv::Point2f p2 = cv::Point2f(j + dx, i + dy); 
+        cv::Point2f p2 = cv::Point2f((float)j + dx, (float)i + dy); 
         cv::line(test, p1, p2, cv::Scalar(0, 0, 0, 0), 1);
         cv::circle(test, p1, 2, cv::Scalar(0,0,255,0));
         cv::circle(test, p2, 2, cv::Scalar(0,255,0,0));

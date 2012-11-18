@@ -1,5 +1,5 @@
 %YAML:1.0
-date: "Fri Nov 16 14:22:00 2012\n"
+date: "Fri Nov 16 14:45:35 2012\n"
 nodes:
    -
       ind: 0
@@ -56,13 +56,13 @@ nodes:
          -
             type: 1
             name: "2_x"
-            value: 7.2821594238281250e+01
+            value: 6.3379254150390625e+02
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: "2_y"
-            value: 7.5305175781250000e-01
+            value: -1.0988143920898438e+01
             src_ind: -1
             src_port: ""
          -
@@ -865,7 +865,7 @@ nodes:
          -
             type: 1
             name: winsize
-            value: 7.
+            value: 9.
             src_ind: -1
             src_port: ""
          -
@@ -895,7 +895,7 @@ nodes:
          -
             type: 1
             name: scale
-            value: 1.
+            value: 43.
             src_ind: -1
             src_port: ""
          -
@@ -907,13 +907,13 @@ nodes:
          -
             type: 1
             name: interp
-            value: 5.0000000000000000e-01
+            value: 2.0000000298023224e-01
             src_ind: 28
             src_port: value
          -
             type: 1
             name: interp_mode
-            value: 0.
+            value: 1.
             src_ind: -1
             src_port: ""
          -
@@ -1117,7 +1117,7 @@ nodes:
       ind: 21
       typeid: "bm::Circle"
       name: circle
-      loc: [ 670., 480. ]
+      loc: [ 670., 539. ]
       inputs:
          -
             type: 1
@@ -1306,13 +1306,13 @@ nodes:
          -
             type: 1
             name: "2_x"
-            value: 4.4644409179687500e+02
+            value: 6.1671624755859375e+02
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: "2_y"
-            value: 1.1789611816406250e+01
+            value: 2.6421572875976562e+02
             src_ind: -1
             src_port: ""
          -
@@ -1366,7 +1366,7 @@ nodes:
          -
             type: 1
             name: value
-            value: 5.0000000000000000e-01
+            value: 2.0000000298023224e-01
             src_ind: -1
             src_port: ""
          -
