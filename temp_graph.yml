@@ -1,5 +1,5 @@
 %YAML:1.0
-date: "Fri Nov 16 13:40:11 2012\n"
+date: "Fri Nov 16 14:22:00 2012\n"
 nodes:
    -
       ind: 0
@@ -56,13 +56,13 @@ nodes:
          -
             type: 1
             name: "2_x"
-            value: 4.9109027099609375e+02
+            value: 7.2821594238281250e+01
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: "2_y"
-            value: 8.5014343261718750e+00
+            value: 7.5305175781250000e-01
             src_ind: -1
             src_port: ""
          -
@@ -501,6 +501,12 @@ nodes:
             name: inp2
             src_ind: 38
             src_port: out
+         -
+            type: 1
+            name: ind
+            value: 0.
+            src_ind: -1
+            src_port: ""
    -
       ind: 8
       typeid: "bm::MuxBuffer"
@@ -859,7 +865,7 @@ nodes:
          -
             type: 1
             name: winsize
-            value: 16.
+            value: 7.
             src_ind: -1
             src_port: ""
          -
@@ -901,13 +907,18 @@ nodes:
          -
             type: 1
             name: interp
-            value: 2.0000000298023224e-01
+            value: 5.0000000000000000e-01
             src_ind: 28
             src_port: value
          -
             type: 1
             name: interp_mode
             value: 0.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 2
+            name: test
             src_ind: -1
             src_port: ""
    -
@@ -1295,13 +1306,13 @@ nodes:
          -
             type: 1
             name: "2_x"
-            value: 4.0439212036132812e+02
+            value: 4.4644409179687500e+02
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: "2_y"
-            value: 4.4259140014648438e+01
+            value: 1.1789611816406250e+01
             src_ind: -1
             src_port: ""
          -
@@ -1355,7 +1366,7 @@ nodes:
          -
             type: 1
             name: value
-            value: 2.0000000298023224e-01
+            value: 5.0000000000000000e-01
             src_ind: -1
             src_port: ""
          -
@@ -1610,8 +1621,8 @@ nodes:
          -
             type: 2
             name: in
-            src_ind: 7
-            src_port: out
+            src_ind: 15
+            src_port: test
          -
             type: 1
             name: decor
