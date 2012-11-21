@@ -1014,9 +1014,30 @@ class CamThing : public Output
       }
       return false;
   }
+ 
+  bool autoScroll()
+  {
+    if (selected_node) {
+      const float dxy = 200;
+      if (selected_node->loc.x + dxy > graph_ui.cols - ui_offset.x) ui_offset.x -= 15;
+      if (selected_node->loc.y + dxy > graph_ui.rows - ui_offset.y) ui_offset.y -= 15;
+
+      if (selected_node->loc.x - dxy/5 < -ui_offset.x) ui_offset.x += 15;
+      if (selected_node->loc.y - dxy/5 < -ui_offset.y) ui_offset.y += 15;
+
+      VLOG(5)
+        << selected_node->loc.x << " " << selected_node->loc.y << ", "
+        << graph_ui.cols << " " << graph_ui.rows << ", "
+        << ui_offset.x << " " << ui_offset.y;
+    }
+    return true;
+  } 
   
   bool handleInput() 
   {
+    // TBD call from update instead, and make sure update is called?
+    autoScroll();
+
     count++;
 
     key = -1;
@@ -1314,6 +1335,8 @@ class CamThing : public Output
     cv::resize(graph_ui, out,
           out.size(), 0, 0, cv::INTER_NEAREST );
     setImage("out", out);          
+   
+    
     return true;
   }
 #endif
