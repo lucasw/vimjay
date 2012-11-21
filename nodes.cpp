@@ -74,7 +74,7 @@ namespace bm {
 
   //////////////////////////////////////////////////////////////////////////////////////
 
-  Elem::Elem() : name("undefined")
+  Elem::Elem() : name("undefined"), highlight(false), highlight2(false)
   {
 
   }
@@ -192,9 +192,9 @@ namespace bm {
     const int bval = 150 + is_dirty * 105;
     hash_col *= (is_dirty ? 1.0 :0.6);
     // draw a box around the port
-    cv::Scalar rect_col = cv::Scalar(40,50,40);
+    cv::Scalar rect_col = cv::Scalar(40, 50, 40);
     if (highlight) {
-      rect_col = cv::Scalar(180, 80, 80);
+      rect_col = cv::Scalar(140, 80, 80);
     }
     cv::rectangle(graph_ui, 
           parent->loc + loc + ui_offset, 
@@ -211,11 +211,12 @@ namespace bm {
       cv::rectangle(graph_ui,
           parent->loc + loc + ui_offset,
           parent->loc + loc + ui_offset - cv::Point2f(5, 5),
-          cv::Scalar(255,255,255),
+          cv::Scalar(255, 255, 255),
           CV_FILLED);
 
     }
 
+    // draw connecting line if there is a connector connected to this one
     if (src) {
 
       cv::Scalar dst_hash_col = hashStringColor(/*src->parent->name +*/ typeToString(src->type) + src->name);
@@ -238,16 +239,19 @@ namespace bm {
 
         control_points[1] = control_points[0] + cv::Point2f(dist/3.0,  y_off);
         control_points[2] = control_points[3] - cv::Point2f(dist/3.0, -y_off);
-        getBezier(control_points, connector_points, 20);
+        getBezier(control_points, connector_points, 32);
       }
 
-      // draw dark outline
+      // draw dark outline around curve
       for (int i = 1; i < connector_points.size(); i++) {
+        cv::Scalar outline_col = cv::Scalar(10,10,10);
+        if (highlight2) outline_col *= 4;
         cv::line(graph_ui, 
             connector_points[i-1] + ui_offset, 
             connector_points[i] + ui_offset, 
-            cv::Scalar(10,10,10), 4, CV_AA ); 
+            outline_col, 4, CV_AA ); 
       }
+      // now draw a colored interior curve
       for (int i = 1; i < connector_points.size(); i++) {
         cv::Scalar col;
         const float fr = (float)i/(float)connector_points.size();
@@ -265,7 +269,10 @@ namespace bm {
         cv::Scalar hc2 = dst_hash_col * cv::Scalar(wt1);
         //cv::Scalar hc1 = hash_col *( 1.0-(1.0-fr));
         cv::Scalar hc1 = hash_col * cv::Scalar(wt2);
-        col = hc1 + hc2; 
+        col = hc1 + hc2;
+        
+        if (highlight2) col *= 3;
+        if (src && src->highlight2) col *= 2;
 
         cv::line(graph_ui, 
           connector_points[i-1] + ui_offset, 
@@ -279,16 +286,17 @@ namespace bm {
 
     // color based on type late
     cv::Scalar col = cv::Scalar(200,200,200);
+    const int cval = 75;
 
     if (type == SIGNAL) {
-      col = cv::Scalar(55, bval, bval);
+      col = cv::Scalar(cval, bval, bval);
       port_info << " " << value;
     } else if (type == IMAGE) {
-      col = cv::Scalar(bval,55,bval);
+      col = cv::Scalar(bval, cval+20, bval);
     } else if (type == BUFFER) {
-      col = cv::Scalar(bval,bval,55);
+      col = cv::Scalar(bval, bval, cval);
     } else if (type == SIGBUF) {
-      col = cv::Scalar(bval,bval/2 + 55/2,bval/2+55/2);
+      col = cv::Scalar(bval, bval/2 + cval/2, bval/2 + cval/2);
     }
     
     cv::putText(graph_ui, port_info.str(), parent->loc + loc + ui_offset, 1, 1, col, 1);
@@ -443,7 +451,23 @@ namespace bm {
     const int ht = 10;
 
     int j = 0;
-  
+ 
+    if (highlight) {
+        cv::Scalar selected_color = cv::Scalar(0,220,1);
+        // draw green circle on selected node
+        cv::circle(graph_ui, 
+            loc + ui_offset, 
+            18, 
+            selected_color*0.8, 
+            -1);
+
+        cv::rectangle(graph_ui,
+            loc + cv::Point2f(0, -10) + ui_offset, 
+            loc + cv::Point2f(135, ports.size()*10 - 3) + ui_offset, 
+            selected_color,
+            3);
+    } 
+
     {
       boost::mutex::scoped_lock l(port_mutex);
       // draw rectangle around entire node
@@ -455,8 +479,17 @@ namespace bm {
     
     int max_width = 0;
     for (int i = 0; i < ports.size(); i++) {
-      if (i == selected_port_ind) ports[i]->highlight = true;
-      else ports[i]->highlight = false;
+      if (i == selected_port_ind) {
+        ports[i]->highlight = true;
+        if (highlight) { 
+          ports[i]->highlight2 = true;
+        } else {
+          ports[i]->highlight2 = false;
+        }
+      } else {
+        ports[i]->highlight = false;
+        ports[i]->highlight2 = false;
+      }
       ports[i]->draw(graph_ui, ui_offset);
     }
     }

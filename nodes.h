@@ -84,6 +84,9 @@ class Elem
   
   bool setDirty();
 
+  // utility bools to control visualization of the element
+  bool highlight;
+  bool highlight2;
 };
 
 // TBD original chose this type because of access convenience, but since 
@@ -120,7 +123,6 @@ class Connector : public Elem
   bool setImage(cv::Mat im);
 
   void draw(cv::Mat, cv::Point2f ui_offset);
-  bool highlight;
 
   // TBD could even have a float val or Mat here to store the last value
   // only used if conType == Signal, TBD subclass?
@@ -161,6 +163,7 @@ class Node : public Elem
   bool do_update;
 
   cv::Point2f loc;
+  // TBD get rid of this and pass it to draw every time
   cv::Mat graph_ui;
   cv::Scalar vcol;
 
@@ -171,7 +174,6 @@ class Node : public Elem
   bool draw_selected_port;
   //void drawSelectedPort();
   
- 
   Node();
 
   //Node(std::string name, cv::Point loc, cv::Mat graph_ui ); 

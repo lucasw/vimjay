@@ -1349,21 +1349,7 @@ class CamThing : public Output
         VLOG(5) << "command_text " << command_text;
       }
 
-      // TBD could all_nodes size have
-      if (selected_node) {
-        cv::Scalar selected_color = cv::Scalar(0,220,1);
-        // draw green circle on selected node
-        cv::circle(graph_ui, 
-            selected_node->loc + ui_offset, 
-            18, 
-            selected_color*0.8, 
-            -1);
-        cv::rectangle(graph_ui,
-            selected_node->loc + cv::Point2f(0, -10) + ui_offset, 
-            selected_node->loc + cv::Point2f(135, selected_node->ports.size()*10 - 3) + ui_offset, 
-            selected_color,
-            3);
-      }
+      
       if (source_node) {
         cv::circle(graph_ui, source_node->loc + ui_offset, 13, cv::Scalar(29,51,11), -1);
         cv::circle(graph_ui, source_node->loc + ui_offset, 12, cv::Scalar(229,151,51), -1);
@@ -1383,8 +1369,10 @@ class CamThing : public Output
       
       // loop through
       for (int i = 0; i < all_nodes.size(); i++) {
-        if (all_nodes[i] != this)
+        if (all_nodes[i] != this) {
+          all_nodes[i]->highlight = (all_nodes[i] == selected_node);
           all_nodes[i]->draw(ui_offset);
+        }
       }
       VLOG(4) << "node draw time " << t1.elapsed();
     }
