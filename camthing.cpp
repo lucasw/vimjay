@@ -327,31 +327,40 @@ class CamThing : public Output
   // organize all the nodes, for now based on index but later perhaps based on connectivity
   bool gridGraph() 
   {
+    paused = true;
+
     const int wd = (sqrt(all_nodes.size()));
-    const int ht = all_nodes.size()/wd + 0.5;
     
     const float tht = Config::inst()->thumb_height;
-    float dx = graph_ui.cols / (wd + 1.5);
-    float dy = (graph_ui.rows-tht) / (ht);
     
-    LOG(INFO) << "making " << all_nodes.size() << " graph items into grid " << wd << " " << dx << " " << dy;
+    LOG(INFO) << "making " << all_nodes.size() << " graph items into grid";
 
-    for (int y = 0; y <= wd; y++) {
-    for (int x = 0; x <= wd; x++) {
-      const int ind = y*(wd+1) + x;
-      if (ind >= all_nodes.size()) continue;
+    int x = 40;
+    int y = 40;
+    for (int i = 0; i < all_nodes.size(); i++) {
       
-      cv::Point loc = cv::Point2f( x*dx + dx/4.0, tht + y*dy + dy/4.0 );
-      
-      LOG(INFO) << ind << " " << getId(all_nodes[ind]) << " "
-          <<  all_nodes[ind]->name << " " 
-          << all_nodes[ind]->loc.x << " " << all_nodes[ind]->loc.y 
-          << " -> " << loc.x << " " << loc.y ;
-      
-      all_nodes[ind]->loc = loc;
+      if ( (ImageNode*) all_nodes[i]) y += tht;
 
-    }}
-  }
+      if (y + all_nodes[i]->ports.size()*10 > graph_ui.rows) {
+        y = 40;
+        x += 180;
+      }
+      cv::Point loc = cv::Point2f( x, y );
+      
+      LOG(INFO) << i << " " << getId(all_nodes[i]) << " "
+          <<  all_nodes[i]->name << " " 
+          << all_nodes[i]->loc.x << " " << all_nodes[i]->loc.y 
+          << " -> " << loc.x << " " << loc.y << ", " <<all_nodes[i]->ports.size();
+      
+      all_nodes[i]->loc = loc;
+
+      y += all_nodes[i]->ports.size()*10 + 60;
+      //if ( (ImageNode*) all_nodes[i]) y += tht;
+      // TBD camthing can grow with input devices
+      if (i == 0) y += tht*2;
+      
+    }
+  } // gridGraph
 
   Webcam* cam_in;
   int count;
@@ -572,6 +581,9 @@ class CamThing : public Output
 
   void defaultGraph() 
   {
+    {
+    boost::mutex::scoped_lock l(update_mutex);
+
     LOG(INFO) << "creating default graph";
     Node* node;
     
@@ -656,7 +668,6 @@ class CamThing : public Output
       input_node->opcode = output_node->opcode;
     }
 
-    gridGraph(); 
 
   #if MAKE_FIR
     {
@@ -749,7 +760,13 @@ class CamThing : public Output
     cv::namedWindow("cam", CV_GUI_NORMAL);
     cv::moveWindow("cam", 0, 0);
 */
+   
     output_node = (Output*)node;
+    }
+
+    nodeUpdate();
+    gridGraph(); 
+
     saveGraph("default_graph.yml");
   }
 
@@ -1256,6 +1273,14 @@ class CamThing : public Output
   bool update_nodes;
   boost::mutex update_mutex;
 
+  bool nodeUpdate()
+  {
+    boost::mutex::scoped_lock l(update_mutex);
+    output_node->setUpdate();
+    output_node->update();
+    clearAllNodeUpdates();
+  }
+
   bool updateThread() 
   {
     LOG(INFO) << "starting node update thread";
@@ -1268,10 +1293,7 @@ class CamThing : public Output
       }
 
       if (!paused) {
-        boost::mutex::scoped_lock l(update_mutex);
-        output_node->setUpdate();
-        output_node->update();
-        clearAllNodeUpdates();
+        nodeUpdate();
       } else {
         usleep(10000);
       }
