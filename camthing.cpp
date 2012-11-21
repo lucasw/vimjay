@@ -409,10 +409,8 @@ class CamThing : public Output
     graph_ui = cv::Mat(cv::Size(Config::inst()->ui_width, Config::inst()->ui_height), MAT_FORMAT_C3);
     graph_ui = cv::Scalar(0);
 
-
     //node->name = name;
     //node->loc = loc;
-
 
     if ((FLAGS_graph == "") || (!loadGraph(FLAGS_graph))) {
       defaultGraph();
@@ -1015,15 +1013,30 @@ class CamThing : public Output
       return false;
   }
  
+  cv::Point2f ui_vel;
   bool autoScroll()
   {
     if (selected_node) {
-      const float dxy = 200;
-      if (selected_node->loc.x + dxy > graph_ui.cols - ui_offset.x) ui_offset.x -= 15;
-      if (selected_node->loc.y + dxy > graph_ui.rows - ui_offset.y) ui_offset.y -= 15;
+      const float dxy = 190;
+      float dx = 0;
+      float dy = 0;
 
-      if (selected_node->loc.x - dxy/5 < -ui_offset.x) ui_offset.x += 15;
-      if (selected_node->loc.y - dxy/5 < -ui_offset.y) ui_offset.y += 15;
+      dx = selected_node->loc.x + dxy - (graph_ui.cols - ui_offset.x);
+      dy = selected_node->loc.y + dxy/2 - (graph_ui.rows - ui_offset.y); 
+     
+      if (dx < 0) {
+        dx =  (selected_node->loc.x - dxy/5 + ui_offset.x);
+        if (dx > 0) dx = 0;
+      }
+      if (dy < 0) {
+        dy =   selected_node->loc.y - dxy/5 + ui_offset.y;
+        if (dy > 0) dy = 0;
+      }
+
+      cv::Point2f acc = cv::Point(dx,dy) * -0.1;
+      ui_vel += acc;
+      ui_offset += ui_vel;
+      ui_vel *= 0.8;
 
       VLOG(5)
         << selected_node->loc.x << " " << selected_node->loc.y << ", "

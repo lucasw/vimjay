@@ -143,13 +143,12 @@ class Connector : public Elem
 
 class Node : public Elem
 {
-
+  protected:
+  
   // velocity and acceleration of node screen position 
   cv::Point2f acc;
   cv::Point2f vel;
-  
-  protected:
-  
+  bool posUpdate();
   boost::mutex port_mutex;
 
   public:

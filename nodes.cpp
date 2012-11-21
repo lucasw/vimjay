@@ -407,19 +407,20 @@ namespace bm {
     return true;
   }
 
-  bool Node::draw(cv::Point2f ui_offset) 
+  bool Node::posUpdate() 
   {
-
-   // pos update
+    // pos update
     vel += acc;
     acc = cv::Point2f(0,0);
     loc += vel;
     vel *= 0.9;
 
+    #if 0
     if (loc.x < 0) {
       loc.x = 0;
       vel.x = abs(vel.x)*0.5;
     }
+
     if (loc.x > graph_ui.cols) {
       loc.x = graph_ui.cols;
       vel.x = -abs(vel.x)*0.5;
@@ -432,8 +433,13 @@ namespace bm {
       loc.y = graph_ui.rows;
       vel.y = -abs(vel.y)*0.5;
     }
-    //////////////////////////////
+    #endif
+  }
 
+  bool Node::draw(cv::Point2f ui_offset) 
+  {
+    posUpdate();
+  
     if (graph_ui.empty()) {  
       LOG(ERROR) << "graph empty";
       return false;
