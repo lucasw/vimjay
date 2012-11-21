@@ -446,8 +446,8 @@ namespace bm {
   
     {
       boost::mutex::scoped_lock l(port_mutex);
-    // draw rectangle around entire node
-    cv::rectangle(graph_ui, 
+      // draw rectangle around entire node
+      cv::rectangle(graph_ui, 
           loc + cv::Point2f(-5, -15) + ui_offset, 
           loc + cv::Point2f(140, ports.size()*10 + 2) + ui_offset, 
           vcol*0.2, //cv::Scalar(255,0,0),
@@ -1097,7 +1097,7 @@ namespace bm {
       time_t t1 = time(NULL);
 
       // TBD define path to data somewhere to be reused by all
-      dir_name << "../data/" << t1 << "_" << name;
+      dir_name << "../data/record/" << t1 << "_" << name;
       LOG(INFO) << name << " creating directory" << dir_name.str();
     }
     
