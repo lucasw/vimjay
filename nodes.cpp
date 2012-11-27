@@ -1177,7 +1177,25 @@ namespace bm {
     }
 
     return valid_key;
-  } 
+  }
+
+  /**
+    convenience function to get opencv interpolation mode type
+    */
+  int ImageNode::getModeType() // TBD supply string optionally
+  {
+  int mode = getSignal("mode");
+  mode += 5;
+  mode %= 5;
+  setSignal("mode", mode);
+    int mode_type = cv::INTER_NEAREST;
+  if (mode == 1) mode_type = cv::INTER_LINEAR;
+  if (mode == 2) mode_type = cv::INTER_AREA;
+  if (mode == 3) mode_type = cv::INTER_CUBIC;
+  if (mode == 4) mode_type = cv::INTER_LANCZOS4;
+    return mode_type;
+  }
+
   //////////////////////////////////////////////////////////////////////////////////////////
   // TBD subclasses of Node that are input/output specific, or make that general somehow?
   Signal::Signal() : Node()
@@ -1319,7 +1337,7 @@ namespace bm {
     const int cur_size =  frames.size();
     setSignal("cur_size", cur_size);
     if (cur_size <= 0) return false;
-    const int ind =  ((int)getSignal("ind")) % cur_size;
+    const int ind =  ((int)getSignal("ind") + cur_size) % cur_size;
     setSignal("ind", ind);
   }
 

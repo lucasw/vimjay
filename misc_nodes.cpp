@@ -434,6 +434,8 @@ namespace bm {
   {
     LOG(INFO) << name << " loading " << dir;
 
+    frames.clear();
+    
     boost::filesystem::path image_path(dir);
     if (!is_directory(image_path)) {
       LOG(ERROR) << name << CLERR << " not a directory " << CLNRM << dir; 
@@ -480,7 +482,7 @@ namespace bm {
 
       cv::Size sz = cv::Size(Config::inst()->im_width, Config::inst()->im_height);
       cv::Mat tmp1;
-      cv::resize(tmp0, tmp1, sz, 0, 0, cv::INTER_NEAREST );
+      cv::resize(tmp0, tmp1, sz, 0, 0, getModeType() );
 
       const bool restrict_size = false;
       const bool rv = add(tmp1, restrict_size);
@@ -494,7 +496,8 @@ namespace bm {
     
     LOG(INFO) << name << " " << frames.size() << " image loaded";
     //max_size = frames.size() + 1;
-    
+    setDirty();
+
     return true;
   }
 
@@ -512,6 +515,22 @@ namespace bm {
     Buffer::save(fs);
 
     fs << "dir" << dir;
+  }
+
+  bool ImageDir::update()
+  {
+    const bool rv = Buffer::update();
+    if (!rv) return false;
+    
+    if (!isDirty(this, 27)) return true;
+
+    if (getSignal("load") > 0.5) {
+      loadImages();
+    }
+    // flush dirtiness
+    isDirty(this, 27);
+
+    return true;
   }
 
 ///////////////////////////////////////////////////////////
@@ -938,15 +957,8 @@ CMP_NE
   // then scale back to input size
   cv::Mat out;
 
-  int mode = getSignal("mode");
-  mode += 5;
-  mode %= 5;
-  setSignal("mode", mode);
-  int mode_type = cv::INTER_NEAREST;
-  if (mode == 1) mode_type = cv::INTER_LINEAR;
-  if (mode == 2) mode_type = cv::INTER_AREA;
-  if (mode == 3) mode_type = cv::INTER_CUBIC;
-  if (mode == 4) mode_type = cv::INTER_LANCZOS4;
+  int mode_type = getModeType();
+
   
   // scale it back up to standard size
   cv::resize(tmp, out, sz, 0, 0, mode_type);

@@ -277,6 +277,8 @@ public:
   
   std::stringstream dir_name;
   virtual bool writeImage();
+
+  int getModeType(); // TBD supply string optionally
 };
 
 // TBD subclasses of Node that are input/output specific, or make that general somehow?

@@ -76,6 +76,7 @@ class ImageDir : public Buffer
   
   bool loadImages();
 
+  virtual bool update();
   virtual bool load(cv::FileNodeIterator nd);
   virtual bool save(cv::FileStorage& fs);
 };
