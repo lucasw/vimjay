@@ -1095,27 +1095,21 @@ namespace bm {
       cv::Scalar col = cv::Scalar(vcol/fr);
 
       cv::Point2f thumb_offset = cv::Point2f(0, -sz.height - 20);
-      cv::rectangle(graph_ui, 
-          loc + thumb_offset + ui_offset - cv::Point2f(2,2) + ui_offset, 
-          loc + thumb_offset + ui_offset + cv::Point2f(2,2) + cv::Point2f(sz.width, sz.height), 
-          col, CV_FILLED );
 
-      bool draw_thumb = true;
-      if (loc.x + sz.width >= graph_ui.cols) {
-        //LOG(ERROR) << name << " bad subregion " << loc.x << " " << sz.width << " " << graph_ui.cols;
-        draw_thumb = false;
-      }
-      if (loc.y + sz.height >= graph_ui.rows) {
-        VLOG(5) << name << " bad subregion " << loc.y << " " << sz.height << " " << graph_ui.rows;
-        draw_thumb = false;
-      }
-
-      if (draw_thumb) {
+      // draw thumbnail 
+      {
         float xth = loc.x + ui_offset.x + thumb_offset.x;
         float yth = loc.y + ui_offset.y + thumb_offset.y;
 
         if ((xth > 0) && (yth > 0) && 
             (xth + sz.width < graph_ui.cols) && (yth + sz.height < graph_ui.rows)) {
+  
+          const cv::Point2f pth = cv::Point2f(xth,yth);
+          cv::rectangle(graph_ui, 
+              pth - cv::Point2f(2,2), 
+              pth + cv::Point2f(2,2) + cv::Point2f(sz.width, sz.height), 
+              col, CV_FILLED );
+
           cv::Mat graph_roi = graph_ui(cv::Rect(xth, yth, sz.width, sz.height));
           graph_roi = cv::Scalar(0, 0, 255);
           thumbnail.copyTo(graph_roi);
@@ -1291,11 +1285,13 @@ namespace bm {
     }
 
     // TBD make a graphic that shows a rolling oscilloscope value
+    #if 0
     if (!graph_ui.empty()) {
     cv::rectangle(graph_ui, loc, 
         loc + cv::Point2f( x * 50.0 , 5) + ui_offset, 
         cv::Scalar(255, 255, 100), CV_FILLED);
     }
+    #endif 
 
     return Node::draw(ui_offset);
   }
