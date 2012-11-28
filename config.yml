@@ -1,7 +1,7 @@
 %YAML:1.0
 date: "Sun Aug 26 21:19:53 2012\n"
 # gui dimension
-ui_width: 1280
+ui_width: 980
 ui_height: 720
 # image thumbnail on gui 
 thumb_width: 64

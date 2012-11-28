@@ -124,9 +124,10 @@ Sobel::Sobel()
   cv::Mat tmp;
   setImage("in", tmp);
   setSignal("xorder",1);
-  setSignal("yorder",1);
+  setSignal("yorder",0);
   setSignal("ksize",3);
   setSignal("scale",0.8);
+  setSignal("delta",128);
 }
 
 bool Sobel::update()
@@ -147,12 +148,13 @@ bool Sobel::update()
 
   if (ksize < 1) ksize = 1;
   if (ksize > 4) ksize = 4;
-  if (xorder < 1) xorder = 1;
-  if (xorder > 2) xorder = 2;
-  if (yorder < 1) yorder = 1;
-  if (yorder > 2) yorder = 2;
+  if (xorder < 0) xorder = 0;
+  if (xorder > 4) xorder = 4;
+  if (yorder < 0) yorder = 0;
+  if (yorder > 4) yorder = 4;
   if (scale < 0.001) scale = 0.001;
 
+  if (xorder + yorder < 1) xorder = 1;
   
   setSignal("ksize", ksize);
   setSignal("xorder", xorder);
@@ -169,12 +171,51 @@ bool Sobel::update()
       xorder,
       yorder,
       real_ksize, 
-      scale
+      scale,
+      getSignal("delta")
       );
   setImage("out", out);
 
   return true;
 }
+
+#if 0
+Scharr::Scharr()
+{
+  cv::Mat tmp;
+  setImage("in", tmp);
+  // TBD Signals should allo min max parameters to be set
+  setSignal("dx",1);
+  setSignal("dy",1);
+  // scale and offset
+  setSignal("scale",1.0);
+  setSignal("delta",128);
+}
+
+bool Scharr::update()
+{
+  const bool rv = Node::update();
+  if (!rv) return false;
+  
+  cv::Mat in = getImage("in");
+  if (in.empty()) return true;
+
+  int dx = getSignal("dx");
+  if (dx < 1) { dx = 1; setSignal("dx", dx); }
+
+  int dy = getSignal("dy");
+  if (dy < 1) { dy = 1; setSignal("dy", dy); }
+
+  cv::Mat out;
+  cv::Scharr(in, out, in.depth(), dx, dy, 
+    getSignal("scale"), getSignal("delta"), getBorderType()
+    );
+
+  setImage("out", out);
+
+  return true;
+}
+#endif
 
 ////////////////////////////////////////
   GaussianBlur::GaussianBlur() 

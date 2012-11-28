@@ -32,6 +32,13 @@ class Sobel : public ImageNode
   virtual bool update();
 };
 
+class Scharr : public ImageNode
+{
+  public:
+  Scharr();
+  virtual bool update();
+};
+
 class GaussianBlur : public ImageNode
 {
   public:

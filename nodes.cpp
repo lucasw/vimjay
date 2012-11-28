@@ -461,11 +461,13 @@ namespace bm {
     if (highlight) {
         cv::Scalar selected_color = cv::Scalar(0,220,1);
         // draw green circle on selected node
+        #if 0
         cv::circle(graph_ui, 
             loc + ui_offset, 
             18, 
             selected_color*0.8, 
             -1);
+        #endif
 
         cv::rectangle(graph_ui,
             loc + cv::Point2f(0, -10) + ui_offset, 
@@ -1095,20 +1097,19 @@ namespace bm {
       cv::Scalar col = cv::Scalar(vcol/fr);
 
       cv::Point2f thumb_offset = cv::Point2f(0, -sz.height - 20);
-
-      // draw thumbnail 
+     
+      // draw thumbnail
       {
-        float xth = loc.x + ui_offset.x + thumb_offset.x;
-        float yth = loc.y + ui_offset.y + thumb_offset.y;
+        cv::Point2f pth = loc + ui_offset + thumb_offset;
+        float xth = pth.x;
+        float yth = pth.y;
 
         if ((xth > 0) && (yth > 0) && 
             (xth + sz.width < graph_ui.cols) && (yth + sz.height < graph_ui.rows)) {
-  
-          const cv::Point2f pth = cv::Point2f(xth,yth);
-          cv::rectangle(graph_ui, 
-              pth - cv::Point2f(2,2), 
-              pth + cv::Point2f(2,2) + cv::Point2f(sz.width, sz.height), 
-              col, CV_FILLED );
+          
+          cv::Point2f border_off  = cv::Point2f(2,2);
+          cv::rectangle(graph_ui,
+            pth - border_off, pth + border_off, col, CV_FILLED);
 
           cv::Mat graph_roi = graph_ui(cv::Rect(xth, yth, sz.width, sz.height));
           graph_roi = cv::Scalar(0, 0, 255);
@@ -1178,16 +1179,31 @@ namespace bm {
     */
   int ImageNode::getModeType() // TBD supply string optionally
   {
-  int mode = getSignal("mode");
-  mode += 5;
-  mode %= 5;
-  setSignal("mode", mode);
+    int mode = getSignal("mode");
+    mode += 5;
+    mode %= 5;
+    setSignal("mode", mode);
     int mode_type = cv::INTER_NEAREST;
-  if (mode == 1) mode_type = cv::INTER_LINEAR;
-  if (mode == 2) mode_type = cv::INTER_AREA;
-  if (mode == 3) mode_type = cv::INTER_CUBIC;
-  if (mode == 4) mode_type = cv::INTER_LANCZOS4;
+    if (mode == 1) mode_type = cv::INTER_LINEAR;
+    if (mode == 2) mode_type = cv::INTER_AREA;
+    if (mode == 3) mode_type = cv::INTER_CUBIC;
+    if (mode == 4) mode_type = cv::INTER_LANCZOS4;
     return mode_type;
+  }
+
+  int ImageNode::getBorderType()
+  {
+    int border = getSignal("border");
+    border += 5;
+    border %= 5;
+    setSignal("border", border);
+
+    int border_type = BORDER_CONSTANT;
+    if (border == 1) border_type = BORDER_REFLECT;
+    if (border == 2) border_type = BORDER_WRAP;
+    if (border == 3) border_type = BORDER_REPLICATE;
+    if (border == 4) border_type = BORDER_REFLECT_101;
+    return border_type;
   }
 
   //////////////////////////////////////////////////////////////////////////////////////////
@@ -1291,7 +1307,7 @@ namespace bm {
         loc + cv::Point2f( x * 50.0 , 5) + ui_offset, 
         cv::Scalar(255, 255, 100), CV_FILLED);
     }
-    #endif 
+    #endif
 
     return Node::draw(ui_offset);
   }

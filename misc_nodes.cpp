@@ -82,15 +82,8 @@ namespace bm {
     float off_x = getSignal("off_x");     
     float off_y = getSignal("off_y");
 
-    int border = getSignal("border");
-    border %= 5;
 
-    int border_type = BORDER_CONSTANT;
-    if (border == 1) border_type = BORDER_REFLECT;
-    if (border == 2) border_type = BORDER_WRAP;
-    if (border == 3) border_type = BORDER_REPLICATE;
-    if (border == 4) border_type = BORDER_REFLECT_101;
-    //VLOG(1) << name << " " << is_dirty << " " << im_in->name << " " << im_in->is_dirty;
+        //VLOG(1) << name << " " << is_dirty << " " << im_in->name << " " << im_in->is_dirty;
 
     float wd = Config::inst()->im_width;
     float ht = Config::inst()->im_height;
@@ -99,56 +92,53 @@ namespace bm {
         0, wd, wd, 0, 
         0, 0,  ht, ht);
 
-    // By getting the xy parameters that were set in the last cycle, it is possible
-    // to override the angle/scale/center parameters by setting these directly
     cv::Mat out_p = in_p.clone().t();  
-    
-    out_p.at<float>(0,0) = getSignal("x0");
-    out_p.at<float>(1,0) = getSignal("x1");
-    out_p.at<float>(2,0) = getSignal("x2");
-    out_p.at<float>(3,0) = getSignal("x3");
-    out_p.at<float>(0,1) = getSignal("y0");
-    out_p.at<float>(1,1) = getSignal("y1"); 
-    out_p.at<float>(2,1) = getSignal("y2");
-    out_p.at<float>(3,1) = getSignal("y3"); 
-    
+ 
+    if (getSignal("manual_xy") < 0.5) {
+      //////////////////////////////////////////////////
+      /// This implements a standard rotozoom
+      cv::Mat offset = (cv::Mat_<float>(2,4) << 
+          off_x, off_x, off_x, off_x, 
+          off_y, off_y, off_y, off_y); 
+      //  wd/2, wd/2, wd/2, wd/2, 
+      //  ht/2, ht/2, ht/2, ht/2); 
+
+      cv::Mat center_m = (cv::Mat_<float>(2,4) << 
+          center.x, center.x, center.x, center.x, 
+          center.y, center.y, center.y, center.y); 
+
+      cv::Mat rot = (cv::Mat_<float>(2, 2) <<
+          cos(angle), -sin(angle), sin(angle), cos(angle));
+
+      // TBD reformat the matrices so all the transposes aren't necessary
+      out_p = (in_p - offset).t() * rot.t() * scale + center_m.t();
+
+      setSignal("x0", out_p.at<float>(0,0));
+      setSignal("x1", out_p.at<float>(1,0));
+      setSignal("x2", out_p.at<float>(2,0));
+      setSignal("x3", out_p.at<float>(3,0));
+      setSignal("y0", out_p.at<float>(0,1));
+      setSignal("y1", out_p.at<float>(1,1));
+      setSignal("y2", out_p.at<float>(2,1));
+      setSignal("y3", out_p.at<float>(3,1));
+    } else {   
+      out_p.at<float>(0,0) = getSignal("x0");
+      out_p.at<float>(1,0) = getSignal("x1");
+      out_p.at<float>(2,0) = getSignal("x2");
+      out_p.at<float>(3,0) = getSignal("x3");
+      out_p.at<float>(0,1) = getSignal("y0");
+      out_p.at<float>(1,1) = getSignal("y1"); 
+      out_p.at<float>(2,1) = getSignal("y2");
+      out_p.at<float>(3,1) = getSignal("y3"); 
+    }
+
     cv::Mat out;
     // TBD make inter_nearest changeable
     cv::Mat transform = cv::getPerspectiveTransform(in_p.t(), out_p);
     cv::warpPerspective(in, out, transform, 
-        in.size(), INTER_NEAREST, border_type);
+        in.size(), getModeType(), getBorderType());
     setImage("out", out);
 
-    if (getSignal("manual_xy") < 0.5) {
-     //////////////////////////////////////////////////
-    /// This implements a standard rotozoom
-    // now compute the xy parameters for the next cycle using the current
-    // scale/ center/ angle values
-    cv::Mat offset = (cv::Mat_<float>(2,4) << 
-      off_x, off_x, off_x, off_x, 
-      off_y, off_y, off_y, off_y); 
-      //  wd/2, wd/2, wd/2, wd/2, 
-      //  ht/2, ht/2, ht/2, ht/2); 
-
-    cv::Mat center_m = (cv::Mat_<float>(2,4) << 
-        center.x, center.x, center.x, center.x, 
-        center.y, center.y, center.y, center.y); 
-
-    cv::Mat rot = (cv::Mat_<float>(2, 2) <<
-        cos(angle), -sin(angle), sin(angle), cos(angle));
-  
-    // TBD reformat the matrices so all the transposes aren't necessary
-    out_p =  (in_p - offset).t() * rot.t() * scale + center_m.t();
-
-    setSignal("x0", out_p.at<float>(0,0));
-    setSignal("x1", out_p.at<float>(1,0));
-    setSignal("x2", out_p.at<float>(2,0));
-    setSignal("x3", out_p.at<float>(3,0));
-    setSignal("y0", out_p.at<float>(0,1));
-    setSignal("y1", out_p.at<float>(1,1));
-    setSignal("y2", out_p.at<float>(2,1));
-    setSignal("y3", out_p.at<float>(3,1));
-    }
 
     #if 0
     for (int i = 0; i < transform.rows; i++) {
@@ -289,9 +279,9 @@ namespace bm {
     cv::Mat dist_xy16, dist_int;
     cv::convertMaps(dist_x, dist_y, dist_xy16, dist_int, CV_16SC2, true);
 
-    cv::remap(in, out, dist_xy16, cv::Mat(), cv::INTER_NEAREST, cv::BORDER_REPLICATE);
+    cv::remap(in, out, dist_xy16, cv::Mat(), getModeType(), cv::BORDER_REPLICATE);
    #else
-    cv::remap(in, out, base_x, base_y, cv::INTER_NEAREST);
+    cv::remap(in, out, base_x, base_y, getModeType() );
     #endif
     setImage("out", out);
 
@@ -388,7 +378,7 @@ namespace bm {
 
         cv::Size sz = cv::Size(Config::inst()->im_width, Config::inst()->im_height);
         cv::Mat tmp1;
-        cv::resize(tmp, tmp1, sz, 0, 0, cv::INTER_NEAREST );
+        cv::resize(tmp, tmp1, sz, 0, 0, getModeType() );
         
 
         //out_lock.lock();
@@ -958,7 +948,6 @@ CMP_NE
   cv::Mat out;
 
   int mode_type = getModeType();
-
   
   // scale it back up to standard size
   cv::resize(tmp, out, sz, 0, 0, mode_type);
