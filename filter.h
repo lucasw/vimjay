@@ -32,10 +32,10 @@ class Sobel : public ImageNode
   virtual bool update();
 };
 
-class Scharr : public ImageNode
+class Laplacian : public ImageNode
 {
   public:
-  Scharr();
+  Laplacian();
   virtual bool update();
 };
 

@@ -179,43 +179,47 @@ bool Sobel::update()
   return true;
 }
 
-#if 0
-Scharr::Scharr()
+Laplacian::Laplacian()
 {
   cv::Mat tmp;
   setImage("in", tmp);
   // TBD Signals should allo min max parameters to be set
-  setSignal("dx",1);
-  setSignal("dy",1);
+  setSignal("ksize", 1);
   // scale and offset
   setSignal("scale",1.0);
   setSignal("delta",128);
 }
 
-bool Scharr::update()
+bool Laplacian::update()
 {
   const bool rv = Node::update();
   if (!rv) return false;
-  
+
+  if (!isDirty(this, 5)) { 
+    VLOG(1) << name << " not dirty ";
+    return true; 
+  }
+
   cv::Mat in = getImage("in");
   if (in.empty()) return true;
 
-  int dx = getSignal("dx");
-  if (dx < 1) { dx = 1; setSignal("dx", dx); }
+  int ksize = getSignal("ksize");
 
-  int dy = getSignal("dy");
-  if (dy < 1) { dy = 1; setSignal("dy", dy); }
+  if (ksize < 0) { ksize = 0; setSignal("ksize", ksize); }
+  if (ksize > 15) { ksize = 15; setSignal("ksize", ksize); }
+  int real_ksize = ksize*2 + 1;
 
   cv::Mat out;
-  cv::Scharr(in, out, in.depth(), dx, dy, 
-    getSignal("scale"), getSignal("delta"), getBorderType()
-    );
+  cv::Laplacian(in, out, in.depth(),
+      real_ksize,
+      getSignal("scale"), 
+      getSignal("delta"), getBorderType()
+      );
 
   setImage("out", out);
 
   return true;
 }
-#endif
 
 ////////////////////////////////////////
   GaussianBlur::GaussianBlur() 
