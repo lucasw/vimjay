@@ -38,7 +38,7 @@ class Mouse : public Node
   //boost::thread event_thread;
   //void runThread();
 
-  Mouse();
+  Mouse(const std::string name);
   ~Mouse();
   virtual bool draw(cv::Point2f ui_offset);
 };

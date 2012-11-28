@@ -30,7 +30,7 @@ using namespace std;
 
 namespace bm {
 
-ScreenCap::ScreenCap( )
+ScreenCap::ScreenCap(const std::string name) :ImageNode(name)
 {
   display = NULL;
   screen = NULL;

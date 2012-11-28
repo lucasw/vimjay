@@ -20,14 +20,14 @@ namespace bm {
 class Rot2D : public ImageNode
 {
   public:
-  Rot2D();
+  Rot2D(const std::string name);
   virtual bool update();
 };
 
 class Undistort : public ImageNode
 {
   public:
-  Undistort();
+  Undistort(const std::string name);
   virtual bool update();
 };
 
@@ -40,7 +40,7 @@ protected:
   cv::Mat base_xy;
 
   public:
-  Remap();
+  Remap(const std::string name);
   virtual bool update();
 };
 
@@ -57,7 +57,7 @@ class Webcam : public ImageNode
   int error_count;
 
   public:
-  Webcam();
+  Webcam(const std::string name);
   virtual ~Webcam();
 
   virtual bool update();
@@ -70,7 +70,7 @@ class ImageDir : public Buffer
 {
   public:
 
-  ImageDir() {}
+  ImageDir(const std::string name) : Buffer(name) {}
 
   std::string dir;
   
@@ -90,7 +90,7 @@ class Tap : public ImageNode
 
   //float value;
 
-  Tap();// : ImageNode()
+  Tap(const std::string name);// : ImageNode()
 
   void setup(Signal* new_signal =NULL, Buffer* new_buffer=NULL); 
   
@@ -102,7 +102,7 @@ class TapInd : public Tap
 {
   public:
 
-  TapInd() {}// : ImageNode()
+  TapInd(const std::string name) : Tap(name) {}
   
   // TBD make an sval?
   //int ind;
@@ -114,7 +114,7 @@ class TapInd : public Tap
 class Add : public ImageNode
 {
   public:
-  Add(); // : ImageNode()
+  Add(const std::string name); // : ImageNode()
   // TBD could require pair be passed in to enforce size
   // TBD get rid of this?
   void setup(std::vector<ImageNode*> np, std::vector<float> nf); 
@@ -125,7 +125,7 @@ class Add : public ImageNode
 class Multiply : public ImageNode
 {
   public:
-  Multiply(); 
+  Multiply(const std::string name); 
   virtual bool update();
 };
 
@@ -133,14 +133,14 @@ class Multiply : public ImageNode
 class AbsDiff : public ImageNode
 {
   public:
-  AbsDiff(); 
+  AbsDiff(const std::string name); 
   virtual bool update();
 };
 
 class Greater : public ImageNode
 {
   public:
-  Greater(); 
+  Greater(const std::string name); 
   virtual bool update();
 };
 
@@ -148,14 +148,14 @@ class Greater : public ImageNode
 class Resize : public ImageNode
 {
   public:
-  Resize();
+  Resize(const std::string name);
   virtual bool update();
 };
 
 class Flip : public ImageNode
 {
   public:
-  Flip();
+  Flip(const std::string name);
   virtual bool update();
 };
 

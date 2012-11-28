@@ -70,7 +70,8 @@ class Elem
   std::map<const void*, std::map<int, bool> > dirty_hash;  
  
   public:
-  Elem();
+  //Elem();
+  Elem(const std::string name);
 
   std::string name;
   // is the output of this node different from the last  timestep
@@ -97,7 +98,7 @@ class Connector : public Elem
   protected:
 
   public:
-  Connector();
+  Connector(const std::string name);
 
   bool update();
 
@@ -127,6 +128,11 @@ class Connector : public Elem
   // TBD could even have a float val or Mat here to store the last value
   // only used if conType == Signal, TBD subclass?
   float value;
+
+  bool saturate;
+  float min;
+  float max;
+
   // only used if conType == Image or Buffer
   cv::Mat im;
 
@@ -173,7 +179,7 @@ class Node : public Elem
   bool draw_selected_port;
   //void drawSelectedPort();
   
-  Node();
+  Node(const std::string name);
 
   //Node(std::string name, cv::Point loc, cv::Mat graph_ui ); 
   
@@ -223,7 +229,11 @@ class Node : public Elem
       const std::string port, 
       bool& valid = bool_val);
 
-  bool setSignal(const std::string port, const float val);
+  bool setSignal(const std::string port, 
+      const float val=0.0,
+      const bool saturate=false,
+      const float min=0.0,
+      const float max=1.0);
 
   // TBD rename these, they are really getBufferImage or similar
   cv::Mat getBuffer(
@@ -266,7 +276,7 @@ public:
   //cv::Mat tmp; // scratch image
   //int write_count;
     
-  ImageNode();// : Node()
+  ImageNode(const std::string name);// : Node()
   //ImageNode(std::string name, cv::Point loc, cv::Mat graph_ui ); 
 
   virtual bool update();
@@ -287,7 +297,7 @@ public:
 class Signal : public Node
 {
   public:
-  Signal(); // : Node()
+  Signal(const std::string name); // : Node()
 
   void setup(const float new_step=0.01, const float offset=0.0, const float min = 0.0, const float max=1.0); 
  
@@ -317,7 +327,7 @@ class Buffer : public ImageNode
 
   public:
 
-  Buffer(); 
+  Buffer(const std::string name); 
   
   bool manualUpdate();
   virtual bool update();
@@ -352,7 +362,7 @@ class Mux : public Buffer
 {
   public:
 
-  Mux(); 
+  Mux(const std::string name); 
  
   virtual bool update();
   virtual bool handleKey(int key);
@@ -363,7 +373,7 @@ class MuxBuffer : public Buffer
   Buffer* selected_buffer;
 
   public:
-  MuxBuffer(); 
+  MuxBuffer(const std::string name); 
  
   virtual cv::Mat get(const float fr, int& actual_ind=ind);
   virtual cv::Mat get(int ind, int& actual_ind= ind);

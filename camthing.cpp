@@ -87,7 +87,7 @@ class CamThing : public Output
   template <class nodeType>
     nodeType* getNode(string name = "", cv::Point2f loc=cv::Point2f(0.0, 0.0))
     {
-      nodeType* node = new nodeType();//name, loc, graph_ui);
+      nodeType* node = new nodeType(name);//name, loc, graph_ui);
       
       VLOG(1) << CLVAL << all_nodes.size()  << CLTX2 
           << " new node " << CLNRM << " " << getId(node) << " "  
@@ -164,6 +164,8 @@ class CamThing : public Output
         node = getNode<Resize>(name, loc);
       } else if (type_id.compare("bm::Flip") == 0) {
         node = getNode<Flip>(name, loc);
+      } else if (type_id.compare("bm::MorphologyEx") == 0) {
+        node = getNode<MorphologyEx>(name, loc);
       } else if (type_id.compare("bm::Rot2D") == 0) {
         node = getNode<Rot2D>(name, loc);
       } else if (type_id.compare("bm::Undistort") == 0) {
@@ -390,7 +392,8 @@ class CamThing : public Output
   
   boost::thread node_thread;
 
-  CamThing() : 
+  CamThing(const std::string name) :
+      Output(name),
       selected_ind(0), 
       selected_node(NULL),
       //selected_port_type(NONE),
@@ -407,6 +410,7 @@ class CamThing : public Output
       paused(true)
   {
     count = 0;
+
 
     // TBD make internal type a gflag
     // or have a config file that loads it and resolution also
@@ -628,6 +632,7 @@ class CamThing : public Output
     node = getNode<GaussianBlur>("blur", loc);
     node = getNode<Resize>("resize", loc);
     node = getNode<Flip>("flip", loc);
+    node = getNode<MorphologyEx>("morphology_ex", loc);
     node = getNode<OpticalFlow>("optical_flow", loc);
 
     node = getNode<Add>("add", loc);
@@ -1483,7 +1488,7 @@ int main( int argc, char* argv[] )
   }
   struct input_event ev;
   #else 
-  bm::CamThing* cam_thing = new bm::CamThing();
+  bm::CamThing* cam_thing = new bm::CamThing("camthing");
   #endif
 
 

@@ -14,14 +14,14 @@ namespace bm {
 class Bezier : public ImageNode
 {
   public:
-  Bezier();
+  Bezier(const std::string name);
   virtual bool update();
 };
 
 class Circle : public ImageNode
 {
   public:
-  Circle();
+  Circle(const std::string name);
   virtual bool update();
 };
 
@@ -29,7 +29,7 @@ class Circle : public ImageNode
 class Noise : public ImageNode
 {
   public:
-  Noise();
+  Noise(const std::string name);
   virtual bool update();
 };
 

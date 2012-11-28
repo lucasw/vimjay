@@ -19,7 +19,7 @@ namespace bm {
 class Saw : public Signal
 {
   public:
-  Saw(); 
+  Saw(const std::string name); 
   void setup(const float new_step=0.01, const float offset=0.0, const float min=0.0, const float max=1.0); 
   virtual bool update();
   virtual bool handleKey(int key);
@@ -33,7 +33,7 @@ class Random : public Signal
   std::mt19937 gen;
 
   public:
-  Random(); // : Signal()
+  Random(const std::string name); // : Signal()
   virtual bool update();
   //virtual bool handleKey(int key);
 };
@@ -43,7 +43,7 @@ class Gaussian : public Signal
   cv::RNG rng; 
 
   public:
-  Gaussian(); 
+  Gaussian(const std::string name); 
   virtual bool update();
   //virtual bool handleKey(int key);
 };
@@ -55,7 +55,7 @@ class SigBuffer : public ImageNode
   std::deque<float> sigs;
 
   public:
-  SigBuffer();
+  SigBuffer(const std::string name);
   virtual bool update();
   virtual bool draw(cv::Point2f ui_offset);
   
@@ -69,7 +69,7 @@ class SigBuffer : public ImageNode
 class Trig : public Node
 {
   public:
-  Trig(); 
+  Trig(const std::string name); 
   virtual bool update();
   //virtual bool handleKey(int key);
 };
@@ -78,7 +78,7 @@ class Trig : public Node
 class SigAdd : public Node
 {
   public:
-  SigAdd(); // : Signal()
+  SigAdd(const std::string name); // : Signal()
   virtual bool update();
   virtual bool handleKey(int key);
 };
@@ -90,7 +90,7 @@ class SigAdd : public Node
 class SigFile : public SigBuffer
 {
   public:
-  SigFile() {}
+  SigFile(const std::string name) {}
   std::string file;
   bool loadBuffer();
   virtual bool load(cv::FileNodeIterator nd);
@@ -101,7 +101,7 @@ class SigFile : public SigBuffer
 class SigTap : public Signal
 {
   public:
-  SigTap();// : Signal()
+  SigTap(const std::string name);// : Signal()
   virtual bool update();
   virtual bool draw(cv::Point2f ui_offset);
 };
@@ -109,7 +109,7 @@ class SigTap : public Signal
 class SigTapInd : public Tap
 {
   public:
-  SigTapInd() {}// : Signal()
+  SigTapInd(const std::string name) {}// : Signal()
   virtual bool update();
   virtual bool draw(cv::Point2f ui_offset);
 };
@@ -118,7 +118,7 @@ class SigTapInd : public Tap
 class SigMultiply : public Signal
 {
   public:
-  Multiply(); 
+  Multiply(const std::string name); 
   virtual bool update();
 };
 
@@ -126,21 +126,21 @@ class SigMultiply : public Signal
 class SigAbsDiff : public Signal
 {
   public:
-  SigAbsDiff(); 
+  SigAbsDiff(const std::string name); 
   virtual bool update();
 };
 
 class SigGreater : public Signal
 {
   public:
-  SigGreater(); 
+  SigGreater(const std::string name); 
   virtual bool update();
 };
 
 class SigFlip : public Signal
 {
   public:
-  SigFlip();
+  SigFlip(const std::string name);
   virtual bool update();
 };
 #endif

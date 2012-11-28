@@ -19,7 +19,7 @@ class Output : public ImageNode
   Window win;
   int opcode;
   
-  Output();
+  Output(const std::string name);
   
   bool setup(const int width, const int height);
   

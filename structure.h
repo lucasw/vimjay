@@ -10,7 +10,7 @@ namespace bm {
 class Contour : public ImageNode
 {
   public:
-  Contour();
+  Contour(const std::string name);
   virtual bool update();
 };
 

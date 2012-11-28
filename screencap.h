@@ -23,7 +23,7 @@ class ScreenCap : public ImageNode
 
   public:
 
-  ScreenCap();
+  ScreenCap(const std::string name);
   
   virtual bool update();
 

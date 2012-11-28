@@ -28,7 +28,8 @@
 
 namespace bm {
 
-  Output::Output() :
+  Output::Output(const std::string name) :
+    ImageNode(name),
     ximage(NULL),
     display(NULL)
   { cv::Mat out; setImage("in",out);

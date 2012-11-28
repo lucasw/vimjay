@@ -26,7 +26,7 @@
 // filter Node objects
 namespace bm {
 
-Bezier::Bezier()
+Bezier::Bezier(const std::string name) : ImageNode(name)
 {
   // TBD take x and y sigbuf inputs
   setSignal("x0",10);
@@ -77,7 +77,7 @@ bool Bezier::update()
 
 //////////////////////////////////////////////////
 
-Circle::Circle()
+Circle::Circle(const std::string name) : ImageNode(name)
 {
   // hard to enforce these all being the same size
   //setSigBuf("x");
@@ -125,7 +125,7 @@ bool Circle::update()
 }
 
 //////////////////////////////////////////////////
-Noise::Noise()
+Noise::Noise(const std::string name) : ImageNode(name)
 {
   setSignal("mean", 10);
   setSignal("stddev", 128);

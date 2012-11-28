@@ -74,9 +74,12 @@ namespace bm {
 
   //////////////////////////////////////////////////////////////////////////////////////
 
-  Elem::Elem() : name("undefined"), highlight(false), highlight2(false)
-  {
+  //Elem::Elem() : name("undefined"), highlight(false), highlight2(false)
+  //{
+  //}
 
+  Elem::Elem(const string name) : name(name), highlight(false), highlight2(false)
+  {
   }
 
   bool Elem::isDirty(const void* caller, const int ind, const bool clear) 
@@ -119,7 +122,8 @@ namespace bm {
   }
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  Connector::Connector() :
+  Connector::Connector(const std::string name) : 
+    Elem(name),
     parent(NULL),
     src(NULL),
     dst(NULL),
@@ -142,6 +146,7 @@ namespace bm {
 
         // now get dirtied data
         value = src->value;
+
         im = src->im;
        
         // if a connector has a src then it can't be an output
@@ -153,6 +158,13 @@ namespace bm {
         setDirty();
       }
     } 
+
+
+    if (saturate) {
+      if (value < min) value = min; 
+      if (value > max) value = max;
+    }
+
   }
   
   std::string typeToString(const conType type)
@@ -319,7 +331,8 @@ namespace bm {
   
   //////////////////////////////////////////////////////////////////////////////////////////
   //////////////////////////////////////////////////////////////////////////////////////////
-  Node::Node() : 
+  Node::Node(const string name) : 
+    Elem(name), 
     selected_type(NONE),
     selected_port_ind(-1),
     selected_port(""),
@@ -731,8 +744,7 @@ namespace bm {
     string existing_port;
     bool con_exists = getInputPort(type, port, con, existing_port);
     if (!con_exists) {
-      con = new Connector();
-      con->name = port;
+      con = new Connector(port);
       con->parent = this;
       con->type = type;
     
@@ -756,8 +768,7 @@ namespace bm {
       if (!src_con_exists) {
         // this will produce connectors in the src parent in an order determined
         // by the way the earlier connections use them as ports
-        src_con = new Connector();
-        src_con->name = src_port;
+        src_con = new Connector(src_port);
         src_con->parent = src_node;
         src_con->type = type;
         boost::mutex::scoped_lock l(src_node->port_mutex);
@@ -812,15 +823,26 @@ namespace bm {
     return true;
   }
  
-  bool Node::setSignal(const std::string port, float val)
+  bool Node::setSignal(
+      const std::string port, 
+      const float val,
+      const bool saturate,
+      const float min,
+      const float max
+      )
   {
-    const float val_orig = getSignal(port);
     
     Connector* con = NULL;
     string src_port;
     if (!getInputPort(SIGNAL, port, con, src_port)) {
-      LOG(ERROR) << "still can't get connector";
-      return false;
+      
+      // create it if it doesn't exist
+      setInputPort(SIGNAL, port);
+      
+      if (!getInputPort(SIGNAL, port, con, src_port)) {
+        LOG(ERROR) << name << " still can't get connector " << CLTXT << port << CLNRM; 
+        return false;
+      }
     }
     
     // can't set signal if it is controlled by src port 
@@ -828,8 +850,16 @@ namespace bm {
 
     con->value = val;
     con->output = true;
+    const float val_orig = getSignal(port);
     if (val != val_orig) {
       con->setDirty();
+    }
+    
+    if (saturate) {
+      LOG(INFO) << port << " - " << name << " saturating " << min << " " << max;
+      con->saturate = true;
+      con->min = min;
+      con->max = max;
     }
 
     return true;
@@ -1027,7 +1057,7 @@ namespace bm {
     return true;
   }
   //////////////////////////////////////////////////////////////////////////////////////////
-  ImageNode::ImageNode() : Node()
+  ImageNode::ImageNode(const std::string name) : Node(name)
   {
     vcol = cv::Scalar(255,0,255);
   
@@ -1208,7 +1238,7 @@ namespace bm {
 
   //////////////////////////////////////////////////////////////////////////////////////////
   // TBD subclasses of Node that are input/output specific, or make that general somehow?
-  Signal::Signal() : Node()
+  Signal::Signal(const std::string name) : Node(name)
   {
     vcol = cv::Scalar(0,255,255);
 
@@ -1323,7 +1353,7 @@ namespace bm {
   }
   
   //////////////////////////////////////////////////////////////////////////////////////////
-  Buffer::Buffer() : ImageNode()
+  Buffer::Buffer(const std::string name) : ImageNode(name)
   {
     //this->max_size = max_size;
     //LOG(INFO) << "new buffer max_size " << this->max_size;
@@ -1567,7 +1597,7 @@ namespace bm {
   }
   
   //////////////////////////////////////////////////////////////////////////////////////////
-  Mux::Mux() 
+  Mux::Mux(const std::string name) : Buffer(name)
   {
     //this->max_size = max_size;
     //LOG(INFO) << "new buffer max_size " << this->max_size;
@@ -1676,7 +1706,8 @@ namespace bm {
   // this makes a connection so any Tap operating on a Buffer coming through the out of this node will get forwarded to
   // the proper source Buffer determined by ind.  A properly templated Buffer type might be able to make this simpler and more 
   // inuitive.
-  MuxBuffer::MuxBuffer() :
+  MuxBuffer::MuxBuffer(const std::string name) :
+    Buffer(name), 
     selected_buffer(NULL) 
   {
     vcol = cv::Scalar(200, 30, 200);

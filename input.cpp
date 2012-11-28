@@ -133,7 +133,8 @@ int main( int argc, char* argv[] )
     usleep(10000);
 #endif
     
-Mouse::Mouse() : 
+Mouse::Mouse(const std::string name) : 
+  Node(name),
   display(NULL) 
 { 
   setSignal("0_x", 0);

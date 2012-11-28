@@ -36,7 +36,7 @@ pyrMeanShiftFiltering?  It seems different in parameters but the result might en
 
 My manual method still may be useful for exposing some internal data for use elsewhere in the graph.
 */
-Cluster::Cluster()
+Cluster::Cluster(const std::string name) : ImageNode(name)
 {
   cv::Mat tmp;
   setImage("in", tmp);
@@ -286,7 +286,7 @@ bool Cluster::update()
 }
 
 
-PyrMean::PyrMean()
+PyrMean::PyrMean(const std::string name) : ImageNode(name)
 {
   cv::Mat in;
   setImage("in", in);

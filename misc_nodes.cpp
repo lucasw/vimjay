@@ -43,7 +43,7 @@ using namespace std;
 namespace bm {
 //////////////////////////////////////////////////
 
-  Rot2D::Rot2D()
+  Rot2D::Rot2D(const std::string name) : ImageNode(name)
   {
     cv::Mat tmp;
     setImage("in",tmp);
@@ -150,7 +150,7 @@ namespace bm {
   }
 
   //
-  Undistort::Undistort()
+  Undistort::Undistort(const std::string name) : ImageNode(name)
   {
     cv::Mat tmp;
     setImage("in",tmp);
@@ -203,7 +203,8 @@ namespace bm {
     return true;
   }
 
-  Remap::Remap()
+  Remap::Remap(const std::string name) :
+      ImageNode(name)
   {
     cv::Mat in;
     setImage("in", in);
@@ -234,7 +235,7 @@ namespace bm {
 
   } 
 
-  bool Remap::update()
+  bool Remap::update() 
   {
     if (!Node::update()) return false;
     
@@ -289,7 +290,9 @@ namespace bm {
   }
 
   ////////////////////////////////////////////////////////////
-  Webcam::Webcam() : error_count(0)
+  Webcam::Webcam(const std::string name) : 
+      ImageNode(name),
+      error_count(0)
   {
     LOG(INFO) << "camera opening ...";
     capture = VideoCapture(0); //CV_CAP_OPENNI );
@@ -524,7 +527,7 @@ namespace bm {
   }
 
 ///////////////////////////////////////////////////////////
-  Tap::Tap() : ImageNode()
+  Tap::Tap(const std::string name) : ImageNode(name)
   {
     vcol = cv::Scalar(100, 30, 250);
 
@@ -595,7 +598,8 @@ namespace bm {
   }
 
   ///////////////////////////////////////////
-  Add::Add() 
+  Add::Add(const std::string name) : 
+      ImageNode(name)
   {
     cv::Mat tmp;
     setImage("add0", tmp);
@@ -729,7 +733,7 @@ namespace bm {
 
   
   ////////////////////////////////////////
-  Multiply::Multiply() 
+  Multiply::Multiply(const std::string name) : ImageNode(name) 
   {
     cv::Mat tmp;
     setImage("mul0", tmp);
@@ -799,7 +803,7 @@ namespace bm {
   }
 
   ////////////////////////////////////////
-  AbsDiff::AbsDiff() 
+  AbsDiff::AbsDiff(const std::string name)  : ImageNode(name) 
   {
     cv::Mat tmp;
     setImage("diff0", tmp);
@@ -838,7 +842,7 @@ namespace bm {
   }
 
   ////////////////////////////////////////
-  Greater::Greater() 
+  Greater::Greater(const std::string name) : ImageNode(name) 
   {
     cv::Mat tmp;
     setImage("in0", tmp);
@@ -897,7 +901,7 @@ CMP_NE
 
 
   ////////////////////////////////////////
-  Resize::Resize() 
+  Resize::Resize(const std::string name) : ImageNode(name) 
   {
     cv::Mat tmp;
     setImage("in", tmp);
@@ -959,7 +963,8 @@ CMP_NE
   }
 
   ////////////////////////////////////////
-  Flip::Flip() 
+  Flip::Flip(const std::string name) :
+    ImageNode(name)
   {
     cv::Mat tmp;
     setImage("in", tmp);

@@ -30,7 +30,7 @@
 // filter Node objects
 namespace bm {
 
-Contour::Contour()
+Contour::Contour(const std::string name) : ImageNode(name)
 {
   cv::Mat tmp;
   setImage("in", tmp);

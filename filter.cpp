@@ -29,7 +29,7 @@
 // filter Node objects
 namespace bm {
 
-FilterFIR::FilterFIR()
+FilterFIR::FilterFIR(const std::string name) : Buffer(name)
 {
 
 }
@@ -119,7 +119,7 @@ bool FilterFIR::handleKey(int key)
 }
 
 
-Sobel::Sobel()
+Sobel::Sobel(const std::string name) : ImageNode(name)
 {
   cv::Mat tmp;
   setImage("in", tmp);
@@ -179,7 +179,7 @@ bool Sobel::update()
   return true;
 }
 
-Laplacian::Laplacian()
+Laplacian::Laplacian(const std::string name) : ImageNode(name)
 {
   cv::Mat tmp;
   setImage("in", tmp);
@@ -222,7 +222,7 @@ bool Laplacian::update()
 }
 
 ////////////////////////////////////////
-  GaussianBlur::GaussianBlur() 
+  GaussianBlur::GaussianBlur(const std::string name) : ImageNode(name) 
   {
     cv::Mat tmp;
     setImage("in", tmp);
@@ -241,7 +241,6 @@ bool Laplacian::update()
     }
     
     cv::Mat in = getImage("in");
-
     if (in.empty()) return false;
 
     int k_width = abs(getSignal("k_width"));
@@ -257,8 +256,72 @@ bool Laplacian::update()
     return true;
   }
 
+
+///////////////////////////////////////////////////////////////////////////// 
+MorphologyEx::MorphologyEx(const std::string name) : ImageNode(name)
+{
+  cv::Mat in;
+  setImage("in", in);
+  setSignal("element", 0, true, 0, 2);
+  setSignal("element_size_x", 3, true, 1, 10);
+  setSignal("element_size_y", 3, true, 1, 10);
+  setSignal("op", 0, true, 0, 4);
+  setSignal("iterations", 1, true, 1, 10);
+}
+
+bool MorphologyEx::update() 
+{
+  if (!Node::update()) return false;
+
+  if (!isDirty(this, 5)) { 
+    VLOG(1) << name << " not dirty ";
+    return true; 
+  }
+
+  cv::Mat in = getImage("in");
+  if (in.empty()) return false;
+
+/*
+PUBLISH2(MORPH_RECT,cv::MORPH_RECT);
+PUBLISH2(MORPH_CROSS,cv::MORPH_CROSS);
+PUBLISH2(MORPH_ELLIPSE,cv::MORPH_ELLIPSE);
+
+PUBLISH2(MORPH_OPEN,cv::MORPH_OPEN);
+PUBLISH2(MORPH_CLOSE,cv::MORPH_CLOSE);
+PUBLISH2(MORPH_GRADIENT,cv::MORPH_GRADIENT);
+PUBLISH2(MORPH_BLACKHAT,cv::MORPH_BLACKHAT);
+PUBLISH2(MORPH_TOPHAT,cv::MORPH_TOPHAT);
+
+// TBD
+PUBLISH2(MORPH_DILATE,cv::MORPH_DILATE);
+PUBLISH2(MORPH_ERODE,cv::MORPH_ERODE);
+*/
+
+  int element_shape = getSignal("element");
+  int element_size_x = getSignal("element_size");
+  int element_size_y = getSignal("element_size_y");
+  int op = getSignal("op");
+  int iterations = getSignal("iterations");
+
+  cv::Mat kernel = cv::getStructuringElement(
+      element_shape, 
+      cv::Size(element_size_x*2+1, element_size_y*2+1), 
+      cv::Point(element_size_x, element_size_y) );
+
+  cv::Mat out;
+  cv::morphologyEx(in, out, 
+      op,
+      kernel,  
+      cv::Point(-element_size_x, -element_size_y),
+      iterations,
+      getBorderType()
+      );
+
+  setImage("out", out);
+}
+
   ///////////////////////////////////////////////////////////////////////////// 
-  OpticalFlow::OpticalFlow()
+  OpticalFlow::OpticalFlow(const std::string name) : Remap(name)
   {
     cv::Mat tmp, tmp2, tmp3, tmp4;
     //setImage("prev", tmp);

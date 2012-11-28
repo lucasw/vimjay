@@ -42,7 +42,7 @@ using namespace std;
 
 namespace bm {
 //////////////////////////////////////////////////
-  Saw::Saw() : Signal()
+  Saw::Saw(const std::string name) : Signal(name)
   {
     vcol = cv::Scalar(0,90,255);
   }
@@ -94,7 +94,7 @@ namespace bm {
     return true;
   }
   
-  Random::Random()
+  Random::Random(const std::string name) : Signal(name)
   { 
     // TBD try opencv RNG
     dis = std::uniform_real_distribution<>(0,1);
@@ -117,7 +117,8 @@ namespace bm {
     return true;
   }
 
-  Gaussian::Gaussian()
+  Gaussian::Gaussian(const std::string name) :
+      Signal(name)
   { 
   }
 
@@ -138,7 +139,8 @@ namespace bm {
     return true;
   }
 
-  Trig::Trig()
+  Trig::Trig(const string name) :
+      Node(name)
   { 
     setSignal("in",0);
     setSignal("radius",1);
@@ -167,7 +169,8 @@ namespace bm {
     return true;
   }
   /////////////////////////////////////////////////////////////////////////////
-  SigBuffer::SigBuffer() 
+  SigBuffer::SigBuffer(const std::string name) :
+      ImageNode(name)
   {
     setSignal("in", 0);
     
@@ -298,7 +301,8 @@ namespace bm {
 // Sig add is similar in structure to the image multiply, 
 // so it has pairs of signal inputs that are each multiplied together
 // but then each set is summed
-SigAdd::SigAdd()
+SigAdd::SigAdd(const std::string name) :
+    Node(name)
 {
   setSignal("out",0);
   setSignal("mula0",1);
@@ -456,7 +460,7 @@ bool SigAdd::handleKey(int key)
   }
 
 ///////////////////////////////////////////////////////////
-  Tap::Tap() 
+  Tap::Tap(const std::string name) 
   {
     vcol = cv::Scalar(100, 30, 250);
 
@@ -518,7 +522,7 @@ bool SigAdd::handleKey(int key)
 
   
   ////////////////////////////////////////
-  Multiply::Multiply() 
+  Multiply::Multiply(const std::string name) 
   {
     cv::Mat tmp;
     setImage("mul0", tmp);
@@ -588,7 +592,7 @@ bool SigAdd::handleKey(int key)
   }
 
   ////////////////////////////////////////
-  AbsDiff::AbsDiff() 
+  AbsDiff::AbsDiff(const std::string name) 
   {
     cv::Mat tmp;
     setImage("diff0", tmp);
@@ -627,7 +631,7 @@ bool SigAdd::handleKey(int key)
   }
 
   ////////////////////////////////////////
-  Greater::Greater() 
+  Greater::Greater(const std::string name) 
   {
     cv::Mat tmp;
     setImage("in0", tmp);
@@ -678,7 +682,7 @@ CMP_NE
 
 
   ////////////////////////////////////////
-  Resize::Resize() 
+  Resize::Resize(const std::string name) 
   {
     cv::Mat tmp;
     setImage("in", tmp);
@@ -729,7 +733,7 @@ CMP_NE
   }
 
   ////////////////////////////////////////
-  Flip::Flip() 
+  Flip::Flip(const std::string name) 
   {
     setSignal("flip_code", 0);
     cv::Mat tmp;
