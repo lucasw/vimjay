@@ -160,10 +160,12 @@ namespace bm {
     } 
 
 
+    #if 0
     if (saturate) {
       if (value < min) value = min; 
       if (value > max) value = max;
     }
+    #endif
 
   }
   
@@ -856,7 +858,7 @@ namespace bm {
     }
     
     if (saturate) {
-      LOG(INFO) << port << " - " << name << " saturating " << min << " " << max;
+      LOG(INFO) << name << " - " << port << " - saturating " << min << " " << max;
       con->saturate = true;
       con->min = min;
       con->max = max;
