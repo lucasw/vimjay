@@ -69,5 +69,13 @@ class Cluster : public ImageNode
   virtual bool update();
 };
 
+class PyrMean : public ImageNode
+{
+  public:
+  PyrMean();
+
+  virtual bool update();
+};
+
 }; // bm
 #endif // __CLUSTER_H__

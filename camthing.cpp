@@ -132,8 +132,8 @@ class CamThing : public Output
         node = getNode<ImageNode>(name, loc);
       } else if (type_id.compare("bm::Sobel") == 0) {
         node = getNode<Sobel>(name, loc);
-      //} else if (type_id.compare("bm::Scharr") == 0) {
-      //  node = getNode<Scharr>(name, loc);
+      } else if (type_id.compare("bm::PyrMean") == 0) {
+        node = getNode<PyrMean>(name, loc);
       } else if (type_id.compare("bm::GaussianBlur") == 0) {
         node = getNode<GaussianBlur>(name, loc);
       } else if (type_id.compare("bm::OpticalFlow") == 0) {
@@ -621,7 +621,7 @@ class CamThing : public Output
     getNode<Cluster>("cluster", loc);
 
     node = getNode<Sobel>("sobel", loc);
-    //node = getNode<Scharr>("scharr", loc);
+    node = getNode<PyrMean>("pyr_mean", loc);
     node = getNode<GaussianBlur>("blur", loc);
     node = getNode<Resize>("resize", loc);
     node = getNode<Flip>("flip", loc);

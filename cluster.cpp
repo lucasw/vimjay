@@ -30,6 +30,12 @@
 
 namespace bm {
 
+/**
+TBD is most of same functionality perhaps with higher performance provided by
+pyrMeanShiftFiltering?  It seems different in parameters but the result might end up looking very similar.
+
+My manual method still may be useful for exposing some internal data for use elsewhere in the graph.
+*/
 Cluster::Cluster()
 {
   cv::Mat tmp;
@@ -277,6 +283,50 @@ bool Cluster::update()
   clusters = nc;
     
   //setSignal("time", t1.elapsed());
+}
+
+
+PyrMean::PyrMean()
+{
+  cv::Mat in;
+  setImage("in", in);
+  setSignal("sp", 30);
+  setSignal("sr", 30);
+  setSignal("max_level", 2);
+  // TBD TERMCRIT
+  setSignal("term", 2);
+}
+
+bool PyrMean::update()
+{
+  const bool rv = Node::update();
+  if (!rv) return false;
+  
+  cv::Mat in = getImage("in");
+  if (in.empty()) return true;
+
+  cv::Mat out_3;
+
+  cv::Mat in_3 = cv::Mat(in.size(), CV_8UC3, cv::Scalar(0));  
+  // just calling reshape(4) doesn't do the channel reassignment like this does
+  int ch[] = {0,0, 1,1, 2,2};
+  cv::mixChannels(&in, 1, &in_3, 1, ch, 3 );
+
+  int max_level = getSignal("max_level");
+  if (max_level > 4) { max_level = 4; setSignal("max_level", max_level); }
+  if (max_level < 0) { max_level = 0; setSignal("max_level", max_level); }
+  
+  cv::pyrMeanShiftFiltering(in_3, out_3, 
+      getSignal("sp"), getSignal("sr"),
+      max_level,
+      cv::TermCriteria(CV_TERMCRIT_ITER+CV_TERMCRIT_EPS, getSignal("term"), 5)
+      );
+
+  cv::Mat out = cv::Mat(out_3.size(), CV_8UC4, cv::Scalar(0));  
+  cv::mixChannels(&out_3, 1, &out, 1, ch, 3 );
+
+  setImage("out", out);
+
 }
 
 } //bm
