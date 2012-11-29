@@ -213,7 +213,8 @@ bool Laplacian::update()
   cv::Laplacian(in, out, in.depth(),
       real_ksize,
       getSignal("scale"), 
-      getSignal("delta"), getBorderType()
+      getSignal("delta"), 
+      getBorderType(true)
       );
 
   setImage("out", out);
@@ -297,10 +298,24 @@ PUBLISH2(MORPH_DILATE,cv::MORPH_DILATE);
 PUBLISH2(MORPH_ERODE,cv::MORPH_ERODE);
 */
 
-  int element_shape = getSignal("element");
-  int element_size_x = getSignal("element_size");
+  int element_shape_ind = getSignal("element");
+  int element_shape = cv::MORPH_RECT;
+  if (element_shape_ind == 1) element_shape = cv::MORPH_CROSS;
+  if (element_shape_ind == 2) element_shape = cv::MORPH_ELLIPSE;
+
+  int element_size_x = getSignal("element_size_x");
   int element_size_y = getSignal("element_size_y");
-  int op = getSignal("op");
+  int op_ind = getSignal("op");
+
+  int op = cv::MORPH_OPEN;
+  if (op_ind == 1) op = cv::MORPH_CLOSE;
+  if (op_ind == 2) op = cv::MORPH_GRADIENT;
+  if (op_ind == 3) op = cv::MORPH_BLACKHAT;
+  if (op_ind == 4) op = cv::MORPH_TOPHAT;
+  // TBD
+  if (op_ind == 5) op = cv::MORPH_DILATE;
+  if (op_ind == 6) op = cv::MORPH_ERODE;
+
   int iterations = getSignal("iterations");
 
   cv::Mat kernel = cv::getStructuringElement(
@@ -312,7 +327,7 @@ PUBLISH2(MORPH_ERODE,cv::MORPH_ERODE);
   cv::morphologyEx(in, out, 
       op,
       kernel,  
-      cv::Point(-element_size_x, -element_size_y),
+      cv::Point(element_size_x, element_size_y),
       iterations,
       getBorderType()
       );

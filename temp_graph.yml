@@ -1,5 +1,5 @@
 %YAML:1.0
-date: "Tue Nov 27 17:48:13 2012\n"
+date: "Wed Nov 28 13:16:34 2012\n"
 nodes:
    -
       ind: 0
@@ -44,25 +44,25 @@ nodes:
          -
             type: 1
             name: im_w
-            value: 1280.
+            value: 640.
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: im_h
-            value: 720.
+            value: 480.
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: "2_x"
-            value: 6.4017675781250000e+02
+            value: 2.8012988281250000e+02
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: "2_y"
-            value: 3.4536376953125000e+02
+            value: 2.5235900878906250e+01
             src_ind: -1
             src_port: ""
          -
@@ -103,13 +103,13 @@ nodes:
          -
             type: 1
             name: widthX
-            value: 1280.
+            value: 640.
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: heightY
-            value: 720.
+            value: 480.
             src_ind: -1
             src_port: ""
    -
@@ -149,7 +149,7 @@ nodes:
          -
             type: 1
             name: mode
-            value: 3.
+            value: 0.
             src_ind: -1
             src_port: ""
          -
@@ -161,7 +161,7 @@ nodes:
          -
             type: 1
             name: ind
-            value: 0.
+            value: 6.
             src_ind: -1
             src_port: ""
          -
@@ -190,107 +190,53 @@ nodes:
          -
             type: 2
             name: in
-            src_ind: 19
-            src_port: out
+            src_ind: -1
+            src_port: ""
          -
             type: 1
             name: angle
-            value: 1.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: scale
-            value: 5.1050013303756714e-01
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: center_x
-            value: 645.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: center_y
-            value: 363.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: off_x
-            value: 640.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: off_y
-            value: 360.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: border
-            value: 1.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: manual_xy
             value: 0.
             src_ind: -1
             src_port: ""
          -
             type: 1
-            name: x0
-            value: 3.2153707885742188e+02
+            name: scale
+            value: 1.
             src_ind: -1
             src_port: ""
          -
             type: 1
-            name: x1
-            value: 9.7487774658203125e+02
+            name: center_x
+            value: 320.
             src_ind: -1
             src_port: ""
          -
             type: 1
-            name: x2
-            value: 9.6846295166015625e+02
+            name: center_y
+            value: 240.
             src_ind: -1
             src_port: ""
          -
             type: 1
-            name: x3
-            value: 3.1512225341796875e+02
+            name: off_x
+            value: 320.
             src_ind: -1
             src_port: ""
          -
             type: 1
-            name: y0
-            value: 1.7354588317871094e+02
+            name: off_y
+            value: 240.
             src_ind: -1
             src_port: ""
          -
             type: 1
-            name: y1
-            value: 1.8494999694824219e+02
+            name: border
+            value: 0.
             src_ind: -1
             src_port: ""
          -
             type: 1
-            name: y2
-            value: 5.5245410156250000e+02
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: y3
-            value: 5.4104998779296875e+02
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: mode
+            name: manual_xy
             value: 0.
             src_ind: -1
             src_port: ""
@@ -319,25 +265,25 @@ nodes:
          -
             type: 1
             name: fx
-            value: 640.
+            value: 320.
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: fy
-            value: 640.
+            value: 320.
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: cx
-            value: 640.
+            value: 320.
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: cy
-            value: 360.
+            value: 240.
             src_ind: -1
             src_port: ""
          -
@@ -534,8 +480,8 @@ nodes:
          -
             type: 2
             name: in
-            src_ind: 19
-            src_port: out
+            src_ind: -1
+            src_port: ""
          -
             type: 3
             name: out
@@ -732,8 +678,8 @@ nodes:
          -
             type: 2
             name: in
-            src_ind: 3
-            src_port: out
+            src_ind: -1
+            src_port: ""
          -
             type: 1
             name: ksize
@@ -743,25 +689,13 @@ nodes:
          -
             type: 1
             name: scale
-            value: 7.3920345306396484e-01
+            value: 1.
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: delta
-            value: 4.0167755126953125e+01
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: border
-            value: 0.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: write_count
-            value: 2.
+            value: 128.
             src_ind: -1
             src_port: ""
    -
@@ -932,36 +866,42 @@ nodes:
          -
             type: 2
             name: in
-            src_ind: -1
-            src_port: ""
+            src_ind: 2
+            src_port: out
          -
             type: 1
             name: element
-            value: 0.
+            value: 2.
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: element_size_x
-            value: 3.
+            value: 7.0623512268066406e+00
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: element_size_y
-            value: 3.
+            value: 8.0169086456298828e+00
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: op
-            value: 0.
+            value: 5.
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: iterations
             value: 1.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: border
+            value: 0.
             src_ind: -1
             src_port: ""
    -
@@ -1099,29 +1039,12 @@ nodes:
          -
             type: 2
             name: add0
-            src_ind: 12
-            src_port: out
+            src_ind: -1
+            src_port: ""
          -
             type: 1
             name: add0
-            value: 8.1730854511260986e-01
-            src_ind: -1
-            src_port: ""
-         -
-            type: 2
-            name: add1
-            src_ind: 2
-            src_port: out
-         -
-            type: 1
-            name: add1
-            value: -1.0781155824661255e+00
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: write_count
-            value: 1.
+            value: 2.
             src_ind: -1
             src_port: ""
    -
@@ -1475,19 +1398,13 @@ nodes:
          -
             type: 1
             name: "2_x"
-            value: 6.1953692626953125e+02
+            value: 4.8875399780273438e+02
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: "2_y"
-            value: 2.4288726806640625e+02
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: "2_1"
-            value: 0.
+            value: 1.8284805297851562e+02
             src_ind: -1
             src_port: ""
    -
@@ -1790,7 +1707,7 @@ nodes:
          -
             type: 2
             name: in
-            src_ind: 12
+            src_ind: 17
             src_port: out
          -
             type: 1
@@ -1813,12 +1730,12 @@ nodes:
          -
             type: 1
             name: im_w
-            value: 1280.
+            value: 640.
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: im_h
-            value: 720.
+            value: 480.
             src_ind: -1
             src_port: ""

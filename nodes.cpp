@@ -1217,13 +1217,13 @@ namespace bm {
     setSignal("mode", mode);
     int mode_type = cv::INTER_NEAREST;
     if (mode == 1) mode_type = cv::INTER_LINEAR;
-    if (mode == 2) mode_type = cv::INTER_AREA;
-    if (mode == 3) mode_type = cv::INTER_CUBIC;
-    if (mode == 4) mode_type = cv::INTER_LANCZOS4;
+    else if (mode == 2) mode_type = cv::INTER_AREA;
+    else if (mode == 3) mode_type = cv::INTER_CUBIC;
+    else if (mode == 4) mode_type = cv::INTER_LANCZOS4;
     return mode_type;
   }
 
-  int ImageNode::getBorderType()
+  int ImageNode::getBorderType(const bool avoid_wrap)
   {
     int border = getSignal("border");
     border += 5;
@@ -1232,9 +1232,9 @@ namespace bm {
 
     int border_type = BORDER_CONSTANT;
     if (border == 1) border_type = BORDER_REFLECT;
-    if (border == 2) border_type = BORDER_WRAP;
-    if (border == 3) border_type = BORDER_REPLICATE;
-    if (border == 4) border_type = BORDER_REFLECT_101;
+    else if (border == 2 && !avoid_wrap) border_type = BORDER_WRAP;
+    else if (border == 3) border_type = BORDER_REPLICATE;
+    else if (border == 4) border_type = BORDER_REFLECT_101;
     return border_type;
   }
 

@@ -289,7 +289,7 @@ public:
   virtual bool writeImage();
 
   int getModeType(); // TBD supply string optionally
-  int getBorderType();
+  int getBorderType(const bool avoid_wrap = false);
 };
 
 // TBD subclasses of Node that are input/output specific, or make that general somehow?
