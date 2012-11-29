@@ -46,6 +46,13 @@ class GaussianBlur : public ImageNode
   virtual bool update();
 };
 
+class MedianBlur : public ImageNode
+{
+  public:
+  MedianBlur(const std::string name);
+  virtual bool update();
+};
+
 class MorphologyEx : public ImageNode
 {
   public:

@@ -257,17 +257,51 @@ bool Laplacian::update()
     return true;
   }
 
+////////////////////////////////////////
+  MedianBlur::MedianBlur(const std::string name) : ImageNode(name) 
+  {
+    cv::Mat tmp;
+    setImage("in", tmp);
+    setSignal("k_size", 2, SATURATE, 1, 10);
+    vcol = cv::Scalar(200, 200, 50);
+  }
+
+  bool MedianBlur::update()
+  {
+    if (!Node::update()) return false;
+
+    if (!isDirty(this, 5)) { 
+      VLOG(1) << name << " not dirty ";
+      return true; 
+    }
+    
+    cv::Mat in = getImage("in");
+    if (in.empty()) return false;
+
+    int k = getSignal("k_size");
+     
+    int ksize = k * 2 + 1;
+
+    cv::Mat out = cv::Mat(in.size(), in.type());
+
+    cv::medianBlur(in, out, ksize);
+    
+    setImage("out", out);
+    return true;
+  }
+
+
 
 ///////////////////////////////////////////////////////////////////////////// 
 MorphologyEx::MorphologyEx(const std::string name) : ImageNode(name)
 {
   cv::Mat in;
   setImage("in", in);
-  setSignal("element", 0, true, 0, 2);
-  setSignal("element_size_x", 3, true, 1, 10);
-  setSignal("element_size_y", 3, true, 1, 10);
-  setSignal("op", 0, true, 0, 4);
-  setSignal("iterations", 1, true, 1, 10);
+  setSignal("element", 0, ROLL, 0, 2);
+  setSignal("element_size_x", 3, SATURATE, 1, 10);
+  setSignal("element_size_y", 3, SATURATE, 1, 10);
+  setSignal("op", 0, ROLL, 0, 4);
+  setSignal("iterations", 1, SATURATE, 1, 10);
 }
 
 bool MorphologyEx::update() 

@@ -138,6 +138,8 @@ class CamThing : public Output
         node = getNode<PyrMean>(name, loc);
       } else if (type_id.compare("bm::GaussianBlur") == 0) {
         node = getNode<GaussianBlur>(name, loc);
+      } else if (type_id.compare("bm::MedianBlur") == 0) {
+        node = getNode<MedianBlur>(name, loc);
       } else if (type_id.compare("bm::OpticalFlow") == 0) {
         node = getNode<OpticalFlow>(name, loc);
       } else if (type_id.compare("bm::Buffer") == 0) {
@@ -629,7 +631,8 @@ class CamThing : public Output
     node = getNode<Sobel>("sobel", loc);
     node = getNode<Laplacian>("laplacian", loc);
     node = getNode<PyrMean>("pyr_mean", loc);
-    node = getNode<GaussianBlur>("blur", loc);
+    node = getNode<GaussianBlur>("gauss_blur", loc);
+    node = getNode<MedianBlur>("median_blur", loc);
     node = getNode<Resize>("resize", loc);
     node = getNode<Flip>("flip", loc);
     node = getNode<MorphologyEx>("morphology_ex", loc);
