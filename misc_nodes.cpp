@@ -53,7 +53,8 @@ namespace bm {
     setSignal("center_y", Config::inst()->im_height/2 );
     setSignal("off_x", Config::inst()->im_width/2 );
     setSignal("off_y", Config::inst()->im_height/2 );
-    setSignal("border", 0.0);
+    setSignal("border", 0, ROLL, 0, 4);
+    setSignal("mode", 0, ROLL, 0, 4);
     setSignal("manual_xy", 0.0);
   }
 
@@ -214,6 +215,7 @@ namespace bm {
     cv::Mat offy;
     setImage("offy", offy);
     setSignal("scaley", 1.0);
+    setSignal("mode", 0, ROLL, 0, 4);
 
     base_x = cv::Mat( cv::Size(Config::inst()->im_width, Config::inst()->im_height),
       CV_32FC1);
@@ -294,6 +296,8 @@ namespace bm {
       ImageNode(name),
       error_count(0)
   {
+    setSignal("mode", 0, ROLL, 0, 4);
+
     LOG(INFO) << "camera opening ...";
     capture = VideoCapture(0); //CV_CAP_OPENNI );
     LOG(INFO) << "done.";
@@ -423,6 +427,12 @@ namespace bm {
 
 
 ///////////////////////////////////////////////////////////
+
+  ImageDir::ImageDir(const std::string name) : Buffer(name) 
+  {
+    setSignal("mode", 0, ROLL, 0, 4);
+  }
+
   bool ImageDir::loadImages()
   {
     LOG(INFO) << name << " loading " << dir;
@@ -907,7 +917,7 @@ CMP_NE
     setImage("in", tmp);
     setSignal("fx", 0.2);
     setSignal("fy", 0.2);
-    setSignal("mode", 0);
+    setSignal("mode", 0, ROLL, 0, 4);
   }
 
   bool Resize::update()

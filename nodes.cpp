@@ -129,6 +129,9 @@ namespace bm {
     dst(NULL),
     //writeable(true),
     type(SIGNAL),
+    saturate(0),
+    val_min(0.0),
+    val_max(1.0),
     value(0)
   {
 
@@ -159,13 +162,14 @@ namespace bm {
       }
     } 
 
-
-    #if 0
-    if (saturate) {
-      if (value < min) value = min; 
-      if (value > max) value = max;
-    }
-    #endif
+    if (saturate == ROLL) {
+      //const float span = val_max - val_min;
+      if (value < val_min) value = val_max; 
+      if (value > val_max) value = val_min;
+    } else if (saturate == SATURATE) {
+      if (value < val_min) value = val_min; 
+      if (value > val_max) value = val_max;
+    } // saturate
 
   }
   
@@ -828,7 +832,7 @@ namespace bm {
   bool Node::setSignal(
       const std::string port, 
       const float val,
-      const bool saturate,
+      const int saturate,
       const float min,
       const float max
       )
@@ -857,11 +861,11 @@ namespace bm {
       con->setDirty();
     }
     
-    if (saturate) {
-      LOG(INFO) << name << " - " << port << " - saturating " << min << " " << max;
-      con->saturate = true;
-      con->min = min;
-      con->max = max;
+    if (saturate > 0) {
+      LOG(INFO) << name << " - " << port << ((saturate == 1) ? " - saturating " : " - rolling over") << min << " " << max;
+      con->saturate = saturate;
+      con->val_min = min;
+      con->val_max = max;
     }
 
     return true;
@@ -1211,10 +1215,10 @@ namespace bm {
     */
   int ImageNode::getModeType() // TBD supply string optionally
   {
-    int mode = getSignal("mode");
-    mode += 5;
-    mode %= 5;
-    setSignal("mode", mode);
+    // used to do rollover here, but now require all calling 
+    // nodes to set it up properly with
+    // setSignal("mode", 0, ROLL, 0, 4);
+    const int mode = getSignal("mode");
     int mode_type = cv::INTER_NEAREST;
     if (mode == 1) mode_type = cv::INTER_LINEAR;
     else if (mode == 2) mode_type = cv::INTER_AREA;

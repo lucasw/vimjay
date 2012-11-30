@@ -70,7 +70,7 @@ class ImageDir : public Buffer
 {
   public:
 
-  ImageDir(const std::string name) : Buffer(name) {}
+  ImageDir(const std::string name);
 
   std::string dir;
   
@@ -87,7 +87,6 @@ class Tap : public ImageNode
   public:
 
   bool changed;
-
   //float value;
 
   Tap(const std::string name);// : ImageNode()

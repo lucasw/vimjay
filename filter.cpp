@@ -382,13 +382,13 @@ bool MorphologyEx::update()
     setSignal("iterations",2);
     setSignal("poly_n",5);
     setSignal("poly_sigma",1.1);
-    setSignal("mode",0);
+    setSignal("mode",0, ROLL, 0, 3);
     
     setSignal("scale",1.0);
     setSignal("offset",128);
 
     setSignal("interp", 0.5);
-    setSignal("interp_mode",0);
+    setSignal("interp_mode",0, ROLL, 0, 2);
   }
 
   bool OpticalFlow::update()
@@ -425,9 +425,7 @@ bool MorphologyEx::update()
     float poly_sigma = getSignal("poly_sigma");
 
     int mode = getSignal("mode");
-    mode += 4;
-    mode %= 4;
-    setSignal("mode", mode);
+
     int flow_mode = 0;
     if (mode == 1) flow_mode = cv::OPTFLOW_USE_INITIAL_FLOW;
     if (mode == 2) flow_mode = cv::OPTFLOW_USE_INITIAL_FLOW & cv::OPTFLOW_FARNEBACK_GAUSSIAN;
@@ -470,11 +468,7 @@ bool MorphologyEx::update()
     /// Do interpolation, should make optional
     {
       const float interp = getSignal("interp");
-      int interp_mode = getSignal("interp_mode");
-      interp_mode += 3;
-      interp_mode %= 3;
-      setSignal("interp_mode", interp_mode);
-      
+      const int interp_mode = getSignal("interp_mode");
     
       cv::Mat out_forward, out_reverse, out;
 

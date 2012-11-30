@@ -60,6 +60,12 @@ enum conType {
   SIGBUF
 };
 
+enum satType {
+  SAT_NONE = 0,
+  SATURATE,
+  ROLL
+};
+
 // base class for Connector and Node to inherit from
 class Elem
 {
@@ -129,9 +135,9 @@ class Connector : public Elem
   // only used if conType == Signal, TBD subclass?
   float value;
 
-  bool saturate;
-  float min;
-  float max;
+  int saturate;
+  float val_min;
+  float val_max;
 
   // only used if conType == Image or Buffer
   cv::Mat im;
@@ -231,7 +237,7 @@ class Node : public Elem
 
   bool setSignal(const std::string port, 
       const float val=0.0,
-      const bool saturate=false,
+      const int saturate= SAT_NONE,
       const float min=0.0,
       const float max=1.0);
 
