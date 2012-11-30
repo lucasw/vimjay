@@ -1,5 +1,5 @@
 %YAML:1.0
-date: "Wed Nov 28 15:13:32 2012\n"
+date: "Wed Nov 28 16:47:25 2012\n"
 nodes:
    -
       ind: 0
@@ -56,13 +56,13 @@ nodes:
          -
             type: 1
             name: "2_x"
-            value: 6.3991864013671875e+02
+            value: 5.5486206054687500e+02
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: "2_y"
-            value: 5.7231140136718750e-01
+            value: 1.6483071899414062e+02
             src_ind: -1
             src_port: ""
    -
@@ -155,7 +155,7 @@ nodes:
          -
             type: 1
             name: ind
-            value: 17.
+            value: 13.
             src_ind: -1
             src_port: ""
          -
@@ -672,8 +672,8 @@ nodes:
          -
             type: 2
             name: in
-            src_ind: -1
-            src_port: ""
+            src_ind: 18
+            src_port: out
          -
             type: 1
             name: ksize
@@ -689,7 +689,19 @@ nodes:
          -
             type: 1
             name: delta
-            value: 128.
+            value: 1.4872714233398438e+02
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: border
+            value: 0.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: write_count
+            value: 1.
             src_ind: -1
             src_port: ""
    -
@@ -888,8 +900,8 @@ nodes:
          -
             type: 2
             name: in
-            src_ind: -1
-            src_port: ""
+            src_ind: 20
+            src_port: out
          -
             type: 1
             name: element
@@ -911,13 +923,19 @@ nodes:
          -
             type: 1
             name: op
-            value: 0.
+            value: 1.
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: iterations
-            value: 1.
+            value: 7.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: border
+            value: 0.
             src_ind: -1
             src_port: ""
    -
@@ -1055,12 +1073,29 @@ nodes:
          -
             type: 2
             name: add0
+            src_ind: 2
+            src_port: out
+         -
+            type: 1
+            name: add0
+            value: 4.7829687595367432e-01
+            src_ind: -1
+            src_port: ""
+         -
+            type: 2
+            name: add1
+            src_ind: 12
+            src_port: out
+         -
+            type: 1
+            name: add1
+            value: 5.9048998355865479e-01
             src_ind: -1
             src_port: ""
          -
             type: 1
-            name: add0
-            value: 2.
+            name: write_count
+            value: 1.
             src_ind: -1
             src_port: ""
    -
@@ -1411,6 +1446,18 @@ nodes:
             value: 0.
             src_ind: -1
             src_port: ""
+         -
+            type: 1
+            name: "2_x"
+            value: 4.8256161499023438e+02
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: "2_y"
+            value: 4.5388168334960938e+01
+            src_ind: -1
+            src_port: ""
    -
       ind: 31
       typeid: "bm::SigAdd"
@@ -1711,7 +1758,7 @@ nodes:
          -
             type: 2
             name: in
-            src_ind: 15
+            src_ind: 12
             src_port: out
          -
             type: 1

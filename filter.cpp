@@ -300,8 +300,11 @@ MorphologyEx::MorphologyEx(const std::string name) : ImageNode(name)
   setSignal("element", 0, ROLL, 0, 2);
   setSignal("element_size_x", 3, SATURATE, 1, 10);
   setSignal("element_size_y", 3, SATURATE, 1, 10);
-  setSignal("op", 0, ROLL, 0, 4);
+  setSignal("op", 0, ROLL, 0, 6);
   setSignal("iterations", 1, SATURATE, 1, 10);
+
+  // TBD could allow element image input, which would be shrunk
+  // down to element size to be used as the morph element
 }
 
 bool MorphologyEx::update() 
@@ -315,22 +318,7 @@ bool MorphologyEx::update()
 
   cv::Mat in = getImage("in");
   if (in.empty()) return false;
-
-/*
-PUBLISH2(MORPH_RECT,cv::MORPH_RECT);
-PUBLISH2(MORPH_CROSS,cv::MORPH_CROSS);
-PUBLISH2(MORPH_ELLIPSE,cv::MORPH_ELLIPSE);
-
-PUBLISH2(MORPH_OPEN,cv::MORPH_OPEN);
-PUBLISH2(MORPH_CLOSE,cv::MORPH_CLOSE);
-PUBLISH2(MORPH_GRADIENT,cv::MORPH_GRADIENT);
-PUBLISH2(MORPH_BLACKHAT,cv::MORPH_BLACKHAT);
-PUBLISH2(MORPH_TOPHAT,cv::MORPH_TOPHAT);
-
-// TBD
-PUBLISH2(MORPH_DILATE,cv::MORPH_DILATE);
-PUBLISH2(MORPH_ERODE,cv::MORPH_ERODE);
-*/
+ 
 
   int element_shape_ind = getSignal("element");
   int element_shape = cv::MORPH_RECT;
@@ -341,14 +329,14 @@ PUBLISH2(MORPH_ERODE,cv::MORPH_ERODE);
   int element_size_y = getSignal("element_size_y");
   int op_ind = getSignal("op");
 
+  // TBD should the default do nothing?
   int op = cv::MORPH_OPEN;
   if (op_ind == 1) op = cv::MORPH_CLOSE;
-  if (op_ind == 2) op = cv::MORPH_GRADIENT;
-  if (op_ind == 3) op = cv::MORPH_BLACKHAT;
-  if (op_ind == 4) op = cv::MORPH_TOPHAT;
-  // TBD
-  if (op_ind == 5) op = cv::MORPH_DILATE;
-  if (op_ind == 6) op = cv::MORPH_ERODE;
+  else if (op_ind == 2) op = cv::MORPH_GRADIENT;
+  else if (op_ind == 3) op = cv::MORPH_BLACKHAT;
+  else if (op_ind == 4) op = cv::MORPH_TOPHAT;
+  else if (op_ind == 5) op = cv::MORPH_DILATE;
+  else if (op_ind == 6) op = cv::MORPH_ERODE;
 
   int iterations = getSignal("iterations");
 
@@ -358,14 +346,25 @@ PUBLISH2(MORPH_ERODE,cv::MORPH_ERODE);
       cv::Point(element_size_x, element_size_y) );
 
   cv::Mat out;
+  
+  //if (op_ind <= 6) 
+  {
   cv::morphologyEx(in, out, 
       op,
       kernel,  
-      cv::Point(element_size_x, element_size_y),
+      cv::Point(-1, -1),
       iterations,
       getBorderType()
       );
-
+  } 
+  #if 0
+  // these are identical to passing in MORPH_DILATE/ERODE
+  else if (op_ind == 7) {
+    cv::dilate(in, out, kernel, cv::Point(-1,-1), iterations, getBorderType()); 
+  } else if (op_ind == 8) {
+    cv::erode(in, out, kernel, cv::Point(-1,-1), iterations, getBorderType()); 
+  }
+  #endif
   setImage("out", out);
 }
 
