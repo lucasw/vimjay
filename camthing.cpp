@@ -70,6 +70,7 @@ class CamThing : public Output
   // the final output 
   // TBD make this a special node type
   Output* output_node;
+
   // TBD temp- currently need to connect output Xlib parameters to Mouse
   Mouse* input_node;
 
@@ -213,6 +214,7 @@ class CamThing : public Output
         node = getNode<Output>(name, loc);
         output_node = (Output*)node;
         output_node->setup(Config::inst()->out_width, Config::inst()->out_height);
+        output_node->setSignal("force_update", 1.0);
       
         // TBD need better way to share X11 info- Config probably
         if (input_node) {
@@ -500,6 +502,7 @@ class CamThing : public Output
 
       if (name == "output") {
         output_node = (Output*)node;
+        output_node->setSignal("force_update", 1.0);
         cv::Mat tmp;
         node->setImage("in", tmp); 
       }
@@ -1324,8 +1327,19 @@ class CamThing : public Output
   bool nodeUpdate()
   {
     boost::mutex::scoped_lock l(update_mutex);
-    output_node->setUpdate();
-    output_node->update();
+
+    // TBD will behaviour change depending on the arrangement of nodes-
+    // certain parts of the graph will update in different orders depending on
+    // the update order.
+    for (int i = 0; i < all_nodes.size(); i++) {
+      if (all_nodes[i]->getSignal("force_update") > 0.5)
+        all_nodes[i]->setUpdate();
+    }
+    for (int i = 0; i < all_nodes.size(); i++) {
+      if (all_nodes[i]->getSignal("force_update") > 0.5)
+        all_nodes[i]->update();
+    }
+
     clearAllNodeUpdates();
   }
 
