@@ -40,6 +40,8 @@ bool getBezier(
       const int num // numbe of intermediate points to generate 
       );
  
+Window get_toplevel_parent(Display * display, Window window);
+
 bool setupX(Display*& display, Window& win, const int width, const int height, int& opcode);
 
 bool setWindowDecorations(Display* display, Window& win, bool decorations_on); 

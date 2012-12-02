@@ -79,32 +79,48 @@ namespace bm {
     if (ximage) XPutImage(display, win,  gc, ximage, 0, 0, 0, 0, screen_w, screen_h);
     */
  
-    XWindowAttributes xwAttr;
+    XWindowAttributes xwAttr, xwAttr2;
     // these don't seem to be updating x and y
-    Status ret = XGetWindowAttributes( display, win, &xwAttr );
-    
+    Window toplevel_parent = get_toplevel_parent(display, win);
+    //Status ret = XGetWindowAttributes( display, win, &xwAttr );
+
+    // this has the real x and y position
+    Status ret = XGetWindowAttributes( display, toplevel_parent, &xwAttr );
+    // this holds the 'true' width and height (the inner window not including
+    // gnome decor?) the x and y are relative to the toplevel_parent
+    Status ret2 = XGetWindowAttributes( display, win, &xwAttr2 );
+      
+    VLOG(6) << name  
+        << " top  " << xwAttr.x << " " << xwAttr.y << ", " 
+        << xwAttr.width << " " << xwAttr.height
+        << " win " << xwAttr2.x << " " << xwAttr2.y << ", " 
+        << xwAttr2.width << " " << xwAttr2.height;
+
     // TBD the user ought to be able to force x,y,w,h changes
     // the logic would be that if the window attributes disagree with the last
     // update, use those, if the getSignal value is different than the old signal,
     // that means the user wants the window resized
+    
+    int wm_x = xwAttr.x; // + xwAttr2.x;
+    int wm_y = xwAttr.y; // + xwAttr2.y;
 
     if (
-       // (x != xwAttr.x) ||
-       // (y != xwAttr.y) ||
-        (w != xwAttr.width) ||
-        (h != xwAttr.height) 
+        (x != wm_x) ||
+        (y != wm_y) ||
+        (w != xwAttr2.width) ||
+        (h != xwAttr2.height) 
        )
     {
       // don't do anything, the window is already set properly
-      x = xwAttr.x;
-      y = xwAttr.y;
-      w = xwAttr.width;
-      h = xwAttr.height;
-      LOG(INFO) << "wm changed display " 
+      x = wm_x;
+      y = wm_y;
+      w = xwAttr2.width;
+      h = xwAttr2.height;
+      VLOG(6) << name << " wm changed display " 
         << x << " " << y << ", " << w << " " << h;
 
-      //setSignal("x", x);
-      //setSignal("y", y);
+      setSignal("x", x);
+      setSignal("y", y);
       setSignal("w", w);
       setSignal("h", h);
 
@@ -123,6 +139,12 @@ namespace bm {
         (h != new_h) 
         )
       {
+        VLOG(6) << name << " vimjay changed display "
+            << CLVAL << new_x << " " << new_y << ", " << new_w << " " << new_h << CLNRM
+            << ", old " 
+            << CLVAL << x << " " << y << ", " << w << " " << h << CLNRM;
+        //int dx = new_x - x;
+        //int dy = new_y - y;
         x = new_x;
         y = new_y;
         w = new_w;
@@ -130,8 +152,6 @@ namespace bm {
 
         XWindowChanges values;
         unsigned int value_mask = 0x0;
-        value_mask |= CWX | CWY;
-        value_mask |= CWWidth | CWHeight;
         
         values.x = x;
         values.y = y;
@@ -139,12 +159,25 @@ namespace bm {
         // results in shrinking the window which is strange 
         values.width = w;
         values.height = h;
+        
+        VLOG(6) << values.x << " " << values.y;
+        // TBD test if different
+        {
+          value_mask = CWWidth | CWHeight;
+          value_mask |= CWX | CWY;
+          XConfigureWindow( display, win, value_mask, &values);
+        }
 
-        //if (value_mask) {
-        LOG(INFO) << name << " vimjay changed display " << " " << x << " " << y;
-        XConfigureWindow( display, win, value_mask, &values);
-        //}
-
+        { 
+          // TBD hack, the difference between the toplevel window and the 
+          // actual one are overcome by giving all of the offset to win zeroing
+          // out the toplevel, when the wm changes the position it all goes to the toplevel.
+          values.x = 0;
+          values.y = 0;
+          value_mask = CWX | CWY;
+          XConfigureWindow( display, toplevel_parent, value_mask, &values);
+        }
+       
         setSignal("x", x);
         setSignal("y", y);
         setSignal("w", w);

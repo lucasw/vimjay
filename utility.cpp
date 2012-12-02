@@ -152,6 +152,43 @@ namespace bm {
     return true;
   }
 
+
+///////////////////////////////////////////////////////////////////////////////
+// XWindows
+
+
+/*
+   Returns the parent window of "window" (i.e. the ancestor of window
+   that is a direct child of the root, or window itself if it is a direct child).
+   If window is the root window, returns window.
+
+   From http://stackoverflow.com/questions/3909713/xlib-xgetwindowattributes-always-returns-1x1
+   */
+Window get_toplevel_parent(Display * display, Window window)
+{
+  Window parent;
+  Window root;
+  Window * children;
+  unsigned int num_children;
+
+  while (1) {
+    if (0 == XQueryTree(display, window, &root,
+          &parent, &children, &num_children)) {
+      fprintf(stderr, "XQueryTree error\n");
+      abort(); //change to whatever error handling you prefer
+    }
+    if (children) { //must test for null
+      XFree(children);
+    }
+    if (window == root || parent == root) {
+      return window;
+    }
+    else {
+      window = parent;
+    }
+  }
+}
+
 bool setupX(Display*& display, Window& win, const int width, const int height, int& opcode) 
 {
   // from git://gitorious.org/vinput/vinput.git demo-paint.c (GPL)
