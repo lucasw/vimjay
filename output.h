@@ -12,6 +12,8 @@ class Output : public ImageNode
   Screen* screen;
 
   XImage* ximage;
+  
+  int x,y,w,h;
 
   public:
 

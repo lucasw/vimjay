@@ -346,7 +346,7 @@ namespace bm {
   {
     vcol = cv::Scalar(200,200,200);
 
-    setSignal("enable", 1.0);
+    setSignal("enable", 1.0, SATURATE, 0,1);
     setSignal("force_update", 0.0);
   }
   

@@ -70,6 +70,7 @@ class CamThing : public Output
   // the final output 
   // TBD make this a special node type
   Output* output_node;
+  Output* preview_node;
 
   // TBD temp- currently need to connect output Xlib parameters to Mouse
   Mouse* input_node;
@@ -80,7 +81,8 @@ class CamThing : public Output
   float zoom;
 
   public:
-  
+ 
+
   // where the upper left coordinate of the window into the ui is
   cv::Point2f ui_offset;
 
@@ -414,6 +416,7 @@ class CamThing : public Output
   {
     count = 0;
 
+    setSignal("x", 0);
 
     // TBD make internal type a gflag
     // or have a config file that loads it and resolution also
@@ -1337,11 +1340,14 @@ class CamThing : public Output
     // certain parts of the graph will update in different orders depending on
     // the update order.
     for (int i = 0; i < all_nodes.size(); i++) {
-      if (all_nodes[i]->getSignal("force_update") > 0.5)
+      // TBD force update selected node.  This may not always be desired behaviour
+      // especially when the user has to cross so many other nodes to get to the
+      // one they really want.
+      if ((all_nodes[i] == selected_node) || (all_nodes[i]->getSignal("force_update") > 0.5))
         all_nodes[i]->setUpdate();
     }
     for (int i = 0; i < all_nodes.size(); i++) {
-      if (all_nodes[i]->getSignal("force_update") > 0.5)
+      if ((all_nodes[i] == selected_node) || (all_nodes[i]->getSignal("force_update") > 0.5))
         all_nodes[i]->update();
     }
 
