@@ -214,7 +214,6 @@ class CamThing : public Output
         node = getNode<Output>(name, loc);
         output_node = (Output*)node;
         output_node->setup(Config::inst()->out_width, Config::inst()->out_height);
-        output_node->setSignal("force_update", 1.0);
       
         // TBD need better way to share X11 info- Config probably
         if (input_node) {
@@ -427,6 +426,8 @@ class CamThing : public Output
     if ((FLAGS_graph == "") || (!loadGraph(FLAGS_graph))) {
       defaultGraph();
     } 
+    output_node->setSignal("force_update", 1.0);
+
     saveGraph("graph_load_test.yml");
 
     selectNextNode();
@@ -502,7 +503,6 @@ class CamThing : public Output
 
       if (name == "output") {
         output_node = (Output*)node;
-        output_node->setSignal("force_update", 1.0);
         cv::Mat tmp;
         node->setImage("in", tmp); 
       }
@@ -1175,6 +1175,7 @@ class CamThing : public Output
       LOG(INFO) << "reloading graph file";
       clearNodes();
       loadGraph(FLAGS_graph);
+      output_node->setSignal("force_update", 1.0);
     }
     else if( key == 'w' ) {
       // TBD increment a count so old saves aren't overwritten?
@@ -1184,7 +1185,11 @@ class CamThing : public Output
     //  gridGraph();
     //}
     else if (key == 'z') {
-      draw_nodes = !draw_nodes;
+      // TBD need someway to disable this, maybe a camthing signal
+      //draw_nodes = !draw_nodes;
+      if (selected_node) {
+        selected_node->setSignal("force_update",  !((bool)selected_node->getSignal("force_update")));
+      }
     }
     else if (key == 'a') {
       if (selected_node) {

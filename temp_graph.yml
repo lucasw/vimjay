@@ -1,5 +1,5 @@
 %YAML:1.0
-date: "Thu Nov 29 17:22:57 2012\n"
+date: "Thu Nov 29 17:30:19 2012\n"
 nodes:
    -
       ind: 0
@@ -62,13 +62,13 @@ nodes:
          -
             type: 1
             name: "2_x"
-            value: 6.6591510009765625e+02
+            value: 5.1217669677734375e+02
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: "2_y"
-            value: 3.5000173950195312e+02
+            value: 1.6270446777343750e+00
             src_ind: -1
             src_port: ""
          -
@@ -179,7 +179,7 @@ nodes:
          -
             type: 1
             name: ind
-            value: 14.
+            value: 0.
             src_ind: -1
             src_port: ""
          -
@@ -296,8 +296,8 @@ nodes:
          -
             type: 2
             name: in
-            src_ind: -1
-            src_port: ""
+            src_ind: 2
+            src_port: out
          -
             type: 1
             name: fx
@@ -331,7 +331,7 @@ nodes:
          -
             type: 1
             name: d1
-            value: 0.
+            value: -3.9043948364257812e+02
             src_ind: -1
             src_port: ""
          -
@@ -757,7 +757,7 @@ nodes:
          -
             type: 1
             name: force_update
-            value: 1.
+            value: 0.
             src_ind: -1
             src_port: ""
          -
@@ -768,30 +768,24 @@ nodes:
          -
             type: 2
             name: in
-            src_ind: 2
-            src_port: out
+            src_ind: -1
+            src_port: ""
          -
             type: 1
             name: ksize
-            value: 5.
+            value: 1.
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: scale
-            value: 4.0083055500872433e-04
+            value: 1.
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: delta
             value: 128.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: border
-            value: 0.
             src_ind: -1
             src_port: ""
    -
@@ -1969,35 +1963,11 @@ nodes:
          -
             type: 2
             name: in
-            src_ind: 2
-            src_port: out
+            src_ind: -1
+            src_port: ""
          -
             type: 1
             name: decor
             value: 1.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: disp_w
-            value: 640.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: disp_h
-            value: 480.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: im_w
-            value: 640.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: im_h
-            value: 480.
             src_ind: -1
             src_port: ""
