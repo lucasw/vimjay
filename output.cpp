@@ -32,7 +32,16 @@ namespace bm {
     ImageNode(name),
     ximage(NULL),
     display(NULL)
-  { cv::Mat out; setImage("in",out);
+  { 
+    cv::Mat out; setImage("in",out);
+
+    setSignal("decor",1, SATURATE, 0, 1); // TBD make a SATURATE_INTEGER, or ROLL_INTEGER type?
+    setSignal("mode", 0, ROLL, 0, 4);
+
+    setSignal("x", Config::inst()->ui_width, SATURATE, 0, 1e6); // TBD FLT_MAX instead of 1e6?
+    setSignal("y", 0, SATURATE, 0, 1e6);
+    setSignal("w", Config::inst()->out_width,  SATURATE, 1, 1e6);
+    setSignal("h", Config::inst()->out_height, SATURATE, 1, 1e6);
   }
 
   bool Output::setup(const int width, const int height)
@@ -41,15 +50,7 @@ namespace bm {
     gc = XCreateGC(display, win, 0, NULL);
     ximage = XGetImage(display, DefaultRootWindow(display), 0, 0, width, height, AllPlanes, ZPixmap);
     screen = DefaultScreenOfDisplay(display);
-
     XStoreName(display, win, name.c_str());
-    setSignal("decor",1, SATURATE, 0, 1); // TBD make a SATURATE_INTEGER, or ROLL_INTEGER type?
-    setSignal("mode", 0, ROLL, 0, 4);
-    
-    setSignal("x", Config::inst()->ui_width, SATURATE, 0, 1e6); // TBD FLT_MAX instead of 1e6?
-    setSignal("y", 0, SATURATE, 0, 1e6);
-    setSignal("w", Config::inst()->out_width,  SATURATE, 1, 1e6);
-    setSignal("h", Config::inst()->out_height, SATURATE, 1, 1e6);
   }
 
   bool Output::update()
