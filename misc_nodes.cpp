@@ -47,7 +47,9 @@ namespace bm {
   {
     cv::Mat tmp;
     setImage("in",tmp);
-    setSignal("angle", 0);
+    setSignal("phi", 0);
+    setSignal("theta", 0);
+    setSignal("psi", 0);
     setSignal("scale", 1.0);
     setSignal("center_x", Config::inst()->im_width/2 );
     setSignal("center_y", Config::inst()->im_height/2 );
@@ -73,7 +75,12 @@ namespace bm {
     in = getImage("in");
     if (in.empty()) return false;
 
-    float angle = getSignal("angle") * M_PI/180.0;    
+    // TBD provide normalized, radians, and angle input select
+    // euler angles
+    float phi   = getSignal("phi")   * M_PI/180.0;    
+    float theta = getSignal("theta") * M_PI/180.0;    
+    float psi   = getSignal("psi")   * M_PI/180.0;   
+
     float scale = getSignal("scale");    
 
     cv::Point2f center;
@@ -83,44 +90,60 @@ namespace bm {
     float off_x = getSignal("off_x");     
     float off_y = getSignal("off_y");
 
-
         //VLOG(1) << name << " " << is_dirty << " " << im_in->name << " " << im_in->is_dirty;
 
     float wd = Config::inst()->im_width;
     float ht = Config::inst()->im_height;
 
-    cv::Mat in_p = (cv::Mat_<float>(2,4) << 
+    cv::Mat in_p = (cv::Mat_<float>(3,4) << 
         0, wd, wd, 0, 
-        0, 0,  ht, ht);
+        0, 0,  ht, ht,
+        0, 0, 0, 0);
 
     cv::Mat out_p = in_p.clone().t();  
  
     if (getSignal("manual_xy") < 0.5) {
       //////////////////////////////////////////////////
       /// This implements a standard rotozoom
-      cv::Mat offset = (cv::Mat_<float>(2,4) << 
+      cv::Mat offset = (cv::Mat_<float>(3,4) << 
           off_x, off_x, off_x, off_x, 
-          off_y, off_y, off_y, off_y); 
+          off_y, off_y, off_y, off_y,
+          0, 0, 0, 0); 
       //  wd/2, wd/2, wd/2, wd/2, 
       //  ht/2, ht/2, ht/2, ht/2); 
 
-      cv::Mat center_m = (cv::Mat_<float>(2,4) << 
+      cv::Mat center_m = (cv::Mat_<float>(3,4) << 
           center.x, center.x, center.x, center.x, 
-          center.y, center.y, center.y, center.y); 
+          center.y, center.y, center.y, center.y,
+          0, 0, 0, 0); 
 
-      cv::Mat rot = (cv::Mat_<float>(2, 2) <<
-          cos(angle), -sin(angle), sin(angle), cos(angle));
+      // Rotation matrices
+      cv::Mat rotz = (cv::Mat_<float>(3, 3) <<
+          cos(phi), -sin(phi), 0, 
+          sin(phi),  cos(phi), 0,
+          0, 0, 1);
+
+      cv::Mat roty = (cv::Mat_<float>(3, 3) <<
+          cos(theta),  0, sin(theta),  
+          0, 1, 0,
+          -sin(theta), 0, cos(theta) );
+
+      cv::Mat rotx = (cv::Mat_<float>(3, 3) <<
+          1,  0,        0,
+          0,  cos(psi), sin(psi),  
+          0, -sin(psi), cos(psi) );
+
 
       // TBD reformat the matrices so all the transposes aren't necessary
-      out_p = (in_p - offset).t() * rot.t() * scale + center_m.t();
+      out_p = (in_p - offset).t() * rotx.t() * roty.t() * rotz.t() * scale + center_m.t();
 
       setSignal("x0", out_p.at<float>(0,0));
-      setSignal("x1", out_p.at<float>(1,0));
-      setSignal("x2", out_p.at<float>(2,0));
-      setSignal("x3", out_p.at<float>(3,0));
       setSignal("y0", out_p.at<float>(0,1));
+      setSignal("x1", out_p.at<float>(1,0));
       setSignal("y1", out_p.at<float>(1,1));
+      setSignal("x2", out_p.at<float>(2,0));
       setSignal("y2", out_p.at<float>(2,1));
+      setSignal("x3", out_p.at<float>(3,0));
       setSignal("y3", out_p.at<float>(3,1));
     } else {   
       out_p.at<float>(0,0) = getSignal("x0");
@@ -133,9 +156,16 @@ namespace bm {
       out_p.at<float>(3,1) = getSignal("y3"); 
     }
 
+    cv::Mat out_p_2d = cv::Mat_<float>(4, 2);
+    
+    cv::Mat out_roi = out_p(cv::Rect(0, 0, 2, 4)).clone();
+    cv::Mat in_roi = in_p.t()(cv::Rect(0, 0, 2, 4)); //).clone();
+    in_roi = in_roi.clone(); 
+    //  out_p_2d.at<float>(i,j) = ;
+
     cv::Mat out;
     // TBD make inter_nearest changeable
-    cv::Mat transform = cv::getPerspectiveTransform(in_p.t(), out_p);
+    cv::Mat transform = cv::getPerspectiveTransform(in_roi, out_roi);
     cv::warpPerspective(in, out, transform, 
         in.size(), getModeType(), getBorderType());
     setImage("out", out);

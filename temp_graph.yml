@@ -1,5 +1,5 @@
 %YAML:1.0
-date: "Thu Nov 29 17:30:19 2012\n"
+date: "Fri Nov 30 13:50:57 2012\n"
 nodes:
    -
       ind: 0
@@ -37,13 +37,31 @@ nodes:
             src_port: ""
          -
             type: 1
-            name: disp_w
-            value: 980.
+            name: mode
+            value: 0.
             src_ind: -1
             src_port: ""
          -
             type: 1
-            name: disp_h
+            name: x
+            value: 2.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: y
+            value: 91.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: w
+            value: 960.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: h
             value: 720.
             src_ind: -1
             src_port: ""
@@ -62,26 +80,20 @@ nodes:
          -
             type: 1
             name: "2_x"
-            value: 5.1217669677734375e+02
+            value: 7.8969000244140625e+02
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: "2_y"
-            value: 1.6270446777343750e+00
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: "2_1"
-            value: 1.
+            value: 5.3057843017578125e+02
             src_ind: -1
             src_port: ""
    -
       ind: 1
       typeid: "bm::ScreenCap"
       name: screen_cap
-      loc: [ 40., 332. ]
+      loc: [ 40., 392. ]
       inputs:
          -
             type: 1
@@ -128,7 +140,7 @@ nodes:
       ind: 2
       typeid: "bm::ImageDir"
       name: image_dir
-      loc: [ 40., 510. ]
+      loc: [ 40., 570. ]
       dir: "../data/"
       inputs:
          -
@@ -170,24 +182,6 @@ nodes:
             value: 0.
             src_ind: -1
             src_port: ""
-         -
-            type: 1
-            name: cur_size
-            value: 30.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: ind
-            value: 0.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: load
-            value: 0.
-            src_ind: -1
-            src_port: ""
    -
       ind: 3
       typeid: "bm::Rot2D"
@@ -214,11 +208,23 @@ nodes:
          -
             type: 2
             name: in
+            src_ind: 1
+            src_port: out
+         -
+            type: 1
+            name: phi
+            value: 0.
             src_ind: -1
             src_port: ""
          -
             type: 1
-            name: angle
+            name: theta
+            value: 0.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: psi
             value: 0.
             src_ind: -1
             src_port: ""
@@ -274,7 +280,7 @@ nodes:
       ind: 4
       typeid: "bm::Undistort"
       name: undistort
-      loc: [ 220., 278. ]
+      loc: [ 220., 298. ]
       inputs:
          -
             type: 1
@@ -296,8 +302,8 @@ nodes:
          -
             type: 2
             name: in
-            src_ind: 2
-            src_port: out
+            src_ind: -1
+            src_port: ""
          -
             type: 1
             name: fx
@@ -331,7 +337,7 @@ nodes:
          -
             type: 1
             name: d1
-            value: -3.9043948364257812e+02
+            value: 0.
             src_ind: -1
             src_port: ""
          -
@@ -374,7 +380,7 @@ nodes:
       ind: 5
       typeid: "bm::Remap"
       name: remap
-      loc: [ 220., 546. ]
+      loc: [ 220., 566. ]
       inputs:
          -
             type: 1
@@ -1963,11 +1969,41 @@ nodes:
          -
             type: 2
             name: in
-            src_ind: -1
-            src_port: ""
+            src_ind: 3
+            src_port: out
          -
             type: 1
             name: decor
             value: 1.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: mode
+            value: 0.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: x
+            value: 1.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: y
+            value: 63.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: w
+            value: 640.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: h
+            value: 480.
             src_ind: -1
             src_port: ""
