@@ -217,10 +217,10 @@ namespace bm {
     setSignal("scaley", 1.0);
     setSignal("mode", 0, ROLL, 0, 4);
 
-    base_x = cv::Mat( cv::Size(Config::inst()->im_width, Config::inst()->im_height),
+    base_x = cv::Mat( Config::inst()->getImSize(),
       CV_32FC1);
     base_y = base_x.clone();
-    base_xy = cv::Mat( cv::Size(Config::inst()->im_width, Config::inst()->im_height),
+    base_xy = cv::Mat( Config::inst()->getImSize(),
       CV_32FC2);
 
     for (int i = 0; i < base_x.rows; i++) {
@@ -383,7 +383,7 @@ namespace bm {
         cv::Mat tmp;
         tmp0.convertTo(tmp, MAT_FORMAT,scale); //, 1.0/(255.0));//*255.0*255.0*255.0));
 
-        cv::Size sz = cv::Size(Config::inst()->im_width, Config::inst()->im_height);
+        cv::Size sz = Config::inst()->getImSize();
         cv::Mat tmp1;
         cv::resize(tmp, tmp1, sz, 0, 0, getModeType() );
         
@@ -483,7 +483,7 @@ namespace bm {
          
       VLOG(1) << name << " " << i << " loaded image " << next_im;
 
-      cv::Size sz = cv::Size(Config::inst()->im_width, Config::inst()->im_height);
+      cv::Size sz = Config::inst()->getImSize();
       cv::Mat tmp1;
       cv::resize(tmp0, tmp1, sz, 0, 0, getModeType() );
 

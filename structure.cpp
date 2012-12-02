@@ -55,7 +55,7 @@ bool Contour::update()
   cv::cvtColor(in, in8, CV_RGB2GRAY);
   cv::findContours(in8, contours0, hierarchy, cv::RETR_TREE, cv::CHAIN_APPROX_SIMPLE);
 
-  cv::Mat out = cv::Mat(cv::Size(Config::inst()->im_width, Config::inst()->im_height), MAT_FORMAT_C3, cv::Scalar(0,0,0,255));
+  cv::Mat out = cv::Mat(Config::inst()->getImSize(), MAT_FORMAT_C3, cv::Scalar(0,0,0,255));
 
   cv::drawContours( out, contours0, -1, cv::Scalar(255,255,255,255));
                 //1, CV_AA, hierarchy, std::abs(_levels) );

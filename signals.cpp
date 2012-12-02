@@ -176,7 +176,7 @@ namespace bm {
     
     VLOG(1) <<" setting out image";
     cv::Mat tmp;
-    cv::Size sz = cv::Size(Config::inst()->im_width, Config::inst()->im_height);
+    cv::Size sz = Config::inst()->getImSize();
     tmp = cv::Mat(sz, MAT_FORMAT_C3, cv::Scalar(0));
     setImage("out", tmp);
     setSignal("out", 0);
@@ -218,7 +218,7 @@ namespace bm {
     cv::Mat vis = getImage("out");
     if (vis.empty()) {
       LOG(WARNING) << "out is empty";
-      cv::Size sz = cv::Size(Config::inst()->im_width, Config::inst()->im_height);
+      cv::Size sz = Config::inst()->getImSize();
       vis = cv::Mat(sz, MAT_FORMAT_C3, cv::Scalar(0));
     }
 
@@ -423,7 +423,7 @@ bool SigAdd::handleKey(int key)
       
       LOG(INFO) << name << " " << i << " loaded image " << next_im;
 
-      cv::Size sz = cv::Size(Config::inst()->im_width, Config::inst()->im_height);
+      cv::Size sz = Config::inst()->getImSize();
       cv::Mat tmp1;
       cv::resize(tmp0, tmp1, sz, 0, 0, cv::INTER_NEAREST );
 

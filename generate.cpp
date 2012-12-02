@@ -49,7 +49,7 @@ bool Bezier::update()
   //if (!ImageNode::update()) return false;
   if (!Node::update()) return false;
 
-  cv::Mat out = cv::Mat(cv::Size(Config::inst()->im_width, Config::inst()->im_height), MAT_FORMAT_C3);
+  cv::Mat out = cv::Mat(Config::inst()->getImSize(), MAT_FORMAT_C3);
   out = cv::Scalar(0,0,0);
 
   std::vector<cv::Point2f> control_points;
@@ -104,7 +104,7 @@ bool Circle::update()
     return true;
   }
 
-  cv::Mat out = cv::Mat(cv::Size(Config::inst()->im_width, Config::inst()->im_height), 
+  cv::Mat out = cv::Mat(Config::inst()->getImSize(), 
       MAT_FORMAT_C3);
   out = cv::Scalar(0,0,0,0);
  
@@ -135,7 +135,7 @@ bool Noise::update()
 {
   if (!Node::update()) return false;
   
-  cv::Mat out = cv::Mat(cv::Size(Config::inst()->im_width, Config::inst()->im_height), MAT_FORMAT_C3);
+  cv::Mat out = cv::Mat(Config::inst()->getImSize(), MAT_FORMAT_C3);
 
   int type = (int)getSignal("type");
   if (type == 0) {

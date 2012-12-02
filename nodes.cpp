@@ -406,8 +406,9 @@ namespace bm {
     for (int i = 0; i < ports.size(); i++)
     {
       // already updated if named enable
-      if (ports[i]->name != "enable")
+      if ((ports[i]->name != "enable") ) { // TBD provide flag to disable updating
         ports[i]->update();
+      }
         // TBD may want to track per output dirtiness later?
       if (!ports[i]->output && ports[i]->isDirty(this, 1)) inputs_dirty = true;
     }
@@ -1092,7 +1093,7 @@ namespace bm {
       cv::Mat out = getImage("out");
       if (out.empty()) {
         // TBD make Config return mat just like this
-        cv::Size sz = cv::Size(Config::inst()->im_width, Config::inst()->im_height);
+        cv::Size sz = Config::inst()->getImSize();
         out = cv::Mat(sz, MAT_FORMAT_C3, cv::Scalar(0));
         setImage("out", out);
         //setDirty();
@@ -1613,7 +1614,7 @@ namespace bm {
 
     setSignal("cur_size", 2);
     cv::Mat tmp;
-    cv::Size sz = cv::Size(Config::inst()->im_width, Config::inst()->im_height);
+    cv::Size sz = Config::inst()->getImSize();
     tmp = cv::Mat(sz, MAT_FORMAT_C3, cv::Scalar(0));
     setImage("inp0", tmp);
     setImage("inp1", tmp);

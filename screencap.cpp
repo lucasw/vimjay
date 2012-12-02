@@ -142,7 +142,7 @@ bool ScreenCap::update()
   if (tmp.empty()) return false;
  
   // resize
-  cv::Size sz = cv::Size(Config::inst()->im_width, Config::inst()->im_height);
+  cv::Size sz = Config::inst()->getImSize();
   cv::Mat tmp1;
   cv::resize(tmp, tmp1, sz, 0, 0, cv::INTER_NEAREST );
   setImage("out", tmp);

@@ -7,6 +7,8 @@
 #include <stdio.h>
 #include <time.h>
 
+#include "opencv2/highgui/highgui.hpp"
+
 namespace bm {
 
   class Config
@@ -17,6 +19,7 @@ namespace bm {
       Config& operator=(Config const&) {};
 
       static Config* instance;
+      
     public:
       static Config* inst();
 
@@ -24,12 +27,14 @@ namespace bm {
       int ui_height;
       int thumb_width;
       int thumb_height;
-      int im_width;
-      int im_height;
       int out_width;
       int out_height;
 
       bool load(const std::string file);
+
+      int im_width;
+      int im_height;
+      cv::Size getImSize() { return cv::Size(im_width, im_height); }
   };
 
 };
