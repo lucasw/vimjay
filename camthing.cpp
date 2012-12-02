@@ -678,6 +678,13 @@ class CamThing : public Output
     node = getNode<Output>("output", loc);
     output_node = (Output*)node;
     output_node->setup(Config::inst()->out_width, Config::inst()->out_height);
+    // TBD put in config file?
+    {
+      // force output node to move window
+      output_node->draw(ui_offset);
+      output_node->setSignal("x", Config::inst()->ui_width + 28);
+      output_node->draw(ui_offset);
+    }
 
     // TBD need better way to share X11 info- Config probably
     if (input_node) {
