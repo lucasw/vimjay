@@ -132,7 +132,8 @@ namespace bm {
     saturate(0),
     val_min(0.0),
     val_max(1.0),
-    value(0)
+    value(0),
+    internally_set(false)
   {
 
   }
@@ -145,7 +146,8 @@ namespace bm {
       src->parent->update();
       //if (src->parent->isDirty(this, 0)) {
       // TBD
-      if (src->isDirty(this, 0)) { 
+      //if (src->isDirty(this, 0)) 
+      if (value != src->value) { 
 
         // now get dirtied data
         value = src->value;
@@ -154,7 +156,7 @@ namespace bm {
        
         // if a connector has a src then it can't be an output
         // (at least until it gets overridden as an output)
-        output = false;
+        internally_set = false;
         // TBD get copy of sigbuf
         // sigbuf = src->sigbuf;
         
@@ -195,7 +197,6 @@ namespace bm {
     this->im = im;
     setDirty();
 
-    output = true;
     return true;
   }
 
@@ -225,13 +226,12 @@ namespace bm {
           parent->loc + loc + ui_offset + cv::Point2f(name.size()*10, -10), 
           hash_col);
     
-    if (!output) {
+    if (internally_set) {
       cv::rectangle(graph_ui,
           parent->loc + loc + ui_offset,
           parent->loc + loc + ui_offset - cv::Point2f(5, 5),
           cv::Scalar(255, 255, 255),
           CV_FILLED);
-
     }
 
     // draw connecting line if there is a connector connected to this one
@@ -346,7 +346,7 @@ namespace bm {
   {
     vcol = cv::Scalar(200,200,200);
 
-    setSignal("enable", 1.0, SATURATE, 0,1);
+    setSignal("enable", 1.0, false, SATURATE, 0,1);
     setSignal("force_update", 0.0);
   }
   
@@ -410,8 +410,15 @@ namespace bm {
       if ((ports[i]->name != "enable") ) { // TBD provide flag to disable updating
         ports[i]->update();
       }
-        // TBD may want to track per output dirtiness later?
-      if (!ports[i]->output && ports[i]->isDirty(this, 1)) inputs_dirty = true;
+      // TBD may want to track per output dirtiness later?
+       
+      if (!ports[i]->internally_set) {
+        const bool is_dirty = ports[i]->isDirty(this, 1);
+        VLOG(2) << name << " " << CLTXT << ports[i]->name << " " << CLNRM << is_dirty;
+        if (is_dirty) {
+          inputs_dirty = true;
+        }
+      }
     }
 
     // the inheriting object needs to set is_dirty as appropriate if it
@@ -798,7 +805,7 @@ namespace bm {
     con->src = src_con;
   }
   
-  bool Node::setImage(const std::string port, cv::Mat& im)
+  bool Node::setImage(const std::string port, cv::Mat& im, const bool internally_set)
   {
     // can't set the image if it is controlled by an input node
 
@@ -816,6 +823,7 @@ namespace bm {
         LOG(ERROR) << "still can't get port";
         return false;
       }
+      con->internally_set = internally_set;
     }
      
     if (!con) {
@@ -834,6 +842,7 @@ namespace bm {
   bool Node::setSignal(
       const std::string port, 
       const float val,
+      const bool internally_set,
       const int saturate,
       const float min,
       const float max
@@ -851,18 +860,21 @@ namespace bm {
         LOG(ERROR) << name << " still can't get connector " << CLTXT << port << CLNRM; 
         return false;
       }
+    
+      // only use this setting if the port is new (TBD)
+      con->internally_set = internally_set;
     }
     
     // can't set signal if it is controlled by src port 
     if (con->src) return false;
 
-    con->value = val;
-    con->output = true;
-    const float val_orig = getSignal(port);
+    const float val_orig = con->value;
     if (val != val_orig) {
+      con->value = val;
       con->setDirty();
     }
-    
+   
+
     if (saturate > 0) {
       LOG(INFO) << name << " - " << port << ((saturate == 1) ? " - saturating " : " - rolling over") << min << " " << max;
       con->saturate = saturate;
@@ -900,7 +912,6 @@ namespace bm {
 
     VLOG(4) << name << " " << port << " " << " " << src_port;
      
-    // TBD output = false; ?
     {
       boost::mutex::scoped_lock l(con->im_mutex);
       im = con->im;
@@ -1017,7 +1028,8 @@ namespace bm {
   // Buffers are different from Signals and Images, they don't have a lower level type like float or Mat they contain- the Buffer node is instead
   // passed around
   bool Node::setBuffer(
-    const std::string port
+    const std::string port,
+    const bool internally_set
   )
   {
     Connector* con = NULL;
@@ -1030,18 +1042,19 @@ namespace bm {
         LOG(ERROR) << "still can't get connector";
         return false;
       }
+      con->internally_set = internally_set;
     }
     
     // can't set signal if it is controlled by src port 
     //if (con->src) return false;
 
     con->setDirty();
-    con->output = true;
     return true;
   }
 
   bool Node::setSigBuf(
-    const std::string port
+    const std::string port,
+    const bool internally_set
   )
   {
     Connector* con = NULL;
@@ -1054,13 +1067,13 @@ namespace bm {
         LOG(ERROR) << "still can't get connector";
         return false;
       }
+      con->internally_set = internally_set;
     }
     
     // can't set signal if it is controlled by src port 
     //if (con->src) return false;
 
     con->setDirty();
-    con->output = true;
 
     return true;
   }
@@ -1073,7 +1086,7 @@ namespace bm {
     // TBD get default resolution from somewhere (a singleton registry?)
     // TBD should out really be in the imvals, since it is an output not an input?
     cv::Mat tmp;
-    setImage("out", tmp);
+    setImage("out", tmp, true);
     // TBD
     //setImage("in", tmp);
   }
@@ -1250,7 +1263,7 @@ namespace bm {
   {
     vcol = cv::Scalar(0,255,255);
 
-    setSignal("value", 0);
+    setSignal("value", 0, true);
     setSignal("min", 0);
     setSignal("max", 1);
     setSignal("step", 0.1);
@@ -1370,7 +1383,7 @@ namespace bm {
     cv::Mat tmp;
     setImage("in", tmp);
     // not really an input, but using inputs since outputs aren't distinct
-    setBuffer("out");
+    setBuffer("out", true);
     //setInputPort(BUFFER, "out", NULL, "");
 
     //setImage("image", cv::Mat());

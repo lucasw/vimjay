@@ -50,16 +50,16 @@ namespace bm {
     setSignal("phi", 0);
     setSignal("theta", 0);
     setSignal("psi", 0);
-    setSignal("z", 1);
+    setSignal("z", 573, false, SATURATE, 1, 1e6); // TBD this number
     setSignal("scale", 1.0);
     setSignal("center_x",  Config::inst()->im_width/2 );
     setSignal("center_y",  Config::inst()->im_height/2 );
     setSignal("center_z", 0); // -Config::inst()->im_height/2 );
     setSignal("off_x", Config::inst()->im_width/2 );
     setSignal("off_y", Config::inst()->im_height/2 );
-    setSignal("off_z", 573); // TBD this number
-    setSignal("border", 0, ROLL, 0, 4);
-    setSignal("mode", 0, ROLL, 0, 4);
+    setSignal("off_z", 0); 
+    setSignal("border", 0, false, ROLL, 0, 4);
+    setSignal("mode", 0, false, ROLL, 0, 4);
     setSignal("manual_xy", 0.0);
 
     setSignal("x0", 0 );
@@ -270,7 +270,7 @@ namespace bm {
     cv::Mat offy;
     setImage("offy", offy);
     setSignal("scaley", 1.0);
-    setSignal("mode", 0, ROLL, 0, 4);
+    setSignal("mode", 0, false, ROLL, 0, 4);
 
     base_x = cv::Mat( Config::inst()->getImSize(),
       CV_32FC1);
@@ -351,7 +351,7 @@ namespace bm {
       ImageNode(name),
       error_count(0)
   {
-    setSignal("mode", 0, ROLL, 0, 4);
+    setSignal("mode", 0, false, ROLL, 0, 4);
 
     LOG(INFO) << "camera opening ...";
     capture = VideoCapture(0); //CV_CAP_OPENNI );
@@ -485,7 +485,7 @@ namespace bm {
 
   ImageDir::ImageDir(const std::string name) : Buffer(name) 
   {
-    setSignal("mode", 0, ROLL, 0, 4);
+    setSignal("mode", 0, false, ROLL, 0, 4);
   }
 
   bool ImageDir::loadImages()
@@ -972,7 +972,7 @@ CMP_NE
     setImage("in", tmp);
     setSignal("fx", 0.2);
     setSignal("fy", 0.2);
-    setSignal("mode", 0, ROLL, 0, 4);
+    setSignal("mode", 0, false, ROLL, 0, 4);
   }
 
   bool Resize::update()

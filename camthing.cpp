@@ -347,13 +347,15 @@ class CamThing : public Output
     LOG(INFO) << "making " << all_nodes.size() << " graph items into grid";
 
     int x = 40;
-    int y = 40;
+    int y = 20;
     for (int i = 0; i < all_nodes.size(); i++) {
       
-      if ( (ImageNode*) all_nodes[i]) y += tht;
+      if ( dynamic_cast<ImageNode*> (all_nodes[i])) y += tht;
 
       if (y + all_nodes[i]->ports.size()*10 > graph_ui.rows) {
-        y = 40;
+        y = 20;
+        if ( dynamic_cast<ImageNode*> (all_nodes[i])) y += tht;
+
         x += 180;
       }
       cv::Point loc = cv::Point2f( x, y );
@@ -368,7 +370,9 @@ class CamThing : public Output
       y += all_nodes[i]->ports.size()*10 + 60;
       //if ( (ImageNode*) all_nodes[i]) y += tht;
       // TBD camthing can grow with input devices
-      if (i == 0) y += tht*2;
+      if (i == 0) { 
+        y += tht;
+      }
       
     }
   } // gridGraph
@@ -830,13 +834,18 @@ class CamThing : public Output
         (selected_node->selected_port != "") && 
         (source_port != "") && 
         (selected_node->selected_port != "") && 
-        (selected_node->selected_port != "out")
+        (selected_node->selected_port != "out") // TBD delete this
         ) {
 
-      // TBD a Buffer should act as an ImageNode if that is the only
-      // input available
-      selected_node->setInputPort(source_type, selected_node->selected_port, source_node, source_port);
-      
+        
+        //TBD 
+        //if (!selected_node->selected_port_internally_set) 
+        {
+          // TBD a Buffer should act as an ImageNode if that is the only
+          // input available
+          selected_node->setInputPort(source_type, selected_node->selected_port, source_node, source_port);
+        }
+
       //VLOG(1) << 
       return true;
     }  // legit source_node

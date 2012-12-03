@@ -262,7 +262,7 @@ bool Laplacian::update()
   {
     cv::Mat tmp;
     setImage("in", tmp);
-    setSignal("k_size", 2, SATURATE, 1, 10);
+    setSignal("k_size", 2, false, SATURATE, 1, 10);
     vcol = cv::Scalar(200, 200, 50);
   }
 
@@ -297,11 +297,11 @@ MorphologyEx::MorphologyEx(const std::string name) : ImageNode(name)
 {
   cv::Mat in;
   setImage("in", in);
-  setSignal("element", 0, ROLL, 0, 2);
-  setSignal("element_size_x", 3, SATURATE, 1, 10);
-  setSignal("element_size_y", 3, SATURATE, 1, 10);
-  setSignal("op", 0, ROLL, 0, 6);
-  setSignal("iterations", 1, SATURATE, 1, 10);
+  setSignal("element", 0, false, ROLL, 0, 2);
+  setSignal("element_size_x", 3, false, SATURATE, 1, 10);
+  setSignal("element_size_y", 3, false, SATURATE, 1, 10);
+  setSignal("op", 0, false, ROLL, 0, 6);
+  setSignal("iterations", 1, false, SATURATE, 1, 10);
 
   // TBD could allow element image input, which would be shrunk
   // down to element size to be used as the morph element
@@ -382,13 +382,13 @@ bool MorphologyEx::update()
     setSignal("iterations",2);
     setSignal("poly_n",5);
     setSignal("poly_sigma",1.1);
-    setSignal("mode",0, ROLL, 0, 3);
+    setSignal("mode",0, false, ROLL, 0, 3);
     
     setSignal("scale",1.0);
     setSignal("offset",128);
 
     setSignal("interp", 0.5);
-    setSignal("interp_mode",0, ROLL, 0, 2);
+    setSignal("interp_mode",0, false, ROLL, 0, 2);
   }
 
   bool OpticalFlow::update()

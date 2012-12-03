@@ -110,7 +110,9 @@ class Connector : public Elem
 
   // whether the dirtiness should force an update of the associated node
   // determined by usage, not explicitly set
-  bool output;
+  // set to true if this value will not be connected to externally, and will
+  // be set internally
+  bool internally_set;
   
   // the Connector that is sourcing this one, if any
   // this is somewhat odd, the connector is in three parts- the src, this, and dst
@@ -229,7 +231,7 @@ class Node : public Elem
       //const bool require_dirty= false);
   
   // set image, only succeeds if not an input TBD - rw permissions?
-  bool setImage(const std::string port, cv::Mat& im);
+  bool setImage(const std::string port, cv::Mat& im, const bool internally_set=false);
 
   float getSignal(
       const std::string port, 
@@ -237,6 +239,7 @@ class Node : public Elem
 
   bool setSignal(const std::string port, 
       const float val=0.0,
+      const bool internally_set = false,
       const int saturate= SAT_NONE,
       const float min=0.0,
       const float max=1.0);
@@ -262,9 +265,9 @@ class Node : public Elem
   // getSigBuf()
 
   // There is no way to store a Buffer outside of a node, so all setting does is creating a connector port
-  bool setBuffer(const std::string port);
+  bool setBuffer(const std::string port, const bool internally_set=false);
   
-  bool setSigBuf(const std::string port);
+  bool setSigBuf(const std::string port, const bool internally_set=false);
 
 
   virtual bool handleKey(int key);

@@ -135,7 +135,8 @@ namespace bm {
     setSignal("value", value);
     setDirty();
 
-    VLOG(3) << "Signal " << name << " " << value;
+    VLOG(1) << "Signal " << name << " " << value;
+
     return true;
   }
 
@@ -145,9 +146,9 @@ namespace bm {
     setSignal("in",0);
     setSignal("radius",1);
     setSignal("rad_deg_nrm",2);
-    setSignal("cos",0);
-    setSignal("sin",0);
-    setSignal("tan",0);
+    setSignal("cos",0, true);
+    setSignal("sin",0, true);
+    setSignal("tan",0, true);
   }
 
   bool Trig::update()
@@ -180,7 +181,7 @@ namespace bm {
     tmp = cv::Mat(sz, MAT_FORMAT_C3, cv::Scalar(0));
     setImage("out", tmp);
     setSignal("out", 0);
-    setSigBuf("out");
+    setSigBuf("out", true);
 
     setSignal("min", 0);
     setSignal("max", 0);
@@ -304,7 +305,7 @@ namespace bm {
 SigAdd::SigAdd(const std::string name) :
     Node(name)
 {
-  setSignal("out",0);
+  setSignal("out",0, true);
   setSignal("mula0",1);
   setSignal("mulb0",0);
 }
@@ -313,7 +314,7 @@ bool SigAdd::update()
 {
   if (!Node::update()) return false;
 
-  if (!isDirty(this, 5)) {
+  if (!isDirty(this, 35)) {
     VLOG(1) << name << " not dirty ";
     return true;
   }
@@ -325,17 +326,27 @@ bool SigAdd::update()
     const string port_a = ports[i]->name;
 
     if (port_a.substr(0,4) != "mula") {
-      VLOG(1) << name << " : " << port_a.substr(0,4) << " " << port_a;
+      VLOG(2) << name << " : " << port_a.substr(0,4) << " " << port_a;
       continue;
     }
   
     const string port_b = "mulb" + port_a.substr(4);
+    
+    const float a = getSignal(port_a);
+    const float b = getSignal(port_b);
 
+    VLOG(2) << name <<  " " << CLTXT << port_a << " " << port_b << " " 
+        << CLVAL << sum << " + " << a << " * " << b << CLNRM;
     sum += getSignal(port_a) * getSignal(port_b);  
     
   }
+  VLOG(2) << name << " " << sum;
 
   setSignal("out", sum);
+
+  // TBD The dirtiness of the output signal takes care of this?
+  setDirty();
+  isDirty(this,35);
 
   return true;
 

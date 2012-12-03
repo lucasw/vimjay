@@ -35,13 +35,13 @@ namespace bm {
   { 
     cv::Mat out; setImage("in",out);
 
-    setSignal("decor",1, SATURATE, 0, 1); // TBD make a SATURATE_INTEGER, or ROLL_INTEGER type?
-    setSignal("mode", 0, ROLL, 0, 4);
+    setSignal("decor",1, false, SATURATE, 0, 1); // TBD make a SATURATE_INTEGER, or ROLL_INTEGER type?
+    setSignal("mode", 0, false, ROLL, 0, 4);
 
-    setSignal("x", Config::inst()->ui_width, SATURATE, 0, 1e6); // TBD FLT_MAX instead of 1e6?
-    setSignal("y", 0, SATURATE, 0, 1e6);
-    setSignal("w", Config::inst()->out_width,  SATURATE, 1, 1e6);
-    setSignal("h", Config::inst()->out_height, SATURATE, 1, 1e6);
+    setSignal("x", Config::inst()->ui_width, false, SATURATE, 0, 1e6); // TBD FLT_MAX instead of 1e6?
+    setSignal("y", 0, false, SATURATE, 0, 1e6);
+    setSignal("w", Config::inst()->out_width,  false, SATURATE, 1, 1e6);
+    setSignal("h", Config::inst()->out_height, false, SATURATE, 1, 1e6);
   }
 
   bool Output::setup(const int width, const int height)
@@ -168,6 +168,7 @@ namespace bm {
           XConfigureWindow( display, win, value_mask, &values);
         }
 
+        // TBD if (win != toplevel_parent)
         { 
           // TBD hack, the difference between the toplevel window and the 
           // actual one are overcome by giving all of the offset to win zeroing
