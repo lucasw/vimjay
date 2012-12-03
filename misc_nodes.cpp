@@ -57,7 +57,7 @@ namespace bm {
     setSignal("center_z", 0); // -Config::inst()->im_height/2 );
     setSignal("off_x", Config::inst()->im_width/2 );
     setSignal("off_y", Config::inst()->im_height/2 );
-    setSignal("off_z", 0);
+    setSignal("off_z", 573); // TBD this number
     setSignal("border", 0, ROLL, 0, 4);
     setSignal("mode", 0, ROLL, 0, 4);
     setSignal("manual_xy", 0.0);
@@ -105,18 +105,10 @@ namespace bm {
     const float wd = Config::inst()->im_width;
     const float ht = Config::inst()->im_height;
 
-    const float z = getSignal("z");
-    
     cv::Mat in_p = (cv::Mat_<float>(3,4) << 
         0, wd, wd, 0, 
         0, 0,  ht, ht,
-        z, z, z, z);
-        /*
-    cv::Mat in_p = (cv::Mat_<float>(3,4) << 
-        -1.0,  1.0,  1.0, -1.0, 
-        -1.0, -1.0,  1.0,  1.0,
-        z, z, z, z);
-        */
+        0, 0, 0, 0);
 
     cv::Mat in_roi = in_p.t()(cv::Rect(0, 0, 2, 4)); //).clone();
     in_roi = in_roi.clone(); 
@@ -125,13 +117,13 @@ namespace bm {
     if (getSignal("manual_xy") < 0.5) {
       //////////////////////////////////////////////////
       /// This implements a standard rotozoom
+      // move the image prior to rotation
       cv::Mat offset = (cv::Mat_<float>(3,4) << 
           off_x, off_x, off_x, off_x, 
           off_y, off_y, off_y, off_y,
           off_z, off_z, off_z, off_z);
-      //  wd/2, wd/2, wd/2, wd/2, 
-      //  ht/2, ht/2, ht/2, ht/2); 
 
+      // shift the image after rotation
       cv::Mat center_m = (cv::Mat_<float>(3,4) << 
           center.x, center.x, center.x, center.x, 
           center.y, center.y, center.y, center.y,
@@ -156,18 +148,18 @@ namespace bm {
       // TBD reformat the matrices so all the transposes aren't necessary
 
       // Transform into ideal coords
-      float fx = getSignal("fx");
-      cv::Mat out_p = (in_p - offset).t() * (1.0/fx) * rotx.t() * roty.t() * rotz.t() * scale; // + center_m.t();
+      //float fx = getSignal("fx");
+      cv::Mat out_p = (in_p - offset).t() * rotx.t() * roty.t() * rotz.t() * scale; // + center_m.t();
     
       out_roi = out_p(cv::Rect(0, 0, 2, 4)).clone();
-    
+     
+      // this moves the image away from the 0 plane
+      const float z = getSignal("z");
       for (int i = 0; i < 4; i++) {
         for (int j = 0; j < 2; j++) {
-          out_roi.at<float>(i,j) = out_p.at<float>(i,j) / out_p.at<float>(i,2) + center_m.at<float>(j,i);
+          out_roi.at<float>(i,j) = z * out_p.at<float>(i,j) / (out_p.at<float>(i,2) + z) + center_m.at<float>(j,i);
         }
       }
-
-      out_roi *= fx;
 
       //
       setSignal("x0", out_roi.at<float>(0,0));
