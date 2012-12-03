@@ -50,14 +50,22 @@ namespace bm {
     setSignal("phi", 0);
     setSignal("theta", 0);
     setSignal("psi", 0);
+    setSignal("z", 1);
     setSignal("scale", 1.0);
-    setSignal("center_x", Config::inst()->im_width/2 );
-    setSignal("center_y", Config::inst()->im_height/2 );
+    setSignal("center_x",  Config::inst()->im_width/2 );
+    setSignal("center_y",  Config::inst()->im_height/2 );
+    setSignal("center_z", 0); // -Config::inst()->im_height/2 );
     setSignal("off_x", Config::inst()->im_width/2 );
     setSignal("off_y", Config::inst()->im_height/2 );
+    setSignal("off_z", 0);
     setSignal("border", 0, ROLL, 0, 4);
     setSignal("mode", 0, ROLL, 0, 4);
     setSignal("manual_xy", 0.0);
+
+    setSignal("x0", 0 );
+    setSignal("x1", 0 );
+    setSignal("x2", 0 );
+    setSignal("x3", 0 );
   }
 
   bool Rot2D::update()
@@ -83,24 +91,36 @@ namespace bm {
 
     float scale = getSignal("scale");    
 
-    cv::Point2f center;
+    cv::Point3f center;
     center.x = getSignal("center_x");     
     center.y = getSignal("center_y");
+    center.z = getSignal("center_z");
     
-    float off_x = getSignal("off_x");     
-    float off_y = getSignal("off_y");
+    const float off_x = getSignal("off_x");     
+    const float off_y = getSignal("off_y");
+    const float off_z = getSignal("off_z");
 
         //VLOG(1) << name << " " << is_dirty << " " << im_in->name << " " << im_in->is_dirty;
 
-    float wd = Config::inst()->im_width;
-    float ht = Config::inst()->im_height;
+    const float wd = Config::inst()->im_width;
+    const float ht = Config::inst()->im_height;
 
+    const float z = getSignal("z");
+    
     cv::Mat in_p = (cv::Mat_<float>(3,4) << 
         0, wd, wd, 0, 
         0, 0,  ht, ht,
-        0, 0, 0, 0);
+        z, z, z, z);
+        /*
+    cv::Mat in_p = (cv::Mat_<float>(3,4) << 
+        -1.0,  1.0,  1.0, -1.0, 
+        -1.0, -1.0,  1.0,  1.0,
+        z, z, z, z);
+        */
 
-    cv::Mat out_p = in_p.clone().t();  
+    cv::Mat in_roi = in_p.t()(cv::Rect(0, 0, 2, 4)); //).clone();
+    in_roi = in_roi.clone(); 
+    cv::Mat out_roi = in_roi.clone();
  
     if (getSignal("manual_xy") < 0.5) {
       //////////////////////////////////////////////////
@@ -108,14 +128,14 @@ namespace bm {
       cv::Mat offset = (cv::Mat_<float>(3,4) << 
           off_x, off_x, off_x, off_x, 
           off_y, off_y, off_y, off_y,
-          0, 0, 0, 0); 
+          off_z, off_z, off_z, off_z);
       //  wd/2, wd/2, wd/2, wd/2, 
       //  ht/2, ht/2, ht/2, ht/2); 
 
       cv::Mat center_m = (cv::Mat_<float>(3,4) << 
           center.x, center.x, center.x, center.x, 
           center.y, center.y, center.y, center.y,
-          0, 0, 0, 0); 
+          center.z, center.z, center.z, center.z);
 
       // Rotation matrices
       cv::Mat rotz = (cv::Mat_<float>(3, 3) <<
@@ -133,34 +153,48 @@ namespace bm {
           0,  cos(psi), sin(psi),  
           0, -sin(psi), cos(psi) );
 
-
       // TBD reformat the matrices so all the transposes aren't necessary
-      out_p = (in_p - offset).t() * rotx.t() * roty.t() * rotz.t() * scale + center_m.t();
 
-      setSignal("x0", out_p.at<float>(0,0));
-      setSignal("y0", out_p.at<float>(0,1));
-      setSignal("x1", out_p.at<float>(1,0));
-      setSignal("y1", out_p.at<float>(1,1));
-      setSignal("x2", out_p.at<float>(2,0));
-      setSignal("y2", out_p.at<float>(2,1));
-      setSignal("x3", out_p.at<float>(3,0));
-      setSignal("y3", out_p.at<float>(3,1));
+      // Transform into ideal coords
+      float fx = getSignal("fx");
+      cv::Mat out_p = (in_p - offset).t() * (1.0/fx) * rotx.t() * roty.t() * rotz.t() * scale; // + center_m.t();
+    
+      out_roi = out_p(cv::Rect(0, 0, 2, 4)).clone();
+    
+      for (int i = 0; i < 4; i++) {
+        for (int j = 0; j < 2; j++) {
+          out_roi.at<float>(i,j) = out_p.at<float>(i,j) / out_p.at<float>(i,2) + center_m.at<float>(j,i);
+        }
+      }
+
+      out_roi *= fx;
+
+      //
+      setSignal("x0", out_roi.at<float>(0,0));
+      setSignal("y0", out_roi.at<float>(0,1));
+      setSignal("x1", out_roi.at<float>(1,0));
+      setSignal("y1", out_roi.at<float>(1,1));
+      setSignal("x2", out_roi.at<float>(2,0));
+      setSignal("y2", out_roi.at<float>(2,1));
+      setSignal("x3", out_roi.at<float>(3,0));
+      setSignal("y3", out_roi.at<float>(3,1));
+      //
+      setSignal("z0", out_p.at<float>(0,2));
+      setSignal("z1", out_p.at<float>(1,2));
+      setSignal("z2", out_p.at<float>(2,2));
+      setSignal("z3", out_p.at<float>(3,2));
     } else {   
-      out_p.at<float>(0,0) = getSignal("x0");
-      out_p.at<float>(1,0) = getSignal("x1");
-      out_p.at<float>(2,0) = getSignal("x2");
-      out_p.at<float>(3,0) = getSignal("x3");
-      out_p.at<float>(0,1) = getSignal("y0");
-      out_p.at<float>(1,1) = getSignal("y1"); 
-      out_p.at<float>(2,1) = getSignal("y2");
-      out_p.at<float>(3,1) = getSignal("y3"); 
+      out_roi.at<float>(0,0) = getSignal("x0");
+      out_roi.at<float>(1,0) = getSignal("x1");
+      out_roi.at<float>(2,0) = getSignal("x2");
+      out_roi.at<float>(3,0) = getSignal("x3");
+      out_roi.at<float>(0,1) = getSignal("y0");
+      out_roi.at<float>(1,1) = getSignal("y1"); 
+      out_roi.at<float>(2,1) = getSignal("y2");
+      out_roi.at<float>(3,1) = getSignal("y3"); 
     }
 
-    cv::Mat out_p_2d = cv::Mat_<float>(4, 2);
-    
-    cv::Mat out_roi = out_p(cv::Rect(0, 0, 2, 4)).clone();
-    cv::Mat in_roi = in_p.t()(cv::Rect(0, 0, 2, 4)); //).clone();
-    in_roi = in_roi.clone(); 
+    //  cv::Mat out_p_2d = cv::Mat_<float>(4, 2);
     //  out_p_2d.at<float>(i,j) = ;
 
     cv::Mat out;
@@ -169,7 +203,6 @@ namespace bm {
     cv::warpPerspective(in, out, transform, 
         in.size(), getModeType(), getBorderType());
     setImage("out", out);
-
 
     #if 0
     for (int i = 0; i < transform.rows; i++) {

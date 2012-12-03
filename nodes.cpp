@@ -1414,7 +1414,7 @@ namespace bm {
     max_size = val;
     if (max_size < 1) max_size = 1;
     */
-    manualUpdate();
+    if (!manualUpdate()) return true;
 
         // TBD may not always want to do this
     setOut();
