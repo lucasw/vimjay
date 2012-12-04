@@ -1398,10 +1398,12 @@ namespace bm {
       add(in); 
    
     const int cur_size =  frames.size();
-    setSignal("cur_size", cur_size);
+    setSignal("cur_size", cur_size, true);
     if (cur_size <= 0) return false;
-    const int ind =  ((int)getSignal("ind") + cur_size) % cur_size;
-    setSignal("ind", ind);
+    //const int ind =  ((int)getSignal("ind") + cur_size) % cur_size;
+    //setSignal("ind", ind);
+
+    return true;
   }
 
   bool Buffer::setOut()
@@ -1626,7 +1628,7 @@ namespace bm {
 
     // not really an input, but using inputs since outputs aren't distinct
 
-    setSignal("cur_size", 2);
+    setSignal("cur_size", 2, true);
     cv::Mat tmp;
     cv::Size sz = Config::inst()->getImSize();
     tmp = cv::Mat(sz, MAT_FORMAT_C3, cv::Scalar(0));

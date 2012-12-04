@@ -553,11 +553,12 @@ namespace bm {
     }
     
     LOG(INFO) << name << " " << frames.size() << " image loaded";
+    setSignal("ind", 0, false, ROLL, 0, frames.size()-1);
     //max_size = frames.size() + 1;
     setDirty();
 
     return true;
-  }
+  } // draw
 
   bool ImageDir::load(cv::FileNodeIterator nd)
   {
