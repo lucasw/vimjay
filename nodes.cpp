@@ -146,8 +146,8 @@ namespace bm {
       src->parent->update();
       //if (src->parent->isDirty(this, 0)) {
       // TBD
-      //if (src->isDirty(this, 0)) 
-      if (value != src->value) { 
+      if (src->isDirty(this, 0)) { //|| ((type==SIGNAL) && (value != src->value)) {
+      //if (value != src->value) { // TBD could use this with images if image updates made the value change
 
         // now get dirtied data
         value = src->value;
@@ -430,7 +430,7 @@ namespace bm {
     // TBD loop through ports and run getImage on each
     // or could that be combined with looping through the getInputVector above?
     
-    VLOG(4) << name << " in sz " << ports.size() << " inputs dirty" << inputs_dirty;
+    VLOG(1) << name << " in sz " << ports.size() << " inputs dirty " << inputs_dirty;
 
     return true;
   }
@@ -1083,23 +1083,20 @@ namespace bm {
     vcol = cv::Scalar(255,0,255);
   
     // create the entry for out
-    // TBD get default resolution from somewhere (a singleton registry?)
-    // TBD should out really be in the imvals, since it is an output not an input?
-    cv::Mat tmp;
-    setImage("out", tmp, true);
-    // TBD
+    cv::Mat out;
+    setImage("out", out, true);
+    // TBD image generators don't need this
     //setImage("in", tmp);
   }
    
-
- 
   /// Probably don't want to call this in most inheriting functions, skip back to Node::update()
   bool ImageNode::update() 
   {
     const bool rv = Node::update();
     if (!rv) return false;
 
-    //setImage("out_old", ;
+    // TBD make flag to control this, or derived passthrough class does this
+    {
     // TBD any reason to call this here?
     cv::Mat in = getImage("in");
     if (in.empty()) {
@@ -1117,7 +1114,7 @@ namespace bm {
     
     setImage("out", in);
     //setDirty();
- 
+    }
     //VLOG(4) << name << " update: " <<  out.refcount << " " << out_old.refcount;
   
     return true;
@@ -1583,7 +1580,7 @@ namespace bm {
 
     stringstream dir_name;
     // TBD define path to data somewhere to be reused by all
-    dir_name << "../data/" << t1 << "_" << name;
+    dir_name << "../data/record" << t1 << "_" << name;
    
     boost::mutex::scoped_lock l(frames_mutex);
     if (frames.size() == 0) return false;

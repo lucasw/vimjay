@@ -72,14 +72,10 @@ namespace bm {
   {
     if (!Node::update()) return false;
 
-    // anything to rotate?
-    if (ports.size() < 1) return false;
-   
     if (!isDirty(this,40)) return true;
 
     bool im_dirty;
     cv::Mat in;
-    // "image" is the default image input name
     in = getImage("in");
     if (in.empty()) return false;
 
@@ -203,6 +199,8 @@ namespace bm {
       setSignal(name, out_p.at<float>(i,j));
     }}
     #endif
+
+    return true;
   }
 
   //
@@ -1039,7 +1037,7 @@ CMP_NE
 
   bool Flip::update()
   {
-  if (!ImageNode::update()) return false;
+  if (!Node::update()) return false;
  
   // TBD make sure keyboard changed parameters make this dirty 
   if (!isDirty(this, 5)) { 

@@ -55,9 +55,11 @@ namespace bm {
 
   bool Output::update()
   {
-    if (!ImageNode::update()) return false;
+    const bool rv = ImageNode::update();
+    if (!rv) return false;
     // The threading issues with xwindows for the xwindows calls to be put
     // in the draw call
+    return true;
   }
 
   bool Output::draw(cv::Point2f ui_offset)

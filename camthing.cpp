@@ -416,7 +416,8 @@ class CamThing : public Output
       output_node(NULL),
       input_node(NULL),
       draw_nodes(true),
-      paused(true)
+      //paused(true)
+      paused(true) // TBD control from config file?
   {
     count = 0;
 
