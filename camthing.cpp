@@ -1307,7 +1307,11 @@ class CamThing : public Output
       
       if ((selected_node) && (selected_node->selected_type == SIGNAL)) { 
         Node* node = getNode<MiscSignal>(selected_node->name + "_sig", selected_node->loc + cv::Point2f(-150,10));
-        
+      
+        float val = selected_node->getSignal(selected_node->selected_port);
+        node->setSignal("value", val);
+        node->setSignal("min", val);
+        node->setSignal("max", val + 1);
         //Connector* con;
         //string src_port;
         //node->getInputPort(SIGNAL, "value", con, src_port);
