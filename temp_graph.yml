@@ -1,5 +1,5 @@
 %YAML:1.0
-date: "Wed Dec  5 14:00:40 2012\n"
+date: "Wed Dec  5 14:54:43 2012\n"
 nodes:
    -
       ind: 0
@@ -44,13 +44,13 @@ nodes:
          -
             type: 1
             name: x
-            value: 3.
+            value: 2.
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: y
-            value: 108.
+            value: 80.
             src_ind: -1
             src_port: ""
          -
@@ -75,18 +75,6 @@ nodes:
             type: 1
             name: im_h
             value: 480.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: "2_x"
-            value: 7.0341442871093750e+02
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: "2_y"
-            value: 5.1079431152343750e+02
             src_ind: -1
             src_port: ""
    -
@@ -185,6 +173,18 @@ nodes:
          -
             type: 1
             name: ind
+            value: 0.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: cur_size
+            value: 30.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: load
             value: 0.
             src_ind: -1
             src_port: ""
@@ -350,8 +350,8 @@ nodes:
          -
             type: 2
             name: in
-            src_ind: -1
-            src_port: ""
+            src_ind: 2
+            src_port: out
          -
             type: 1
             name: fx
@@ -379,9 +379,9 @@ nodes:
          -
             type: 1
             name: d0
-            value: 0.
-            src_ind: -1
-            src_port: ""
+            value: -1.0214902496337891e+02
+            src_ind: 37
+            src_port: value
          -
             type: 1
             name: d1
@@ -519,6 +519,12 @@ nodes:
             value: 100.
             src_ind: -1
             src_port: ""
+         -
+            type: 1
+            name: cur_size
+            value: 0.
+            src_ind: -1
+            src_port: ""
    -
       ind: 7
       typeid: "bm::Mux"
@@ -572,6 +578,12 @@ nodes:
          -
             type: 2
             name: inp1
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: ind
+            value: 0.
             src_ind: -1
             src_port: ""
    -
@@ -1768,13 +1780,13 @@ nodes:
          -
             type: 1
             name: value
-            value: 4.0849435329437256e-01
+            value: 0.
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: min
-            value: -9.
+            value: 0.
             src_ind: -1
             src_port: ""
          -
@@ -1786,13 +1798,7 @@ nodes:
          -
             type: 1
             name: step
-            value: 1.6423463821411133e-03
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: mode
-            value: 1.
+            value: 1.0000000149011612e-01
             src_ind: -1
             src_port: ""
    -
@@ -1834,7 +1840,7 @@ nodes:
          -
             type: 1
             name: cos
-            value: 1.
+            value: 0.
             src_ind: -1
             src_port: ""
          -
@@ -1939,8 +1945,8 @@ nodes:
          -
             type: 2
             name: in
-            src_ind: -1
-            src_port: ""
+            src_ind: 4
+            src_port: out
          -
             type: 1
             name: decor
@@ -1975,5 +1981,65 @@ nodes:
             type: 1
             name: h
             value: 480.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: im_w
+            value: 640.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: im_h
+            value: 480.
+            src_ind: -1
+            src_port: ""
+   -
+      ind: 37
+      typeid: "bm::MiscSignal"
+      name: undistort_sig
+      loc: [ 70., 4.3599969482421875e+02 ]
+      inputs:
+         -
+            type: 1
+            name: enable
+            value: 1.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: force_update
+            value: 0.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: value
+            value: -1.0214902496337891e+02
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: min
+            value: -1.9002395629882812e+02
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: max
+            value: 2.1228778076171875e+02
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: step
+            value: 3.0999999046325684e+00
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: mode
+            value: 0.
             src_ind: -1
             src_port: ""

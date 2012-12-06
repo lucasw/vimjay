@@ -1303,7 +1303,21 @@ class CamThing : public Output
       // outputs can be one-to-many
     //}
     
-    //} else if (key == '1') {  // create generic signal generator feeding into this port
+    } else if (key == '1') {  // create generic signal generator feeding into this port
+      
+      if ((selected_node) && (selected_node->selected_type == SIGNAL)) { 
+        Node* node = getNode<MiscSignal>(selected_node->name + "_sig", selected_node->loc + cv::Point2f(-150,10));
+        
+        //Connector* con;
+        //string src_port;
+        //node->getInputPort(SIGNAL, "value", con, src_port);
+
+        selected_node->setInputPort(
+            SIGNAL, selected_node->selected_port, 
+            node, "value");
+      }
+
+      //node = getNode<MiscSignal>(name, loc);
     } else if (key == '3') {  // connect this image to output in
       if ((selected_node) && (selected_node->selected_type == IMAGE) && (output_node)) { 
         output_node->setInputPort(IMAGE, "in", selected_node, selected_node->selected_port);
