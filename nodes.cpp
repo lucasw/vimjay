@@ -1308,12 +1308,19 @@ namespace bm {
 
     float value = getSignal("value");
 
-    if (key == '.') {
-      value += abs(getSignal("step"));   
+    if (key == '\'') {
+      value = getSignal("min");   
     }
-    else if (key == '/') {
-      value -= abs(getSignal("step"));
-    } else {
+    else if (key == '\\') {
+      value = getSignal("max");
+    } 
+    else if (key == 73) {
+      value += getSignal("step");   
+    }
+    else if (key == 81) {
+      value -= getSignal("step");
+    } 
+    else {
       valid_key = false;
     }
     
@@ -1330,28 +1337,7 @@ namespace bm {
   {
     if (!Node::update()) return false;
 
-    float step = getSignal("step");
-    float min = getSignal("min");
-    float max = getSignal("max");
-    float value = getSignal("value");
-    // it wouldn't be hard to update these
-    // even if they aren't in need of updating, but don't for now
-    value += step;
-    if (value > max) {
-      value = min;
-      step = abs(step);   
-      setSignal("step", step);
-    }
-    if (value < min) {
-      value = max;
-      step = -abs(step);   
-      setSignal("step", step);
-    }
-    
-    setSignal("value", value);
-
-    VLOG(4) << "Signal " << name << " " << value;
-    //setDirty();
+    //VLOG(4) << "Signal " << name << " " << value;
 
     return true;
   }

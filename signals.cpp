@@ -42,17 +42,17 @@ using namespace std;
 
 namespace bm {
 //////////////////////////////////////////////////
-  Saw::Saw(const std::string name) : Signal(name)
+  MiscSignal::MiscSignal(const std::string name) : Signal(name)
   {
     vcol = cv::Scalar(0,90,255);
   }
   
-  void Saw::setup(const float new_step, const float offset, const float min, const float max) 
-  {
-    Signal::setup(new_step, offset, min, max);
-  }
+  //void MiscSignal::setup(const float new_step, const float offset, const float min, const float max) 
+ // {
+ //   Signal::setup(new_step, offset, min, max);
+  //}
 
-  bool Saw::handleKey(int key)
+  bool MiscSignal::handleKey(int key)
   {
     bool valid_key = Signal::handleKey(key);
     if (valid_key) return true;
@@ -65,7 +65,7 @@ namespace bm {
     return valid_key;
   }
 
-  bool Saw::update()
+  bool MiscSignal::update()
   {
     // don't call Signal::update because it will contradict this update
     if (!Node::update()) return false;
@@ -74,15 +74,64 @@ namespace bm {
     float min = getSignal("min");
     float max = getSignal("max");
     float value = getSignal("value");
-
-    value += step;
-    if (value > max) {
-      step = -fabs(step);
-      value = max;
+ 
+    if (max < min) {
+      max = min;
+      setSignal("max", max);
     }
-    if (value < min) {
-      step = fabs(step);
-      value = min;
+
+    string port = "mode";
+    int mode = getSignal(port);
+    
+    Connector* con = NULL;
+    string src_port;
+    getInputPort(SIGNAL, port, con, src_port);
+
+    if (mode == 0) {
+      con->description = "sawtooth";
+      value += step;
+      while (value > max) {
+        value -= (max - min);
+      }
+      while (value < min) {
+        value += (max - min);
+      }
+
+    } else if (mode == 1) {
+      con->description = "ramp_saturate";
+      value += step;
+      if (value > max) value = max;
+      if (value < min) value = min;
+
+    } else if (mode == 2) {
+      con->description = "triangle";
+      value += step;
+      if (value > max) {
+        step = -fabs(step);
+        value = max;
+      }
+      if (value < min) {
+        step = fabs(step);
+        value = min;
+      }
+
+    } else if (mode == 3) {
+      con->description = "toggle";
+      if (value < max) {
+        value = max;
+      }
+      if (value > min) {
+        value = min;
+      }
+
+    } else if (mode == 4) {
+      con->description = "rnd_uniform";
+      value = rng.uniform( min, max );
+      
+    } else if (mode == 5) {
+      con->description = "rnd_gaussian";
+      const float rnd = rng.gaussian( max - min );
+      value = rnd + min;
     }
 
     setSignal("step", step);
@@ -93,53 +142,10 @@ namespace bm {
     VLOG(3) << "Signal " << name << " " << value;
     return true;
   }
-  
-  Random::Random(const std::string name) : Signal(name)
-  { 
-    // TBD try opencv RNG
-    dis = std::uniform_real_distribution<>(0,1);
-  }
 
-  bool Random::update() 
-  {
-    // don't call Signal::update because it will contradict this update
-    if (!Node::update()) return false;
-    
-    float min = getSignal("min");
-    float max = getSignal("max");
-    float rnd = dis(gen);
-    float value = rnd * (max - min) + min;
-    
-    setSignal("value", value);
-    setDirty();
-
-    VLOG(3) << "Signal " << name << " " << value;
-    return true;
-  }
-
-  Gaussian::Gaussian(const std::string name) :
-      Signal(name)
-  { 
-  }
-
-  bool Gaussian::update() 
-  {
-    // don't call Signal::update because it will contradict this update
-    if (!Node::update()) return false;
-    
-    const float min = getSignal("min");
-    const float max = getSignal("max");
-    const float rnd = rng.gaussian( fabs(max-min) );
-    float value = rnd + min;
-    
-    setSignal("value", value);
-    setDirty();
-
-    VLOG(1) << "Signal " << name << " " << value;
-
-    return true;
-  }
-
+  // TBD need control to set value to max or min
+ 
+  ///////////////////////////////////////////////////
   Trig::Trig(const string name) :
       Node(name)
   { 

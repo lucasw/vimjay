@@ -181,8 +181,8 @@ class CamThing : public Output
         node = getNode<Signal>(name, loc);
       } else if (type_id.compare("bm::SigAdd") == 0) {
         node = getNode<SigAdd>(name, loc);
-      } else if (type_id.compare("bm::Saw") == 0) {
-        node = getNode<Saw>(name, loc);
+      } else if (type_id.compare("bm::MiscSignal") == 0) {
+        node = getNode<MiscSignal>(name, loc);
       } else if (type_id.compare("bm::SigBuffer") == 0) {
         node = getNode<SigBuffer>(name, loc);
       } else if (type_id.compare("bm::Tap") == 0) {
@@ -197,10 +197,6 @@ class CamThing : public Output
         node = getNode<Circle>(name, loc);
       } else if (type_id.compare("bm::Noise") == 0) {
         node = getNode<Noise>(name, loc);
-      } else if (type_id.compare("bm::Random") == 0) {
-        node = getNode<Random>(name, loc);
-      } else if (type_id.compare("bm::Gaussian") == 0) {
-        node = getNode<Gaussian>(name, loc);
       } else if (type_id.compare("bm::Trig") == 0) {
         node = getNode<Trig>(name, loc);
       } else if (type_id.compare("bm::Mouse") == 0) {
@@ -667,9 +663,7 @@ class CamThing : public Output
     // generate
     node = getNode<SigAdd>("sigadd", loc);
     node = getNode<Signal>("signal0", loc);
-    node = getNode<Saw>("saw", loc);
-    node = getNode<Random>("random", loc);
-    node = getNode<Gaussian>("gaussian", loc);
+    node = getNode<MiscSignal>("saw", loc);
     node = getNode<Trig>("trig", loc);
     
     node = getNode<SigBuffer>("sig_buf", loc);
