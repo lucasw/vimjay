@@ -161,13 +161,14 @@ class Node : public Elem
   protected:
   
   // velocity and acceleration of node screen position 
-  cv::Point2f acc;
-  cv::Point2f vel;
   bool posUpdate();
   boost::mutex port_mutex;
 
   public:
   
+  cv::Point2f acc;
+  cv::Point2f vel;
+
   std::vector<Connector*> ports;
   int getIndFromPointer(Connector* con);
   bool selectPortByInd(const int ind);

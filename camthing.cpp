@@ -1496,6 +1496,9 @@ class CamThing : public Output
       LOG(ERROR) << "out no data";
       }*/
       
+      // move nodes away from each other
+      nodeRepell();
+
       // loop through
       for (int i = 0; i < all_nodes.size(); i++) {
         if (all_nodes[i] != this) {
@@ -1514,6 +1517,35 @@ class CamThing : public Output
 
     VLOG(4) << "full draw time" << t1.elapsed(); 
   } // CamThing::draw
+
+  bool nodeRepell() 
+  {
+      for (int i = 0; i < all_nodes.size(); i++) {
+        for (int j = i+1; j < all_nodes.size(); j++) {
+          //if (i == j) continue;
+
+          cv::Point2f dxy = all_nodes[i]->loc - all_nodes[j]->loc;
+          float dist = sqrt(dxy.x*dxy.x + dxy.y*dxy.y);
+          const float max_dist = 150;
+          const float min_dist = 20;
+          const float acc = 0.4;
+          // repell within this zone
+          if (dist < max_dist) {
+            // avoid singularities
+            if (dist == 0) { 
+              all_nodes[i]->acc += cv::Point2f(1.0,0); 
+              continue;
+            }
+            VLOG(3) << i << " " << j << " " << dist; 
+            if (dist < min_dist) dist = min_dist;
+
+            all_nodes[i]->acc += dxy * (acc/dist);
+            all_nodes[j]->acc -= dxy * (acc/dist);
+          }
+        }
+      }
+
+  }
 
   };
 
