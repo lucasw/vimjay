@@ -308,7 +308,7 @@ namespace bm {
 
     if (type == SIGNAL) {
       col = cv::Scalar(cval, bval, bval);
-      port_info << " " << value;
+      port_info << " " << setprecision(4) << value;
     } else if (type == IMAGE) {
       col = cv::Scalar(bval, cval+20, bval);
     } else if (type == BUFFER) {
@@ -316,7 +316,9 @@ namespace bm {
     } else if (type == SIGBUF) {
       col = cv::Scalar(bval, bval/2 + cval/2, bval/2 + cval/2);
     }
-    
+   
+    port_info << " " << description;
+
     cv::putText(graph_ui, port_info.str(), parent->loc + loc + ui_offset, 1, 1, col, 1);
   }
 
@@ -1226,7 +1228,7 @@ namespace bm {
   /**
     convenience function to get opencv interpolation mode type
     */
-  int ImageNode::getModeType() // TBD supply string optionally
+  int ImageNode::getModeType() // TBD supply string optionally/
   {
     // used to do rollover here, but now require all calling 
     // nodes to set it up properly with
@@ -1241,17 +1243,37 @@ namespace bm {
   }
 
   int ImageNode::getBorderType(const bool avoid_wrap)
-  {
-    int border = getSignal("border");
+  { 
+    string port = "border";
+    int border = getSignal(port);
+    
+    Connector* con = NULL;
+    string src_port;
+    // then look at input nodes
+    getInputPort(SIGNAL, port, con, src_port);
+
     border += 5;
     border %= 5;
     setSignal("border", border);
 
     int border_type = BORDER_CONSTANT;
-    if (border == 1) border_type = BORDER_REFLECT;
-    else if (border == 2 && !avoid_wrap) border_type = BORDER_WRAP;
-    else if (border == 3) border_type = BORDER_REPLICATE;
-    else if (border == 4) border_type = BORDER_REFLECT_101;
+    con->description = "CONST";
+    if (border == 1) {
+      border_type = BORDER_REFLECT;
+      con->description = "REFLECT";
+    }
+    else if (border == 2 && !avoid_wrap) {
+      border_type = BORDER_WRAP;
+      con->description = "WRAP";
+    }
+    else if (border == 3) {
+      border_type = BORDER_REPLICATE;
+      con->description = "REPLICATE";
+    }
+    else if (border == 4) {
+      border_type = BORDER_REFLECT_101;
+      con->description = "REFLECT_101";
+    }
     return border_type;
   }
 

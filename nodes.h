@@ -80,6 +80,7 @@ class Elem
   Elem(const std::string name);
 
   std::string name;
+  std::string description;
   // is the output of this node different from the last  timestep
   //bool is_dirty;
   // has the node changed since the last time the pointer 
