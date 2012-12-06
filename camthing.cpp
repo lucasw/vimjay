@@ -387,9 +387,6 @@ class CamThing : public Output
   // TBD make struct for these two
   int selected_ind;
   Node* selected_node;
-  //conType selected_port_type;
-  //string selected_port;
-  //int selected_port_ind;
 
   // store a node to be connected to a different selected node
   int source_ind;
@@ -405,9 +402,6 @@ class CamThing : public Output
       Output(name),
       selected_ind(0), 
       selected_node(NULL),
-      //selected_port_type(NONE),
-      //selected_port(""),
-      //selected_port_ind(0),
       source_ind(0),
       source_node(NULL),
       source_type(NONE),
@@ -1297,16 +1291,16 @@ class CamThing : public Output
     } else if (key == 'l') {  // RIGHT
       selectNodeDirection(1); 
      
-    } else if (key == 'i') {  // UP
+    } else if (key == 'i') {  // ui UP
       ui_offset -= cv::Point2f(0,15);
       VLOG(3) << "ui_offset " << ui_offset;
-    } else if (key == 'u') {  // DOWN
+    } else if (key == 'u') {  // ui DOWN
       ui_offset += cv::Point2f(0,15); 
       VLOG(3) << "ui_offset " << ui_offset;
-    } else if (key == 'y') {  // LEFT
+    } else if (key == 'y') {  // ui LEFT
       ui_offset -= cv::Point2f(15,0); 
       VLOG(3) << "ui_offset " << ui_offset;
-    } else if (key == 'o') {  // RIGHT
+    } else if (key == 'o') {  // ui RIGHT
       ui_offset += cv::Point2f(15,0); 
       VLOG(3) << "ui_offset " << ui_offset;
     
@@ -1314,6 +1308,15 @@ class CamThing : public Output
       // swap selected node input with source node input- TBD this doesn't work since  
       // outputs can be one-to-many
     //}
+    
+    //} else if (key == '1') {  // create generic signal generator feeding into this port
+    } else if (key == '3') {  // connect this image to output in
+      if ((selected_node) && (selected_node->selected_type == IMAGE) && (output_node)) { 
+        output_node->setInputPort(IMAGE, "in", selected_node, selected_node->selected_port);
+
+      } else {
+        // TBD do something to ui when keypress doesn't do anything
+      }
     } else {
       valid_key = false;
       // see if node can work with the key

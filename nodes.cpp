@@ -759,6 +759,7 @@ namespace bm {
     string existing_port;
     bool con_exists = getInputPort(type, port, con, existing_port);
     if (!con_exists) {
+      // TBD may not always want to create the connector if it doesn't exist
       con = new Connector(port);
       con->parent = this;
       con->type = type;
