@@ -16,36 +16,13 @@
 
 namespace bm {
 
-class Saw : public Signal
-{
-  public:
-  Saw(const std::string name); 
-  void setup(const float new_step=0.01, const float offset=0.0, const float min=0.0, const float max=1.0); 
-  virtual bool update();
-  virtual bool handleKey(int key);
-};
-
-class Random : public Signal
-{
-  //TBD use opencv RNG instead
-  std::random_device rd;
-  std::uniform_real_distribution<> dis;
-  std::mt19937 gen;
-
-  public:
-  Random(const std::string name); // : Signal()
-  virtual bool update();
-  //virtual bool handleKey(int key);
-};
-
-class Gaussian : public Signal
+class MiscSignal : public Signal
 {
   cv::RNG rng; 
-
   public:
-  Gaussian(const std::string name); 
+  MiscSignal(const std::string name); 
   virtual bool update();
-  //virtual bool handleKey(int key);
+  virtual bool handleKey(int key);
 };
 
 /////////////////////////////////
