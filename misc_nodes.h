@@ -68,6 +68,9 @@ class Webcam : public ImageNode
 /////////////////////////////////
 class ImageDir : public Buffer
 {
+  std::deque<cv::Mat> frames_orig;
+  bool resizeImages();
+
   public:
 
   ImageDir(const std::string name);

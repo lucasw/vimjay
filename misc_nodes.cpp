@@ -490,8 +490,6 @@ namespace bm {
   {
     LOG(INFO) << name << " loading " << dir;
 
-    boost::mutex::scoped_lock l(frames_mutex);
-    frames.clear();
     
     boost::filesystem::path image_path(dir);
     if (!is_directory(image_path)) {
@@ -517,6 +515,8 @@ namespace bm {
       files.push_back(next_im);
    }
 
+   frames_orig.clear();
+
    sort(files.begin(), files.end());
   
    for (int i=0; i < files.size(); i++) {
@@ -534,16 +534,10 @@ namespace bm {
         int ch[] = {0,0, 1,1, 2,2}; 
         mixChannels(&new_out, 1, &tmp0, 1, ch, 3 );
 
-         
+        
       VLOG(1) << name << " " << i << " loaded image " << next_im;
 
-      cv::Size sz = Config::inst()->getImSize();
-      cv::Mat tmp1;
-      cv::resize(tmp0, tmp1, sz, 0, 0, getModeType() );
-
-      const bool restrict_size = false;
-
-      const bool rv = addCore(tmp1, restrict_size);
+      frames_orig.push_back(tmp0);
     }
     
     /// TBD or has sized increased since beginning of function?
@@ -553,12 +547,35 @@ namespace bm {
     }
     
     LOG(INFO) << name << " " << frames.size() << " image loaded";
-    setSignal("ind", 0, false, ROLL, 0, frames.size()-1);
+    setSignal("ind", getSignal("ind"), false, ROLL, 0, frames.size()-1);
     //max_size = frames.size() + 1;
     setDirty();
 
     return true;
   } // loadImages
+
+  bool ImageDir::resizeImages()
+  {
+    int mode = getModeType();
+    //LOG(INFO) << "resize mode " << mode;
+
+    boost::mutex::scoped_lock l(frames_mutex);
+    frames.clear();
+    
+    for (int i = 0; i < frames_orig.size(); i++) {
+      cv::Mat tmp0 = frames_orig[i]; 
+      cv::Size sz = Config::inst()->getImSize();
+      cv::Mat tmp1;
+      cv::resize(tmp0, tmp1, sz, 0, 0, mode );
+
+      const bool restrict_size = false;
+
+      const bool rv = addCore(tmp1, restrict_size);
+    }
+
+    setDirty();
+    return true;
+  }
 
   bool ImageDir::load(cv::FileNodeIterator nd)
   {
@@ -567,6 +584,7 @@ namespace bm {
     (*nd)["dir"] >> dir;
 
     loadImages();
+    resizeImages();
   }
 
   bool ImageDir::save(cv::FileStorage& fs) 
@@ -585,6 +603,15 @@ namespace bm {
 
     if (getSignal("load") > 0.5) {
       loadImages();
+      resizeImages();
+    } else {
+      Connector* con = NULL;
+      string src_port;
+      getInputPort(SIGNAL, "mode", con, src_port);
+      
+      if (con->isDirty(this, 48)) {
+        resizeImages();
+      }
     }
     // flush dirtiness
     isDirty(this, 27);

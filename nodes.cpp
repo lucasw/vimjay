@@ -1230,15 +1230,33 @@ namespace bm {
     */
   int ImageNode::getModeType() // TBD supply string optionally/
   {
+    const string port = "mode";
+    Connector* con = NULL;
+    string src_port;
+    // then look at input nodes
+    getInputPort(SIGNAL, port, con, src_port);
+
+
     // used to do rollover here, but now require all calling 
     // nodes to set it up properly with
     // setSignal("mode", 0, ROLL, 0, 4);
-    const int mode = getSignal("mode");
+    const int mode = getSignal(port);
     int mode_type = cv::INTER_NEAREST;
-    if (mode == 1) mode_type = cv::INTER_LINEAR;
-    else if (mode == 2) mode_type = cv::INTER_AREA;
-    else if (mode == 3) mode_type = cv::INTER_CUBIC;
-    else if (mode == 4) mode_type = cv::INTER_LANCZOS4;
+    con->description = "NEAREST";
+    if (mode == 1) {
+      mode_type = cv::INTER_LINEAR;
+      con->description = "LINEAR";
+    } else if (mode == 2) { 
+      mode_type = cv::INTER_AREA;
+      con->description = "AREA";
+    } else if (mode == 3) { 
+      mode_type = cv::INTER_CUBIC;
+      con->description = "CUBIC";
+    } else if (mode == 4) { 
+      mode_type = cv::INTER_LANCZOS4;
+      con->description = "LANCZOS4";
+    }
+    VLOG(2) << mode << " " << con->description;
     return mode_type;
   }
 
