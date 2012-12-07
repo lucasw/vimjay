@@ -86,15 +86,21 @@ namespace bm {
     Connector* con = NULL;
     string src_port;
     getInputPort(SIGNAL, port, con, src_port);
+    
+    float span = max - min;
 
     if (mode == 0) {
       con->description = "sawtooth";
       value += step;
-      while (value > max) {
-        value -= (max - min);
-      }
-      while (value < min) {
-        value += (max - min);
+      if (span == 0) {
+        value = min;
+      } else {
+        while (value > max) {
+          value -= (span);
+        }
+        while (value < min) {
+          value += (span);
+        }
       }
 
     } else if (mode == 1) {
