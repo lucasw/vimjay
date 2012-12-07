@@ -1351,15 +1351,23 @@ class CamThing : public Output
     }
 
     int max_count = 24;
-    if (command_text.size() > 40) max_count /= 2;
-    if (command_text.size() > 80) max_count /= 2;
-    if (command_text.size() > 160) max_count = 1;
+    
+    int wd = Config::inst()->ui_width;
+
+    if (command_text.size() > wd/32) max_count /= 2;
+    if (command_text.size() > wd/24) max_count /= 2;
+    if (command_text.size() > wd/16) max_count = 1;
     if (count % max_count == 0) {
       if (command_text.size() > 0);
       command_text = command_text.erase(0,1);
     } else {
       //command_text = "";
     }
+
+    while (command_text.size() > wd/12)
+      command_text = command_text.erase(0,1);
+
+    LOG(INFO) << wd << " " << command_text.size();
 
     return true;
   }
