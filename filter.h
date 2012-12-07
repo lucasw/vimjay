@@ -53,6 +53,14 @@ class MedianBlur : public ImageNode
   virtual bool update();
 };
 
+class BilateralFilter : public ImageNode
+{
+  public:
+  BilateralFilter(const std::string name);
+  virtual bool update();
+};
+
+
 class MorphologyEx : public ImageNode
 {
   public:

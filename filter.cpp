@@ -290,7 +290,49 @@ bool Laplacian::update()
     return true;
   }
 
+  BilateralFilter::BilateralFilter(const std::string name) : ImageNode(name) 
+  {
+    cv::Mat tmp;
+    setImage("in", tmp);
+    setSignal("d", 2, false, SATURATE, -1, 10);
+    setSignal("sigma_color", 10);
+    setSignal("sigma_space", 10);
+    setSignal("border", 0, false, ROLL, 0, 4);
+    vcol = cv::Scalar(200, 200, 50);
+  }
 
+  bool BilateralFilter::update()
+  {
+    if (!Node::update()) return false;
+
+    if (!isDirty(this, 5)) { 
+      VLOG(1) << name << " not dirty ";
+      return true; 
+    }
+    
+    cv::Mat in = getImage("in");
+    if (in.empty()) return false;
+
+    cv::Mat in_3 = cv::Mat(in.size(), CV_8UC3, cv::Scalar(0));  
+    // just calling reshape(4) doesn't do the channel reassignment like this does
+    int ch[] = {0,0, 1,1, 2,2};
+    cv::mixChannels(&in, 1, &in_3, 1, ch, 3 );
+
+    const float sigma_color = getSignal("sigma_color");
+    const float sigma_space = getSignal("sigma_space");
+    const int d = getSignal("d");
+    
+    cv::Mat out_3;
+
+    cv::bilateralFilter(in_3, out_3, d, sigma_color, sigma_space, getBorderType());
+    
+    cv::Mat out = cv::Mat(out_3.size(), CV_8UC4, cv::Scalar(0));  
+    cv::mixChannels(&out_3, 1, &out, 1, ch, 3 );
+
+    setImage("out", out);
+
+    return true;
+  }
 
 ///////////////////////////////////////////////////////////////////////////// 
 MorphologyEx::MorphologyEx(const std::string name) : ImageNode(name)
