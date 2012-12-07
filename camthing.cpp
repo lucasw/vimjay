@@ -1527,13 +1527,21 @@ class CamThing : public Output
         for (int j = i+1; j < all_nodes.size(); j++) {
           //if (i == j) continue;
 
-          cv::Point2f dxy = all_nodes[i]->loc - all_nodes[j]->loc;
+          cv::Point2f l1 = all_nodes[i]->loc;
+          cv::Point2f l1b = cv::Point2f(135, all_nodes[i]->ports.size()*10);
+          cv::Point2f l2 = all_nodes[j]->loc;
+          cv::Point2f l2b = cv::Point2f(135, all_nodes[j]->ports.size()*10);
+          cv::Point2f dxy = l1 + (l1b * 0.5) - (l2 + (l2b*0.5));
+
           float dist = sqrt(dxy.x*dxy.x + dxy.y*dxy.y);
-          const float max_dist = 150;
+          float max_dist1 = sqrt(l1b.x*l1b.x + l1b.y*l1b.y);
+          const float max_dist2 = sqrt(l2b.x*l2b.x + l2b.y*l2b.y) + 20;
+          if (max_dist2 > max_dist1) max_dist1 = max_dist2;
+          max_dist1 *= 0.8;
           const float min_dist = 20;
           const float acc = 0.4;
           // repell within this zone
-          if (dist < max_dist) {
+          if (dist < max_dist1) {
             // avoid singularities
             if (dist == 0) { 
               all_nodes[i]->acc += cv::Point2f(1.0,0); 
