@@ -490,6 +490,7 @@ namespace bm {
   {
     LOG(INFO) << name << " loading " << dir;
 
+    boost::mutex::scoped_lock l(frames_mutex);
     frames.clear();
     
     boost::filesystem::path image_path(dir);
@@ -541,7 +542,8 @@ namespace bm {
       cv::resize(tmp0, tmp1, sz, 0, 0, getModeType() );
 
       const bool restrict_size = false;
-      const bool rv = add(tmp1, restrict_size);
+
+      const bool rv = addCore(tmp1, restrict_size);
     }
     
     /// TBD or has sized increased since beginning of function?
@@ -556,7 +558,7 @@ namespace bm {
     setDirty();
 
     return true;
-  } // draw
+  } // loadImages
 
   bool ImageDir::load(cv::FileNodeIterator nd)
   {

@@ -336,6 +336,7 @@ class Buffer : public ImageNode
   std::deque<cv::Mat> frames;
  
   bool setOut();
+  bool addCore(cv::Mat& new_frame, bool restrict_size = true);
 
   public:
 

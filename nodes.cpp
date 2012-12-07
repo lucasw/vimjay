@@ -1456,8 +1456,9 @@ namespace bm {
       int ind = i * frames.size() / 3;
       if (i == 3) ind = frames.size() - 1;
       if (ind >= frames.size()) continue;
+      if (ind < 0) continue;
       
-      cv::Mat frame = frames[ind].clone(); // seemd to be a segfault related to this
+      cv::Mat frame = frames[ind].clone(); // seems to be a segfault related to this
 
       if (frame.empty()) { 
         VLOG(2) << "frames " << i << CLERR << " is empty" << CLNRM;  continue; 
@@ -1497,16 +1498,9 @@ namespace bm {
     
     return ImageNode::draw(ui_offset);
   }
-
-  bool Buffer::add(cv::Mat& new_frame, bool restrict_size)
+  
+  bool Buffer::addCore(cv::Mat& new_frame, bool restrict_size)
   {
-    if (new_frame.empty()) {
-      LOG(ERROR) << name << CLERR << " new_frame is empty" << CLNRM;
-      return false;// TBD LOG(ERROR)
-    }
-   
-    {
-    boost::mutex::scoped_lock l(frames_mutex);
     if ((frames.size() > 0) && 
         (new_frame.refcount == frames[frames.size()-1].refcount)) {
       new_frame = new_frame.clone();
@@ -1522,9 +1516,23 @@ namespace bm {
     }
 
     VLOG(4) << name << " sz " << frames.size();
+    return true;
+  }
+
+  bool Buffer::add(cv::Mat& new_frame, bool restrict_size)
+  {
+    if (new_frame.empty()) {
+      LOG(ERROR) << name << CLERR << " new_frame is empty" << CLNRM;
+      return false;// TBD LOG(ERROR)
+    }
+   
+    {
+      boost::mutex::scoped_lock l(frames_mutex);
+      addCore(new_frame, restrict_size);
     }
 
     {
+      // TBD is this really necessary?
       Connector* con;
       string src_port;
       if (getInputPort(BUFFER, "out", con, src_port)) {
