@@ -56,11 +56,11 @@ namespace bm {
   {
     glGenTextures(1, &textureId);
     glBindTexture(GL_TEXTURE_2D, textureId);
-   // glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-   // glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    //glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE); // automatic mipmap
+    glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE); // automatic mipmap
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0,
         GL_RGBA, GL_UNSIGNED_BYTE, 0);
     glBindTexture(GL_TEXTURE_2D, 0);
@@ -133,9 +133,13 @@ namespace bm {
 
     glBindTexture(GL_TEXTURE_2D, input_tex);
     cv::Mat tmp = cv::Mat( Config::inst()->getImSize(), CV_8UC4);
+    tmp = cv::Scalar(255, 0, 0);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_BGR, tmp.cols, tmp.rows, 0, 
         GL_BGRA, GL_UNSIGNED_BYTE, tmp.data);
 
+    //glTexEnvf( GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE );
+    glTexEnvf( GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL );
+    
     return true;
   }
 
