@@ -37,6 +37,9 @@ namespace bm {
   { 
     cv::Mat out; setImage("in",out);
 
+    setSignal("x1", -0.5);
+    setSignal("y1", -0.5);
+    setSignal("z1",  0.0);
 /*    setSignal("decor",1, false, SATURATE, 0, 1); // TBD make a SATURATE_INTEGER, or ROLL_INTEGER type?
     setSignal("mode", 0, false, ROLL, 0, 4);
 
@@ -51,7 +54,7 @@ namespace bm {
   {
     cv::Size sz = Config::inst()->getImSize();
     int argc = 0;
-    char* argv = "ogl";
+    char* argv = (char*)"ogl";
     glutInit(&argc, &argv);
     glutInitDisplayMode (GLUT_DOUBLE | GLUT_RGBA); 
     glutInitWindowSize(sz.width, sz.height);
@@ -70,16 +73,10 @@ namespace bm {
     if (!rv) return false;
     // The threading issues with xwindows for the xwindows calls to be put
     // in the draw call
-    return true;
-  }
 
-  bool OpenGL::draw(cv::Point2f ui_offset)
-  { 
     if (!has_setup) setup();
     has_setup = true;
 
-    boost::timer t1;
-   
     cv::Mat in = getImage("in");
     if (in.empty()) {
       in = cv::Mat( Config::inst()->getImSize(), CV_8UC4);
@@ -89,15 +86,42 @@ namespace bm {
     {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+    float x1 = getSignal("x1");
+    float y1 = getSignal("y1");
+    float z1 = getSignal("z1");
+
     glBegin(GL_TRIANGLES);
-    glVertex3f(-0.5,-0.5,0.0);
+    glVertex3f(x1,y1,z1);
     glVertex3f(0.5,0.0,0.0);
     glVertex3f(0.0,0.5,0.0);
     glEnd();
 
     glutSwapBuffers();
     }
+    
+    {
+    cv::Mat out = cv::Mat( Config::inst()->getImSize(), CV_8UC4);
+    // now extract image back to opencv
+    //use fast 4-byte alignment (default anyway) if possible
+    glPixelStorei(GL_PACK_ALIGNMENT, (out.step & 3) ? 1 : 4);
 
+    //set length of one complete row in destination data (doesn't need to equal img.cols)
+    glPixelStorei(GL_PACK_ROW_LENGTH, out.step/out.elemSize());
+
+    glReadPixels(0, 0, out.cols, out.rows, GL_BGRA, GL_UNSIGNED_BYTE, out.data);
+    setImage("out", out); 
+    }
+
+
+    return true;
+  }
+
+  bool OpenGL::draw(cv::Point2f ui_offset)
+  { 
+
+    boost::timer t1;
+   
+    
     return ImageNode::draw(ui_offset);
   }
 
