@@ -17,6 +17,9 @@ class OpenGL : public ImageNode
   GLuint fboId;
   GLuint rboId;
 
+  // the input texture
+  GLuint input_tex;
+
   public:
   OpenGL(const std::string name);
   

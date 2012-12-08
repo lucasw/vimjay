@@ -1,5 +1,5 @@
 %YAML:1.0
-date: "Fri Dec  7 22:53:01 2012\n"
+date: "Fri Dec  7 23:25:57 2012\n"
 nodes:
    -
       ind: 0
@@ -44,13 +44,13 @@ nodes:
          -
             type: 1
             name: x
-            value: 25.
+            value: 36.
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: y
-            value: 127.
+            value: 0.
             src_ind: -1
             src_port: ""
          -
@@ -80,13 +80,13 @@ nodes:
          -
             type: 1
             name: "2_x"
-            value: 6.0637188720703125e+02
+            value: 2.4618890380859375e+02
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: "2_y"
-            value: 5.1145007324218750e+02
+            value: 5.2427752685546875e+02
             src_ind: -1
             src_port: ""
          -
@@ -99,7 +99,7 @@ nodes:
       ind: 1
       typeid: "bm::ScreenCap"
       name: screen_cap
-      loc: [ 10., 305. ]
+      loc: [ 2.8113969802856445e+01, 2.7895437622070312e+02 ]
       inputs:
          -
             type: 1
@@ -146,7 +146,7 @@ nodes:
       ind: 2
       typeid: "bm::ImageDir"
       name: image_dir
-      loc: [ -120., 429. ]
+      loc: [ 9.4190177917480469e+01, 5.1401190185546875e+02 ]
       dir: "../data/"
       inputs:
          -
@@ -197,7 +197,7 @@ nodes:
          -
             type: 1
             name: ind
-            value: 0.
+            value: 6.
             src_ind: -1
             src_port: ""
          -
@@ -1060,7 +1060,7 @@ nodes:
       ind: 17
       typeid: "bm::OpenGL"
       name: opengl
-      loc: [ 4.0800003051757812e+02, 576. ]
+      loc: [ 408., 576. ]
       inputs:
          -
             type: 1
@@ -1082,24 +1082,24 @@ nodes:
          -
             type: 2
             name: in
-            src_ind: -1
-            src_port: ""
+            src_ind: 2
+            src_port: out
          -
             type: 1
             name: x1
-            value: 1.8112456798553467e-01
+            value: 2.2494935989379883e-01
             src_ind: 39
             src_port: value
          -
             type: 1
             name: y1
-            value: -4.0991404652595520e-01
+            value: 3.7008878588676453e-01
             src_ind: 40
             src_port: value
          -
             type: 1
             name: z1
-            value: 7.0891022682189941e-01
+            value: 1.9405978918075562e-01
             src_ind: 41
             src_port: value
    -
@@ -1812,13 +1812,13 @@ nodes:
          -
             type: 1
             name: "2_x"
-            value: 6.9395996093750000e+01
+            value: 5.8469238281250000e+00
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: "2_y"
-            value: 4.5261376953125000e+02
+            value: 3.7248229980468750e+00
             src_ind: -1
             src_port: ""
          -
@@ -2108,13 +2108,13 @@ nodes:
          -
             type: 1
             name: x
-            value: 1023.
+            value: 734.
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: y
-            value: 0.
+            value: 276.
             src_ind: -1
             src_port: ""
          -
@@ -2162,7 +2162,7 @@ nodes:
          -
             type: 1
             name: value
-            value: 1.8112456798553467e-01
+            value: 2.2494935989379883e-01
             src_ind: -1
             src_port: ""
          -
@@ -2210,7 +2210,7 @@ nodes:
          -
             type: 1
             name: value
-            value: -4.0991404652595520e-01
+            value: 3.7008878588676453e-01
             src_ind: -1
             src_port: ""
          -
@@ -2258,7 +2258,7 @@ nodes:
          -
             type: 1
             name: value
-            value: 7.0891022682189941e-01
+            value: 1.9405978918075562e-01
             src_ind: -1
             src_port: ""
          -
@@ -2276,7 +2276,7 @@ nodes:
          -
             type: 1
             name: step
-            value: -9.7029894590377808e-02
+            value: 9.7029894590377808e-02
             src_ind: -1
             src_port: ""
          -

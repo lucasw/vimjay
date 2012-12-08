@@ -39,8 +39,8 @@ namespace bm {
   { 
     cv::Mat out; setImage("in",out);
 
-    setSignal("x1", -0.5);
-    setSignal("y1", -0.5);
+    setSignal("x1", -1.0);
+    setSignal("y1", -1.0);
     setSignal("z1",  0.0);
 /*    setSignal("decor",1, false, SATURATE, 0, 1); // TBD make a SATURATE_INTEGER, or ROLL_INTEGER type?
     setSignal("mode", 0, false, ROLL, 0, 4);
@@ -52,6 +52,22 @@ namespace bm {
     */
   }
 
+  void makeTexture(GLuint& textureId, const int width, const int height) 
+  {
+    glGenTextures(1, &textureId);
+    glBindTexture(GL_TEXTURE_2D, textureId);
+   // glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+   // glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    //glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE); // automatic mipmap
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0,
+        GL_RGBA, GL_UNSIGNED_BYTE, 0);
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+  }
+
+
   bool OpenGL::setup()
   {
     cv::Size sz = Config::inst()->getImSize();
@@ -61,22 +77,11 @@ namespace bm {
     // TBD only want to render to texture, is creating this window necessary?
     glutInit(&argc, &argv);
     glutInitDisplayMode (GLUT_DOUBLE | GLUT_RGBA); 
+    //glutInitWindowSize(5, 5);
     glutInitWindowSize(sz.width, sz.height);
-    glutInitWindowPosition(0,0);
+    glutInitWindowPosition(Config::inst()->ui_width,0);
     glutCreateWindow("opengl"); 
 
-    // create a texture object
-    GLuint textureId;
-    glGenTextures(1, &textureId);
-    glBindTexture(GL_TEXTURE_2D, textureId);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE); // automatic mipmap
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, sz.width, sz.height, 0,
-        GL_RGBA, GL_UNSIGNED_BYTE, 0);
-    glBindTexture(GL_TEXTURE_2D, 0);
 
     {
     glewInit();
@@ -97,6 +102,10 @@ namespace bm {
     glBindRenderbuffer(GL_RENDERBUFFER, 0);
 
 
+    // create a texture object
+    GLuint textureId;
+    makeTexture(textureId, sz.width, sz.height);
+    
     // attach the texture to FBO color attachment point
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
         GL_TEXTURE_2D, textureId, 0);
@@ -116,12 +125,23 @@ namespace bm {
     }
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    
+    // setup input texture
+    makeTexture(input_tex, sz.width, sz.height);
+    glEnable(GL_TEXTURE_2D);
+
+    glBindTexture(GL_TEXTURE_2D, input_tex);
+    cv::Mat tmp = cv::Mat( Config::inst()->getImSize(), CV_8UC4);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_BGR, tmp.cols, tmp.rows, 0, 
+        GL_BGRA, GL_UNSIGNED_BYTE, tmp.data);
+
     return true;
   }
 
   bool OpenGL::update()
   {
-    const bool rv = ImageNode::update();
+    const bool rv = Node::update();
     if (!rv) return false;
     // The threading issues with xwindows for the xwindows calls to be put
     // in the draw call
@@ -131,11 +151,14 @@ namespace bm {
     if (!has_setup) setup();
     has_setup = true;
 
-    cv::Mat in = getImage("in");
+    cv::Mat in = getImage("in").clone();
     if (in.empty()) {
       in = cv::Mat( Config::inst()->getImSize(), CV_8UC4);
       setImage("in", in);
     }
+    
+    cv::Mat in_flipped;
+    cv::flip(in, in_flipped, 0);
 
     
     {
@@ -148,10 +171,25 @@ namespace bm {
     float y1 = getSignal("y1");
     float z1 = getSignal("z1");
 
-    glBegin(GL_TRIANGLES);
+    glBindTexture(GL_TEXTURE_2D, input_tex);
+    
+    //glTexImage2D(GL_TEXTURE_2D, 0, GL_BGR, in.cols, in.rows, 0, 
+    //    GL_BGRA, GL_UNSIGNED_BYTE, in_flipped.data);
+    
+    glBegin(GL_QUADS);
+    
+    glTexCoord2f(0.0, 0.0);
     glVertex3f(x1,y1,z1);
-    glVertex3f(0.5,0.0,0.0);
-    glVertex3f(0.0,0.5,0.0);
+    
+    glTexCoord2f(1.0, 0.0);
+    glVertex3f(1.0,-1.0,0.0);
+    
+    glTexCoord2f(1.0, 1.0);
+    glVertex3f(1.0,1.0,0.0);
+
+    glTexCoord2f(0.0, 1.0);
+    glVertex3f(-1.0,1.0,0.0);
+    
     glEnd();
     
     glPopMatrix();
