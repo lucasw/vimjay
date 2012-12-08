@@ -4,6 +4,8 @@
 #include "nodes.h"
 #include "misc_nodes.h"
 
+#include <GL/gl.h>
+
 //#include <iostream>
 //#include <stdio.h>
 namespace bm {
@@ -11,6 +13,9 @@ namespace bm {
 class OpenGL : public ImageNode
 {
   bool has_setup;
+
+  GLuint fboId;
+  GLuint rboId;
 
   public:
   OpenGL(const std::string name);

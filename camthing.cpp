@@ -1371,7 +1371,7 @@ class CamThing : public Output
     while (command_text.size() > wd/12)
       command_text = command_text.erase(0,1);
 
-    LOG(INFO) << wd << " " << command_text.size();
+    VLOG(5) << wd << " " << command_text.size();
 
     return true;
   }

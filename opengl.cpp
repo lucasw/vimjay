@@ -18,16 +18,18 @@
     along with Vimjay.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "output.h"
+#include <GL/glew.h>
+#include <GL/glext.h>
+#include <GL/glut.h>
+
+#include "opengl.h"
 
 #include <boost/timer.hpp>
 #include <glog/logging.h>
 
-#include <GL/glut.h>
 
 #include "config.h"
 #include "utility.h"
-#include "opengl.h"
 
 namespace bm {
 
@@ -55,15 +57,65 @@ namespace bm {
     cv::Size sz = Config::inst()->getImSize();
     int argc = 0;
     char* argv = (char*)"ogl";
+    
+    // TBD only want to render to texture, is creating this window necessary?
     glutInit(&argc, &argv);
     glutInitDisplayMode (GLUT_DOUBLE | GLUT_RGBA); 
     glutInitWindowSize(sz.width, sz.height);
     glutInitWindowPosition(0,0);
     glutCreateWindow("opengl"); 
-    //glutDisplayFunc(display);
-    //init();
-    //glutMainLoop();
 
+    // create a texture object
+    GLuint textureId;
+    glGenTextures(1, &textureId);
+    glBindTexture(GL_TEXTURE_2D, textureId);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE); // automatic mipmap
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, sz.width, sz.height, 0,
+        GL_RGBA, GL_UNSIGNED_BYTE, 0);
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+    {
+    glewInit();
+    
+    if(!glGenFramebuffers) {
+      LOG(ERROR) << "can't use glGenFramebuffers";
+      return false;
+    }
+    // create a framebuffer object
+    glGenFramebuffers(1, &fboId);
+    glBindFramebuffer(GL_FRAMEBUFFER, fboId);
+    
+    // create a renderbuffer object to store depth info
+    glGenRenderbuffers(1, &rboId);
+    glBindRenderbuffer(GL_RENDERBUFFER, rboId);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT,
+        sz.width, sz.height);
+    glBindRenderbuffer(GL_RENDERBUFFER, 0);
+
+
+    // attach the texture to FBO color attachment point
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
+        GL_TEXTURE_2D, textureId, 0);
+
+    // attach the renderbuffer to depth attachment point
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,
+        GL_RENDERBUFFER, rboId);
+
+    }
+    // check FBO status
+    GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+    bool fboUsed = true;
+
+    if(status != GL_FRAMEBUFFER_COMPLETE) {
+      LOG(ERROR)<< "fbo incomplete";
+      fboUsed = false;
+    }
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
     return true;
   }
 
@@ -74,6 +126,8 @@ namespace bm {
     // The threading issues with xwindows for the xwindows calls to be put
     // in the draw call
 
+    if (!isDirty(this,21)) { return true;}
+
     if (!has_setup) setup();
     has_setup = true;
 
@@ -83,7 +137,11 @@ namespace bm {
       setImage("in", in);
     }
 
+    
     {
+    glBindFramebuffer(GL_FRAMEBUFFER, fboId);
+    glPushMatrix();
+
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     float x1 = getSignal("x1");
@@ -95,8 +153,11 @@ namespace bm {
     glVertex3f(0.5,0.0,0.0);
     glVertex3f(0.0,0.5,0.0);
     glEnd();
+    
+    glPopMatrix();
 
     glutSwapBuffers();
+
     }
     
     {
@@ -109,7 +170,13 @@ namespace bm {
     glPixelStorei(GL_PACK_ROW_LENGTH, out.step/out.elemSize());
 
     glReadPixels(0, 0, out.cols, out.rows, GL_BGRA, GL_UNSIGNED_BYTE, out.data);
-    setImage("out", out); 
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    
+    cv::Mat out_flipped;
+    cv::flip(out, out_flipped, 0);
+
+    setImage("out", out_flipped); 
     }
 
 

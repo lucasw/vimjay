@@ -67,6 +67,7 @@ boost_thread
 boost_filesystem
 boost_system
 glut
+GLEW
 )
 
 

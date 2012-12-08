@@ -1,5 +1,5 @@
 %YAML:1.0
-date: "Fri Dec  7 15:34:02 2012\n"
+date: "Fri Dec  7 22:53:01 2012\n"
 nodes:
    -
       ind: 0
@@ -44,13 +44,13 @@ nodes:
          -
             type: 1
             name: x
-            value: 1.
+            value: 25.
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: y
-            value: 65.
+            value: 127.
             src_ind: -1
             src_port: ""
          -
@@ -80,13 +80,13 @@ nodes:
          -
             type: 1
             name: "2_x"
-            value: 6.7834521484375000e+02
+            value: 6.0637188720703125e+02
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: "2_y"
-            value: 6.0865661621093750e+02
+            value: 5.1145007324218750e+02
             src_ind: -1
             src_port: ""
          -
@@ -1060,7 +1060,7 @@ nodes:
       ind: 17
       typeid: "bm::OpenGL"
       name: opengl
-      loc: [ -72., 576. ]
+      loc: [ 4.0800003051757812e+02, 576. ]
       inputs:
          -
             type: 1
@@ -1087,13 +1087,13 @@ nodes:
          -
             type: 1
             name: x1
-            value: 4.7510826587677002e-01
+            value: 1.8112456798553467e-01
             src_ind: 39
             src_port: value
          -
             type: 1
             name: y1
-            value: -9.9158585071563721e-03
+            value: -4.0991404652595520e-01
             src_ind: 40
             src_port: value
          -
@@ -1812,13 +1812,13 @@ nodes:
          -
             type: 1
             name: "2_x"
-            value: 4.8104614257812500e+01
+            value: 6.9395996093750000e+01
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: "2_y"
-            value: 1.6395553588867188e+01
+            value: 4.5261376953125000e+02
             src_ind: -1
             src_port: ""
          -
@@ -2044,13 +2044,13 @@ nodes:
          -
             type: 1
             name: min
-            value: 0.
+            value: 1000000.
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: max
-            value: 0.
+            value: -1000000.
             src_ind: -1
             src_port: ""
          -
@@ -2108,13 +2108,13 @@ nodes:
          -
             type: 1
             name: x
-            value: 1032.
+            value: 1023.
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: y
-            value: 24.
+            value: 0.
             src_ind: -1
             src_port: ""
          -
@@ -2162,7 +2162,7 @@ nodes:
          -
             type: 1
             name: value
-            value: 4.7510826587677002e-01
+            value: 1.8112456798553467e-01
             src_ind: -1
             src_port: ""
          -
@@ -2210,7 +2210,7 @@ nodes:
          -
             type: 1
             name: value
-            value: -9.9158585071563721e-03
+            value: -4.0991404652595520e-01
             src_ind: -1
             src_port: ""
          -
