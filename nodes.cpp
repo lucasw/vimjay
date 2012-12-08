@@ -1615,7 +1615,7 @@ namespace bm {
 
     stringstream dir_name;
     // TBD define path to data somewhere to be reused by all
-    dir_name << "../data/record" << t1 << "_" << name;
+    dir_name << "../data/record/" << t1 << "_" << name;
    
     boost::mutex::scoped_lock l(frames_mutex);
     if (frames.size() == 0) return false;

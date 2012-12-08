@@ -55,6 +55,7 @@ screencap.cpp
 utility.cpp
 output.cpp
 input.cpp
+opengl.cpp
 )
 
 target_link_libraries(${PROJECT_NAME} 
@@ -65,6 +66,7 @@ gflags
 boost_thread
 boost_filesystem
 boost_system
+glut
 )
 
 
