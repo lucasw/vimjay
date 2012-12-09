@@ -834,6 +834,7 @@ namespace bm {
     setImage("add1", tmp);
     //setSignal("add1", 1.0);
     setImage("mask", tmp);
+    setSignal("offset", 0, false, SATURATE, 0, 255);
     vcol = cv::Scalar(200, 200, 50);
   }
  
@@ -860,8 +861,9 @@ namespace bm {
       // but not in green will have different masks on those channels)
       mask4 = add1;
     } 
-
-    cv::Mat mask = mask4; // cv::Mat(mask4.size(), CV_8UC1);
+    
+    int offset = getSignal("offset");
+    cv::Mat mask = mask4 - cv::Scalar(offset,offset,offset,0); // cv::Mat(mask4.size(), CV_8UC1);
     // TBD use first channel as mask, TBD could combine all channels
     //int ch1[] = {0, 0};
     //mixChannels(&mask4, 1, &mask, 1, ch1, 1);
