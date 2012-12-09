@@ -116,12 +116,21 @@ class TapInd : public Tap
 class Add : public ImageNode
 {
   public:
-  Add(const std::string name); // : ImageNode()
+  Add(const std::string name); 
   // TBD could require pair be passed in to enforce size
   // TBD get rid of this?
   void setup(std::vector<ImageNode*> np, std::vector<float> nf); 
   virtual bool update();
   virtual bool handleKey(int key);
+};
+
+// Only 2 inputs 
+class AddMasked : public ImageNode
+{
+  public:
+  AddMasked(const std::string name); 
+  virtual bool update();
+  //virtual bool handleKey(int key);
 };
 
 class Multiply : public ImageNode

@@ -1433,7 +1433,11 @@ namespace bm {
   bool Buffer::setOut()
   {
     boost::mutex::scoped_lock l(frames_mutex);
-    cv::Mat out = frames[(int)getSignal("ind")];
+    if (frames.size() <= 0) return false;
+    int ind = (int)getSignal("ind");
+    if (ind < 0) ind = 0;
+    if (ind >= frames.size()) ind = frames.size()-1;
+    cv::Mat out = frames[ind];
     setImage("out", out);
     return true;
   }

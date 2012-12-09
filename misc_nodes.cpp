@@ -696,7 +696,7 @@ namespace bm {
   {
     cv::Mat tmp;
     setImage("add0", tmp);
-    setSignal("add0", 2.0);
+    setSignal("add0", 1.0);
     vcol = cv::Scalar(200, 200, 50);
   }
   
@@ -824,7 +824,59 @@ namespace bm {
     return valid_key;
   }
 
-  
+  //
+  AddMasked::AddMasked(const std::string name) : 
+      ImageNode(name)
+  {
+    cv::Mat tmp;
+    setImage("add0", tmp);
+    //setSignal("add0", 1.0);
+    setImage("add1", tmp);
+    //setSignal("add1", 1.0);
+    setImage("mask", tmp);
+    vcol = cv::Scalar(200, 200, 50);
+  }
+ 
+  bool AddMasked::update()
+  {
+    if (!Node::update()) return false;
+
+    //VLOG(1) << "name " << is_dirty << " " << p1->name << " " << p1->is_dirty << ", " << p2->name << " " << p2->is_dirty ;
+    if (!isDirty(this, 5)) { 
+      VLOG(1) << name << " not dirty ";
+      return true; 
+    }
+
+    cv::Mat add0 = getImage("add0");
+    if (add0.empty()) return true;
+    cv::Mat add1 = getImage("add1");
+    if (add1.empty()) return true;
+
+    cv::Mat mask4 = getImage("mask");
+    // derive the mask from the second input
+    if (mask4.empty()) {
+      // probably want to change add1 to black and white and then use it here,
+      // otherwise color channels get masked individually. (a pixel that is 0 in red
+      // but not in green will have different masks on those channels)
+      mask4 = add1;
+    } 
+
+    cv::Mat mask = mask4; // cv::Mat(mask4.size(), CV_8UC1);
+    // TBD use first channel as mask, TBD could combine all channels
+    //int ch1[] = {0, 0};
+    //mixChannels(&mask4, 1, &mask, 1, ch1, 1);
+    
+    //cv::Mat mask4_neg = 255 - mask4;
+    
+    // this is masking individually on all color channels, probably
+    cv::Mat out = add0 & (mask == 0);
+    out += add1 & (mask > 0);
+    //cv::Add(add0,
+    setImage("out", out);
+    return true;
+  }
+
+
   ////////////////////////////////////////
   Multiply::Multiply(const std::string name) : ImageNode(name) 
   {
