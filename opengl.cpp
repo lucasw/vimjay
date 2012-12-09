@@ -42,6 +42,8 @@ namespace bm {
     setSignal("x1", -1.0);
     setSignal("y1", -1.0);
     setSignal("z1",  0.0);
+    setSignal("u1",  0.0);
+    setSignal("v1",  0.0);
 /*    setSignal("decor",1, false, SATURATE, 0, 1); // TBD make a SATURATE_INTEGER, or ROLL_INTEGER type?
     setSignal("mode", 0, false, ROLL, 0, 4);
 
@@ -61,9 +63,6 @@ namespace bm {
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE); // automatic mipmap
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0,
-        GL_RGBA, GL_UNSIGNED_BYTE, 0);
-    glBindTexture(GL_TEXTURE_2D, 0);
 
   }
 
@@ -105,6 +104,9 @@ namespace bm {
     // create a texture object
     GLuint textureId;
     makeTexture(textureId, sz.width, sz.height);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, sz.width, sz.height, 0,
+        GL_RGBA, GL_UNSIGNED_BYTE, 0);
+    glBindTexture(GL_TEXTURE_2D, 0);
     
     // attach the texture to FBO color attachment point
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
@@ -129,17 +131,18 @@ namespace bm {
     
     // setup input texture
     makeTexture(input_tex, sz.width, sz.height);
+
+    cv::Mat tmp = cv::Mat( Config::inst()->getImSize(), CV_8UC3);
+    tmp = cv::Scalar(255, 0, 0,0);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, tmp.cols, tmp.rows, 0, 
+        GL_RGB, GL_UNSIGNED_BYTE, tmp.data);
+
     glEnable(GL_TEXTURE_2D);
-
-    glBindTexture(GL_TEXTURE_2D, input_tex);
-    cv::Mat tmp = cv::Mat( Config::inst()->getImSize(), CV_8UC4);
-    tmp = cv::Scalar(255, 0, 0);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_BGR, tmp.cols, tmp.rows, 0, 
-        GL_BGRA, GL_UNSIGNED_BYTE, tmp.data);
-
     //glTexEnvf( GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE );
     glTexEnvf( GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL );
     
+    glBindTexture(GL_TEXTURE_2D, 0);
+
     return true;
   }
 
@@ -174,15 +177,21 @@ namespace bm {
     float x1 = getSignal("x1");
     float y1 = getSignal("y1");
     float z1 = getSignal("z1");
+    float u1 = getSignal("u1");
+    float v1 = getSignal("v1");
 
     glBindTexture(GL_TEXTURE_2D, input_tex);
     
-    //glTexImage2D(GL_TEXTURE_2D, 0, GL_BGR, in.cols, in.rows, 0, 
-    //    GL_BGRA, GL_UNSIGNED_BYTE, in_flipped.data);
+    cv::Mat in3 = cv::Mat(in.size(), CV_8UC3);;
+    int ch[] = {0,2, 1,1, 2,0};
+    cv::mixChannels(&in, 1, &in3, 1, ch, 3 );
+
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, in.cols, in.rows, 0, 
+        GL_RGB, GL_UNSIGNED_BYTE, in3.data);
     
     glBegin(GL_QUADS);
     
-    glTexCoord2f(0.0, 0.0);
+    glTexCoord2f(u1, v1);
     glVertex3f(x1,y1,z1);
     
     glTexCoord2f(1.0, 0.0);
