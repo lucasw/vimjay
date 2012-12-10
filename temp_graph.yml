@@ -1,5 +1,5 @@
 %YAML:1.0
-date: "Sun Dec  9 23:58:57 2012\n"
+date: "Mon Dec 10 00:04:08 2012\n"
 nodes:
    -
       ind: 0
@@ -44,13 +44,13 @@ nodes:
          -
             type: 1
             name: x
-            value: 17.
+            value: 468.
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: y
-            value: 127.
+            value: 80.
             src_ind: -1
             src_port: ""
          -
@@ -80,13 +80,13 @@ nodes:
          -
             type: 1
             name: "2_x"
-            value: 7.6397778320312500e+02
+            value: 4.8013031005859375e+02
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: "2_y"
-            value: 1.6162994384765625e+01
+            value: 1.8560211181640625e+01
             src_ind: -1
             src_port: ""
          -
@@ -203,7 +203,7 @@ nodes:
          -
             type: 1
             name: ind
-            value: 7.
+            value: 5.
             src_ind: -1
             src_port: ""
    -
@@ -507,7 +507,7 @@ nodes:
          -
             type: 1
             name: enable
-            value: 0.
+            value: 1.
             src_ind: -1
             src_port: ""
          -
@@ -540,7 +540,7 @@ nodes:
          -
             type: 1
             name: cur_size
-            value: 2.
+            value: 1.
             src_ind: -1
             src_port: ""
          -
@@ -1855,13 +1855,13 @@ nodes:
          -
             type: 1
             name: "2_x"
-            value: 5.2418579101562500e+02
+            value: 4.2275698852539062e+02
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: "2_y"
-            value: 9.7767486572265625e+01
+            value: 9.8042572021484375e+01
             src_ind: -1
             src_port: ""
    -
@@ -2163,6 +2163,18 @@ nodes:
          -
             type: 1
             name: h
+            value: 480.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: im_w
+            value: 640.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: im_h
             value: 480.
             src_ind: -1
             src_port: ""

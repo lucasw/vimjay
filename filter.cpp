@@ -380,7 +380,7 @@ InPaint::InPaint(const std::string name) : ImageNode(name)
     cv::inpaint(in_3, mask_1, out_3, getSignal("radius"), mode);
 
     {
-      cv::Mat out = cv::Mat(out.size(), CV_8UC4, cv::Scalar(0,0,0,0));
+      cv::Mat out = cv::Mat(out_3.size(), CV_8UC4, cv::Scalar(0,0,0,0));
       int ch[] = {0,0, 1,1, 2,2}; 
       mixChannels(&out_3, 1, &out, 1, ch, 3);
       setImage("out", out);
