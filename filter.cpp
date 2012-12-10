@@ -26,6 +26,8 @@
 
 #include <glog/logging.h>
 
+#include <opencv2/videostab/videostab.hpp>
+
 // filter Node objects
 namespace bm {
 
@@ -333,6 +335,59 @@ bool Laplacian::update()
 
     return true;
   }
+
+InPaint::InPaint(const std::string name) : ImageNode(name) 
+  {
+    cv::Mat tmp;
+    setImage("in", tmp);
+    setImage("mask", tmp);
+    setSignal("radius", 10);
+    setSignal("mode", 0, false, ROLL, 0, 1);
+  }
+
+  bool InPaint::update()
+  {
+    if (!Node::update()) return false;
+
+    if (!isDirty(this, 5)) { 
+      VLOG(1) << name << " not dirty ";
+      return true; 
+    }
+    
+    cv::Mat in = getImage("in");
+    if (in.empty()) return false;
+
+    cv::Mat in_3 = cv::Mat(in.size(), CV_8UC3, cv::Scalar(0));  
+    // just calling reshape(4) doesn't do the channel reassignment like this does
+    int ch[] = {0,0, 1,1, 2,2};
+    cv::mixChannels(&in, 1, &in_3, 1, ch, 3 );
+
+    cv::Mat mask = getImage("mask");
+    if (mask.empty()) return false;
+
+    cv::Mat mask_1 = cv::Mat(in.size(), CV_8UC1, cv::Scalar(0));  
+    int ch1[] = {0, 0};
+    mixChannels(&mask, 1, &mask_1, 1, ch1, 1);
+  
+    int mode_ind = getSignal("mode");
+    int mode = cv::INPAINT_NS;
+    
+    if (mode_ind == 1) {
+      mode = cv::INPAINT_TELEA;
+    }
+
+    cv::Mat out_3;
+    cv::inpaint(in_3, mask_1, out_3, getSignal("radius"), mode);
+
+    {
+      cv::Mat out = cv::Mat(out.size(), CV_8UC4, cv::Scalar(0,0,0,0));
+      int ch[] = {0,0, 1,1, 2,2}; 
+      mixChannels(&out_3, 1, &out, 1, ch, 3);
+      setImage("out", out);
+    }
+    return true;
+
+}
 
 ///////////////////////////////////////////////////////////////////////////// 
 MorphologyEx::MorphologyEx(const std::string name) : ImageNode(name)

@@ -484,6 +484,7 @@ namespace bm {
   ImageDir::ImageDir(const std::string name) : Buffer(name) 
   {
     setSignal("mode", 0, false, ROLL, 0, 4);
+    //setSignal("ind", 0, false, ROLL, 0, 0);
   }
 
   bool ImageDir::loadImages()

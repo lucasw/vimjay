@@ -146,6 +146,8 @@ class CamThing : public Output
         node = getNode<MedianBlur>(name, loc);
       } else if (type_id.compare("bm::BilateralFilter") == 0) {
         node = getNode<BilateralFilter>(name, loc);
+      } else if (type_id.compare("bm::InPaint") == 0) {
+        node = getNode<InPaint>(name, loc);
       } else if (type_id.compare("bm::OpenGL") == 0) {
         node = getNode<OpenGL>(name, loc);
       } else if (type_id.compare("bm::OpticalFlow") == 0) {
@@ -650,11 +652,13 @@ class CamThing : public Output
     node = getNode<GaussianBlur>("gauss_blur", loc);
     node = getNode<MedianBlur>("median_blur", loc);
     node = getNode<BilateralFilter>("bilateral_filter", loc);
+    node = getNode<InPaint>("in_paint", loc);
+    
     node = getNode<Resize>("resize", loc);
     node = getNode<Flip>("flip", loc);
     node = getNode<MorphologyEx>("morphology_ex", loc);
     node = getNode<OpticalFlow>("optical_flow", loc);
-    node = getNode<OpenGL>("opengl", loc);
+    //node = getNode<OpenGL>("opengl", loc);
     
     // generate
     node = getNode<Bezier>("bezier", loc);
@@ -1226,6 +1230,7 @@ class CamThing : public Output
       else if (selected_node) {
         LOG(INFO) << " duplicating selected_node";
         getNodeByName(getId(selected_node), selected_node->name + "_2", selected_node->loc + cv::Point2f(100,10));
+        
       }
     }
     

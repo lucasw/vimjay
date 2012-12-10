@@ -60,6 +60,14 @@ class BilateralFilter : public ImageNode
   virtual bool update();
 };
 
+class InPaint : public ImageNode
+{
+  public:
+  InPaint(const std::string name);
+  virtual bool update();
+};
+
+
 
 class MorphologyEx : public ImageNode
 {
