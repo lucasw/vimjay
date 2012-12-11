@@ -23,8 +23,11 @@
 #include "config.h"
 #include <glog/logging.h>
 
-#include "other/simplexnoise.h"
-#include "other/simplextextures.h"
+extern "C" {
+#include "other/DSOnoises/noise1234.h"
+}
+//#include "other/simplexnoise.h"
+//#include "other/simplextextures.h"
 // filter Node objects
 namespace bm {
 
@@ -157,10 +160,13 @@ bool Noise::update()
 SimplexNoise::SimplexNoise(const std::string name) : ImageNode(name)
 {
   setSignal("octaves", 2, false, SATURATE, 1, 20);
-  setSignal("persist", 0.8, false, SATURATE, 0.0, 1.0);
-  setSignal("scale", 0.8, false, SATURATE, 0.0, 10.0);
+  setSignal("persist", 0.8);//, false, SATURATE, 0.0, 1.0);
+  setSignal("scale", 0.5); //, false, SATURATE, 0.0, 10.0);
   setSignal("off_x_nrm", 0.0);
   setSignal("off_y_nrm", 0.0);
+  setSignal("off_z", 0.0);
+  setSignal("scale_v", 127.0);
+  setSignal("off_v", 127.0);
 }
 
 bool SimplexNoise::update()
@@ -176,16 +182,28 @@ bool SimplexNoise::update()
  
   cv::Mat out = cv::Mat(Config::inst()->getImSize(), MAT_FORMAT_C3);
 
-  float octaves = getSignal("octaves");
-  float persist = getSignal("persist");
-  float scale = getSignal("scale");
-  float off_x_nrm = getSignal("off_x_nrm") * out.cols;
-  float off_y_nrm = getSignal("off_y_nrm") * out.rows;
+  const float octaves = getSignal("octaves");
+  const float persist = getSignal("persist");
+  const float scale = getSignal("scale");
+  const float off_x_nrm = getSignal("off_x_nrm");// * out.cols;
+  const float off_y_nrm = getSignal("off_y_nrm");// * out.rows;
+  const float off_z = getSignal("off_z");// * out.rows;
+  const float scale_v = getSignal("scale_v");// * out.rows;
+  const float off_v = getSignal("off_v");// * out.rows;
 
   for (int i = 0; i < out.rows; i++) {
   for (int j = 0; j < out.cols; j++) {
-    float val = octave_noise_2d(octaves, persist, scale, j + off_x_nrm, i + off_y_nrm)*127+127;
+    //float val = octave_noise_3d(octaves, persist, scale, j + off_x_nrm, i + off_y_nrm, off_z);
+    //
+    float x = (j + off_x_nrm) * scale;
+    float y = (i + off_y_nrm) * scale;
+    float z = off_z * scale;
+    float val = noise3(x, y, z);
     
+    val = val * scale_v + off_v;
+    // TBD rollover can be interesting, but saturate for now
+    if (val > 255) val = 255;
+    if (val < 0) val = 0;
     //float val = marble_noise_2d(octaves, persist, scale, j + off_x_nrm, i + off_y_nrm)*127+127;
     cv::Vec4b col = cv::Vec4b(val, val, val, 0);
     out.at<cv::Vec4b>(i,j) = col;

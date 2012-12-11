@@ -268,6 +268,7 @@ namespace bm {
     cv::Mat offy;
     setImage("offy", offy);
     setSignal("scaley", 1.0);
+    setSignal("border", 0, false, ROLL, 0, 4);
     setSignal("mode", 0, false, ROLL, 0, 4);
 
     base_x = cv::Mat( Config::inst()->getImSize(),
@@ -305,11 +306,19 @@ namespace bm {
     cv::Mat offx_scaled;
     cv::Mat offy_scaled;
 
-    //if (offy.empty() && offx.empty()) {
-    if (offy.empty() || offx.empty()) {
+    if (offy.empty() && offx.empty()) {
+    //if (offy.empty() || offx.empty()) {
       setImage("out", in);
       return false;
-    } /* else if (offy.empty() && !offx.empty()) {
+    }
+    
+    if (offx.empty() ) {
+      offx = cv::Mat(offy.size(), CV_8UC4, cv::Scalar(0));
+    }
+    if (offy.empty() ) {
+      offy = cv::Mat(offx.size(), CV_8UC4, cv::Scalar(0));
+    }
+    /* else if (offy.empty() && !offx.empty()) {
       offy_scaled = cv::Mat(base_x.size(), CV_16SC1, cv::Scalar(0));
       offx.convertTo(offx_scaled, CV_16SC1, getSignal("scalex"));
     } else if (!offy.empty() && offx.empty()) {
@@ -325,7 +334,8 @@ namespace bm {
     cv::Mat offx8, offy8;
     cv::cvtColor(offx, offx8, CV_RGB2GRAY);
     cv::cvtColor(offy, offy8, CV_RGB2GRAY);
-      
+     
+    // TBD need an offset to subtract from each image
     offx8.convertTo(offx_scaled, CV_32FC1, getSignal("scalex"));
     offy8.convertTo(offy_scaled, CV_32FC1, getSignal("scaley"));
     
@@ -335,7 +345,7 @@ namespace bm {
     cv::Mat dist_xy16, dist_int;
     cv::convertMaps(dist_x, dist_y, dist_xy16, dist_int, CV_16SC2, true);
 
-    cv::remap(in, out, dist_xy16, cv::Mat(), getModeType(), cv::BORDER_REPLICATE);
+    cv::remap(in, out, dist_xy16, cv::Mat(), getModeType(), getBorderType());
    #else
     cv::remap(in, out, base_x, base_y, getModeType() );
     #endif

@@ -43,6 +43,17 @@ find_package(OpenCV)
 ###############################################################################
 
 add_executable(${PROJECT_NAME}
+# TBD
+other/DSOnoises/cellular.c
+#other/DSOnoises/DSOcellularnoise.c
+#other/DSOnoises/DSOimprovednoise.c
+#other/DSOnoises/DSOsimplexnoise.c
+#other/DSOnoises/DSOsrdnoise.c
+other/DSOnoises/noise1234.c
+other/DSOnoises/sdnoise1234.c
+other/DSOnoises/simplexnoise1234.c
+other/DSOnoises/srdnoise23.c
+
 config.cpp
 camthing.cpp
 nodes.cpp
@@ -59,6 +70,7 @@ input.cpp
 opengl.cpp
 other/simplexnoise.cpp
 other/simplextextures.cpp
+
 )
 
 target_link_libraries(${PROJECT_NAME} 

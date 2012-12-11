@@ -51,8 +51,11 @@ THE SOFTWARE.
  * on some platforms. A templatized version of Noise1234 could be useful.
  */
 
+#ifndef __NOISE_H__
+#define __NOISE_H__
 /** 1D, 2D, 3D and 4D float Perlin noise, SL "noise()"
  */
+//extern "C" {
 extern float noise1( float x );
 extern float noise2( float x, float y );
 extern float noise3( float x, float y, float z );
@@ -65,3 +68,5 @@ extern float pnoise2( float x, float y, int px, int py );
 extern float pnoise3( float x, float y, float z, int px, int py, int pz );
 extern float pnoise4( float x, float y, float z, float w,
                               int px, int py, int pz, int pw );
+//}
+#endif //
