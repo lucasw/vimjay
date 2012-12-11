@@ -206,6 +206,8 @@ class CamThing : public Output
         node = getNode<Circle>(name, loc);
       } else if (type_id.compare("bm::Noise") == 0) {
         node = getNode<Noise>(name, loc);
+      } else if (type_id.compare("bm::SimplexNoise") == 0) {
+        node = getNode<SimplexNoise>(name, loc);
       } else if (type_id.compare("bm::Trig") == 0) {
         node = getNode<Trig>(name, loc);
       } else if (type_id.compare("bm::Mouse") == 0) {
@@ -365,7 +367,7 @@ class CamThing : public Output
       }
       cv::Point loc = cv::Point2f( x, y );
       
-      LOG(INFO) << i << " " << getId(all_nodes[i]) << " "
+      VLOG(1) << i << " " << getId(all_nodes[i]) << " "
           <<  all_nodes[i]->name << " " 
           << all_nodes[i]->loc.x << " " << all_nodes[i]->loc.y 
           << " -> " << loc.x << " " << loc.y << ", " <<all_nodes[i]->ports.size();
@@ -664,6 +666,7 @@ class CamThing : public Output
     node = getNode<Bezier>("bezier", loc);
     node = getNode<Circle>("circle", loc);
     node = getNode<Noise>("noise", loc);
+    node = getNode<SimplexNoise>("simplex_noise", loc);
 
     node = getNode<Tap>("tap0", loc);
     node = getNode<TapInd>("tapind0", loc);

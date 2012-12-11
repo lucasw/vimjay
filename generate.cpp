@@ -23,6 +23,8 @@
 #include "config.h"
 #include <glog/logging.h>
 
+#include "other/simplexnoise.h"
+#include "other/simplextextures.h"
 // filter Node objects
 namespace bm {
 
@@ -151,6 +153,46 @@ bool Noise::update()
   setImage("out", out);
 }
 
+
+SimplexNoise::SimplexNoise(const std::string name) : ImageNode(name)
+{
+  setSignal("octaves", 2, false, SATURATE, 1, 20);
+  setSignal("persist", 0.8, false, SATURATE, 0.0, 1.0);
+  setSignal("scale", 0.8, false, SATURATE, 0.0, 10.0);
+  setSignal("off_x_nrm", 0.0);
+  setSignal("off_y_nrm", 0.0);
+}
+
+bool SimplexNoise::update()
+{
+  if (!Node::update()) return false;
+
+  // if any inputs have changed this will go on to draw
+  const bool id1 = isDirty(this,30);
+  //LOG(INFO) << id1;
+  if (!id1) {
+    return true;
+  }
+ 
+  cv::Mat out = cv::Mat(Config::inst()->getImSize(), MAT_FORMAT_C3);
+
+  float octaves = getSignal("octaves");
+  float persist = getSignal("persist");
+  float scale = getSignal("scale");
+  float off_x_nrm = getSignal("off_x_nrm") * out.cols;
+  float off_y_nrm = getSignal("off_y_nrm") * out.rows;
+
+  for (int i = 0; i < out.rows; i++) {
+  for (int j = 0; j < out.cols; j++) {
+    float val = octave_noise_2d(octaves, persist, scale, j + off_x_nrm, i + off_y_nrm)*127+127;
+    
+    //float val = marble_noise_2d(octaves, persist, scale, j + off_x_nrm, i + off_y_nrm)*127+127;
+    cv::Vec4b col = cv::Vec4b(val, val, val, 0);
+    out.at<cv::Vec4b>(i,j) = col;
+  }}
+
+  setImage("out", out);
+}
 
 } // namespace bm
 

@@ -12,6 +12,7 @@ include_directories( $ENV{HOME}/other/install/include )
 
 
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
+#include_directories(${CMAKE_BINARY_DIR}/other)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++0x")
 
@@ -56,6 +57,8 @@ utility.cpp
 output.cpp
 input.cpp
 opengl.cpp
+other/simplexnoise.cpp
+other/simplextextures.cpp
 )
 
 target_link_libraries(${PROJECT_NAME} 

@@ -33,6 +33,13 @@ class Noise : public ImageNode
   virtual bool update();
 };
 
+class SimplexNoise : public ImageNode
+{
+  public:
+  SimplexNoise(const std::string name);
+  virtual bool update();
+};
+
 
 } // namespace bm
 #endif // __FILTER_H__
