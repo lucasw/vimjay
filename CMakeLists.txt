@@ -43,12 +43,12 @@ find_package(OpenCV)
 ###############################################################################
 
 add_executable(${PROJECT_NAME}
-# TBD
-other/DSOnoises/cellular.c
+# TBD these are just for shaders
 #other/DSOnoises/DSOcellularnoise.c
 #other/DSOnoises/DSOimprovednoise.c
 #other/DSOnoises/DSOsimplexnoise.c
 #other/DSOnoises/DSOsrdnoise.c
+other/DSOnoises/cellular.c
 other/DSOnoises/noise1234.c
 other/DSOnoises/sdnoise1234.c
 other/DSOnoises/simplexnoise1234.c

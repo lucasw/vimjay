@@ -25,6 +25,9 @@
 
 extern "C" {
 #include "other/DSOnoises/noise1234.h"
+#include "other/DSOnoises/simplexnoise1234.h"
+#include "other/DSOnoises/sdnoise1234.h"
+#include "other/DSOnoises/srdnoise23.h"
 }
 //#include "other/simplexnoise.h"
 //#include "other/simplextextures.h"
@@ -159,12 +162,22 @@ bool Noise::update()
 
 SimplexNoise::SimplexNoise(const std::string name) : ImageNode(name)
 {
-  setSignal("octaves", 2, false, SATURATE, 1, 20);
-  setSignal("persist", 0.8);//, false, SATURATE, 0.0, 1.0);
-  setSignal("scale", 0.5); //, false, SATURATE, 0.0, 10.0);
+  //setSignal("octaves", 2, false, SATURATE, 1, 20);
+  //setSignal("persist", 0.8);//, false, SATURATE, 0.0, 1.0);
+  
+  cv::Mat tmp;
+  setImage("dx", tmp, true);
+  setImage("dy", tmp, true);
+  setImage("dz", tmp, true);
+  
+  setSignal("type", 0, false, ROLL, 0, 8);
+
+  setSignal("scale", 0.02); 
+  setSignal("z", 0.0);
+  setSignal("t", 0.0);
   setSignal("off_x_nrm", 0.0);
   setSignal("off_y_nrm", 0.0);
-  setSignal("off_z", 0.0);
+
   setSignal("scale_v", 127.0);
   setSignal("off_v", 127.0);
 }
@@ -181,35 +194,95 @@ bool SimplexNoise::update()
   }
  
   cv::Mat out = cv::Mat(Config::inst()->getImSize(), MAT_FORMAT_C3);
+  cv::Mat dx_im = out.clone();
+  cv::Mat dy_im = out.clone();
+  cv::Mat dz_im = out.clone();
 
-  const float octaves = getSignal("octaves");
-  const float persist = getSignal("persist");
+  //const float octaves = getSignal("octaves");
+  //const float persist = getSignal("persist");
   const float scale = getSignal("scale");
   const float off_x_nrm = getSignal("off_x_nrm");// * out.cols;
   const float off_y_nrm = getSignal("off_y_nrm");// * out.rows;
-  const float off_z = getSignal("off_z");// * out.rows;
+  const float off_z = getSignal("z");// * out.rows;
+  const float t = getSignal("t");// * out.rows;
   const float scale_v = getSignal("scale_v");// * out.rows;
   const float off_v = getSignal("off_v");// * out.rows;
 
+  int mode = getSignal("type");
+
   for (int i = 0; i < out.rows; i++) {
   for (int j = 0; j < out.cols; j++) {
-    //float val = octave_noise_3d(octaves, persist, scale, j + off_x_nrm, i + off_y_nrm, off_z);
-    //
-    float x = (j + off_x_nrm) * scale;
-    float y = (i + off_y_nrm) * scale;
-    float z = off_z * scale;
-    float val = noise3(x, y, z);
+    
+    const float x = j*scale + off_x_nrm;
+    const float y = i*scale + off_y_nrm;
+    const float z = off_z;
+    
+    float val, dx, dy, dz;
+    
+    if (mode == 0) {
+      // noise 1 will be a signal
+      val = noise2(x, y);
+    } else if (mode == 1) {
+      val = noise3(x, y, z);
+    } else if (mode == 2) {
+      val = noise4(x, y, z, t);
+
+    // TBD pnoise (periodic)
+
+    } else if (mode == 2) {
+      val = snoise2(x, y); // TBD is this faster than snoise3?  otherwise get rid of it
+    } else if (mode == 3) {
+      val = snoise3(x, y, z);
+    } else if (mode == 4) {
+      val = snoise4(x, y, z, t);
+
+    } else if (mode == 5) {
+      val = sdnoise2(x, y, &dx, &dy);
+    } else if (mode == 6) {
+      val = sdnoise3(x, y, z, &dx, &dy, &dz);
+      // TBD sdnoise4?
+
+    } else if (mode == 7) {
+      val = srdnoise2(x, y, t, &dx, &dy);
+    } else if (mode == 8) {
+      val = srdnoise3(x, y, z, t, &dx, &dy, &dz);
+    } else {
+      val = 0;
+    }
+    // TBD srdnoise4
     
     val = val * scale_v + off_v;
+    dx = dx * scale_v + off_v;
+    dy = dy * scale_v + off_v;
+    dz = dz * scale_v + off_v;
+
     // TBD rollover can be interesting, but saturate for now
     if (val > 255) val = 255;
     if (val < 0) val = 0;
     //float val = marble_noise_2d(octaves, persist, scale, j + off_x_nrm, i + off_y_nrm)*127+127;
     cv::Vec4b col = cv::Vec4b(val, val, val, 0);
     out.at<cv::Vec4b>(i,j) = col;
+
+    if (mode >= 5) {
+      // TBD this is somewhat wasteful, could combine all dx,dy,dz into rgb channels
+      col = cv::Vec4b(dx, dx, dx, 0);
+      dx_im.at<cv::Vec4b>(i, j) = col;
+      
+      col = cv::Vec4b(dy, dy, dy, 0);
+      dy_im.at<cv::Vec4b>(i, j) = col;
+
+      col = cv::Vec4b(dz, dz, dz, 0);
+      dz_im.at<cv::Vec4b>(i, j) = col;
+    }
+
   }}
 
   setImage("out", out);
+  if (mode >= 5) {
+    setImage("dx", dx_im);
+    setImage("dy", dy_im);
+    setImage("dz", dz_im);
+  }
 }
 
 } // namespace bm
