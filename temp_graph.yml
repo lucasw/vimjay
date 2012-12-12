@@ -1,11 +1,11 @@
 %YAML:1.0
-date: "Tue Dec 11 10:53:46 2012\n"
+date: "Tue Dec 11 14:11:30 2012\n"
 nodes:
    -
       ind: 0
       typeid: "bm::CamThing"
       name: cam_thing
-      loc: [ -6., 54. ]
+      loc: [ -5.9088597297668457e+00, 5.4010841369628906e+01 ]
       inputs:
          -
             type: 1
@@ -44,13 +44,13 @@ nodes:
          -
             type: 1
             name: x
-            value: 198.
+            value: 0.
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: y
-            value: 24.
+            value: 82.
             src_ind: -1
             src_port: ""
          -
@@ -80,13 +80,13 @@ nodes:
          -
             type: 1
             name: "2_x"
-            value: 2.6193563842773438e+02
+            value: 6.7508074951171875e+02
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: "2_y"
-            value: 2.4246322631835938e+01
+            value: 5.6019042968750000e+01
             src_ind: -1
             src_port: ""
          -
@@ -188,11 +188,29 @@ nodes:
             value: 0.
             src_ind: -1
             src_port: ""
+         -
+            type: 1
+            name: cur_size
+            value: 30.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: load
+            value: 0.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: ind
+            value: 6.
+            src_ind: -1
+            src_port: ""
    -
       ind: 3
       typeid: "bm::Rot2D"
       name: rot2d
-      loc: [ 221., 91. ]
+      loc: [ 2.2373223876953125e+02, 9.4508430480957031e+01 ]
       inputs:
          -
             type: 1
@@ -428,7 +446,7 @@ nodes:
       ind: 5
       typeid: "bm::Remap"
       name: remap
-      loc: [ 430., 54. ]
+      loc: [ 4.3017675781250000e+02, 5.5554004669189453e+01 ]
       inputs:
          -
             type: 1
@@ -450,17 +468,23 @@ nodes:
          -
             type: 2
             name: in
-            src_ind: -1
-            src_port: ""
+            src_ind: 2
+            src_port: out
          -
             type: 2
             name: offx
+            src_ind: 6
+            src_port: out
+         -
+            type: 1
+            name: scalex
+            value: -2.3449461460113525e+00
             src_ind: -1
             src_port: ""
          -
             type: 1
-            name: scalex
-            value: 1.
+            name: offsetx
+            value: 127.
             src_ind: -1
             src_port: ""
          -
@@ -471,7 +495,13 @@ nodes:
          -
             type: 1
             name: scaley
-            value: 1.
+            value: 0.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: offsety
+            value: 0.
             src_ind: -1
             src_port: ""
          -
@@ -490,7 +520,7 @@ nodes:
       ind: 6
       typeid: "bm::Buffer"
       name: buffer
-      loc: [ 407., 280. ]
+      loc: [ 400., 296. ]
       inputs:
          -
             type: 1
@@ -522,14 +552,26 @@ nodes:
          -
             type: 1
             name: max_size
-            value: 100.
+            value: 1.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: cur_size
+            value: 1.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: ind
+            value: 0.
             src_ind: -1
             src_port: ""
    -
       ind: 7
       typeid: "bm::Mux"
       name: mux
-      loc: [ 400., 444. ]
+      loc: [ 400., 464. ]
       inputs:
          -
             type: 1
@@ -590,7 +632,7 @@ nodes:
       ind: 8
       typeid: "bm::MuxBuffer"
       name: mux_buffer
-      loc: [ 588., 69. ]
+      loc: [ 5.9199975585937500e+02, 6.7926757812500000e+01 ]
       inputs:
          -
             type: 1
@@ -1139,7 +1181,7 @@ nodes:
       ind: 20
       typeid: "bm::MedianBlur"
       name: median_blur
-      loc: [ 1.0920046386718750e+03, 6.8297340393066406e+01 ]
+      loc: [ 1120., 68. ]
       inputs:
          -
             type: 1
@@ -1225,7 +1267,7 @@ nodes:
       ind: 22
       typeid: "bm::InPaint"
       name: in_paint
-      loc: [ 1091., 401. ]
+      loc: [ 1.0840899658203125e+03, 3.9638201904296875e+02 ]
       inputs:
          -
             type: 1
@@ -1270,7 +1312,7 @@ nodes:
       ind: 23
       typeid: "bm::Resize"
       name: resize
-      loc: [ 1.0919852294921875e+03, 6.0684600830078125e+02 ]
+      loc: [ 1.0802402343750000e+03, 6.1083984375000000e+02 ]
       inputs:
          -
             type: 1
@@ -1316,7 +1358,7 @@ nodes:
       ind: 24
       typeid: "bm::Flip"
       name: flip
-      loc: [ 1.2253740234375000e+03, 7.4323944091796875e+01 ]
+      loc: [ 1300., 68. ]
       inputs:
          -
             type: 1
@@ -1350,7 +1392,7 @@ nodes:
       ind: 25
       typeid: "bm::MorphologyEx"
       name: morphology_ex
-      loc: [ 1.2800380859375000e+03, 2.2478443908691406e+02 ]
+      loc: [ 1300., 226. ]
       inputs:
          -
             type: 1
@@ -1408,7 +1450,7 @@ nodes:
       ind: 26
       typeid: "bm::OpticalFlow"
       name: optical_flow
-      loc: [ 1.2847005615234375e+03, 4.3202728271484375e+02 ]
+      loc: [ 1.2958332519531250e+03, 4.2785357666015625e+02 ]
       inputs:
          -
             type: 1
@@ -1444,6 +1486,12 @@ nodes:
             src_ind: -1
             src_port: ""
          -
+            type: 1
+            name: offsetx
+            value: 127.
+            src_ind: -1
+            src_port: ""
+         -
             type: 2
             name: offy
             src_ind: -1
@@ -1452,6 +1500,12 @@ nodes:
             type: 1
             name: scaley
             value: 1.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: offsety
+            value: 127.
             src_ind: -1
             src_port: ""
          -
@@ -1535,7 +1589,7 @@ nodes:
       ind: 27
       typeid: "bm::Bezier"
       name: bezier
-      loc: [ 1.3824919433593750e+03, -1.5780694961547852e+01 ]
+      loc: [ 1480., 68. ]
       inputs:
          -
             type: 1
@@ -1612,7 +1666,7 @@ nodes:
       ind: 28
       typeid: "bm::Circle"
       name: circle
-      loc: [ 1.4547163085937500e+03, 3.7425927734375000e+02 ]
+      loc: [ 1480., 296. ]
       inputs:
          -
             type: 1
@@ -1677,7 +1731,7 @@ nodes:
       ind: 29
       typeid: "bm::Noise"
       name: noise
-      loc: [ 1532., 513. ]
+      loc: [ 1.5320882568359375e+03, 5.0265621948242188e+02 ]
       inputs:
          -
             type: 1
@@ -1712,7 +1766,7 @@ nodes:
       ind: 30
       typeid: "bm::SimplexNoise"
       name: simplex_noise
-      loc: [ 1.7740343017578125e+03, 1.2175332641601562e+02 ]
+      loc: [ 1660., 68. ]
       inputs:
          -
             type: 1
@@ -1749,62 +1803,62 @@ nodes:
          -
             type: 1
             name: type
-            value: 4.
+            value: 0.
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: wrap_col
-            value: 1.
+            value: 0.
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: scale
-            value: 1.9559286534786224e-02
-            src_ind: 44
-            src_port: value
+            value: 1.9999999552965164e-02
+            src_ind: -1
+            src_port: ""
          -
             type: 1
             name: z
-            value: 1.3089202880859375e+01
-            src_ind: 43
-            src_port: value
+            value: 0.
+            src_ind: -1
+            src_port: ""
          -
             type: 1
             name: t
-            value: 9.4564992189407349e-01
-            src_ind: 41
-            src_port: value
+            value: 0.
+            src_ind: -1
+            src_port: ""
          -
             type: 1
             name: off_x_nrm
-            value: 3.3439718627929688e+02
-            src_ind: 45
-            src_port: value
+            value: 0.
+            src_ind: -1
+            src_port: ""
          -
             type: 1
             name: off_y_nrm
-            value: 3.4347399902343750e+02
+            value: 0.
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: scale_v
-            value: 5.2476550292968750e+02
-            src_ind: 46
-            src_port: value
+            value: 127.
+            src_ind: -1
+            src_port: ""
          -
             type: 1
             name: off_v
-            value: 1.2218892669677734e+02
+            value: 127.
             src_ind: -1
             src_port: ""
    -
       ind: 31
       typeid: "bm::Tap"
       name: tap0
-      loc: [ 1.7038962402343750e+03, 3.4487020874023438e+02 ]
+      loc: [ 1660., 326. ]
       inputs:
          -
             type: 1
@@ -1832,19 +1886,13 @@ nodes:
          -
             type: 3
             name: buffer
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: actual_ind
-            value: 0.
             src_ind: -1
             src_port: ""
    -
       ind: 32
       typeid: "bm::TapInd"
       name: tapind0
-      loc: [ 1.6665059814453125e+03, 4.8389447021484375e+02 ]
+      loc: [ 1.6877498779296875e+03, 4.8026809692382812e+02 ]
       inputs:
          -
             type: 1
@@ -1874,17 +1922,11 @@ nodes:
             name: buffer
             src_ind: -1
             src_port: ""
-         -
-            type: 1
-            name: actual_ind
-            value: 29570608.
-            src_ind: -1
-            src_port: ""
    -
       ind: 33
       typeid: "bm::Contour"
       name: contour
-      loc: [ 1660., 632. ]
+      loc: [ 1660., 642. ]
       inputs:
          -
             type: 1
@@ -1912,7 +1954,7 @@ nodes:
       ind: 34
       typeid: "bm::Mouse"
       name: mouse
-      loc: [ 1.8348470458984375e+03, -7.1235954284667969e+01 ]
+      loc: [ 1840., -5.5999992370605469e+01 ]
       inputs:
          -
             type: 1
@@ -1935,26 +1977,20 @@ nodes:
          -
             type: 1
             name: "2_x"
-            value: 6.1827893066406250e+02
+            value: 9.4215820312500000e+01
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: "2_y"
-            value: 8.7451309204101562e+01
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: "2_1"
-            value: 0.
+            value: 4.6965747070312500e+02
             src_ind: -1
             src_port: ""
    -
       ind: 35
       typeid: "bm::SigAdd"
       name: sigadd
-      loc: [ 1.8926586914062500e+03, 5.9743358612060547e+01 ]
+      loc: [ 1840., 8.9999969482421875e+01 ]
       inputs:
          -
             type: 1
@@ -1990,7 +2026,7 @@ nodes:
       ind: 36
       typeid: "bm::Signal"
       name: signal0
-      loc: [ 1.9089802246093750e+03, 2.6528704833984375e+02 ]
+      loc: [ 1840., 2.2800009155273438e+02 ]
       inputs:
          -
             type: 1
@@ -2032,7 +2068,7 @@ nodes:
       ind: 37
       typeid: "bm::MiscSignal"
       name: saw
-      loc: [ 1.8435405273437500e+03, 3.8165548706054688e+02 ]
+      loc: [ 1840., 3.7599996948242188e+02 ]
       inputs:
          -
             type: 1
@@ -2049,7 +2085,7 @@ nodes:
          -
             type: 1
             name: value
-            value: 9.0000832080841064e-01
+            value: 0.
             src_ind: -1
             src_port: ""
          -
@@ -2070,17 +2106,11 @@ nodes:
             value: 1.0000000149011612e-01
             src_ind: -1
             src_port: ""
-         -
-            type: 1
-            name: mode
-            value: 0.
-            src_ind: -1
-            src_port: ""
    -
       ind: 38
       typeid: "bm::Trig"
       name: trig
-      loc: [ 1.8400631103515625e+03, 5.1999957275390625e+02 ]
+      loc: [ 1840., 512. ]
       inputs:
          -
             type: 1
@@ -2134,7 +2164,7 @@ nodes:
       ind: 39
       typeid: "bm::SigBuffer"
       name: sig_buf
-      loc: [ 2.0397723388671875e+03, 7.1299461364746094e+01 ]
+      loc: [ 2020., 68. ]
       inputs:
          -
             type: 1
@@ -2198,7 +2228,7 @@ nodes:
       ind: 40
       typeid: "bm::Output"
       name: output
-      loc: [ 2.0676293945312500e+03, 2.9588153076171875e+02 ]
+      loc: [ 2020., 276. ]
       inputs:
          -
             type: 1
@@ -2220,7 +2250,7 @@ nodes:
          -
             type: 2
             name: in
-            src_ind: 30
+            src_ind: 5
             src_port: out
          -
             type: 1
@@ -2237,13 +2267,13 @@ nodes:
          -
             type: 1
             name: x
-            value: 0.
+            value: 897.
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: y
-            value: 52.
+            value: 70.
             src_ind: -1
             src_port: ""
          -
@@ -2268,293 +2298,5 @@ nodes:
             type: 1
             name: im_h
             value: 480.
-            src_ind: -1
-            src_port: ""
-   -
-      ind: 41
-      typeid: "bm::MiscSignal"
-      name: simplex_noise_sig
-      loc: [ 1.4204034423828125e+03, 2.5374743652343750e+02 ]
-      inputs:
-         -
-            type: 1
-            name: enable
-            value: 1.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: force_update
-            value: 0.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: value
-            value: 9.4564992189407349e-01
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: min
-            value: 0.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: max
-            value: 2.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: step
-            value: 3.8152034394443035e-03
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: mode
-            value: 0.
-            src_ind: -1
-            src_port: ""
-   -
-      ind: 42
-      typeid: "bm::MiscSignal"
-      name: simplex_noise_sig
-      loc: [ 1.6187358398437500e+03, -1.2459821319580078e+02 ]
-      inputs:
-         -
-            type: 1
-            name: enable
-            value: 1.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: force_update
-            value: 0.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: value
-            value: 4.9504705810546875e+02
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: min
-            value: 9.3304962158203125e+01
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: max
-            value: 9.5149249267578125e+02
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: step
-            value: -2.6849735260009766e+01
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: mode
-            value: 2.
-            src_ind: -1
-            src_port: ""
-   -
-      ind: 43
-      typeid: "bm::MiscSignal"
-      name: simplex_noise_sig
-      loc: [ 1.5267840576171875e+03, -1.2728434562683105e+01 ]
-      inputs:
-         -
-            type: 1
-            name: enable
-            value: 1.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: force_update
-            value: 0.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: value
-            value: 1.3089202880859375e+01
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: min
-            value: 0.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: max
-            value: 39.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: step
-            value: 5.8149723336100578e-03
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: mode
-            value: 2.
-            src_ind: -1
-            src_port: ""
-   -
-      ind: 44
-      typeid: "bm::MiscSignal"
-      name: simplex_noise_sig
-      loc: [ 1.5673829345703125e+03, 3.0477334594726562e+02 ]
-      inputs:
-         -
-            type: 1
-            name: enable
-            value: 1.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: force_update
-            value: 0.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: value
-            value: 1.9559286534786224e-02
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: min
-            value: 1.7970104236155748e-03
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: max
-            value: 3.4963414072990417e-02
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: step
-            value: -3.7571016582660377e-04
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: mode
-            value: 2.
-            src_ind: -1
-            src_port: ""
-   -
-      ind: 45
-      typeid: "bm::MiscSignal"
-      name: simplex_noise_sig
-      loc: [ 1.5383122558593750e+03, 1.6273548889160156e+02 ]
-      inputs:
-         -
-            type: 1
-            name: enable
-            value: 1.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: force_update
-            value: 0.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: value
-            value: 3.3439718627929688e+02
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: min
-            value: 3.1024334716796875e+02
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: max
-            value: 3.8028631591796875e+02
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: step
-            value: 1.0890001058578491e-01
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: mode
-            value: 2.
-            src_ind: -1
-            src_port: ""
-   -
-      ind: 46
-      typeid: "bm::MiscSignal"
-      name: simplex_noise_sig
-      loc: [ 1.6637580566406250e+03, 3.6635601043701172e+01 ]
-      inputs:
-         -
-            type: 1
-            name: enable
-            value: 1.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: force_update
-            value: 0.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: value
-            value: 5.2476550292968750e+02
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: min
-            value: 5.1803662109375000e+02
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: max
-            value: 6.3425585937500000e+02
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: step
-            value: 1.1859210580587387e-01
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: mode
-            value: 2.
             src_ind: -1
             src_port: ""

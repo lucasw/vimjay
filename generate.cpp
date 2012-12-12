@@ -238,6 +238,7 @@ bool SimplexNoise::update()
     } else if (mode == 4) {
       val = snoise4(x, y, z, t);
 
+    // TBD the dx,dy,dz out of these seems empty
     } else if (mode == 5) {
       val = sdnoise2(x, y, &dx, &dy);
     } else if (mode == 6) {

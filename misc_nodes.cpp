@@ -265,9 +265,11 @@ namespace bm {
     cv::Mat offx;
     setImage("offx", offx);
     setSignal("scalex", 1.0);
+    setSignal("offsetx", 127.0);
     cv::Mat offy;
     setImage("offy", offy);
     setSignal("scaley", 1.0);
+    setSignal("offsety", 127.0);
     setSignal("border", 0, false, ROLL, 0, 4);
     setSignal("mode", 0, false, ROLL, 0, 4);
 
@@ -311,12 +313,19 @@ namespace bm {
       setImage("out", in);
       return false;
     }
+   
+    float scalex = getSignal("scalex");
+    float scaley = getSignal("scaley");
     
+    const float offsetx = getSignal("offsetx");
+    const float offsety = getSignal("offsety");
     if (offx.empty() ) {
       offx = cv::Mat(offy.size(), CV_8UC4, cv::Scalar(0));
+      scalex = 0;
     }
     if (offy.empty() ) {
       offy = cv::Mat(offx.size(), CV_8UC4, cv::Scalar(0));
+      scaley = 0;
     }
     /* else if (offy.empty() && !offx.empty()) {
       offy_scaled = cv::Mat(base_x.size(), CV_16SC1, cv::Scalar(0));
@@ -335,12 +344,14 @@ namespace bm {
     cv::cvtColor(offx, offx8, CV_RGB2GRAY);
     cv::cvtColor(offy, offy8, CV_RGB2GRAY);
      
-    // TBD need an offset to subtract from each image
-    offx8.convertTo(offx_scaled, CV_32FC1, getSignal("scalex"));
-    offy8.convertTo(offy_scaled, CV_32FC1, getSignal("scaley"));
+    // this may be more intuitive with flipped sign, 
+    // currently offx is where the source pixel comes from,
+    // (the opposite of positive numbers pushing pixels to the right)
+    offx8.convertTo(offx_scaled, CV_32FC1, scalex);
+    offy8.convertTo(offy_scaled, CV_32FC1, scaley);
     
-    cv::Mat dist_x = base_x + offx_scaled;
-    cv::Mat dist_y = base_y + offy_scaled;
+    cv::Mat dist_x = base_x + (offx_scaled - offsetx * scalex);
+    cv::Mat dist_y = base_y + (offy_scaled - offsety * scaley);
   
     cv::Mat dist_xy16, dist_int;
     cv::convertMaps(dist_x, dist_y, dist_xy16, dist_int, CV_16SC2, true);

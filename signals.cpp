@@ -90,6 +90,18 @@ namespace bm {
     float span = max - min;
 
     if (mode == 0) {
+      con->description = "triangle";
+      value += step;
+      if (value > max) {
+        step = -fabs(step);
+        value = max;
+      }
+      if (value < min) {
+        step = fabs(step);
+        value = min;
+      }
+
+    } else if (mode == 1) {
       con->description = "sawtooth";
       value += step;
       if (span == 0) {
@@ -103,23 +115,11 @@ namespace bm {
         }
       }
 
-    } else if (mode == 1) {
+    } else if (mode == 2) {
       con->description = "ramp_saturate";
       value += step;
       if (value > max) value = max;
       if (value < min) value = min;
-
-    } else if (mode == 2) {
-      con->description = "triangle";
-      value += step;
-      if (value > max) {
-        step = -fabs(step);
-        value = max;
-      }
-      if (value < min) {
-        step = fabs(step);
-        value = min;
-      }
 
     } else if (mode == 3) {
       con->description = "toggle";
@@ -139,7 +139,8 @@ namespace bm {
       const float rnd = rng.gaussian( max - min );
       value = rnd + min;
     }
-
+    // TBD noise(x), snoise(x), sdnoise(x)
+    
     setSignal("step", step);
     setSignal("value", value);
 
