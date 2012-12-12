@@ -171,6 +171,7 @@ SimplexNoise::SimplexNoise(const std::string name) : ImageNode(name)
   setImage("dz", tmp, true);
   
   setSignal("type", 0, false, ROLL, 0, 8);
+  setSignal("wrap_col", 0, false, ROLL, 0, 1);
 
   setSignal("scale", 0.02); 
   setSignal("z", 0.0);
@@ -204,17 +205,18 @@ bool SimplexNoise::update()
   const float off_x_nrm = getSignal("off_x_nrm");// * out.cols;
   const float off_y_nrm = getSignal("off_y_nrm");// * out.rows;
   const float off_z = getSignal("z");// * out.rows;
-  const float t = getSignal("t");// * out.rows;
+  const float t = getSignal("t") * M_PI;// * out.rows;
   const float scale_v = getSignal("scale_v");// * out.rows;
   const float off_v = getSignal("off_v");// * out.rows;
 
-  int mode = getSignal("type");
+  const int mode = getSignal("type");
+  const bool wrap_col = getSignal("wrap_col");
 
   for (int i = 0; i < out.rows; i++) {
   for (int j = 0; j < out.cols; j++) {
     
-    const float x = j*scale + off_x_nrm;
-    const float y = i*scale + off_y_nrm;
+    const float x = (j - out.cols/2)*scale + off_x_nrm;
+    const float y = (i - out.rows/2)*scale + off_y_nrm;
     const float z = off_z;
     
     float val, dx, dy, dz;
@@ -252,13 +254,26 @@ bool SimplexNoise::update()
     // TBD srdnoise4
     
     val = val * scale_v + off_v;
+    // TBD these probably deserve separate scaling
     dx = dx * scale_v + off_v;
     dy = dy * scale_v + off_v;
     dz = dz * scale_v + off_v;
 
     // TBD rollover can be interesting, but saturate for now
-    if (val > 255) val = 255;
-    if (val < 0) val = 0;
+    if (wrap_col) {
+      if (val > 255) val = 255;
+      if (val < 0) val = 0;
+      
+      if (dx > 255) dx = 255;
+      if (dx < 0) dx = 0;
+      
+      if (dy > 255) dy = 255;
+      if (dy < 0) dy = 0;
+      
+      if (dz > 255) dz = 255;
+      if (dz < 0) dz = 0;
+    }
+
     //float val = marble_noise_2d(octaves, persist, scale, j + off_x_nrm, i + off_y_nrm)*127+127;
     cv::Vec4b col = cv::Vec4b(val, val, val, 0);
     out.at<cv::Vec4b>(i,j) = col;
