@@ -1304,7 +1304,7 @@ namespace bm {
     setSignal("value", 0, true);
     setSignal("min", 0);
     setSignal("max", 1);
-    setSignal("step", 0.1);
+    setSignal("step", 0.01);
   }
 
   void Signal::setup(const float new_step, const float offset, const float min, const float max) 

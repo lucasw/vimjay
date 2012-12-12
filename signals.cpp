@@ -37,6 +37,13 @@
 
 #include "config.h"
 
+extern "C" {
+#include "other/DSOnoises/noise1234.h"
+#include "other/DSOnoises/simplexnoise1234.h"
+#include "other/DSOnoises/sdnoise1234.h"
+//#include "other/DSOnoises/srdnoise23.h"
+}
+
 using namespace cv;
 using namespace std;
 
@@ -45,6 +52,7 @@ namespace bm {
   MiscSignal::MiscSignal(const std::string name) : Signal(name)
   {
     vcol = cv::Scalar(0,90,255);
+    setSignal("mode", 7, false, ROLL, 0, 7);
   }
   
   //void MiscSignal::setup(const float new_step, const float offset, const float min, const float max) 
@@ -74,6 +82,7 @@ namespace bm {
     float min = getSignal("min");
     float max = getSignal("max");
     float value = getSignal("value");
+    float t = getSignal("t");
  
     if (max < min) {
       max = min;
@@ -140,7 +149,17 @@ namespace bm {
       value = rnd + min;
     }
     // TBD noise(x), snoise(x), sdnoise(x)
-    
+    else if (mode == 6) {
+      con->description = "perlin";
+      value = min + (max-min)/2 + noise1(t)*(max-min)/2; 
+    }
+    else if (mode == 7) {
+      con->description = "simplex";
+      value = min + (max-min)/2 + snoise1(t)*(max-min)/2; 
+    }
+
+    t += abs(step);
+    setSignal("t", t);
     setSignal("step", step);
     setSignal("value", value);
 
