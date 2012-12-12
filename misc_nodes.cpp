@@ -52,12 +52,13 @@ namespace bm {
     setSignal("psi", 0);
     setSignal("z", 573, false, SATURATE, 1, 1e6); // TBD this number
     setSignal("scale", 1.0);
-    setSignal("center_x",  Config::inst()->im_width/2 );
-    setSignal("center_y",  Config::inst()->im_height/2 );
+    setSignal("center_x", 5); //  Config::inst()->im_width/2 );
+    setSignal("center_y", 5); // Config::inst()->im_height/2 );
     setSignal("center_z", 0); // -Config::inst()->im_height/2 );
-    setSignal("off_x", Config::inst()->im_width/2 );
-    setSignal("off_y", Config::inst()->im_height/2 );
-    setSignal("off_z", 0); 
+    setSignal("off_x", 5); //Config::inst()->im_width/2 );
+    setSignal("off_y", 5); //Config::inst()->im_height/2 );
+    setSignal("off_z", 0);
+    setSignal("nrm_px", 1, false, ROLL, 0, 1); // normalized (0-10) or pixel coordinates for above
     setSignal("border", 0, false, ROLL, 0, 4);
     setSignal("mode", 0, false, ROLL, 0, 4);
     setSignal("manual_xy", 0.0);
@@ -79,6 +80,9 @@ namespace bm {
     in = getImage("in");
     if (in.empty()) return false;
 
+    const float wd = Config::inst()->im_width;
+    const float ht = Config::inst()->im_height;
+
     // TBD provide normalized, radians, and angle input select
     // euler angles
     float phi   = getSignal("phi")   * M_PI/180.0;    
@@ -87,19 +91,28 @@ namespace bm {
 
     float scale = getSignal("scale");    
 
+    const bool nrm_px = getSignal("nrm_px");
+    
     cv::Point3f center;
     center.x = getSignal("center_x");     
     center.y = getSignal("center_y");
     center.z = getSignal("center_z");
-    
-    const float off_x = getSignal("off_x");     
-    const float off_y = getSignal("off_y");
-    const float off_z = getSignal("off_z");
+  
+    float off_x = getSignal("off_x");     
+    float off_y = getSignal("off_y");
+    float off_z = getSignal("off_z");
 
+    if (nrm_px) {
+      center.x *= wd/(10.0);
+      center.y *= ht/(10.0);
+      center.z *= ht/(10.0);
+      
+      off_x *= wd/(10.0);
+      off_y *= ht/(10.0);
+      off_z *= ht/(10.0);
+    }
         //VLOG(1) << name << " " << is_dirty << " " << im_in->name << " " << im_in->is_dirty;
 
-    const float wd = Config::inst()->im_width;
-    const float ht = Config::inst()->im_height;
 
     cv::Mat in_p = (cv::Mat_<float>(3,4) << 
         0, wd, wd, 0, 
@@ -313,7 +326,9 @@ namespace bm {
       setImage("out", in);
       return false;
     }
-   
+  
+    // TBD changing resolution will always cause these to scale differently, may want to normalize
+    // with image dimensions so scalex = 100 or 10 is always displacment the width of the image
     float scalex = getSignal("scalex");
     float scaley = getSignal("scaley");
     

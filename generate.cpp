@@ -212,9 +212,14 @@ bool SimplexNoise::update()
   const int mode = getSignal("type");
   const bool wrap_col = getSignal("wrap_col");
 
+  // TBD decimation parameter to shrink number of pixels that the noise
+  // needs to be found for, resize at end of update.
+
   for (int i = 0; i < out.rows; i++) {
   for (int j = 0; j < out.cols; j++) {
-    
+   
+    // TBD scale will always zoom in and out of the center 0,0, not the center
+    // of the current view if off_x and off_y non-zero
     const float x = (j - out.cols/2)*scale + off_x_nrm;
     const float y = (i - out.rows/2)*scale + off_y_nrm;
     const float z = off_z;
