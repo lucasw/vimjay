@@ -181,6 +181,8 @@ SimplexNoise::SimplexNoise(const std::string name) : ImageNode(name)
 
   setSignal("scale_v", 127.0);
   setSignal("off_v", 127.0);
+
+  setSignal("t", 0); //, true); // TBD why not have ability to source t?
 }
 
 bool SimplexNoise::update()

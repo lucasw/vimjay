@@ -794,8 +794,10 @@ namespace bm {
         
         src_node->ports.push_back(src_con);
         VLOG(2) << con->parent->name << " new src Connector " << type << " " << src_con->name; 
+
       }
       
+      //if (src_con->dst != con) con->setDirty();
       src_con->dst = con;
       VLOG(1) << "\"" << name << "\" setInputPort: " << type << " " << port << " from "
         << CLTXT /*<< inputs[type][port].first->name << " "*/  // not necessarily non-NULL
@@ -1115,8 +1117,7 @@ namespace bm {
       return true; 
     }
     
-    setImage("out", in);
-    //setDirty();
+      setImage("out", in);
     }
     //VLOG(4) << name << " update: " <<  out.refcount << " " << out_old.refcount;
   

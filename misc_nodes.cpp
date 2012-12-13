@@ -1161,7 +1161,7 @@ CMP_NE
  
   // TBD make sure keyboard changed parameters make this dirty 
   if (!isDirty(this, 5)) { 
-      VLOG(1) << name << " not dirty ";
+      VLOG(4) << name << " not dirty ";
       return true; 
   }
    
