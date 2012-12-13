@@ -411,9 +411,9 @@ class CamThing : public Output
   int source_ind;
   Node* source_node;
   // ImageNode, Signal, or Buffer for now- TBD use enums instead of strings
-  conType source_type;
-  string source_port;
-  int source_port_ind;
+  //conType source_type;
+  //string source_port;
+  //int source_port_ind;
   
   boost::thread node_thread;
 
@@ -423,9 +423,9 @@ class CamThing : public Output
       selected_node(NULL),
       source_ind(0),
       source_node(NULL),
-      source_type(NONE),
-      source_port(""),
-      source_port_ind(0),
+      //source_type(NONE),
+      //source_port(""),
+      //source_port_ind(0),
       output_node(NULL),
       preview_node(NULL),
       input_node(NULL),
@@ -840,18 +840,16 @@ class CamThing : public Output
       // select source node
       source_ind = selected_ind;
       source_node = selected_node; //all_nodes[source_ind];
-      source_port = selected_node->selected_port;
+      //source_port = selected_node->selected_port;
+      //source_type = selected_node->selected_type;
 
-      source_type = selected_node->selected_type;
-      //if (source_type == "ImageNode") source_type = "ImageOut";
-      //if (source_type == "ImageOut") source_type = "ImageNode";
-      VLOG(1) << "selected source node " << source_type << " " << source_port; 
+      VLOG(1) << "selected source node " << source_node->selected_type << " " << source_node->selected_port; 
     } else {
       // select no source port, allows cycling through all inputs
       source_ind = 0;
       source_node = NULL;
-      source_type = NONE;
-      source_port = "";
+      //source_type = NONE;
+      //source_port = "";
       VLOG(1) << "cleared source node";
     }
   }
@@ -864,9 +862,9 @@ class CamThing : public Output
     // connect to source node in best way possible, replacing the current input
     // TBD need to be able to select specific inputs
     if (source_node && selected_node && 
-        (source_type != NONE) && 
+        (source_node->selected_type != NONE) && 
         (selected_node->selected_port != "") && 
-        (source_port != "") && 
+        (source_node->selected_port != "") && 
         (selected_node->selected_port != "") && 
         (selected_node->selected_port != "out") // TBD delete this
         ) {
@@ -877,7 +875,7 @@ class CamThing : public Output
         {
           // TBD a Buffer should act as an ImageNode if that is the only
           // input available
-          selected_node->setInputPort(source_type, selected_node->selected_port, source_node, source_port);
+          selected_node->setInputPort(source_node->selected_type, selected_node->selected_port, source_node, source_node->selected_port);
         }
 
       //VLOG(1) << 
@@ -1017,6 +1015,10 @@ class CamThing : public Output
       updatePreviewNode();
       return true;
     }
+
+    
+    conType source_type = NONE;
+    if (source_node) source_type = source_node->selected_type;
 
     bool rv;
     if (next_port > 0) 
@@ -1313,6 +1315,12 @@ class CamThing : public Output
         stringstream str;
         if (selected_node) {
           str << selected_node->name << " : ";
+          conType source_type = NONE;
+          string source_port = "";
+          if (source_node) {
+            source_type = source_node->selected_type;
+            source_port = source_node->selected_port;
+          }
           str << "matching " << source_type << " \"" << source_port << "\" with ";
         } else {
           str <<"selecting";
