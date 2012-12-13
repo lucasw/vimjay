@@ -95,6 +95,11 @@ class Elem
   // utility bools to control visualization of the element
   bool highlight;
   bool highlight2;
+
+  // has this node been updated this timestep, or does it need to be updated this timestep
+  // because of dependencies
+  bool do_update;
+  virtual bool update();
 };
 
 // TBD original chose this type because of access convenience, but since 
@@ -107,7 +112,7 @@ class Connector : public Elem
   public:
   Connector(const std::string name);
 
-  bool update();
+  virtual bool update();
 
   // whether the dirtiness should force an update of the associated node
   // determined by usage, not explicitly set
@@ -175,9 +180,6 @@ class Node : public Elem
   int getIndFromPointer(Connector* con);
   bool selectPortByInd(const int ind);
  
-  // has this node been updated this timestep, or does it need to be updated this timestep
-  // because of dependencies
-  bool do_update;
 
   cv::Point2f loc;
   // TBD get rid of this and pass it to draw every time
@@ -200,7 +202,7 @@ class Node : public Elem
     
   bool setUpdate();
   
-  // the rv is so that an ineritanning function will know whether to 
+  // the rv is provided so that an inheriting function will know whether to 
   // process or not
   virtual bool update(); 
 

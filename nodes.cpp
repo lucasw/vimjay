@@ -78,7 +78,11 @@ namespace bm {
   //{
   //}
 
-  Elem::Elem(const string name) : name(name), highlight(false), highlight2(false)
+  Elem::Elem(const string name) : 
+    name(name), 
+    highlight(false), 
+    highlight2(false),
+    do_update(false)
   {
   }
 
@@ -120,6 +124,14 @@ namespace bm {
     }
 
   }
+  
+  bool Elem::update()
+  {
+    if (!do_update) return false;
+    do_update = false;
+
+    return true;
+  }
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////
   Connector::Connector(const std::string name) : 
@@ -140,7 +152,7 @@ namespace bm {
 
   bool Connector::update()
   {
-    // TBD do_update
+    if (!Elem::update()) return false;
 
     // This will frequently already have been run
     if (parent) parent->update();
@@ -178,6 +190,7 @@ namespace bm {
       if (value > val_max) value = val_max;
     } // saturate
 
+    return true;
   }
   
   std::string typeToString(const conType type)
@@ -354,8 +367,7 @@ namespace bm {
     Elem(name), 
     selected_type(NONE),
     selected_port_ind(-1),
-    selected_port(""),
-    do_update(false)
+    selected_port("")
   {
     vcol = cv::Scalar(200,200,200);
 
@@ -389,6 +401,9 @@ namespace bm {
     //boost::mutex::scoped_lock l(port_mutex);
     for (int i = 0; i < ports.size(); i++) {
       // TBD look for per-port enable here
+      
+      // TBD ports[i]->setUpdate() could provide both of these
+      ports[i]->do_update = true;
       if (ports[i]->src) ports[i]->src->parent->setUpdate();
     }
     
@@ -400,8 +415,7 @@ namespace bm {
   // process or not
   bool Node::update() 
   {
-    if (!do_update) return false;
-    do_update = false; 
+    if (!Elem::update()) return false; 
 
     //boost::mutex::scoped_lock l(port_mutex);
     // need to update enable no matter if it is false
