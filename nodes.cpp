@@ -142,10 +142,15 @@ namespace bm {
   {
     // TBD do_update
 
-    if (src && src->parent) {
-      src->parent->update();
-      //if (src->parent->isDirty(this, 0)) {
-      // TBD
+    // This will frequently already have been run
+    if (parent) parent->update();
+
+    if (src) { // && src->parent) {
+      src->update();
+      //src->parent->update(); // why not src->update()?
+      // TBD this overlooks the case where the connector has changed inputs
+      // but with a src that isn't dirty- the image still needs to propagate,
+      // where does the dirtiness properly belong to force the im = src->im or value = src->value?
       if (src->isDirty(this, 0)) { //|| ((type==SIGNAL) && (value != src->value)) {
       //if (value != src->value) { // TBD could use this with images if image updates made the value change
 
@@ -198,6 +203,12 @@ namespace bm {
     setDirty();
 
     return true;
+  }
+
+  cv::Mat Connector::getImage()
+  {
+    
+    return im;
   }
 
   void Connector::draw(cv::Mat graph_ui, cv::Point2f ui_offset) 
@@ -798,8 +809,10 @@ namespace bm {
       }
       
       //if (src_con->dst != con) con->setDirty();
+      src_con->setDirty();
       src_con->dst = con;
-      VLOG(1) << "\"" << name << "\" setInputPort: " << type << " " << port << " from "
+      VLOG(1) << "\"" << name << "\" setInputPort: " << type << " " 
+        << CLTXT << "\"" << port << "\"" << CLNRM << " from "
         << CLTXT /*<< inputs[type][port].first->name << " "*/  // not necessarily non-NULL
         << "\"" << src_port << "\"" << CLNRM; 
     } else {
@@ -915,14 +928,15 @@ namespace bm {
       return im;
     }
 
-    VLOG(4) << name << " " << port << " " << " " << src_port;
      
     {
       boost::mutex::scoped_lock l(con->im_mutex);
-      im = con->im;
+      im = con->im;  // TBD has con->im been updated?  need a con->getImage()
       is_dirty = con->isDirty(this, 2);
     }
     valid = true;
+    
+    VLOG(4) << name << " " << port << " " << " " << src_port << " ";
 
     return im;
   }

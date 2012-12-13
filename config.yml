@@ -4,8 +4,8 @@ date: "Sun Aug 26 21:19:53 2012\n"
 ui_width: 960
 ui_height: 720
 # image thumbnail on gui 
-thumb_width: 64
-thumb_height: 48
+thumb_width: 128
+thumb_height: 72
 # the image used within the pipeline
 im_width: 640
 #im_height: 480
@@ -18,4 +18,4 @@ im_height: 360
 #im_height: 1080
 #
 out_width: 640
-out_height: 480
+out_height: 360

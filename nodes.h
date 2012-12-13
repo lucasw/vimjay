@@ -132,6 +132,8 @@ class Connector : public Elem
 
   bool setImage(cv::Mat im);
 
+  cv::Mat getImage();
+
   void draw(cv::Mat, cv::Point2f ui_offset);
 
   // TBD could even have a float val or Mat here to store the last value
