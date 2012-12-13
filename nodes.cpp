@@ -432,7 +432,7 @@ namespace bm {
     // TBD loop through ports and run getImage on each
     // or could that be combined with looping through the getInputVector above?
     
-    VLOG(1) << name << " in sz " << ports.size() << " inputs dirty " << inputs_dirty;
+    VLOG(2) << name << " in sz " << ports.size() << " inputs dirty " << inputs_dirty;
 
     return true;
   }

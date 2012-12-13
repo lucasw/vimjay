@@ -95,7 +95,7 @@ class CamThing : public Output
       
       VLOG(1) << CLVAL << all_nodes.size()  << CLTX2 
           << " new node " << CLNRM << " " << getId(node) << " "  
-          << name << " " << loc.x << ", " << loc.y;
+          << name << " " << loc.x << ", " << loc.y << " " << node;
 
       node->name = name;
       node->loc = loc;
@@ -221,15 +221,26 @@ class CamThing : public Output
         }
       } else if (type_id.compare("bm::Output") == 0) {
         node = getNode<Output>(name, loc);
-        output_node = (Output*)node;
-        output_node->setup(Config::inst()->out_width, Config::inst()->out_height);
-      
-        // TBD need better way to share X11 info- Config probably
-        if (input_node) {
-          input_node->display = output_node->display;
-          input_node->win = output_node->win;
-          input_node->opcode = output_node->opcode;
+        
+        if (!output_node) {
+          output_node = (Output*)node;
+          output_node->setup(Config::inst()->out_width, Config::inst()->out_height);
+
+          // TBD need better way to share X11 info- Config probably
+          if (input_node) {
+            input_node->display = output_node->display;
+            input_node->win = output_node->win;
+            input_node->opcode = output_node->opcode;
+          }
+        } else { 
+          // must be preview node
+          // TBD this makes it so the order in the yaml file determines the difference
+          // between output and preview, may want to fix that
+          preview_node = (Output*)node;
+          preview_node->setup(Config::inst()->out_width, Config::inst()->out_height);
+
         }
+
       } else {
         LOG(WARNING) << "unknown node type " << type_id << ", assuming imageNode";
         node = getNode<ImageNode>(name, loc);
@@ -251,6 +262,7 @@ class CamThing : public Output
     all_nodes.resize(0);
     
     output_node = NULL;
+    preview_node = NULL;
     input_node = NULL;
   }
 
@@ -415,6 +427,7 @@ class CamThing : public Output
       source_port(""),
       source_port_ind(0),
       output_node(NULL),
+      preview_node(NULL),
       input_node(NULL),
       draw_nodes(true),
       //paused(true)
@@ -436,6 +449,7 @@ class CamThing : public Output
       defaultGraph();
     } 
     output_node->setSignal("force_update", 1.0);
+    preview_node->setSignal("force_update", 1.0);
 
     saveGraph("graph_load_test.yml");
 
@@ -514,6 +528,9 @@ class CamThing : public Output
         output_node = (Output*)node;
         cv::Mat tmp;
         node->setImage("in", tmp); 
+      }
+      if (name == "preview") {
+        preview_node = (Output*)node;
       }
 
       VLOG(1) << type_id << " " << CLTXT << name << CLVAL << " " 
@@ -688,23 +705,33 @@ class CamThing : public Output
     node = getNode<SigBuffer>("sig_buf", loc);
     
     node = getNode<Output>("output", loc);
-    output_node = (Output*)node;
-    output_node->setup(Config::inst()->out_width, Config::inst()->out_height);
-    // TBD put in config file?
+    
     {
-      // force output node to move window
-      output_node->draw(ui_offset);
-      output_node->setSignal("x", Config::inst()->ui_width + 28);
-      output_node->draw(ui_offset);
-    }
+      output_node = (Output*)node;
+      output_node->setup(Config::inst()->out_width, Config::inst()->out_height);
+      // TBD put in config file?
+      {
+        // force output node to move window
+        output_node->draw(ui_offset);
+        output_node->setSignal("x", Config::inst()->ui_width + 28);
+        output_node->draw(ui_offset);
+      }
 
-    // TBD need better way to share X11 info- Config probably
-    if (input_node) {
-      input_node->display = output_node->display;
-      input_node->win = output_node->win;
-      input_node->opcode = output_node->opcode;
+      // TBD need better way to share X11 info- Config probably
+      if (input_node) {
+        input_node->display = output_node->display;
+        input_node->win = output_node->win;
+        input_node->opcode = output_node->opcode;
+      }
     }
+    
+    node = getNode<Output>("preview", loc);
 
+    {
+      preview_node = (Output*)node;
+      preview_node->setup(Config::inst()->out_width, Config::inst()->out_height);
+      // TBD put in config file?
+    }
 
   #if MAKE_FIR
     {
@@ -798,7 +825,6 @@ class CamThing : public Output
     cv::moveWindow("cam", 0, 0);
 */
    
-    output_node = (Output*)node;
     }
 
     nodeUpdate();
