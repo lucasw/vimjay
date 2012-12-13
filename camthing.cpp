@@ -886,6 +886,26 @@ class CamThing : public Output
     
     return false;
   }
+  
+  bool updatePreviewNode()
+  {
+    if (!preview_node) return false;
+    if (!selected_node) return false;
+
+    ImageNode* im_src = dynamic_cast<ImageNode*> (selected_node);
+    if (!im_src) {
+      VLOG(1) << "no images to preview";
+      return false;
+    }
+
+    if (selected_node->selected_type == IMAGE) {
+      preview_node->setInputPort(IMAGE, "in", selected_node, selected_node->selected_port);
+    } else {
+      preview_node->setInputPort(IMAGE, "in", selected_node, "out");
+    }
+    
+    return true;
+  } // updatePreviewNode
 
   bool removePortConnection() 
   {
@@ -906,7 +926,6 @@ class CamThing : public Output
     if (selected_ind >= all_nodes.size()) selected_ind = 0;
     selected_node = all_nodes[selected_ind];
 
-    //selected_port = "";
     selectPort(0);
 
     VLOG(1) << "selected node " << selected_node->name << " " << selected_ind;
@@ -920,7 +939,6 @@ class CamThing : public Output
     if (selected_ind < 0) selected_ind = all_nodes.size()-1;
     selected_node = all_nodes[selected_ind];
 
-    //selected_port = "";
     selectPort(0);
     
     VLOG(1) << "selected node " << selected_node->name << " " << selected_ind;
@@ -996,9 +1014,7 @@ class CamThing : public Output
 
     // take the current port
     if (next_port == 0) {
-      //selected_port_type = selected_node->selected_type;
-      //selected_port      = selected_node->selected_port;
-      //selected_port_ind  = selected_node->selected_port_ind;
+      updatePreviewNode();
       return true;
     }
 
@@ -1009,9 +1025,7 @@ class CamThing : public Output
       rv = selected_node->getPrevPort(source_type);
     
     if (rv) {
-      //selected_port_type = selected_node->selected_type;
-      //selected_port = selected_node->selected_port;
-      //selected_port_ind = selected_node->selected_port_ind;
+      updatePreviewNode();
     }
 
     return rv;
@@ -1078,6 +1092,7 @@ class CamThing : public Output
       if (min_ind >= 0) {
         selected_node = all_nodes[min_ind];
         selected_ind = min_ind;
+        selectPort(0);
         return true;
       }
       return false;
@@ -1308,7 +1323,7 @@ class CamThing : public Output
           << CLTXT 
           << selected_ind << " " << selected_node->selected_port_ind << " " 
           << CLNRM;
-        VLOG(1) << str.str();
+        VLOG(2) << str.str();
       }
     } 
     else if (key == 'r') {

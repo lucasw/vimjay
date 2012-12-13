@@ -881,7 +881,7 @@ namespace bm {
 
     //VLOG(1) << "name " << is_dirty << " " << p1->name << " " << p1->is_dirty << ", " << p2->name << " " << p2->is_dirty ;
     if (!isDirty(this, 5)) { 
-      VLOG(1) << name << " not dirty ";
+      VLOG(4) << name << " not dirty ";
       return true; 
     }
 

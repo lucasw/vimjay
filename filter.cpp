@@ -409,7 +409,7 @@ bool MorphologyEx::update()
   if (!Node::update()) return false;
 
   if (!isDirty(this, 5)) { 
-    VLOG(1) << name << " not dirty ";
+    VLOG(4) << name << " not dirty ";
     return true; 
   }
 
