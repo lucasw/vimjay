@@ -324,6 +324,9 @@ namespace bm {
         x1 += x_off/2;
       }
       if (i % 2 == 1) {
+        //TBD instead of flipping the edges of the screen, the size of the mask
+        // needs to be considered.y
+        //
         float temp = x1;
         x1 = x2;
         x2 = temp;
