@@ -223,16 +223,22 @@ namespace bm {
     setImage("in",tmp);
 
     setImage("mask",tmp);
-   
+  
+    setImage("mapx", tmp, true);
+    setImage("mapy", tmp, true);
+    setSignal("map_scale", 255.0/(float)Config::inst()->getImSize().width);
+
     // these govern the tiling of the masked input image
     setSignal("x_off", 100);  
     setSignal("y_off", 100); 
+    // tbd need another x,y offset to govern vertical tiling?
     
+    setSignal("border", 0, false, ROLL, 0, 4);
+    setSignal("mode", 0, false, ROLL, 0, 4);
     // TBD mode selector to toggle how pieces are tiled - flip u/d, l/r, 
     // TBD tiling pieces can be rotated
 
-    base_x = cv::Mat( Config::inst()->getImSize(),
-      CV_32FC1);
+    base_x = cv::Mat( Config::inst()->getImSize(), CV_32FC1);
     base_y = base_x.clone();
 
     for (int i = 0; i < base_x.rows; i++) {
@@ -275,56 +281,79 @@ namespace bm {
       // probably want to change add1 to black and white and then use it here,
       // otherwise color channels get masked individually. (a pixel that is 0 in red
       // but not in green will have different masks on those channels)
-      mask4 = add1;
-    } 
+      mask4 = in.clone();
+    }
+    cv::Mat mask1 = cv::Mat( Config::inst()->getImSize(), CV_8UC1);
+    int ch1[] = {0, 0};
+    mixChannels(&mask4, 1, &mask1, 1, ch1, 1);
+
+    mask1 = (mask1 > 0);
     
     int offset = getSignal("offset");
-    cv::Mat mask = mask4 - cv::Scalar(offset,offset,offset,0); // cv::Mat(mask4.size(), CV_8UC1);
-    // TBD use first channel as mask, TBD could combine all channels
-    //int ch1[] = {0, 0};
-    //mixChannels(&mask4, 1, &mask, 1, ch1, 1);
+    cv::Mat mask;
+    mask1.convertTo(mask, CV_32FC1, 1.0/255.0);
+    mask -= cv::Scalar(offset); // cv::Mat(mask4.size(), CV_8UC1);
     
-    //cv::Mat mask4_neg = 255 - mask4;
-    
-    // this is masking individually on all color channels, probably
-
     // TBD could hold on to the base_x/y_mask and only update when the mask or the offsets
     // change
-    cv::Mat base_x_masked; // = base_x & (mask == 0);
-    base_x_masked = base_x & (mask > 0);
-    
-    cv::Mat base_y_masked; // = base_x & (mask == 0);
-    base_y_masked = base_y & (mask > 0);
+    cv::Mat base_x_masked = base_x.mul(mask);
+    cv::Mat base_y_masked = base_y.mul(mask);
 
-    cv::Mat total_base_x; 
-    cv::Mat total_base_y; 
+    cv::Mat total_base_x = cv::Mat( Config::inst()->getImSize(), CV_32FC1, cv::Scalar(0));
+    cv::Mat total_base_y = total_base_x.clone(); 
     // TBD debug values
     for (int i = 0; i < 4; i++) {
       // now start shifting
       
       const float x_off = getSignal("x_off");
       //float x_off = getSignal("x_off");
-      cv::Mat in_pts = (cv::Mat_<float>(2,3) <<
+      cv::Mat in_pts = (cv::Mat_<float>(2,4) <<
         0, 0, 1, 1,
         0, 1, 1, 0
         );
-      cv::Mat out_pts = (cv::Mat_<float>(2,3) <<
+      cv::Mat out_pts = (cv::Mat_<float>(2,4) <<
         0, 0, x_off, x_off,
         0, 1, 1, 0
-        
         );
- 
-
-      cv::Mat transform = getPerspectiveTransform(in_pts, out_pts);
+      
+      // need four points
+      cv::Mat transform = getPerspectiveTransform(in_pts.t(), out_pts.t());
     
       cv::Mat x_tf, y_tf;
       // TBD combine using base_xy
       cv::warpPerspective(base_x_masked, x_tf, transform, base_x_masked.size()); //, getModeType(), getBorderType());
       cv::warpPerspective(base_y_masked, y_tf, transform, base_y_masked.size()); //, getModeType(), getBorderType());
-      total_base_x = total_base_x & (x_tf == 0);
-      total_base_x += 
+      //cv::Mat test= x_tf ==0; // these comparison produce 8 bit images
+      // can't do simple binary comparisons because they produce 8-bit images 
+      cv::Mat x_tf_neg;
+      cv::threshold(x_tf, x_tf_neg, 0.1, 1.0, THRESH_BINARY_INV);
+      total_base_x = total_base_x.mul(x_tf_neg);
+      total_base_x += x_tf; 
+      
+      cv::Mat y_tf_neg;
+      cv::threshold(y_tf, y_tf_neg, 0.1, 1.0, THRESH_BINARY_INV);
+      total_base_y = total_base_x.mul(y_tf_neg);
+      total_base_y += y_tf; 
     }
 
+    cv::Mat dist_xy16, dist_int;
+    cv::convertMaps(total_base_x, total_base_y, dist_xy16, dist_int, CV_16SC2, true);
+    cv::Mat out;
+    cv::remap(in, out, dist_xy16, cv::Mat(), getModeType(), getBorderType());
+
+    cv::Mat dist_xy8;
+    dist_xy16.convertTo(dist_xy8, CV_8UC2, getSignal("map_scale"));
+    cv::Mat mapx = cv::Mat( Config::inst()->getImSize(), CV_8UC4, cv::Scalar(0,0,0,0));
+    cv::Mat mapy = cv::Mat( Config::inst()->getImSize(), CV_8UC4, cv::Scalar(0,0,0,0));
+
+    int chx[] = {0,0, 0,1, 0,2}; 
+    mixChannels(&dist_xy8, 1, &mapx, 1, chx, 3 );
+    int chy[] = {1,0, 1,1, 1,2}; 
+    mixChannels(&dist_xy8, 1, &mapy, 1, chy, 3 );
+        
+
+    setImage("mapx", mapx);
+    setImage("mapy", mapy);
 #if 0
     cv::Mat in_pts = (cv::Mat_<float>(2,3) <<
       getSignal("x0"), getSignal("x1"), getSignal("x2"),
@@ -353,7 +382,6 @@ namespace bm {
     // rotate and tile the image in the output image
     #endif
 
-    cv::Mat out;
 
     setImage("out", out);
 

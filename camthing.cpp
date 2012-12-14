@@ -186,6 +186,8 @@ class CamThing : public Output
         node = getNode<Undistort>(name, loc);
       } else if (type_id.compare("bm::Remap") == 0) {
         node = getNode<Remap>(name, loc);
+      } else if (type_id.compare("bm::Kaleid") == 0) {
+        node = getNode<Kaleid>(name, loc);
       } else if (type_id.compare("bm::Signal") == 0) {
         node = getNode<Signal>(name, loc);
       } else if (type_id.compare("bm::SigAdd") == 0) {
@@ -650,6 +652,7 @@ class CamThing : public Output
     node = getNode<Rot2D>("rot2d", loc);
     node = getNode<Undistort>("undistort", loc);
     node = getNode<Remap>("remap", loc);
+    node = getNode<Kaleid>("kaleid", loc);
     
     getNode<Buffer>("buffer", loc);
     getNode<Mux>("mux", loc);
