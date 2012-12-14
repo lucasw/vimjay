@@ -217,6 +217,62 @@ namespace bm {
   }
 
   //
+  Kaleid::Kaleid(const std::string name) : ImageNode(name)
+  {
+    cv::Mat tmp;
+    setImage("in",tmp);
+
+    setSignal("x0", 0); setSignal("y0", 0);
+    setSignal("x1", 100); setSignal("y1", 0);
+    setSignal("x2", 100); setSignal("y2", 100);
+  }
+
+  bool Kaleid::update()
+  {
+    if (!Node::update()) return false;
+
+    if (!isDirty(this,40)) return true;
+
+    bool im_dirty;
+    cv::Mat in;
+    in = getImage("in");
+    if (in.empty()) return false;
+
+    const float wd = Config::inst()->im_width;
+    const float ht = Config::inst()->im_height;
+
+    cv::Mat in_pts = (cv::Mat_<float>(2,3) <<
+      getSignal("x0"), getSignal("x1"), getSignal("x2"),
+      getSignal("y0"), getSignal("y1"), getSignal("y2") );
+
+ 
+    // specify three points that will be the destination points
+    // an isosceles triange with 60 angle
+
+    float l = wd;
+    if (wd > ht) {
+      l = ht;
+    } 
+
+    cv::Mat out_pts = (cv::Mat_<float>(2,3) <<
+        0, l, l,
+        ht/2, ht/2-l/2, ht/2+l/2 
+        );
+  
+    cv::Mat transform = cv::getPerspectiveTransform(in_pts, out_pts);
+
+    // Create a mask that blanks out parts of the image outside the corner
+
+    // warp the image to be an isosceles triangle with an angle of 60 degrees
+      
+    // rotate and tile the image in the output image
+    cv::Mat out;
+
+    setImage("out", out);
+
+    return true;
+  }
+  //
   Undistort::Undistort(const std::string name) : ImageNode(name)
   {
     cv::Mat tmp;

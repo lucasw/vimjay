@@ -24,6 +24,14 @@ class Rot2D : public ImageNode
   virtual bool update();
 };
 
+class Kaleid : public ImageNode
+{
+  public:
+  Kaleid(const std::string name);
+  virtual bool update();
+};
+
+
 class Undistort : public ImageNode
 {
   public:
