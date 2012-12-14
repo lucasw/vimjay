@@ -301,23 +301,33 @@ namespace bm {
 
     cv::Mat total_base_x = cv::Mat( Config::inst()->getImSize(), CV_32FC1, cv::Scalar(0));
     cv::Mat total_base_y = total_base_x.clone(); 
+    
+    const float x_off = getSignal("x_off");
+    const float y_off = getSignal("y_off");
     // TBD debug values
+    for (int j = 0; j < 4; j++) {
     for (int i = 0; i < 4; i++) {
       // now start shifting
       
-      const float x_off = getSignal("x_off");
       //float x_off = getSignal("x_off");
-      cv::Mat in_pts = (cv::Mat_<float>(2,4) <<
-        0, 0, 1, 1,
-        0, 1, 1, 0
+      cv::Mat in_pts = (cv::Mat_<float>(4,2) <<
+        0, 0, 
+        0, ht, 
+        wd, ht,
+        wd, 0
         );
-      cv::Mat out_pts = (cv::Mat_<float>(2,4) <<
-        0, 0, x_off, x_off,
-        0, 1, 1, 0
+
+      const float dx = x_off*i;
+      const float dy = y_off*j;
+      cv::Mat out_pts = (cv::Mat_<float>(4,2) <<
+        dx,      dy, 
+        dx,      dy + ht, 
+        dx + wd, dy + ht,
+        dx + wd, dy
         );
       
       // need four points
-      cv::Mat transform = getPerspectiveTransform(in_pts.t(), out_pts.t());
+      cv::Mat transform = getPerspectiveTransform(in_pts, out_pts);
     
       cv::Mat x_tf, y_tf;
       // TBD combine using base_xy
@@ -332,15 +342,15 @@ namespace bm {
       
       cv::Mat y_tf_neg;
       cv::threshold(y_tf, y_tf_neg, 0.1, 1.0, THRESH_BINARY_INV);
-      total_base_y = total_base_x.mul(y_tf_neg);
+      total_base_y = total_base_y.mul(y_tf_neg);
       total_base_y += y_tf; 
-    }
+    }}
 
     cv::Mat dist_xy16, dist_int;
     cv::convertMaps(total_base_x, total_base_y, dist_xy16, dist_int, CV_16SC2, true);
     cv::Mat out;
-    cv::remap(in, out, dist_xy16, cv::Mat(), getModeType(), getBorderType());
-
+   
+    {
     cv::Mat dist_xy8;
     dist_xy16.convertTo(dist_xy8, CV_8UC2, getSignal("map_scale"));
     cv::Mat mapx = cv::Mat( Config::inst()->getImSize(), CV_8UC4, cv::Scalar(0,0,0,0));
@@ -354,7 +364,12 @@ namespace bm {
 
     setImage("mapx", mapx);
     setImage("mapy", mapy);
-#if 0
+    }
+    ///////////////////////
+    
+    cv::remap(in, out, dist_xy16, cv::Mat(), getModeType(), getBorderType());
+
+   #if 0
     cv::Mat in_pts = (cv::Mat_<float>(2,3) <<
       getSignal("x0"), getSignal("x1"), getSignal("x2"),
       getSignal("y0"), getSignal("y1"), getSignal("y2") );
