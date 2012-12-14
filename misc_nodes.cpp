@@ -317,14 +317,25 @@ namespace bm {
         wd, 0
         );
 
-      const float dx = x_off*i;
-      const float dy = y_off*j;
+      float dx = x_off*i;
+      float x1 = dx;
+      float x2 = dx + wd;
+      if (j % 2 == 1) {
+        x1 += x_off/2;
+      }
+      if (i % 2 == 1) {
+        float temp = x1;
+        x1 = x2;
+        x2 = temp;
+      }
+      float dy = y_off*j;
       cv::Mat out_pts = (cv::Mat_<float>(4,2) <<
-        dx,      dy, 
-        dx,      dy + ht, 
-        dx + wd, dy + ht,
-        dx + wd, dy
+        x1, dy, 
+        x1, dy + ht, 
+        x2, dy + ht,
+        x2, dy
         );
+
       
       // need four points
       cv::Mat transform = getPerspectiveTransform(in_pts, out_pts);

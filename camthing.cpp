@@ -648,6 +648,11 @@ class CamThing : public Output
     im_dir->dir = "../data/";
     im_dir->loadImages();
 
+    ImageDir* im_dir2 = getNode<ImageDir>("image_dir", loc);
+    im_dir2->dir = "../data/";
+    im_dir2->loadImages();
+
+
     // process
     node = getNode<Rot2D>("rot2d", loc);
     node = getNode<Undistort>("undistort", loc);
