@@ -222,9 +222,32 @@ namespace bm {
     cv::Mat tmp;
     setImage("in",tmp);
 
+    setImage("mask",tmp);
+   
+    // these govern the tiling of the masked input image
+    setSignal("x_off", 100);  
+    setSignal("y_off", 100); 
+    
+    // TBD mode selector to toggle how pieces are tiled - flip u/d, l/r, 
+    // TBD tiling pieces can be rotated
+
+    base_x = cv::Mat( Config::inst()->getImSize(),
+      CV_32FC1);
+    base_y = base_x.clone();
+
+    for (int i = 0; i < base_x.rows; i++) {
+    for (int j = 0; j < base_x.cols; j++) {
+      base_x.at<float>(i,j) = j;
+      base_y.at<float>(i,j) = i;
+    }
+    }
+
+#if 0
     setSignal("x0", 0); setSignal("y0", 0);
     setSignal("x1", 100); setSignal("y1", 0);
     setSignal("x2", 100); setSignal("y2", 100);
+
+    #endif
   }
 
   bool Kaleid::update()
@@ -241,6 +264,68 @@ namespace bm {
     const float wd = Config::inst()->im_width;
     const float ht = Config::inst()->im_height;
 
+    // multiply mask by base_x and base_y
+    // then start at -wd, -ht and start using masked addition to tile
+    // the masked image over a new base_x,y that will be given to the remap
+    // that concludes the function
+
+    cv::Mat mask4 = getImage("mask");
+    // derive the mask from the second input
+    if (mask4.empty()) {
+      // probably want to change add1 to black and white and then use it here,
+      // otherwise color channels get masked individually. (a pixel that is 0 in red
+      // but not in green will have different masks on those channels)
+      mask4 = add1;
+    } 
+    
+    int offset = getSignal("offset");
+    cv::Mat mask = mask4 - cv::Scalar(offset,offset,offset,0); // cv::Mat(mask4.size(), CV_8UC1);
+    // TBD use first channel as mask, TBD could combine all channels
+    //int ch1[] = {0, 0};
+    //mixChannels(&mask4, 1, &mask, 1, ch1, 1);
+    
+    //cv::Mat mask4_neg = 255 - mask4;
+    
+    // this is masking individually on all color channels, probably
+
+    // TBD could hold on to the base_x/y_mask and only update when the mask or the offsets
+    // change
+    cv::Mat base_x_masked; // = base_x & (mask == 0);
+    base_x_masked = base_x & (mask > 0);
+    
+    cv::Mat base_y_masked; // = base_x & (mask == 0);
+    base_y_masked = base_y & (mask > 0);
+
+    cv::Mat total_base_x; 
+    cv::Mat total_base_y; 
+    // TBD debug values
+    for (int i = 0; i < 4; i++) {
+      // now start shifting
+      
+      const float x_off = getSignal("x_off");
+      //float x_off = getSignal("x_off");
+      cv::Mat in_pts = (cv::Mat_<float>(2,3) <<
+        0, 0, 1, 1,
+        0, 1, 1, 0
+        );
+      cv::Mat out_pts = (cv::Mat_<float>(2,3) <<
+        0, 0, x_off, x_off,
+        0, 1, 1, 0
+        
+        );
+ 
+
+      cv::Mat transform = getPerspectiveTransform(in_pts, out_pts);
+    
+      cv::Mat x_tf, y_tf;
+      // TBD combine using base_xy
+      cv::warpPerspective(base_x_masked, x_tf, transform, base_x_masked.size()); //, getModeType(), getBorderType());
+      cv::warpPerspective(base_y_masked, y_tf, transform, base_y_masked.size()); //, getModeType(), getBorderType());
+      total_base_x = total_base_x & (x_tf == 0);
+      total_base_x += 
+    }
+
+#if 0
     cv::Mat in_pts = (cv::Mat_<float>(2,3) <<
       getSignal("x0"), getSignal("x1"), getSignal("x2"),
       getSignal("y0"), getSignal("y1"), getSignal("y2") );
@@ -266,6 +351,8 @@ namespace bm {
     // warp the image to be an isosceles triangle with an angle of 60 degrees
       
     // rotate and tile the image in the output image
+    #endif
+
     cv::Mat out;
 
     setImage("out", out);
@@ -339,8 +426,12 @@ namespace bm {
     setImage("offy", offy);
     setSignal("scaley", 1.0);
     setSignal("offsety", 127.0);
+    // select if base indices are added to offxy or not TBD current bit depth doesn't support
+    // this
+    //setSignal("off_mode", 0, false, ROLL, 0, 1);
     setSignal("border", 0, false, ROLL, 0, 4);
     setSignal("mode", 0, false, ROLL, 0, 4);
+
 
     base_x = cv::Mat( Config::inst()->getImSize(),
       CV_32FC1);

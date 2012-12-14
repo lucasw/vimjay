@@ -26,6 +26,10 @@ class Rot2D : public ImageNode
 
 class Kaleid : public ImageNode
 {
+  protected:
+  cv::Mat base_x;
+  cv::Mat base_y;
+
   public:
   Kaleid(const std::string name);
   virtual bool update();
