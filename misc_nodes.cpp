@@ -267,8 +267,8 @@ namespace bm {
     in = getImage("in");
     if (in.empty()) return false;
 
-    const float wd = Config::inst()->im_width;
-    const float ht = Config::inst()->im_height;
+    const float wd = getSignal("width"); //Config::inst()->im_width;
+    const float ht = getSignal("height"); //Config::inst()->im_height;
 
     // multiply mask by base_x and base_y
     // then start at -wd, -ht and start using masked addition to tile
@@ -287,12 +287,11 @@ namespace bm {
     int ch1[] = {0, 0};
     mixChannels(&mask4, 1, &mask1, 1, ch1, 1);
 
-    mask1 = (mask1 > 0);
+    //const int offset = getSignal("offset");
+    mask1 = (mask1 > getSignal("offset"));
     
-    int offset = getSignal("offset");
     cv::Mat mask;
     mask1.convertTo(mask, CV_32FC1, 1.0/255.0);
-    mask -= cv::Scalar(offset); // cv::Mat(mask4.size(), CV_8UC1);
     
     // TBD could hold on to the base_x/y_mask and only update when the mask or the offsets
     // change
@@ -305,8 +304,8 @@ namespace bm {
     const float x_off = getSignal("x_off");
     const float y_off = getSignal("y_off");
     // TBD debug values
-    for (int j = 0; j < 4; j++) {
-    for (int i = 0; i < 4; i++) {
+    for (int j = 0; j < getSignal("y_repeat"); j++) {
+    for (int i = 0; i < getSignal("x_repeat"); i++) {
       // now start shifting
       
       //float x_off = getSignal("x_off");
@@ -320,26 +319,42 @@ namespace bm {
       float dx = x_off*i;
       float x1 = dx;
       float x2 = dx + wd;
+      if (getSignal("do_y_offset") > 0.5) { 
       if (j % 2 == 1) {
         x1 += x_off/2;
+        x2 += x_off/2;
       }
-      if (i % 2 == 1) {
-        //TBD instead of flipping the edges of the screen, the size of the mask
-        // needs to be considered.y
-        //
-        float temp = x1;
-        x1 = x2;
-        x2 = temp;
       }
+
       float dy = y_off*j;
+      float y1 = dy;
+      float y2 = dy + ht;
+      if (getSignal("do_flip") > 0.5) {
+        if (i % 2 == 1) {
+          //TBD instead of flipping the edges of the screen, the size of the mask
+          // needs to be considered.y
+          //
+          const float temp = x1;
+          x1 = x2;
+          x2 = temp;
+        }
+        if (j % 2 == 1) {
+          const float temp = y1;
+          y1 = y2;
+          y2 = temp;
+
+          const float temp2 = x1;
+          x1 = x2;
+          x2 = temp2;
+        }
+      }
       cv::Mat out_pts = (cv::Mat_<float>(4,2) <<
-        x1, dy, 
-        x1, dy + ht, 
-        x2, dy + ht,
-        x2, dy
+        x1, y1, 
+        x1, y2, 
+        x2, y2,
+        x2, y1
         );
 
-      
       // need four points
       cv::Mat transform = getPerspectiveTransform(in_pts, out_pts);
     
