@@ -267,8 +267,8 @@ namespace bm {
     in = getImage("in");
     if (in.empty()) return false;
 
-    const float wd = getSignal("width"); //Config::inst()->im_width;
-    const float ht = getSignal("height"); //Config::inst()->im_height;
+    const float wd = Config::inst()->im_width;
+    const float ht = Config::inst()->im_height;
 
     // multiply mask by base_x and base_y
     // then start at -wd, -ht and start using masked addition to tile
@@ -303,57 +303,50 @@ namespace bm {
     
     const float x_off = getSignal("x_off");
     const float y_off = getSignal("y_off");
-    // TBD debug values
-    for (int j = 0; j < getSignal("y_repeat"); j++) {
-    for (int i = 0; i < getSignal("x_repeat"); i++) {
+    const int j_max = getSignal("y_repeat");
+    const int i_max = getSignal("x_repeat");
+
+    const float theta = getSignal("theta") * M_PI/180.0;
+
+    const float x1o =  0;// - wd/2;
+    const float x2o =  wd;//+ wd/2;
+    const float y1o =  0;//- ht/2;
+    const float y2o =  ht;//+ ht/2;
+    cv::Mat in_pts = (cv::Mat_<float>(4,2) <<
+        x1o, y1o,
+        x1o, y2o,
+        x2o, y2o,
+        x2o, y1o
+        );
+    cv::Mat offset_pts = (cv::Mat_<float>(4,2) <<
+        wd/2, ht/2,
+        wd/2, ht/2,
+        wd/2, ht/2,
+        wd/2, ht/2
+        );
+
+    for (int j = -j_max; j <= j_max; j++) {
+    for (int i = -i_max; i <= i_max; i++) {
       // now start shifting
+ 
+      cv::Mat rot = (cv::Mat_<float>(2, 2) <<
+        cos(theta*i), -sin(theta*i),  
+        sin(theta*i),  cos(theta*i) 
+        );   
+      cv::Mat out_pts = (in_pts - offset_pts) * rot + offset_pts;
       
-      //float x_off = getSignal("x_off");
-      cv::Mat in_pts = (cv::Mat_<float>(4,2) <<
-        0, 0, 
-        0, ht, 
-        wd, ht,
-        wd, 0
-        );
+      for (int k = 0; k < 4; k++)
+        out_pts.at<float>(k,0) += x_off*i;// + wd/2;
+      
+      for (int k = 0; k < 4; k++)
+        out_pts.at<float>(k,1) += y_off*j;// + ht/2;
 
-      float dx = x_off*i;
-      float x1 = dx;
-      float x2 = dx + wd;
       if (getSignal("do_y_offset") > 0.5) { 
-      if (j % 2 == 1) {
-        x1 += x_off/2;
-        x2 += x_off/2;
-      }
       }
 
-      float dy = y_off*j;
-      float y1 = dy;
-      float y2 = dy + ht;
       if (getSignal("do_flip") > 0.5) {
-        if (i % 2 == 1) {
-          //TBD instead of flipping the edges of the screen, the size of the mask
-          // needs to be considered.y
-          //
-          const float temp = x1;
-          x1 = x2;
-          x2 = temp;
-        }
-        if (j % 2 == 1) {
-          const float temp = y1;
-          y1 = y2;
-          y2 = temp;
-
-          const float temp2 = x1;
-          x1 = x2;
-          x2 = temp2;
-        }
       }
-      cv::Mat out_pts = (cv::Mat_<float>(4,2) <<
-        x1, y1, 
-        x1, y2, 
-        x2, y2,
-        x2, y1
-        );
+   
 
       // need four points
       cv::Mat transform = getPerspectiveTransform(in_pts, out_pts);
