@@ -57,7 +57,9 @@ enum conType {
   SIGNAL,
   IMAGE,
   BUFFER,
-  SIGBUF
+  SIGBUF,
+  STRING
+  // TBD STRBUF
 };
 
 enum satType {
@@ -151,6 +153,8 @@ class Connector : public Elem
 
   // only used if conType == Image or Buffer
   cv::Mat im;
+
+  std::string str;
 
   // TBD could store a copy of a sigbuf here
   // std::vector<float> sigbuf;
@@ -275,6 +279,9 @@ class Node : public Elem
   
   bool setSigBuf(const std::string port, const bool internally_set=false);
 
+  bool setString(const std::string port, const std::string new_str);
+  std::string getString(const std::string port,
+      bool& valid = bool_val);
 
   virtual bool handleKey(int key);
 };

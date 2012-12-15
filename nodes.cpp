@@ -169,7 +169,13 @@ namespace bm {
         // now get dirtied data
         value = src->value;
 
-        im = src->im;
+        str = src->str;
+        // this ought to err on the side of keeping last images before a disconnection
+        // though that may have already been happening or not happening for reasons
+        // outside of this assignment?  Tested it and it looks like the image
+        // is kept properly so the check here is unnecessary
+        //if (!src->im.empty())
+          im = src->im;
        
         // if a connector has a src then it can't be an output
         // (at least until it gets overridden as an output)
@@ -905,7 +911,6 @@ namespace bm {
       con->value = val;
       con->setDirty();
     }
-   
 
     if (saturate > 0) {
       LOG(INFO) << name << " - " << port << ((saturate == 1) ? " - saturating " : " - rolling over") << min << " " << max;
@@ -1109,6 +1114,62 @@ namespace bm {
     con->setDirty();
 
     return true;
+  }
+
+  bool setString(const std::string port, const std::string new_str)
+  {
+    Connector* con = NULL;
+    string src_port;
+    if (!getInputPort(SIGNAL, port, con, src_port)) {
+      
+      // create it if it doesn't exist
+      setInputPort(STRING, port);
+      
+      if (!getInputPort(STRING, port, con, src_port)) {
+        LOG(ERROR) << name << " still can't get connector " << CLTXT << port << CLNRM; 
+        return false;
+      }
+    
+      // only use this setting if the port is new (TBD)
+      con->internally_set = internally_set;
+    }
+    
+    // can't set signal if it is controlled by src port 
+    if (con->src) return false;
+
+    const float val_orig = con->value;
+    if (new_str != con->str) {
+      con->str = str;
+      con->setDirty();
+    }
+  
+    return true;
+  }
+
+  string Node::getString(
+    const string port, 
+    bool& valid)
+  {
+    valid = false; 
+    // first try non-input node map
+    
+    Connector* con = NULL;
+    string src_port;
+    // then look at input nodes
+    if (!getInputPort(STRING, port, con, src_port)) {
+      // create it if it doesn't exist
+      VLOG(1) << name << " creating SIGNAL " << CLTXT <<  name << " " << port << CLNRM;
+      setInputPort(STRING, port, NULL, "");
+      return "";
+    }
+
+    if (!con) return "";
+    //VLOG(1) << name << " " << src_port << " " << valid << " " << new_val << " " << val;
+    //if (!valid) return val;
+    
+    // TBD setDirty?  Probably shouldn't, would defeat the isDirty loop prevention
+    valid = true;
+    return con->str;
   }
   //////////////////////////////////////////////////////////////////////////////////////////
   ImageNode::ImageNode(const std::string name) : Node(name)

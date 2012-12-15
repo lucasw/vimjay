@@ -87,8 +87,6 @@ class ImageDir : public Buffer
 
   ImageDir(const std::string name);
 
-  std::string dir;
-  
   bool loadImages();
 
   virtual bool update();

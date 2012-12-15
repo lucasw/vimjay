@@ -845,7 +845,7 @@ namespace bm {
         cv::Mat tmp1_roi = tmp1(cv::Rect(off_x, off_y, tmp_sz.width, tmp_sz.height));
         tmp_aspect.copyTo(tmp1_roi);
 
-        LOG(INFO) << aspect_0 << " " << aspect_1 << ", " 
+        VLOG(3) << aspect_0 << " " << aspect_1 << ", " 
             << off_x << " " << off_y << " " << tmp_sz.width << " " << tmp_sz.height;
       } else {
         cv::resize( tmp0, tmp1, sz, 0, 0, mode );
@@ -863,8 +863,11 @@ namespace bm {
   bool ImageDir::load(cv::FileNodeIterator nd)
   {
     Buffer::load(nd);
-    
+   
+    string dir;
     (*nd)["dir"] >> dir;
+
+    setString("dir", dir);
 
     loadImages();
     resizeImages();
@@ -874,7 +877,7 @@ namespace bm {
   {
     Buffer::save(fs);
 
-    fs << "dir" << dir;
+    fs << "dir" << getString("dir");
   }
 
   bool ImageDir::update()
