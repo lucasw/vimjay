@@ -1,11 +1,11 @@
 %YAML:1.0
-date: "Sat Dec 15 06:37:01 2012\n"
+date: "Sat Dec 15 07:23:39 2012\n"
 nodes:
    -
       ind: 0
       typeid: "bm::CamThing"
       name: cam_thing
-      loc: [ 2.4117881774902344e+01, 9.3845291137695312e+01 ]
+      loc: [ 16., 125. ]
       inputs:
          -
             type: 1
@@ -44,13 +44,13 @@ nodes:
          -
             type: 1
             name: x
-            value: 10.
+            value: 17.
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: y
-            value: 57.
+            value: 0.
             src_ind: -1
             src_port: ""
          -
@@ -80,13 +80,13 @@ nodes:
          -
             type: 1
             name: "2_x"
-            value: 7.0999151611328125e+02
+            value: 6.9254663085937500e+02
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: "2_y"
-            value: 2.9447094726562500e+02
+            value: 4.2647473144531250e+02
             src_ind: -1
             src_port: ""
          -
@@ -99,7 +99,7 @@ nodes:
       ind: 1
       typeid: "bm::ScreenCap"
       name: screen_cap
-      loc: [ -1.7775210571289062e+02, 3.7524664306640625e+02 ]
+      loc: [ -178., 375. ]
       inputs:
          -
             type: 1
@@ -146,7 +146,7 @@ nodes:
       ind: 2
       typeid: "bm::ImageDir"
       name: image_dir
-      loc: [ -2.5628131866455078e+01, 7.1553863525390625e+02 ]
+      loc: [ -26., 716. ]
       dir: "../data"
       inputs:
          -
@@ -202,7 +202,7 @@ nodes:
          -
             type: 1
             name: cur_size
-            value: 32.
+            value: 33.
             src_ind: -1
             src_port: ""
          -
@@ -214,14 +214,14 @@ nodes:
          -
             type: 1
             name: ind
-            value: 1.2319955825805664e+01
+            value: 13.
             src_ind: 44
             src_port: value
    -
       ind: 3
       typeid: "bm::ImageDir"
       name: image_dir
-      loc: [ 1.8965766906738281e+02, 7.6857620239257812e+01 ]
+      loc: [ 180., 114. ]
       dir: "../data"
       inputs:
          -
@@ -277,26 +277,26 @@ nodes:
          -
             type: 1
             name: cur_size
-            value: 32.
+            value: 33.
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: load
-            value: 0.
+            value: 1.
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: ind
-            value: 23.
+            value: 31.
             src_ind: -1
             src_port: ""
    -
       ind: 4
       typeid: "bm::Rot2D"
       name: rot2d
-      loc: [ 9.3140083312988281e+01, 3.4988977050781250e+02 ]
+      loc: [ 93., 350. ]
       inputs:
          -
             type: 1
@@ -323,7 +323,7 @@ nodes:
          -
             type: 1
             name: phi
-            value: 0.
+            value: 34.
             src_ind: -1
             src_port: ""
          -
@@ -347,7 +347,7 @@ nodes:
          -
             type: 1
             name: scale
-            value: 5.9935867786407471e-01
+            value: 1.0618004798889160e+00
             src_ind: -1
             src_port: ""
          -
@@ -413,49 +413,49 @@ nodes:
          -
             type: 1
             name: x0
-            value: 1.2820523071289062e+02
+            value: 1.4518801879882812e+02
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: x1
-            value: 5.1179476928710938e+02
+            value: 7.0856243896484375e+02
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: x2
-            value: 5.1179476928710938e+02
+            value: 4.9481198120117188e+02
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: x3
-            value: 1.2820523071289062e+02
+            value: -6.8562438964843750e+01
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: y0
-            value: 7.2115440368652344e+01
+            value: -1.6844946289062500e+02
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: y1
-            value: 7.2115440368652344e+01
+            value: 2.1155136108398438e+02
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: y2
-            value: 2.8788455200195312e+02
+            value: 5.2844946289062500e+02
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: y3
-            value: 2.8788455200195312e+02
+            value: 1.4844863891601562e+02
             src_ind: -1
             src_port: ""
          -
@@ -486,7 +486,7 @@ nodes:
       ind: 5
       typeid: "bm::Undistort"
       name: undistort
-      loc: [ 4.0228195190429688e+02, 1.2985052108764648e+01 ]
+      loc: [ 394., 10. ]
       inputs:
          -
             type: 1
@@ -586,7 +586,7 @@ nodes:
       ind: 6
       typeid: "bm::Remap"
       name: remap
-      loc: [ 6.3508483886718750e+02, 4.3446163940429688e+02 ]
+      loc: [ 654., 441. ]
       inputs:
          -
             type: 1
@@ -660,7 +660,7 @@ nodes:
       ind: 7
       typeid: "bm::Kaleid"
       name: kaleid
-      loc: [ 5.9771307373046875e+02, 7.4675903320312500e+01 ]
+      loc: [ 592., 64. ]
       inputs:
          -
             type: 1
@@ -708,13 +708,13 @@ nodes:
          -
             type: 1
             name: x_off
-            value: 1.2653557586669922e+02
+            value: 93.
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: y_off
-            value: 100.
+            value: 156.
             src_ind: -1
             src_port: ""
          -
@@ -738,38 +738,44 @@ nodes:
          -
             type: 1
             name: y_repeat
-            value: 0.
+            value: 1.
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: x_repeat
-            value: 2.
+            value: 3.
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: theta
-            value: 60.
+            value: -60.
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: y_offset
-            value: 0.
+            value: -50.
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: do_flip
-            value: 0.
+            value: 1.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: write_count
+            value: 3.
             src_ind: -1
             src_port: ""
    -
       ind: 8
       typeid: "bm::Buffer"
       name: buffer
-      loc: [ 6.5536358642578125e+02, 3.0028579711914062e+02 ]
+      loc: [ 660., 315. ]
       inputs:
          -
             type: 1
@@ -814,7 +820,7 @@ nodes:
       ind: 9
       typeid: "bm::Mux"
       name: mux
-      loc: [ 6.0807208251953125e+02, 6.0508428955078125e+02 ]
+      loc: [ 608., 605. ]
       inputs:
          -
             type: 1
@@ -875,7 +881,7 @@ nodes:
       ind: 10
       typeid: "bm::MuxBuffer"
       name: mux_buffer
-      loc: [ 7.7946124267578125e+02, 8.7391433715820312e+01 ]
+      loc: [ 787., 86. ]
       inputs:
          -
             type: 1
@@ -936,7 +942,7 @@ nodes:
       ind: 11
       typeid: "bm::FilterFIR"
       name: filter_fir
-      loc: [ 8.0391174316406250e+02, 3.2628213500976562e+02 ]
+      loc: [ 804., 326. ]
       inputs:
          -
             type: 1
@@ -975,7 +981,7 @@ nodes:
       ind: 12
       typeid: "bm::Cluster"
       name: cluster
-      loc: [ 7.8482305908203125e+02, 5.2895178222656250e+02 ]
+      loc: [ 785., 529. ]
       inputs:
          -
             type: 1
@@ -1555,7 +1561,7 @@ nodes:
       ind: 25
       typeid: "bm::Resize"
       name: resize
-      loc: [ 1.6197326660156250e+03, 7.4265899658203125e+01 ]
+      loc: [ 1620., 74. ]
       inputs:
          -
             type: 1
@@ -1601,7 +1607,7 @@ nodes:
       ind: 26
       typeid: "bm::Flip"
       name: flip
-      loc: [ 1.6326596679687500e+03, 3.1062487792968750e+02 ]
+      loc: [ 1633., 311. ]
       inputs:
          -
             type: 1
@@ -1693,7 +1699,7 @@ nodes:
       ind: 28
       typeid: "bm::OpticalFlow"
       name: optical_flow
-      loc: [ 1.8455880126953125e+03, 1.1000755310058594e+02 ]
+      loc: [ 1846., 110. ]
       inputs:
          -
             type: 1
@@ -1909,7 +1915,7 @@ nodes:
       ind: 30
       typeid: "bm::Circle"
       name: circle
-      loc: [ 2.0638374023437500e+03, 7.0625877380371094e+01 ]
+      loc: [ 2064., 71. ]
       inputs:
          -
             type: 1
@@ -1974,7 +1980,7 @@ nodes:
       ind: 31
       typeid: "bm::Noise"
       name: noise
-      loc: [ 2.0261989746093750e+03, 3.2905673217773438e+02 ]
+      loc: [ 2026., 329. ]
       inputs:
          -
             type: 1
@@ -2101,7 +2107,7 @@ nodes:
       ind: 33
       typeid: "bm::Tap"
       name: tap0
-      loc: [ 2.2119853515625000e+03, 9.1418823242187500e+01 ]
+      loc: [ 2212., 91. ]
       inputs:
          -
             type: 1
@@ -2135,7 +2141,7 @@ nodes:
       ind: 34
       typeid: "bm::TapInd"
       name: tapind0
-      loc: [ 2200., 2.6200009155273438e+02 ]
+      loc: [ 2200., 262. ]
       inputs:
          -
             type: 1
@@ -2169,7 +2175,7 @@ nodes:
       ind: 35
       typeid: "bm::Contour"
       name: contour
-      loc: [ 2200., 4.0400012207031250e+02 ]
+      loc: [ 2200., 404. ]
       inputs:
          -
             type: 1
@@ -2220,20 +2226,20 @@ nodes:
          -
             type: 1
             name: "2_x"
-            value: 4.5164331054687500e+02
+            value: 8.8334228515625000e+01
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: "2_y"
-            value: 5.8949279785156250e-01
+            value: 1.4576416015625000e+00
             src_ind: -1
             src_port: ""
    -
       ind: 37
       typeid: "bm::SigAdd"
       name: sigadd
-      loc: [ 2200., 7.0599963378906250e+02 ]
+      loc: [ 2200., 706. ]
       inputs:
          -
             type: 1
@@ -2269,7 +2275,7 @@ nodes:
       ind: 38
       typeid: "bm::Signal"
       name: signal0
-      loc: [ 2380., -1.1999997138977051e+01 ]
+      loc: [ 2380., -12. ]
       inputs:
          -
             type: 1
@@ -2311,7 +2317,7 @@ nodes:
       ind: 39
       typeid: "bm::MiscSignal"
       name: saw
-      loc: [ 2380., 1.4799990844726562e+02 ]
+      loc: [ 2380., 148. ]
       inputs:
          -
             type: 1
@@ -2359,7 +2365,7 @@ nodes:
       ind: 40
       typeid: "bm::Trig"
       name: trig
-      loc: [ 2380., 2.9399984741210938e+02 ]
+      loc: [ 2380., 294. ]
       inputs:
          -
             type: 1
@@ -2516,13 +2522,13 @@ nodes:
          -
             type: 1
             name: x
-            value: 962.
+            value: 951.
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: y
-            value: 400.
+            value: 487.
             src_ind: -1
             src_port: ""
          -
@@ -2592,13 +2598,13 @@ nodes:
          -
             type: 1
             name: x
-            value: 951.
+            value: 894.
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: y
-            value: 0.
+            value: 36.
             src_ind: -1
             src_port: ""
          -
@@ -2629,7 +2635,7 @@ nodes:
       ind: 44
       typeid: "bm::MiscSignal"
       name: image_dir_sig
-      loc: [ -1.4580705261230469e+02, 6.1623217773437500e+02 ]
+      loc: [ -146., 616. ]
       inputs:
          -
             type: 1
@@ -2646,7 +2652,7 @@ nodes:
          -
             type: 1
             name: value
-            value: 1.2319955825805664e+01
+            value: 13.
             src_ind: -1
             src_port: ""
          -
@@ -2658,7 +2664,7 @@ nodes:
          -
             type: 1
             name: max
-            value: 32.
+            value: 1.
             src_ind: 2
             src_port: cur_size
          -
@@ -2676,14 +2682,14 @@ nodes:
          -
             type: 1
             name: t
-            value: 1.1372171783447266e+02
+            value: 1.1607141876220703e+02
             src_ind: -1
             src_port: ""
    -
       ind: 45
       typeid: "bm::Rot2D"
       name: rot2d_2
-      loc: [ 3.6686444091796875e+02, 2.2829283142089844e+02 ]
+      loc: [ 366., 242. ]
       inputs:
          -
             type: 1
@@ -2734,19 +2740,19 @@ nodes:
          -
             type: 1
             name: scale
-            value: 4.3046718835830688e-01
+            value: 5.9048998355865479e-01
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: center_x
-            value: 4.8482365608215332e+00
+            value: 5.
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: center_y
-            value: 4.1380853652954102e+00
+            value: 5.
             src_ind: -1
             src_port: ""
          -
@@ -2800,49 +2806,49 @@ nodes:
          -
             type: 1
             name: x0
-            value: 1.7253764343261719e+02
+            value: 1.3104321289062500e+02
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: x1
-            value: 4.4803662109375000e+02
+            value: 5.0895678710937500e+02
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: x2
-            value: 4.4803662109375000e+02
+            value: 5.0895678710937500e+02
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: x3
-            value: 1.7253764343261719e+02
+            value: 1.3104321289062500e+02
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: y0
-            value: 7.1486976623535156e+01
+            value: 7.3711799621582031e+01
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: y1
-            value: 7.1486976623535156e+01
+            value: 7.3711799621582031e+01
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: y2
-            value: 2.2645516967773438e+02
+            value: 2.8628820800781250e+02
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: y3
-            value: 2.2645516967773438e+02
+            value: 2.8628820800781250e+02
             src_ind: -1
             src_port: ""
          -

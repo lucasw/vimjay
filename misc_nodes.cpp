@@ -269,7 +269,7 @@ namespace bm {
 
 
     bool valid;
-    bool d1,d2,d3,d4,d5,d6,d7,d8,d9;
+    bool d1,d2,d3,d4,d5,d6,d7,d8,d9,d10,d11;
     cv::Mat mask4 = getImage("mask", valid, d1);
     const float offset = getSignal("offset", valid, d2);
 
@@ -280,10 +280,13 @@ namespace bm {
 
     const float theta = getSignal("theta", valid, d7) * M_PI/180.0;
     const float y_offset = getSignal("y_offset", valid, d8); 
-    const float map_scale = getSignal("map_scale", valid, d9);
+    const float x_offset = getSignal("x_offset", valid, d9); 
+    const float map_scale = getSignal("map_scale", valid, d10);
+
+    const bool do_flip = getSignal("do_flip", valid, d11);
 
     // proceed if any are dirty, later break into stages more
-    if (d1 || d2 || d3 || d4 || d5 || d6 || d7 || d8 || d9)
+    if (d1 || d2 || d3 || d4 || d5 || d6 || d7 || d8 || d9 || d10 || d11)
     {
     const float wd = Config::inst()->im_width;
     const float ht = Config::inst()->im_height;
@@ -317,17 +320,19 @@ namespace bm {
     cv::Mat total_base_x = cv::Mat( Config::inst()->getImSize(), CV_32FC1, cv::Scalar(0));
     cv::Mat total_base_y = total_base_x.clone(); 
     
-        const float x1o =  0;// - wd/2;
+    const float x1o =  0;// - wd/2;
     const float x2o =  wd;//+ wd/2;
     const float y1o =  0;//- ht/2;
     const float y2o =  ht;//+ ht/2;
-    cv::Mat in_pts = (cv::Mat_<float>(4,2) <<
+    
+    const cv::Mat in_pts = (cv::Mat_<float>(4,2) <<
         x1o, y1o,
         x1o, y2o,
         x2o, y2o,
         x2o, y1o
         );
-    cv::Mat offset_pts = (cv::Mat_<float>(4,2) <<
+    
+    const cv::Mat offset_pts = (cv::Mat_<float>(4,2) <<
         wd/2, ht/2,
         wd/2, ht/2,
         wd/2, ht/2,
@@ -337,25 +342,36 @@ namespace bm {
     for (int j = -j_max; j <= j_max; j++) {
     for (int i = -i_max; i <= i_max; i++) {
       // now start shifting
- 
+      float theta2 = theta;
+      float y_offset2 = 0;
+      cv::Mat in_pts2 = in_pts.clone();
+      if ( (abs(i)) % 2 == 1) {
+        y_offset2 = y_offset;
+
+        if (do_flip) {
+          theta2 = -theta;
+          in_pts2 = (cv::Mat_<float>(4,2) <<
+              x2o, y1o,
+              x2o, y2o,
+              x1o, y2o,
+              x1o, y1o
+              );
+        }     
+      }
+      if ( (abs(j)) % 2 == 1) {
+      }
+
       cv::Mat rot = (cv::Mat_<float>(2, 2) <<
-        cos(theta*i), -sin(theta*i),  
-        sin(theta*i),  cos(theta*i) 
+        cos(theta2 * i), -sin(theta2 * i),  
+        sin(theta2 * i),  cos(theta2 * i) 
         );   
-      cv::Mat out_pts = (in_pts - offset_pts) * rot + offset_pts;
+      cv::Mat out_pts = (in_pts2 - offset_pts) * rot + offset_pts;
       
       for (int k = 0; k < 4; k++)
         out_pts.at<float>(k,0) += x_off*i;// + wd/2;
       
       for (int k = 0; k < 4; k++)
-        out_pts.at<float>(k,1) += y_off*j;// + ht/2;
-
-      if ( y_offset > 0.5) { 
-      }
-
-      if (getSignal("do_flip") > 0.5) {
-      }
-   
+        out_pts.at<float>(k,1) += y_off*j + y_offset2;// + ht/2;
 
       // need four points
       cv::Mat transform = getPerspectiveTransform(in_pts, out_pts);
