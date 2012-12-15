@@ -732,6 +732,7 @@ namespace bm {
   ImageDir::ImageDir(const std::string name) : Buffer(name) 
   {
     setSignal("mode", 0, false, ROLL, 0, 4);
+    setSignal("keep_aspect", 1, false, ROLL, 0, 1);
     //setSignal("ind", 0, false, ROLL, 0, 0);
   }
 
@@ -805,17 +806,50 @@ namespace bm {
 
   bool ImageDir::resizeImages()
   {
-    int mode = getModeType();
+    const int mode = getModeType();
     //LOG(INFO) << "resize mode " << mode;
 
     boost::mutex::scoped_lock l(frames_mutex);
     frames.clear();
-    
+   
+    const bool keep_aspect = getSignal("keep_aspect");
+
     for (int i = 0; i < frames_orig.size(); i++) {
       cv::Mat tmp0 = frames_orig[i]; 
       cv::Size sz = Config::inst()->getImSize();
-      cv::Mat tmp1;
-      cv::resize(tmp0, tmp1, sz, 0, 0, mode );
+      
+      cv::Mat tmp1 = cv::Mat( sz, tmp0.type(), cv::Scalar::all(0));
+      
+      const float aspect_0 = (float)tmp0.cols/(float)tmp0.rows;
+      const float aspect_1 = (float)tmp1.cols/(float)tmp1.rows;
+     
+      if (keep_aspect) {
+
+        cv::Size tmp_sz = sz;
+        
+        int off_x = 0;
+        int off_y = 0;
+        // TBD could have epsilon defined by 1 pixel width
+        if (aspect_0 > aspect_1) {
+          tmp_sz.height = tmp_sz.width / aspect_0;
+          off_y = (sz.height - tmp_sz.height)/2;
+        } else if (aspect_0 < aspect_1) {
+          tmp_sz.width = tmp_sz.height * aspect_0;  
+          off_x = (sz.width - tmp_sz.width)/2;
+        }
+        
+        cv::Mat tmp_aspect;
+        cv::resize( tmp0, tmp_aspect, tmp_sz, 0, 0, mode );
+        
+        // TBD put offset so image is centered
+        cv::Mat tmp1_roi = tmp1(cv::Rect(off_x, off_y, tmp_sz.width, tmp_sz.height));
+        tmp_aspect.copyTo(tmp1_roi);
+
+        LOG(INFO) << aspect_0 << " " << aspect_1 << ", " 
+            << off_x << " " << off_y << " " << tmp_sz.width << " " << tmp_sz.height;
+      } else {
+        cv::resize( tmp0, tmp1, sz, 0, 0, mode );
+      }
 
       const bool restrict_size = false;
 
@@ -854,11 +888,16 @@ namespace bm {
       loadImages();
       resizeImages();
     } else {
+      // TBD need better method of this
       Connector* con = NULL;
       string src_port;
       getInputPort(SIGNAL, "mode", con, src_port);
       
-      if (con->isDirty(this, 48)) {
+      Connector* con2 = NULL;
+      getInputPort(SIGNAL, "keep_aspect", con2, src_port);
+      
+
+      if (con->isDirty(this, 48) || con2->isDirty(this,48)) {
         resizeImages();
       }
     }
