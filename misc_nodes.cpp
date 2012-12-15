@@ -344,6 +344,7 @@ namespace bm {
       // now start shifting
       float theta2 = theta;
       float y_offset2 = 0;
+      float x_offset2 = 0;
       cv::Mat in_pts2 = in_pts.clone();
       if ( (abs(i)) % 2 == 1) {
         y_offset2 = y_offset;
@@ -359,6 +360,7 @@ namespace bm {
         }     
       }
       if ( (abs(j)) % 2 == 1) {
+        x_offset2 = x_offset;
       }
 
       cv::Mat rot = (cv::Mat_<float>(2, 2) <<
@@ -368,7 +370,7 @@ namespace bm {
       cv::Mat out_pts = (in_pts2 - offset_pts) * rot + offset_pts;
       
       for (int k = 0; k < 4; k++)
-        out_pts.at<float>(k,0) += x_off*i;// + wd/2;
+        out_pts.at<float>(k,0) += x_off*i + x_offset2;// + wd/2;
       
       for (int k = 0; k < 4; k++)
         out_pts.at<float>(k,1) += y_off*j + y_offset2;// + ht/2;
