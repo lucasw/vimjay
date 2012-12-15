@@ -733,11 +733,13 @@ namespace bm {
   {
     setSignal("mode", 0, false, ROLL, 0, 4);
     setSignal("keep_aspect", 1, false, ROLL, 0, 1);
+    setString("dir", "../data");
     //setSignal("ind", 0, false, ROLL, 0, 0);
   }
 
   bool ImageDir::loadImages()
   {
+    const std::string dir = getString("dir");
     LOG(INFO) << name << " loading " << dir;
 
     

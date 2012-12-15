@@ -645,11 +645,9 @@ class CamThing : public Output
     //node->update();
 
     ImageDir* im_dir = getNode<ImageDir>("image_dir", loc);
-    im_dir->dir = "../data/";
     im_dir->loadImages();
 
     ImageDir* im_dir2 = getNode<ImageDir>("image_dir", loc);
-    im_dir2->dir = "../data/";
     im_dir2->loadImages();
 
 

@@ -345,6 +345,9 @@ namespace bm {
       col = cv::Scalar(bval, bval, cval);
     } else if (type == SIGBUF) {
       col = cv::Scalar(bval, bval/2 + cval/2, bval/2 + cval/2);
+    } else if (type == STRING) {
+      col = cv::Scalar(bval/2 + cval/2, bval, bval/2 + cval/2);
+      port_info << " " << str;
     }
    
     port_info << " " << description;
@@ -1116,11 +1119,11 @@ namespace bm {
     return true;
   }
 
-  bool setString(const std::string port, const std::string new_str)
+  bool Node::setString(const std::string port, const std::string new_str, const bool internally_set)
   {
     Connector* con = NULL;
     string src_port;
-    if (!getInputPort(SIGNAL, port, con, src_port)) {
+    if (!getInputPort(STRING, port, con, src_port)) {
       
       // create it if it doesn't exist
       setInputPort(STRING, port);
@@ -1139,7 +1142,7 @@ namespace bm {
 
     const float val_orig = con->value;
     if (new_str != con->str) {
-      con->str = str;
+      con->str = new_str;
       con->setDirty();
     }
   
