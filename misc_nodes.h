@@ -29,6 +29,7 @@ class Kaleid : public ImageNode
   protected:
   cv::Mat base_x;
   cv::Mat base_y;
+  cv::Mat dist_xy16; 
 
   public:
   Kaleid(const std::string name);

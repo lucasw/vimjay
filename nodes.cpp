@@ -929,7 +929,8 @@ namespace bm {
   cv::Mat Node::getImage(
     const string port,
     bool& valid,
-    bool& is_dirty)
+    bool& is_dirty
+    )
   {
     /*
     string type = "ImageNode";
@@ -965,7 +966,9 @@ namespace bm {
 
   float Node::getSignal(
     const string port, 
-    bool& valid)
+    bool& valid,
+    bool& is_dirty
+    )
   {
     valid = false; 
     // first try non-input node map
@@ -984,6 +987,7 @@ namespace bm {
     //VLOG(1) << name << " " << src_port << " " << valid << " " << new_val << " " << val;
     //if (!valid) return val;
     float val = con->value;
+    is_dirty = con->isDirty(this, 2);
     
     // TBD setDirty?  Probably shouldn't, would defeat the isDirty loop prevention
     valid = true;

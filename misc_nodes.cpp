@@ -267,6 +267,24 @@ namespace bm {
     in = getImage("in");
     if (in.empty()) return false;
 
+
+    bool valid;
+    bool d1,d2,d3,d4,d5,d6,d7,d8,d9;
+    cv::Mat mask4 = getImage("mask", valid, d1);
+    const float offset = getSignal("offset", valid, d2);
+
+    const float x_off = getSignal("x_off", valid, d3);
+    const float y_off = getSignal("y_off", valid, d4);
+    const int j_max = getSignal("y_repeat", valid, d5);
+    const int i_max = getSignal("x_repeat", valid, d6);
+
+    const float theta = getSignal("theta", valid, d7) * M_PI/180.0;
+    const float y_offset = getSignal("y_offset", valid, d8); 
+    const float map_scale = getSignal("map_scale", valid, d9);
+
+    // proceed if any are dirty, later break into stages more
+    if (d1 || d2 || d3 || d4 || d5 || d6 || d7 || d8 || d9)
+    {
     const float wd = Config::inst()->im_width;
     const float ht = Config::inst()->im_height;
 
@@ -275,7 +293,6 @@ namespace bm {
     // the masked image over a new base_x,y that will be given to the remap
     // that concludes the function
 
-    cv::Mat mask4 = getImage("mask");
     // derive the mask from the second input
     if (mask4.empty()) {
       // probably want to change add1 to black and white and then use it here,
@@ -287,8 +304,7 @@ namespace bm {
     int ch1[] = {0, 0};
     mixChannels(&mask4, 1, &mask1, 1, ch1, 1);
 
-    //const int offset = getSignal("offset");
-    mask1 = (mask1 > getSignal("offset"));
+    mask1 = (mask1 > offset);
     
     cv::Mat mask;
     mask1.convertTo(mask, CV_32FC1, 1.0/255.0);
@@ -301,14 +317,7 @@ namespace bm {
     cv::Mat total_base_x = cv::Mat( Config::inst()->getImSize(), CV_32FC1, cv::Scalar(0));
     cv::Mat total_base_y = total_base_x.clone(); 
     
-    const float x_off = getSignal("x_off");
-    const float y_off = getSignal("y_off");
-    const int j_max = getSignal("y_repeat");
-    const int i_max = getSignal("x_repeat");
-
-    const float theta = getSignal("theta") * M_PI/180.0;
-
-    const float x1o =  0;// - wd/2;
+        const float x1o =  0;// - wd/2;
     const float x2o =  wd;//+ wd/2;
     const float y1o =  0;//- ht/2;
     const float y2o =  ht;//+ ht/2;
@@ -341,7 +350,7 @@ namespace bm {
       for (int k = 0; k < 4; k++)
         out_pts.at<float>(k,1) += y_off*j;// + ht/2;
 
-      if (getSignal("do_y_offset") > 0.5) { 
+      if ( y_offset > 0.5) { 
       }
 
       if (getSignal("do_flip") > 0.5) {
@@ -368,13 +377,12 @@ namespace bm {
       total_base_y += y_tf; 
     }}
 
-    cv::Mat dist_xy16, dist_int;
+    cv::Mat dist_int;
     cv::convertMaps(total_base_x, total_base_y, dist_xy16, dist_int, CV_16SC2, true);
-    cv::Mat out;
    
     {
     cv::Mat dist_xy8;
-    dist_xy16.convertTo(dist_xy8, CV_8UC2, getSignal("map_scale"));
+    dist_xy16.convertTo(dist_xy8, CV_8UC2, map_scale); 
     cv::Mat mapx = cv::Mat( Config::inst()->getImSize(), CV_8UC4, cv::Scalar(0,0,0,0));
     cv::Mat mapy = cv::Mat( Config::inst()->getImSize(), CV_8UC4, cv::Scalar(0,0,0,0));
 
@@ -387,8 +395,10 @@ namespace bm {
     setImage("mapx", mapx);
     setImage("mapy", mapy);
     }
+    } // end of remap processing
     ///////////////////////
     
+    cv::Mat out;
     cv::remap(in, out, dist_xy16, cv::Mat(), getModeType(), getBorderType());
 
    #if 0

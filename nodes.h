@@ -245,7 +245,9 @@ class Node : public Elem
 
   float getSignal(
       const std::string port, 
-      bool& valid = bool_val);
+      bool& valid = bool_val,
+      bool& is_dirty = bool_val
+      );
 
   bool setSignal(const std::string port, 
       const float val=0.0,
