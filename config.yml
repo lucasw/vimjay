@@ -7,13 +7,13 @@ ui_height: 720
 thumb_width: 128
 thumb_height: 72
 # the image used within the pipeline
-im_width: 640
+#im_width: 640
+#im_height: 360
 #im_height: 480
-im_height: 360
 #im_width: 800
 #im_height: 600
-#im_width: 1280
-#im_height: 720
+im_width: 1280
+im_height: 720
 #im_width: 1920
 #im_height: 1080
 #
