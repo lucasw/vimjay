@@ -738,8 +738,8 @@ namespace bm {
 
   bool ImageDir::loadImages()
   {
+    std::string dir = getString("dir");
     LOG(INFO) << name << " loading " << dir;
-
     
     boost::filesystem::path image_path(dir);
     if (!is_directory(image_path)) {

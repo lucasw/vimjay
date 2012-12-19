@@ -279,7 +279,9 @@ class Node : public Elem
   
   bool setSigBuf(const std::string port, const bool internally_set=false);
 
-  bool setString(const std::string port, const std::string new_str);
+  bool setString(const std::string port, 
+    const std::string new_str,
+    const bool internally_set= bool_val);
   std::string getString(const std::string port,
       bool& valid = bool_val);
 

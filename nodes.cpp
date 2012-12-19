@@ -1116,7 +1116,7 @@ namespace bm {
     return true;
   }
 
-  bool setString(const std::string port, const std::string new_str)
+  bool Node::setString(const std::string port, const std::string new_str, const bool internally_set)
   {
     Connector* con = NULL;
     string src_port;
@@ -1139,7 +1139,7 @@ namespace bm {
 
     const float val_orig = con->value;
     if (new_str != con->str) {
-      con->str = str;
+      con->str = new_str;
       con->setDirty();
     }
   
