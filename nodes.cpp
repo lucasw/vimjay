@@ -1280,7 +1280,7 @@ namespace bm {
 
     stringstream file_name;
     int write_count = getSignal("write_count");
-    file_name << dir_name.str() << "/image_" << (write_count + 1000000) << ".png";
+    file_name << dir_name.str() << "/image_" << (write_count + 1000000) << ".jpg";
 
     cv::Mat out = getImage("out").clone();
     if (out.empty()) return false;
