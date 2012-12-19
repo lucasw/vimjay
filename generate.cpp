@@ -91,8 +91,8 @@ Circle::Circle(const std::string name) : ImageNode(name)
   //setSigBuf("x");
   //setSigBuf("y");
   //setSigBuf("r");
-  setSignal("x", 300);
-  setSignal("y", 300);
+  setSignal("x", 5);
+  setSignal("y", 5);
   setSignal("radius", 50);
   setSignal("r", 255);
   setSignal("g", 255);
@@ -112,13 +112,16 @@ bool Circle::update()
     return true;
   }
 
+  const int wd = Config::inst()->im_width;
+  const int ht = Config::inst()->im_height;
+
   cv::Mat out = cv::Mat(Config::inst()->getImSize(), 
       MAT_FORMAT_C3);
   out = cv::Scalar(0,0,0,0);
  
   cv::circle(out, 
-    cv::Point(getSignal("x"), getSignal("y")), 
-    getSignal("radius"), 
+    cv::Point(wd*getSignal("x")/10.0, ht*getSignal("y")/10.0), 
+    getSignal("radius")*wd, 
     cv::Scalar(
       getSignal("b"),
       getSignal("g"),
