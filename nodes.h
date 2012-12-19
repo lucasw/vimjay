@@ -245,9 +245,7 @@ class Node : public Elem
 
   float getSignal(
       const std::string port, 
-      bool& valid = bool_val,
-      bool& is_dirty = bool_val
-      );
+      bool& valid = bool_val);
 
   bool setSignal(const std::string port, 
       const float val=0.0,
@@ -281,9 +279,7 @@ class Node : public Elem
   
   bool setSigBuf(const std::string port, const bool internally_set=false);
 
-  bool setString(const std::string port, const std::string new_str,
-      const bool internally_set = false
-      );
+  bool setString(const std::string port, const std::string new_str);
   std::string getString(const std::string port,
       bool& valid = bool_val);
 

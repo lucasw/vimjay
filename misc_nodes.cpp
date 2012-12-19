@@ -267,27 +267,6 @@ namespace bm {
     in = getImage("in");
     if (in.empty()) return false;
 
-
-    bool valid;
-    bool d1,d2,d3,d4,d5,d6,d7,d8,d9,d10,d11;
-    cv::Mat mask4 = getImage("mask", valid, d1);
-    const float offset = getSignal("offset", valid, d2);
-
-    const float x_off = getSignal("x_off", valid, d3);
-    const float y_off = getSignal("y_off", valid, d4);
-    const int j_max = getSignal("y_repeat", valid, d5);
-    const int i_max = getSignal("x_repeat", valid, d6);
-
-    const float theta = getSignal("theta", valid, d7) * M_PI/180.0;
-    const float y_offset = getSignal("y_offset", valid, d8); 
-    const float x_offset = getSignal("x_offset", valid, d9); 
-    const float map_scale = getSignal("map_scale", valid, d10);
-
-    const bool do_flip = getSignal("do_flip", valid, d11);
-
-    // proceed if any are dirty, later break into stages more
-    if (d1 || d2 || d3 || d4 || d5 || d6 || d7 || d8 || d9 || d10 || d11)
-    {
     const float wd = Config::inst()->im_width;
     const float ht = Config::inst()->im_height;
 
@@ -296,6 +275,7 @@ namespace bm {
     // the masked image over a new base_x,y that will be given to the remap
     // that concludes the function
 
+    cv::Mat mask4 = getImage("mask");
     // derive the mask from the second input
     if (mask4.empty()) {
       // probably want to change add1 to black and white and then use it here,
@@ -307,7 +287,8 @@ namespace bm {
     int ch1[] = {0, 0};
     mixChannels(&mask4, 1, &mask1, 1, ch1, 1);
 
-    mask1 = (mask1 > offset);
+    //const int offset = getSignal("offset");
+    mask1 = (mask1 > getSignal("offset"));
     
     cv::Mat mask;
     mask1.convertTo(mask, CV_32FC1, 1.0/255.0);
@@ -320,19 +301,24 @@ namespace bm {
     cv::Mat total_base_x = cv::Mat( Config::inst()->getImSize(), CV_32FC1, cv::Scalar(0));
     cv::Mat total_base_y = total_base_x.clone(); 
     
+    const float x_off = getSignal("x_off");
+    const float y_off = getSignal("y_off");
+    const int j_max = getSignal("y_repeat");
+    const int i_max = getSignal("x_repeat");
+
+    const float theta = getSignal("theta") * M_PI/180.0;
+
     const float x1o =  0;// - wd/2;
     const float x2o =  wd;//+ wd/2;
     const float y1o =  0;//- ht/2;
     const float y2o =  ht;//+ ht/2;
-    
-    const cv::Mat in_pts = (cv::Mat_<float>(4,2) <<
+    cv::Mat in_pts = (cv::Mat_<float>(4,2) <<
         x1o, y1o,
         x1o, y2o,
         x2o, y2o,
         x2o, y1o
         );
-    
-    const cv::Mat offset_pts = (cv::Mat_<float>(4,2) <<
+    cv::Mat offset_pts = (cv::Mat_<float>(4,2) <<
         wd/2, ht/2,
         wd/2, ht/2,
         wd/2, ht/2,
@@ -342,38 +328,25 @@ namespace bm {
     for (int j = -j_max; j <= j_max; j++) {
     for (int i = -i_max; i <= i_max; i++) {
       // now start shifting
-      float theta2 = theta;
-      float y_offset2 = 0;
-      float x_offset2 = 0;
-      cv::Mat in_pts2 = in_pts.clone();
-      if ( (abs(i)) % 2 == 1) {
-        y_offset2 = y_offset;
-
-        if (do_flip) {
-          theta2 = -theta;
-          in_pts2 = (cv::Mat_<float>(4,2) <<
-              x2o, y1o,
-              x2o, y2o,
-              x1o, y2o,
-              x1o, y1o
-              );
-        }     
-      }
-      if ( (abs(j)) % 2 == 1) {
-        x_offset2 = x_offset;
-      }
-
+ 
       cv::Mat rot = (cv::Mat_<float>(2, 2) <<
-        cos(theta2 * i), -sin(theta2 * i),  
-        sin(theta2 * i),  cos(theta2 * i) 
+        cos(theta*i), -sin(theta*i),  
+        sin(theta*i),  cos(theta*i) 
         );   
-      cv::Mat out_pts = (in_pts2 - offset_pts) * rot + offset_pts;
+      cv::Mat out_pts = (in_pts - offset_pts) * rot + offset_pts;
       
       for (int k = 0; k < 4; k++)
-        out_pts.at<float>(k,0) += x_off*i + x_offset2;// + wd/2;
+        out_pts.at<float>(k,0) += x_off*i;// + wd/2;
       
       for (int k = 0; k < 4; k++)
-        out_pts.at<float>(k,1) += y_off*j + y_offset2;// + ht/2;
+        out_pts.at<float>(k,1) += y_off*j;// + ht/2;
+
+      if (getSignal("do_y_offset") > 0.5) { 
+      }
+
+      if (getSignal("do_flip") > 0.5) {
+      }
+   
 
       // need four points
       cv::Mat transform = getPerspectiveTransform(in_pts, out_pts);
@@ -395,12 +368,13 @@ namespace bm {
       total_base_y += y_tf; 
     }}
 
-    cv::Mat dist_int;
+    cv::Mat dist_xy16, dist_int;
     cv::convertMaps(total_base_x, total_base_y, dist_xy16, dist_int, CV_16SC2, true);
+    cv::Mat out;
    
     {
     cv::Mat dist_xy8;
-    dist_xy16.convertTo(dist_xy8, CV_8UC2, map_scale); 
+    dist_xy16.convertTo(dist_xy8, CV_8UC2, getSignal("map_scale"));
     cv::Mat mapx = cv::Mat( Config::inst()->getImSize(), CV_8UC4, cv::Scalar(0,0,0,0));
     cv::Mat mapy = cv::Mat( Config::inst()->getImSize(), CV_8UC4, cv::Scalar(0,0,0,0));
 
@@ -413,10 +387,8 @@ namespace bm {
     setImage("mapx", mapx);
     setImage("mapy", mapy);
     }
-    } // end of remap processing
     ///////////////////////
     
-    cv::Mat out;
     cv::remap(in, out, dist_xy16, cv::Mat(), getModeType(), getBorderType());
 
    #if 0
@@ -761,13 +733,11 @@ namespace bm {
   {
     setSignal("mode", 0, false, ROLL, 0, 4);
     setSignal("keep_aspect", 1, false, ROLL, 0, 1);
-    setString("dir", "../data");
     //setSignal("ind", 0, false, ROLL, 0, 0);
   }
 
   bool ImageDir::loadImages()
   {
-    const std::string dir = getString("dir");
     LOG(INFO) << name << " loading " << dir;
 
     
