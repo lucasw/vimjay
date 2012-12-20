@@ -9,7 +9,7 @@ set(PROJECT_NAME camthing)
 include_directories( . )
 #include_directories( $ENV{HG_CLONE_DIR}/external/include )
 include_directories( $ENV{HOME}/other/install/include )
-
+link_directories($ENV{HOME}/other/install/lib)
 
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 #include_directories(${CMAKE_BINARY_DIR}/other)
