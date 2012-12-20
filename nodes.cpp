@@ -518,7 +518,7 @@ namespace bm {
     
     int fr = 1;
     if (!isDirty(this,1)) fr = 5;
-    cv::Scalar col = cv::Scalar(vcol/fr);
+    cv::Scalar col = vcol * (1.0/fr); //cv::Scalar(vcol/fr);
 
     if (!(getSignal("enable") >= 1.0)) 
       cv::circle(graph_ui, loc + ui_offset, 10, cv::Scalar(0,0,100), -1);
@@ -1244,7 +1244,7 @@ namespace bm {
        
       int fr = 1;
       if (!isDirty(this,2)) fr = 5;
-      cv::Scalar col = cv::Scalar(vcol/fr);
+      cv::Scalar col = vcol * (1.0/fr); //cv::Scalar(vcol/fr);
 
       cv::Point2f thumb_offset = cv::Point2f(0, -sz.height - 20);
      

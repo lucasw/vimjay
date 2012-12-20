@@ -26,7 +26,7 @@
 
 #include <glog/logging.h>
 
-#include <opencv2/videostab/videostab.hpp>
+//#include <opencv2/videostab/videostab.hpp>
 
 // filter Node objects
 namespace bm {
