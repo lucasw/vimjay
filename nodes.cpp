@@ -163,8 +163,9 @@ namespace bm {
       // TBD this overlooks the case where the connector has changed inputs
       // but with a src that isn't dirty- the image still needs to propagate,
       // where does the dirtiness properly belong to force the im = src->im or value = src->value?
-      if (src->isDirty(this, 0)) { //|| ((type==SIGNAL) && (value != src->value)) {
-      //if (value != src->value) { // TBD could use this with images if image updates made the value change
+      if ( src->isDirty(this, 0) 
+         //||  (src->parent == parent)  // TBD special loop detection, TBD not sure why this is necessary
+        ) { 
 
         // now get dirtied data
         // TBD instead of reaching back for dirty data, have connector set() it forward?
@@ -243,7 +244,7 @@ namespace bm {
     cv::Scalar hash_col = hashStringColor(/*parent->name +*/ typeToString(type) + name);
     VLOG(6) << name << " " << hash_col[0] << " " << hash_col[1] << " " << hash_col[2];
 
-    bool is_dirty = isDirty(this, 0);
+    bool is_dirty = isDirty(this, 1);
 
     const int bval = 150 + is_dirty * 105;
     hash_col *= (is_dirty ? 1.0 :0.6);
@@ -453,7 +454,7 @@ namespace bm {
       
       #if 0
       if (!ports[i]->internally_set) {
-        const bool is_dirty = ports[i]->isDirty(this, 1);
+        const bool is_dirty = ports[i]->isDirty(this, 2);
         VLOG(2) << name << " " << CLTXT << ports[i]->name << " " << CLNRM << is_dirty;
         if (is_dirty) {
           inputs_dirty = true;
@@ -518,7 +519,7 @@ namespace bm {
     
     int fr = 1;
     if (!isDirty(this,1)) fr = 5;
-    cv::Scalar col = vcol * (1.0/fr); //cv::Scalar(vcol/fr);
+    cv::Scalar col = vcol * (1.0/fr); // cv::Scalar(vcol/fr);
 
     if (!(getSignal("enable") >= 1.0)) 
       cv::circle(graph_ui, loc + ui_offset, 10, cv::Scalar(0,0,100), -1);
@@ -961,7 +962,7 @@ namespace bm {
     {
       boost::mutex::scoped_lock l(con->im_mutex);
       im = con->im;  // TBD has con->im been updated?  need a con->getImage()
-      is_dirty = con->isDirty(this, 2);
+      is_dirty = con->isDirty(this, 3);
     }
     valid = true;
     
@@ -1511,6 +1512,8 @@ namespace bm {
 
     //setImage("image", cv::Mat());
     setSignal("max_size", 100);
+
+    setSignal("cur_size", 0, true);
   }
  
   bool Buffer::manualUpdate()
@@ -1562,7 +1565,6 @@ namespace bm {
     setOut();
 
     // clear any dirtiness derived from setting the image or cur ind etc.
-    const bool rv2 = isDirty(this,21);
     // TBD don't have to do that anymore, out dirtiness is overlooked?
   
     return true;

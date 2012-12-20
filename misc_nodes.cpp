@@ -900,12 +900,11 @@ namespace bm {
       Connector* con2 = NULL;
       getInputPort(SIGNAL, "keep_aspect", con2, src_port);
       
-
       if (con->isDirty(this, 48) || con2->isDirty(this,48)) {
         resizeImages();
       }
     }
-    // flush dirtiness
+    // flush dirtiness, TBD is this necessary
     isDirty(this, 27);
 
     return true;
