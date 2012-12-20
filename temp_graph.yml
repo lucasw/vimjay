@@ -1,11 +1,11 @@
 %YAML:1.0
-date: "Wed Dec 19 15:14:18 2012\n"
+date: "Wed Dec 19 17:32:49 2012\n"
 nodes:
    -
       ind: 0
       typeid: "bm::CamThing"
       name: cam_thing
-      loc: [ 40., 92. ]
+      loc: [ -17., 164. ]
       inputs:
          -
             type: 1
@@ -80,13 +80,13 @@ nodes:
          -
             type: 1
             name: "2_x"
-            value: 6.1163787841796875e+02
+            value: 8.5407641601562500e+02
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: "2_y"
-            value: 6.3382354736328125e+02
+            value: 2.5515258789062500e+01
             src_ind: -1
             src_port: ""
          -
@@ -185,13 +185,13 @@ nodes:
          -
             type: 1
             name: mode
-            value: 1.
+            value: 0.
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: keep_aspect
-            value: 0.
+            value: 1.
             src_ind: -1
             src_port: ""
          -
@@ -202,7 +202,7 @@ nodes:
          -
             type: 1
             name: ind
-            value: 2.
+            value: 0.
             src_ind: -1
             src_port: ""
          -
@@ -221,7 +221,7 @@ nodes:
       ind: 3
       typeid: "bm::ImageDir"
       name: image_dir
-      loc: [ 212., 91. ]
+      loc: [ 224., 93. ]
       dir: "../data"
       inputs:
          -
@@ -260,13 +260,13 @@ nodes:
          -
             type: 1
             name: mode
-            value: 1.
+            value: 0.
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: keep_aspect
-            value: 0.
+            value: 1.
             src_ind: -1
             src_port: ""
          -
@@ -277,7 +277,7 @@ nodes:
          -
             type: 1
             name: ind
-            value: 5.
+            value: 3.7014575004577637e+00
             src_ind: -1
             src_port: ""
          -
@@ -438,7 +438,7 @@ nodes:
       ind: 5
       typeid: "bm::Undistort"
       name: undistort
-      loc: [ 408., 93. ]
+      loc: [ 412., 94. ]
       inputs:
          -
             type: 1
@@ -707,8 +707,8 @@ nodes:
          -
             type: 2
             name: in
-            src_ind: -1
-            src_port: ""
+            src_ind: 13
+            src_port: out
          -
             type: 3
             name: out
@@ -717,12 +717,18 @@ nodes:
          -
             type: 1
             name: max_size
-            value: 100.
+            value: 1.
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: cur_size
+            value: 1.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: ind
             value: 0.
             src_ind: -1
             src_port: ""
@@ -779,12 +785,6 @@ nodes:
          -
             type: 2
             name: inp1
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: ind
-            value: 0.
             src_ind: -1
             src_port: ""
    -
@@ -983,12 +983,23 @@ nodes:
          -
             type: 2
             name: add0
-            src_ind: -1
-            src_port: ""
+            src_ind: 3
+            src_port: out
          -
             type: 1
             name: add0
-            value: 1.
+            value: 1.5822691917419434e+00
+            src_ind: -1
+            src_port: ""
+         -
+            type: 2
+            name: add1
+            src_ind: 13
+            src_port: add1
+         -
+            type: 1
+            name: add1
+            value: -1.8874415159225464e+00
             src_ind: -1
             src_port: ""
    -
@@ -1172,17 +1183,11 @@ nodes:
          -
             type: 2
             name: in0
-            src_ind: 3
-            src_port: out
+            src_ind: -1
+            src_port: ""
          -
             type: 2
             name: in1
-            src_ind: 2
-            src_port: out
-         -
-            type: 1
-            name: write_count
-            value: 1.
             src_ind: -1
             src_port: ""
    -
@@ -2181,19 +2186,13 @@ nodes:
          -
             type: 1
             name: "2_x"
-            value: 2.9459558105468750e+02
+            value: 1.5863037109375000e-01
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: "2_y"
-            value: 3.3785131835937500e+02
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: "2_1"
-            value: 0.
+            value: 7.7569503784179688e+01
             src_ind: -1
             src_port: ""
    -
@@ -2437,7 +2436,7 @@ nodes:
          -
             type: 1
             name: cur_size
-            value: 0.
+            value: 100.
             src_ind: -1
             src_port: ""
    -
@@ -2466,7 +2465,7 @@ nodes:
          -
             type: 2
             name: in
-            src_ind: 18
+            src_ind: 13
             src_port: out
          -
             type: 1
@@ -2483,13 +2482,13 @@ nodes:
          -
             type: 1
             name: x
-            value: 634.
+            value: 964.
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: y
-            value: 73.
+            value: 31.
             src_ind: -1
             src_port: ""
          -
@@ -2542,8 +2541,8 @@ nodes:
          -
             type: 2
             name: in
-            src_ind: 3
-            src_port: out
+            src_ind: 13
+            src_port: add1
          -
             type: 1
             name: decor
@@ -2590,5 +2589,59 @@ nodes:
             type: 1
             name: im_h
             value: 720.
+            src_ind: -1
+            src_port: ""
+   -
+      ind: 45
+      typeid: "bm::MiscSignal"
+      name: image_dir_sig
+      loc: [ 103., 26. ]
+      inputs:
+         -
+            type: 1
+            name: enable
+            value: 1.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: force_update
+            value: 0.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: value
+            value: 5.5593204498291016e+00
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: min
+            value: 0.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: max
+            value: 9.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: step
+            value: 9.9999997764825821e-03
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: mode
+            value: 7.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: t
+            value: 6.7766067504882812e+01
             src_ind: -1
             src_port: ""

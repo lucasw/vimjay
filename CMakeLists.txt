@@ -17,27 +17,6 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR})
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++0x")
 
 ###############################################################################
-if (false)
-set(CMAKE_FIND_LIBRARY_SUFFICES ".a;.so")
-find_library(OPEN_CV2 opencv_core opencv_imgproc opencv_highgui opencv_calib3d $ENV{HOME}/other/install/lib )
-
-if (NOT OPEN_CV2)
-  MESSAGE("OpenCV not found")
-  endif (NOT OPEN_CV2)
-
-MESSAGE(${OPEN_CV2})
-
-set(CV_LIBS 
-opencv_imgproc 
-opencv_highgui 
-opencv_features2d
-opencv_flann
-)
-
-set(SOME_LIBS ${OPEN_CV2}  
-${CV_LIBS}
- )
-endif()
 
 find_package(OpenCV)
 ###############################################################################

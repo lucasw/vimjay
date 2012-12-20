@@ -167,6 +167,7 @@ namespace bm {
       //if (value != src->value) { // TBD could use this with images if image updates made the value change
 
         // now get dirtied data
+        // TBD instead of reaching back for dirty data, have connector set() it forward?
         value = src->value;
 
         str = src->str;
@@ -199,6 +200,12 @@ namespace bm {
     return true;
   }
   
+  bool Connector::setDirty()
+  {
+    Elem::setDirty();
+    if (!internally_set && parent) parent->setDirty();
+  }
+
   std::string typeToString(const conType type)
   {
     if (type == IMAGE) {
@@ -443,8 +450,8 @@ namespace bm {
       if ((ports[i]->name != "enable") ) { // TBD provide flag to disable updating
         ports[i]->update();
       }
-      // TBD may want to track per output dirtiness later?
-       
+      
+      #if 0
       if (!ports[i]->internally_set) {
         const bool is_dirty = ports[i]->isDirty(this, 1);
         VLOG(2) << name << " " << CLTXT << ports[i]->name << " " << CLNRM << is_dirty;
@@ -452,13 +459,16 @@ namespace bm {
           inputs_dirty = true;
         }
       }
+      #endif 
     }
 
-    // the inheriting object needs to set is_dirty as appropriate if it
+    #if 0
+    // the inheriting object needs to setDirty() as appropriate if it
     // isn't sufficient to have inputs determine it(e.g. it is sourcing change)
     if ( inputs_dirty ) {
       setDirty();
     }
+    #endif
 
     // TBD loop through ports and run getImage on each
     // or could that be combined with looping through the getInputVector above?
@@ -829,7 +839,7 @@ namespace bm {
       }
       
       //if (src_con->dst != con) con->setDirty();
-      src_con->setDirty();
+      //src_con->setDirty();
       src_con->dst = con;
       VLOG(1) << "\"" << name << "\" setInputPort: " << type << " " 
         << CLTXT << "\"" << port << "\"" << CLNRM << " from "
@@ -1201,7 +1211,6 @@ namespace bm {
         cv::Size sz = Config::inst()->getImSize();
         out = cv::Mat(sz, MAT_FORMAT_C3, cv::Scalar(0));
         setImage("out", out);
-        //setDirty();
       }
       return true; 
     }

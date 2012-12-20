@@ -92,7 +92,7 @@ class Elem
       const int ind=0, 
       const bool clear_dirty=true);
   
-  bool setDirty();
+  virtual bool setDirty();
 
   // utility bools to control visualization of the element
   bool highlight;
@@ -115,6 +115,8 @@ class Connector : public Elem
   Connector(const std::string name);
 
   virtual bool update();
+
+  virtual bool setDirty();
 
   // whether the dirtiness should force an update of the associated node
   // determined by usage, not explicitly set
