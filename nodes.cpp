@@ -128,6 +128,9 @@ namespace bm {
   bool Elem::update()
   {
     if (!do_update) return false;
+
+    VLOG(2) << name << " update";
+
     do_update = false;
 
     return true;
@@ -155,7 +158,11 @@ namespace bm {
     if (!Elem::update()) return false;
 
     // This will frequently already have been run
-    if (parent) parent->update();
+    if (parent) {
+
+      VLOG(2) << parent->name << " : " << name << " update";
+      parent->update();
+    }
 
     if (src) { // && src->parent) {
       src->update();
@@ -167,6 +174,7 @@ namespace bm {
          //||  (src->parent == parent)  // TBD special loop detection, TBD not sure why this is necessary
         ) { 
 
+        VLOG(2) << "src " << src->name << " : " << name << " update";
         // now get dirtied data
         // TBD instead of reaching back for dirty data, have connector set() it forward?
         value = src->value;
@@ -474,7 +482,7 @@ namespace bm {
     // TBD loop through ports and run getImage on each
     // or could that be combined with looping through the getInputVector above?
     
-    VLOG(2) << name << " in sz " << ports.size() << " inputs dirty " << inputs_dirty;
+    VLOG(3) << name << " in sz " << ports.size() << " inputs dirty " << inputs_dirty;
 
     return true;
   }
@@ -519,7 +527,8 @@ namespace bm {
     
     int fr = 1;
     if (!isDirty(this,1)) fr = 5;
-    cv::Scalar col = vcol * (1.0/fr); // cv::Scalar(vcol/fr);
+    //cv::Scalar col = cv::Scalar(vcol/fr);
+    cv::Scalar col = vcol * (1.0/fr); //cv::Scalar(vcol/fr);
 
     if (!(getSignal("enable") >= 1.0)) 
       cv::circle(graph_ui, loc + ui_offset, 10, cv::Scalar(0,0,100), -1);
@@ -1245,6 +1254,7 @@ namespace bm {
        
       int fr = 1;
       if (!isDirty(this,2)) fr = 5;
+      //cv::Scalar col = cv::Scalar(vcol/fr);
       cv::Scalar col = vcol * (1.0/fr); //cv::Scalar(vcol/fr);
 
       cv::Point2f thumb_offset = cv::Point2f(0, -sz.height - 20);
@@ -1356,7 +1366,7 @@ namespace bm {
       mode_type = cv::INTER_LANCZOS4;
       con->description = "LANCZOS4";
     }
-    VLOG(2) << mode << " " << con->description;
+    VLOG(3) << mode << " " << con->description;
     return mode_type;
   }
 
@@ -1584,7 +1594,7 @@ namespace bm {
       cv::Mat frame = frames[ind].clone(); // seems to be a segfault related to this
 
       if (frame.empty()) { 
-        VLOG(2) << "frames " << i << CLERR << " is empty" << CLNRM;  continue; 
+        VLOG(2) << name << " frames " << i << CLERR << " is empty" << CLNRM;  continue; 
       }
 
       // TBD make this optional

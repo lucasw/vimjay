@@ -1453,6 +1453,7 @@ class CamThing : public Output
 
   bool nodeUpdate()
   {
+    VLOG(2) << CLTXT << "=====================================" << CLNRM;
     boost::mutex::scoped_lock l(update_mutex);
 
     // TBD will behaviour change depending on the arrangement of nodes-

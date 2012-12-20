@@ -1043,7 +1043,7 @@ namespace bm {
         //const string port = "add" + boost::lexical_cast<string>(i);
         tmp_in = getImage(port);
         if (tmp_in.empty()) {
-          //VLOG(5) << name << " : " << port << " image is empty"; 
+          VLOG(2) << name << " : " << port << " image is empty"; 
           continue;
         }
 

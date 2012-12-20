@@ -1,5 +1,5 @@
 %YAML:1.0
-date: "Wed Dec 19 17:51:15 2012\n"
+date: "Wed Dec 19 17:55:46 2012\n"
 nodes:
    -
       ind: 0
@@ -44,7 +44,7 @@ nodes:
          -
             type: 1
             name: x
-            value: 1.
+            value: 2.
             src_ind: -1
             src_port: ""
          -
@@ -80,13 +80,13 @@ nodes:
          -
             type: 1
             name: "2_x"
-            value: 5.4042266845703125e+02
+            value: 6.6935723876953125e+02
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: "2_y"
-            value: 9.5325469970703125e+00
+            value: 2.6205020141601562e+02
             src_ind: -1
             src_port: ""
          -
@@ -707,8 +707,8 @@ nodes:
          -
             type: 2
             name: in
-            src_ind: 13
-            src_port: out
+            src_ind: -1
+            src_port: ""
          -
             type: 3
             name: out
@@ -994,8 +994,8 @@ nodes:
          -
             type: 2
             name: add1
-            src_ind: 8
-            src_port: out
+            src_ind: 13
+            src_port: add1
          -
             type: 1
             name: add1
@@ -2542,7 +2542,7 @@ nodes:
             type: 2
             name: in
             src_ind: 13
-            src_port: add1
+            src_port: out
          -
             type: 1
             name: decor
@@ -2558,13 +2558,13 @@ nodes:
          -
             type: 1
             name: x
-            value: 889.
+            value: 1.
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: y
-            value: 78.
+            value: 80.
             src_ind: -1
             src_port: ""
          -
