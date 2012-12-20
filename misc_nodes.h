@@ -158,6 +158,13 @@ class AbsDiff : public ImageNode
   virtual bool update();
 };
 
+class Max : public ImageNode
+{
+  public:
+  Max(const std::string name); 
+  virtual bool update();
+};
+
 class Greater : public ImageNode
 {
   public:

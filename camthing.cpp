@@ -174,6 +174,8 @@ class CamThing : public Output
         node = getNode<AbsDiff>(name, loc);
       } else if (type_id.compare("bm::Greater") == 0) {
         node = getNode<Greater>(name, loc);
+      } else if (type_id.compare("bm::Max") == 0) {
+        node = getNode<Max>(name, loc);
       } else if (type_id.compare("bm::Resize") == 0) {
         node = getNode<Resize>(name, loc);
       } else if (type_id.compare("bm::Flip") == 0) {
@@ -644,14 +646,13 @@ class CamThing : public Output
     node = getNode<ScreenCap>("screen_cap", loc);
     //node->update();
 
-    ImageDir* im_dir = getNode<ImageDir>("image_dir", loc);
-    im_dir->setString("dir", "../data");
-    im_dir->loadImages();
+    ImageDir* im_dir1 = getNode<ImageDir>("image_dir", loc);
+    im_dir1->setString("dir", "../data");
+    im_dir1->loadImages();
 
     ImageDir* im_dir2 = getNode<ImageDir>("image_dir", loc);
     im_dir2->setString("dir", "../data");
     im_dir2->loadImages();
-
 
     // process
     node = getNode<Rot2D>("rot2d", loc);
@@ -671,6 +672,7 @@ class CamThing : public Output
     node = getNode<Multiply>("multiply", loc);
     node = getNode<AbsDiff>("abs_diff", loc);
     node = getNode<Greater>("greater", loc);
+    node = getNode<Max>("max", loc);
     
     // filters and manipulations
     node = getNode<Sobel>("sobel", loc);

@@ -733,6 +733,7 @@ namespace bm {
   {
     setSignal("mode", 0, false, ROLL, 0, 4);
     setSignal("keep_aspect", 1, false, ROLL, 0, 1);
+    setString("dir", "temp");
     //setSignal("ind", 0, false, ROLL, 0, 0);
   }
 
@@ -791,13 +792,13 @@ namespace bm {
     }
     
     /// TBD or has sized increased since beginning of function?
-    if (frames.size() == 0) {
-      LOG(ERROR) << name << CLERR << " no images loaded" << CLNRM;
+    if (frames_orig.size() == 0) {
+      LOG(ERROR) << name << CLERR << " no images loaded" << CLNRM << " " << dir;
       return false;
     }
     
-    LOG(INFO) << name << " " << frames.size() << " image loaded";
-    setSignal("ind", getSignal("ind"), false, ROLL, 0, frames.size()-1);
+    LOG(INFO) << name << " " << frames_orig.size() << " image loaded";
+    setSignal("ind", getSignal("ind"), false, ROLL, 0, frames_orig.size()-1);
     //max_size = frames.size() + 1;
     setDirty();
 
@@ -1278,6 +1279,54 @@ namespace bm {
 
     return true;
   }
+
+  Max::Max(const std::string name)  : ImageNode(name) 
+  {
+    cv::Mat tmp;
+    setImage("in0", tmp);
+    setImage("in1", tmp);
+    vcol = cv::Scalar(200, 200, 50);
+  }
+
+  bool Max::update()
+  {
+    if (!Node::update()) return false;
+
+    if (!isDirty(this, 5)) { 
+      VLOG(1) << name << " not dirty ";
+      return true; 
+    }
+    
+    cv::Mat in0 = getImage("in0");
+    cv::Mat in1 = getImage("in1");
+
+    cv::Mat out;
+    {
+      boost::mutex::scoped_lock l(port_mutex);
+
+      if (in0.empty() && in1.empty()) {
+        return false;
+      } else if (in0.empty() && !in1.empty()) {
+        out = in1;
+      } else if (!in0.empty() && in1.empty()) {
+        out = in0;
+      } else if (in0.size() != in1.size()) {
+        LOG(ERROR) << name << " size mismatch";
+        return false;
+      } else if (in0.type() != in1.type()) {
+        return false;
+      } else if (in0.size() == cv::Size(0,0)) {
+        return false;
+      } else {
+        // TBD allow offsets, scales?
+        out = cv::max(in0, in1);
+      }
+    }   
+    setImage("out", out);
+
+    return true;
+  }
+
 
   ////////////////////////////////////////
   Greater::Greater(const std::string name) : ImageNode(name) 
