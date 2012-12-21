@@ -26,7 +26,10 @@
 
 #include <glog/logging.h>
 
-//#include <opencv2/videostab/videostab.hpp>
+#if 0
+// TDB need CV_MAJOR_VERSION to establish this is available
+#include <opencv2/videostab/videostab.hpp>
+#endif
 
 // filter Node objects
 namespace bm {
@@ -336,6 +339,7 @@ bool Laplacian::update()
     return true;
   }
 
+#if 0
 InPaint::InPaint(const std::string name) : ImageNode(name) 
   {
     cv::Mat tmp;
@@ -388,6 +392,7 @@ InPaint::InPaint(const std::string name) : ImageNode(name)
     return true;
 
 }
+#endif
 
 ///////////////////////////////////////////////////////////////////////////// 
 MorphologyEx::MorphologyEx(const std::string name) : ImageNode(name)
