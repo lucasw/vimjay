@@ -421,6 +421,8 @@ class CamThing : public Output
   
   boost::thread node_thread;
 
+  vector<string> node_types;
+
   CamThing(const std::string name) :
       Output(name),
       selected_ind(0), 
@@ -438,6 +440,59 @@ class CamThing : public Output
       paused(true) // TBD control from config file?
   {
     count = 0;
+
+    //node_types.push_back("bm::CamThing"); // TBD can't spawn a new one of these
+    node_types.push_back("bm::ImageDir");
+    node_types.push_back("bm::Webcam");
+    node_types.push_back("bm::ScreenCap");
+    node_types.push_back("bm::ImageNode");
+    node_types.push_back("bm::Sobel");
+    node_types.push_back("bm::Laplacian");
+    node_types.push_back("bm::PyrMean");
+    node_types.push_back("bm::GaussianBlur");
+    node_types.push_back("bm::MedianBlur");
+    node_types.push_back("bm::BilateralFilter");
+    //} else if (type_id.compare("bm::InPaint");
+    node_types.push_back("bm::OpticalFlow");
+    node_types.push_back("bm::Buffer");
+    node_types.push_back("bm::Mux");
+    node_types.push_back("bm::MuxBuffer");
+    node_types.push_back("bm::FilterFIR");
+    node_types.push_back("bm::Cluster");
+    node_types.push_back("bm::Add");
+    node_types.push_back("bm::AddMasked");
+    node_types.push_back("bm::Multiply");
+    node_types.push_back("bm::AbsDiff");
+    node_types.push_back("bm::Greater");
+    node_types.push_back("bm::Max");
+    node_types.push_back("bm::Resize");
+    node_types.push_back("bm::Flip");
+    node_types.push_back("bm::MorphologyEx");
+    node_types.push_back("bm::Rot2D");
+    node_types.push_back("bm::Undistort");
+    node_types.push_back("bm::Remap");
+    node_types.push_back("bm::Kaleid");
+    node_types.push_back("bm::Signal");
+    node_types.push_back("bm::SigAdd");
+    node_types.push_back("bm::MiscSignal");
+    node_types.push_back("bm::SigBuffer");
+    node_types.push_back("bm::Tap");
+    node_types.push_back("bm::TapInd");
+    node_types.push_back("bm::Contour");
+    node_types.push_back("bm::Bezier");
+    node_types.push_back("bm::Circle");
+    node_types.push_back("bm::Noise");
+    node_types.push_back("bm::SimplexNoise");
+    node_types.push_back("bm::Trig");
+
+    node_types.push_back("bm::OpenGL");
+    
+    node_types.push_back("bm::Mouse");
+    //node_types.push_back("bm::Output"); // TBD if can spawn this
+
+
+    setSignal("node_spawn_ind", 0, false, ROLL, 0, node_types.size()-1);
+    setString("node_spawn_type", node_types[0], true);
 
     setSignal("x", 0);
 
@@ -642,7 +697,7 @@ class CamThing : public Output
     // inputs
     //node = getNode<Webcam>("web_cam", loc);
     //node->update();
-
+#if 0
     node = getNode<ScreenCap>("screen_cap", loc);
     //node->update();
 
@@ -713,7 +768,7 @@ class CamThing : public Output
     node = getNode<Trig>("trig", loc);
     
     node = getNode<SigBuffer>("sig_buf", loc);
-    
+#endif    
     node = getNode<Output>("output", loc);
     
     {
@@ -1508,7 +1563,8 @@ class CamThing : public Output
           out.size(), 0, 0, cv::INTER_NEAREST );
     setImage("out", out);          
    
-    
+    setString("node_spawn_type", node_types[getSignal("node_spawn_ind")]);
+
     return true;
   }
 #endif
@@ -1641,7 +1697,29 @@ class CamThing : public Output
         }
       }
 
-  }
+  } // node repell
+
+  virtual bool handleKey(int key) 
+  {
+    bool valid_key = Node::handleKey(key);
+    if (valid_key) return true;
+
+    LOG(INFO) << " camthing handlekey";
+    if (key == '[') {
+      int ind = getSignal("node_spawn_ind");
+           setSignal("node_spawn_ind", ind);
+
+      LOG(INFO) << "creating node " << node_types[ind];
+      getNodeByName(node_types[ind], 
+              node_types[ind], 
+              loc + cv::Point2f(150,10));
+
+    } else {
+        valid_key = false;
+    }
+    
+    return valid_key;
+  } // handleKey
 
   };
 

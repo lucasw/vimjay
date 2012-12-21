@@ -388,6 +388,9 @@ namespace bm {
       col = cv::Scalar(bval, bval, cval);
     } else if (type == SIGBUF) {
       col = cv::Scalar(bval, bval/2 + cval/2, bval/2 + cval/2);
+    } else if (type == STRING) {
+      col = cv::Scalar(bval, bval/2, bval/2 + cval/2);
+      port_info << " " << str;
     }
    
     port_info << " " << description;
