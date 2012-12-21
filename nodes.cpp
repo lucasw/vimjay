@@ -166,34 +166,43 @@ namespace bm {
 
     if (src) { // && src->parent) {
       src->update();
+    //}
+
+    //if (dst) {
       //src->parent->update(); // why not src->update()?
       // TBD this overlooks the case where the connector has changed inputs
       // but with a src that isn't dirty- the image still needs to propagate,
-      // where does the dirtiness properly belong to force the im = src->im or value = src->value?
+      // w:w
+      // here does the dirtiness properly belong to force the im = src->im or value = src->value?
       if ( src->isDirty(this, 0) 
+      //if ( isDirty(this, 0) 
          //||  (src->parent == parent)  // TBD special loop detection, TBD not sure why this is necessary
         ) { 
 
         VLOG(2) << "src " << src->name << " : " << name << " update";
-        // now get dirtied data
-        // TBD instead of reaching back for dirty data, have connector set() it forward?
-        value = src->value;
+        
+        // the reason we can't forward propagate is that dst isn't a vector 
+        // of every dst, there is a one to many possible mapping
+        if (type == SIGNAL) setSignal(src->getSignal());
+        else if (type == IMAGE) setImage(src->getImage());
+        else if (type == STRING) setString(src->getString());
+        
+        //if (type == SIGNAL) dst->setSignal(value);
+        //else if (type == IMAGE) dst->setImage(im);
+        //else if (type == STRING) dst->setString(str);
 
-        str = src->str;
         // this ought to err on the side of keeping last images before a disconnection
         // though that may have already been happening or not happening for reasons
         // outside of this assignment?  Tested it and it looks like the image
         // is kept properly so the check here is unnecessary
-        //if (!src->im.empty())
-          im = src->im;
        
         // if a connector has a src then it can't be an output
         // (at least until it gets overridden as an output)
-        internally_set = false;
+        //internally_set = false;
+
         // TBD get copy of sigbuf
         // sigbuf = src->sigbuf;
         
-        setDirty();
       }
     } 
 
@@ -235,6 +244,24 @@ namespace bm {
 
     boost::mutex::scoped_lock l(im_mutex);
     this->im = im;
+    setDirty();
+
+    return true;
+  }
+
+  bool Connector::setSignal(const float val)
+  {
+    if (this->value == val) return true;
+    this->value = val;
+    setDirty();
+
+    return true;
+  }
+
+  bool Connector::setString(const std::string new_str)
+  {
+    if (this->str == new_str) return true;
+    this->str = new_str;
     setDirty();
 
     return true;
@@ -970,7 +997,7 @@ namespace bm {
      
     {
       boost::mutex::scoped_lock l(con->im_mutex);
-      im = con->im;  // TBD has con->im been updated?  need a con->getImage()
+      im = con->getImage();  // TBD has con->im been updated?  need a con->getImage()
       is_dirty = con->isDirty(this, 3);
     }
     valid = true;
@@ -1023,7 +1050,7 @@ namespace bm {
     // TBD Buffer is dissimilar to Image and Signals currently
     if (!con) return tmp;
 
-    tmp = con->im;
+    tmp = con->getImage();
 
     if ((!con->src) || (!con->src->parent)) return tmp;
 
@@ -1036,7 +1063,7 @@ namespace bm {
     }
 
     cv::Mat image = im_in->get(val, actual_ind);
-    con->im = image;
+    con->setImage(image);
 
     return image;
   }
@@ -1059,7 +1086,7 @@ namespace bm {
     // TBD Buffer is dissimilar to Image and Signals currently
     if (!con) return tmp;
 
-    tmp = con->im;
+    tmp = con->getImage();
 
     if ((!con->src) || (!con->src->parent)) return tmp;
 
@@ -1071,7 +1098,7 @@ namespace bm {
     }
 
     cv::Mat image = im_in->get(val,actual_ind);
-    con->im = image;
+    con->setImage(image);
 
     return image;
   }

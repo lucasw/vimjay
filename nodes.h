@@ -110,6 +110,8 @@ class Elem
 class Connector : public Elem
 {
   protected:
+  // only used if conType == Image or Buffer
+  cv::Mat im;
 
   public:
   Connector(const std::string name);
@@ -128,6 +130,8 @@ class Connector : public Elem
   // this is somewhat odd, the connector is in three parts- the src, this, and dst
   // and each has a copy of the data
   Connector* src;
+  // TBD this needs to be a vector that is easy to remove elements
+  // from in any way
   Connector* dst;
 
   Node* parent;
@@ -140,7 +144,11 @@ class Connector : public Elem
   std::vector<cv::Point2f> connector_points;
 
   bool setImage(cv::Mat im);
-
+  bool setSignal(const float val);
+  bool setString(const std::string new_str);
+  
+  float getSignal() { return value; }
+  std::string getString() {return str; }
   cv::Mat getImage();
 
   void draw(cv::Mat, cv::Point2f ui_offset);
@@ -153,8 +161,6 @@ class Connector : public Elem
   float val_min;
   float val_max;
 
-  // only used if conType == Image or Buffer
-  cv::Mat im;
 
   std::string str;
 

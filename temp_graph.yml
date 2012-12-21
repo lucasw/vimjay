@@ -1,5 +1,5 @@
 %YAML:1.0
-date: "Wed Dec 19 17:55:46 2012\n"
+date: "Thu Dec 20 22:35:44 2012\n"
 nodes:
    -
       ind: 0
@@ -50,7 +50,7 @@ nodes:
          -
             type: 1
             name: y
-            value: 108.
+            value: 80.
             src_ind: -1
             src_port: ""
          -
@@ -80,13 +80,13 @@ nodes:
          -
             type: 1
             name: "2_x"
-            value: 6.6935723876953125e+02
+            value: 2.7972021484375000e+02
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: "2_y"
-            value: 2.6205020141601562e+02
+            value: 6.5902709960937500e-01
             src_ind: -1
             src_port: ""
          -
@@ -723,7 +723,7 @@ nodes:
          -
             type: 1
             name: cur_size
-            value: 1.
+            value: 0.
             src_ind: -1
             src_port: ""
          -
@@ -988,7 +988,7 @@ nodes:
          -
             type: 1
             name: add0
-            value: 4.9653291702270508e-01
+            value: 2.4965329170227051e+00
             src_ind: -1
             src_port: ""
          -
@@ -1474,7 +1474,7 @@ nodes:
             src_port: ""
    -
       ind: 25
-      typeid: "bm::InPaint"
+      typeid: "bm::ImageNode"
       name: in_paint
       loc: [ 1660., 92. ]
       inputs:
@@ -2482,13 +2482,13 @@ nodes:
          -
             type: 1
             name: x
-            value: 0.
+            value: 945.
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: y
-            value: 52.
+            value: 24.
             src_ind: -1
             src_port: ""
          -
@@ -2558,13 +2558,13 @@ nodes:
          -
             type: 1
             name: x
-            value: 1.
+            value: 958.
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: y
-            value: 80.
+            value: 372.
             src_ind: -1
             src_port: ""
          -
