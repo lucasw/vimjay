@@ -2,7 +2,7 @@
 #define __FILTER_H__
 
 #include "nodes.h"
-#include "misc_nodes.h"
+#include "modify.h"
 
 //#include <iostream>
 //#include <stdio.h>

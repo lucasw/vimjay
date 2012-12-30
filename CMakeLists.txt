@@ -37,6 +37,7 @@ config.cpp
 camthing.cpp
 nodes.cpp
 misc_nodes.cpp
+modify.cpp
 signals.cpp
 filter.cpp
 cluster.cpp

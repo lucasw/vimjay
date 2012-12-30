@@ -37,6 +37,7 @@
 
 #include "config.h"
 #include "nodes.h" 
+#include "modify.h" 
 #include "misc_nodes.h" 
 #include "signals.h"
 #include "filter.h"
