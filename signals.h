@@ -60,6 +60,21 @@ class SigAdd : public Node
   virtual bool handleKey(int key);
 };
 
+class SigGreater : public Signal
+{
+  public:
+  SigGreater(const std::string name); 
+  virtual bool update();
+};
+
+class Mean : public Signal
+{
+  public:
+  Mean(const std::string name); 
+  virtual bool update();
+};
+
+
 
 #ifdef NOT_YET_IMPLEMENTED
 /////////////////////////////////
@@ -107,12 +122,6 @@ class SigAbsDiff : public Signal
   virtual bool update();
 };
 
-class SigGreater : public Signal
-{
-  public:
-  SigGreater(const std::string name); 
-  virtual bool update();
-};
 
 class SigFlip : public Signal
 {

@@ -422,6 +422,81 @@ bool SigAdd::handleKey(int key)
   return valid_key;
 }
 
+////////////////////// 
+SigGreater::SigGreater(const std::string name) :
+    Signal(name)
+{
+  // TBD more convenient to output all possibilities, or provide mode selector?
+  setSignal("greater",0, true);
+  setSignal("less",0, true);
+  setSignal("equal",0, true);
+  setSignal("in0",1);
+  setSignal("in1",0);
+}
+
+bool SigGreater::update()
+{
+  if (!Node::update()) return false;
+
+  if (!isDirty(this, 35)) {
+    VLOG(1) << name << " not dirty ";
+    return true;
+  }
+
+  float in0 = getSignal("in0");
+  float in1 = getSignal("in1");
+
+  setSignal("greater", (in0 > in1) ? 1.0 : 0.0 );
+  setSignal("less", (in0 < in1) ? 1.0 : 0.0 );
+  setSignal("equal", (in0 == in1) ? 1.0 : 0.0 );
+  
+  setDirty();
+
+  return true;
+
+}
+
+Mean::Mean(const std::string name) :
+    Signal(name)
+{
+  // TBD more convenient to output all possibilities, or provide mode selector?
+  cv::Mat tmp;
+  setImage("in",tmp);
+  setSignal("mean", 0, true);
+  setSignal("mean_r", 0, true);
+  setSignal("mean_g", 0, true);
+  setSignal("mean_b", 0, true);
+  //TBD stddev  setSignal("equal",0, true);
+}
+
+bool Mean::update()
+{
+  if (!Node::update()) return false;
+
+  if (!isDirty(this, 35)) {
+    VLOG(1) << name << " not dirty ";
+    return true;
+  }
+
+  cv::Mat in = getImage("in");
+  
+  cv::Scalar mean = cv::mean(in); //TBD optional mask
+
+  float b = mean.val[0];
+  float g = mean.val[1];
+  float r = mean.val[2];
+  float mean_all = (b + g + r)/3.0;
+
+  setSignal("mean", mean_all);
+  setSignal("mean_r", r);
+  setSignal("mean_g", g);
+  setSignal("mean_b", b);
+  
+  setDirty();
+
+  return true;
+
+}
 
   
 

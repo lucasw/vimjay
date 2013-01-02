@@ -84,7 +84,6 @@ class CamThing : public Output
 
   public:
  
-
   // where the upper left coordinate of the window into the ui is
   cv::Point2f ui_offset;
 
@@ -165,6 +164,8 @@ class CamThing : public Output
         node = getNode<Cluster>(name, loc);
       } else if (type_id.compare("bm::ImageDir") == 0) {
         node = getNode<ImageDir>(name, loc);
+      } else if (type_id.compare("bm::Mean") == 0) {
+        node = getNode<Mean>(name, loc);
       } else if (type_id.compare("bm::Add") == 0) {
         node = getNode<Add>(name, loc);
       } else if (type_id.compare("bm::AddMasked") == 0) {
@@ -195,6 +196,8 @@ class CamThing : public Output
         node = getNode<Signal>(name, loc);
       } else if (type_id.compare("bm::SigAdd") == 0) {
         node = getNode<SigAdd>(name, loc);
+      } else if (type_id.compare("bm::SigGreater") == 0) {
+        node = getNode<SigGreater>(name, loc);
       } else if (type_id.compare("bm::MiscSignal") == 0) {
         node = getNode<MiscSignal>(name, loc);
       } else if (type_id.compare("bm::SigBuffer") == 0) {
@@ -460,6 +463,7 @@ class CamThing : public Output
     node_types.push_back("bm::MuxBuffer");
     node_types.push_back("bm::FilterFIR");
     node_types.push_back("bm::Cluster");
+    node_types.push_back("bm::Mean");
     node_types.push_back("bm::Add");
     node_types.push_back("bm::AddMasked");
     node_types.push_back("bm::Multiply");
@@ -475,6 +479,7 @@ class CamThing : public Output
     node_types.push_back("bm::Kaleid");
     node_types.push_back("bm::Signal");
     node_types.push_back("bm::SigAdd");
+    node_types.push_back("bm::SigGreater");
     node_types.push_back("bm::MiscSignal");
     node_types.push_back("bm::SigBuffer");
     node_types.push_back("bm::Tap");

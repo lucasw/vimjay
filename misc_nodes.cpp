@@ -65,7 +65,6 @@ namespace bm {
         //
         //
     
-
     //update();
     //update();
     is_thread_dirty = false;
@@ -184,7 +183,7 @@ namespace bm {
   {
     setSignal("mode", 0, false, ROLL, 0, 4);
     setSignal("keep_aspect", 1, false, ROLL, 0, 1);
-    setString("dir", "temp");
+    setString("dir", "../data"); //"temp");
     //setSignal("ind", 0, false, ROLL, 0, 0);
   }
 
