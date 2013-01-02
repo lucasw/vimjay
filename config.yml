@@ -16,6 +16,8 @@ im_width: 1280
 im_height: 720
 #im_width: 1920
 #im_height: 1080
+#im_width: 2048
+#im_height: 2048
 #
 out_width: 640
 out_height: 360
