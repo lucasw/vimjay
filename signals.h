@@ -18,7 +18,8 @@ namespace bm {
 
 class MiscSignal : public Signal
 {
-  cv::RNG rng; 
+  cv::RNG rng;
+  int state;
   public:
   MiscSignal(const std::string name); 
   virtual bool update();

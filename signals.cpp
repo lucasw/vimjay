@@ -79,6 +79,15 @@ namespace bm {
     if (!Node::update()) return false;
 
     float step = getSignal("step");
+   
+    // TBD use step for the random number seed
+    int new_state = step;
+    if (new_state != state) {
+     LOG(INFO) << name << " " << state << " " << step << " new state " << 0xFFFFFFF - (int)state; 
+      state = step; // 0xFFFFFFF - (int)step;
+      rng = cv::RNG(0xFFFFFFF - (int)state);
+    }
+
     float min = getSignal("min");
     float max = getSignal("max");
     float value = getSignal("value");
@@ -99,6 +108,7 @@ namespace bm {
     float span = max - min;
 
     if (mode == 0) {
+      // TBD need setDescription(signal_name, type, desc) function
       con->description = "triangle";
       value += step;
       if (value > max) {
