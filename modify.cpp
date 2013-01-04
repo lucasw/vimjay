@@ -1184,6 +1184,7 @@ CMP_NE
   {
     cv::Mat tmp;
     setImage("in", tmp);
+    setImage("mask", tmp);
     setSignal("hsv_ind", 2, false, ROLL, 0, 2);
   }
 
@@ -1202,6 +1203,27 @@ CMP_NE
     if (in.empty()) {
       VLOG(2) << name << " in is empty";
       return false;
+    }
+    
+    cv::Mat mask4 = getImage("mask");
+
+    if (!mask4.empty()) {
+      cv::Mat mask = cv::Mat( mask4.size(), CV_8UC1);
+      //int chm[] = {0, 0};
+      //mixChannels(&mask4, 1, &mask, 1, chm, 1);
+      cv::cvtColor(mask4, mask, CV_BGR2GRAY);
+      cv::Scalar masked_mean = cv::mean(in, mask); //[0];
+      setSignal("m_b", masked_mean[0]); 
+      setSignal("m_g", masked_mean[1]); 
+      setSignal("m_r", masked_mean[2]); 
+      // does setting the unmasked areas to the masked mean 
+      // make the histogram equalization functionally masked?
+      in = in.clone();
+      //in += masked_mean & (mask4 == 0); 
+      in += cv::Scalar::all(getSignal("black")) & (mask4 == 0);
+      // TBD making so much of the image a single color produces a harsh light to dark transition
+      // from equalizeHist, really it needs to be a gradient with the same histogram as the masked area
+      //  
     }
 
     // change to CV_8UC1 and then equalize on the value channel
@@ -1226,7 +1248,13 @@ CMP_NE
     cv::Mat out = cv::Mat( in.size(), CV_8UC4, cv::Scalar::all(0) );
     int ch3[] = {0,0, 1,1, 2,2}; 
     mixChannels(&out_3, 1, &out, 1, ch3, 3 );
-     
+    
+    if (!mask4.empty()) {
+      // now restore the masked out areas... this doesn't seem like it will
+      // work, probably need to work with calcHist and apply histograms manually 
+      
+    }
+
     setImage("out", out);
 
     return true;

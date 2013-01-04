@@ -1,5 +1,5 @@
 %YAML:1.0
-date: "Thu Jan  3 21:28:35 2013\n"
+date: "Thu Jan  3 22:06:28 2013\n"
 nodes:
    -
       ind: 0
@@ -44,13 +44,13 @@ nodes:
          -
             type: 1
             name: x
-            value: 557.
+            value: 17.
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: y
-            value: 125.
+            value: 127.
             src_ind: -1
             src_port: ""
          -
@@ -97,13 +97,13 @@ nodes:
          -
             type: 1
             name: "2_x"
-            value: 5.4809094238281250e+02
+            value: 2.7301913452148438e+02
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: "2_y"
-            value: 9.0591430664062500e-02
+            value: -5.5165405273437500e+00
             src_ind: -1
             src_port: ""
          -
@@ -214,7 +214,7 @@ nodes:
          -
             type: 2
             name: in
-            src_ind: 3
+            src_ind: 4
             src_port: out
          -
             type: 1
@@ -231,13 +231,13 @@ nodes:
          -
             type: 1
             name: x
-            value: 951.
+            value: 17.
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: y
-            value: 487.
+            value: 0.
             src_ind: -1
             src_port: ""
          -
@@ -268,7 +268,7 @@ nodes:
       ind: 3
       typeid: "bm::EqualizeHist"
       name: "bm::EqualizeHist"
-      loc: [ 139., -30. ]
+      loc: [ 4.6284492492675781e+01, -1.5767155647277832e+01 ]
       inputs:
          -
             type: 1
@@ -293,16 +293,39 @@ nodes:
             src_ind: 4
             src_port: out
          -
+            type: 2
+            name: mask
+            src_ind: 4
+            src_port: out
+         -
             type: 1
             name: hsv_ind
             value: 2.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: m_b
+            value: 1.2679653930664062e+02
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: m_g
+            value: 1.2680233764648438e+02
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: m_r
+            value: 1.2679396820068359e+02
             src_ind: -1
             src_port: ""
    -
       ind: 4
       typeid: "bm::ImageDir"
       name: "bm::ImageDir"
-      loc: [ 165., 125. ]
+      loc: [ 1.6771545410156250e+02, 1.4076712036132812e+02 ]
       dir: "../data"
       inputs:
          -
@@ -347,7 +370,7 @@ nodes:
          -
             type: 1
             name: mode
-            value: 0.
+            value: 1.
             src_ind: -1
             src_port: ""
          -
@@ -364,12 +387,12 @@ nodes:
          -
             type: 1
             name: ind
-            value: 5.
+            value: 11.
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: load
-            value: 1.
+            value: 0.
             src_ind: -1
             src_port: ""
