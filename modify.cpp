@@ -1184,6 +1184,7 @@ CMP_NE
   {
     cv::Mat tmp;
     setImage("in", tmp);
+    setSignal("hsv_ind", 2, false, ROLL, 0, 2);
   }
 
   bool EqualizeHist::update()
@@ -1203,12 +1204,29 @@ CMP_NE
       return false;
     }
 
-    // if fx and fy aren't hooked up then they will remain unaltered
+    // change to CV_8UC1 and then equalize on the value channel
+    cv::Mat hsv;
+    // the fourth channel is lost in this conversion, hsv will be 3 channels
+    cv::cvtColor(in, hsv, CV_BGR2HSV);
 
-    cv::Mat out;
+    cv::Mat in_v = cv::Mat( in.size(), CV_8UC1);
+    const int ind = getSignal("hsv_ind");
+    const int ch1[] = {ind, 0};
+    mixChannels(&hsv, 1, &in_v, 1, ch1, 1);
+
+    cv::Mat out_v; // = in_v.clone();
+    cv::equalizeHist(in_v, out_v);
+
+    const int ch2[] = {0, ind};
+    mixChannels(&out_v, 1, &hsv, 1, ch2, 1);
     
-    cv::equalizeHist(in, out);
+    cv::Mat out_3;
+    cv::cvtColor(hsv, out_3, CV_HSV2BGR);
 
+    cv::Mat out = cv::Mat( in.size(), CV_8UC4, cv::Scalar::all(0) );
+    int ch3[] = {0,0, 1,1, 2,2}; 
+    mixChannels(&out_3, 1, &out, 1, ch3, 3 );
+     
     setImage("out", out);
 
     return true;
