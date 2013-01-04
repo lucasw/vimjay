@@ -182,6 +182,8 @@ class CamThing : public Output
         node = getNode<Resize>(name, loc);
       } else if (type_id.compare("bm::Flip") == 0) {
         node = getNode<Flip>(name, loc);
+      } else if (type_id.compare("bm::EqualizeHist") == 0) {
+        node = getNode<EqualizeHist>(name, loc);
       } else if (type_id.compare("bm::MorphologyEx") == 0) {
         node = getNode<MorphologyEx>(name, loc);
       } else if (type_id.compare("bm::Rot2D") == 0) {
@@ -472,6 +474,7 @@ class CamThing : public Output
     node_types.push_back("bm::Max");
     node_types.push_back("bm::Resize");
     node_types.push_back("bm::Flip");
+    node_types.push_back("bm::EqualizeHist");
     node_types.push_back("bm::MorphologyEx");
     node_types.push_back("bm::Rot2D");
     node_types.push_back("bm::Undistort");
@@ -497,8 +500,8 @@ class CamThing : public Output
     //node_types.push_back("bm::Output"); // TBD if can spawn this
 
 
-    setSignal("node_spawn_ind", 0, false, ROLL, 0, node_types.size()-1);
-    setString("node_spawn_type", node_types[0], true);
+    setSignal("node_ind", 0, false, ROLL, 0, node_types.size()-1);
+    setString("node", node_types[0], true);
 
     setSignal("x", 0);
 
@@ -1564,12 +1567,12 @@ class CamThing : public Output
     Node::update();
 
     cv::Mat out = getImage("out");
-    if (out.empty()) out = cv::Mat(cv::Size(Config::inst()->im_width, Config::inst()->im_height), MAT_FORMAT_C3);
+    if (out.empty()) out = cv::Mat(Config::inst()->getImSize(), MAT_FORMAT_C3);
     cv::resize(graph_ui, out,
           out.size(), 0, 0, cv::INTER_NEAREST );
     setImage("out", out);          
    
-    setString("node_spawn_type", node_types[getSignal("node_spawn_ind")]);
+    setString("node", node_types[getSignal("node_ind")]);
 
     return true;
   }
@@ -1712,8 +1715,8 @@ class CamThing : public Output
 
     LOG(INFO) << " camthing handlekey";
     if (key == '[') {
-      int ind = getSignal("node_spawn_ind");
-           setSignal("node_spawn_ind", ind);
+      int ind = getSignal("node_ind");
+           setSignal("node", ind);
 
       LOG(INFO) << "creating node " << node_types[ind];
       getNodeByName(node_types[ind], 

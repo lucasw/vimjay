@@ -148,6 +148,13 @@ class Flip : public ImageNode
   virtual bool update();
 };
 
+// Single inputs
+class EqualizeHist : public ImageNode
+{
+  public:
+  EqualizeHist(const std::string name);
+  virtual bool update();
+};
 
 
 } // bm

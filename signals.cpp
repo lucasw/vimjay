@@ -185,10 +185,10 @@ namespace bm {
   Trig::Trig(const string name) :
       Node(name)
   { 
-    setSignal("in",0);
-    setSignal("radius",1);
-    setSignal("rad_deg_nrm",2);
-    setSignal("cos",0, true);
+    setSignal("in", 0);
+    setSignal("radius", 1);
+    setSignal("rad_deg_nrm", 2);
+    setSignal("cos", 0, true);
     setSignal("sin",0, true);
     setSignal("tan",0, true);
   }
