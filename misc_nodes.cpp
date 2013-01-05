@@ -184,6 +184,7 @@ namespace bm {
     setSignal("mode", 0, false, ROLL, 0, 4);
     setSignal("keep_aspect", 1, false, ROLL, 0, 1);
     setString("dir", "../data"); //"temp");
+    setString("name","");
     //setSignal("ind", 0, false, ROLL, 0, 0);
   }
 
@@ -199,8 +200,8 @@ namespace bm {
     }
 
     // TBD clear frames first?
-    
     vector<string> files;
+    
     boost::filesystem::directory_iterator end_itr; // default construction yields past-the-end
     for (boost::filesystem::directory_iterator itr( image_path );
         itr != end_itr;
@@ -220,6 +221,7 @@ namespace bm {
 
    sort(files.begin(), files.end());
   
+   all_files.clear();
    for (int i=0; i < files.size(); i++) {
       const string next_im = files[i];
       cv::Mat new_out = cv::imread( next_im );
@@ -239,6 +241,7 @@ namespace bm {
       VLOG(1) << name << " " << i << " loaded image " << next_im;
 
       frames_orig.push_back(tmp0);
+      all_files.push_back(next_im);
     }
     
     /// TBD or has sized increased since beginning of function?
