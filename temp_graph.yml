@@ -1,11 +1,11 @@
 %YAML:1.0
-date: "Thu Jan  3 22:06:28 2013\n"
+date: "Fri Jan  4 10:47:35 2013\n"
 nodes:
    -
       ind: 0
       typeid: "bm::CamThing"
       name: cam_thing
-      loc: [ -20., 110. ]
+      loc: [ -2.2955665588378906e+01, 1.1743391418457031e+02 ]
       inputs:
          -
             type: 1
@@ -44,13 +44,13 @@ nodes:
          -
             type: 1
             name: x
-            value: 17.
+            value: 14.
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: y
-            value: 127.
+            value: 101.
             src_ind: -1
             src_port: ""
          -
@@ -68,7 +68,7 @@ nodes:
          -
             type: 1
             name: node_ind
-            value: 0.
+            value: 1.
             src_ind: -1
             src_port: ""
          -
@@ -155,13 +155,13 @@ nodes:
          -
             type: 1
             name: x
-            value: 951.
+            value: 0.
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: y
-            value: 487.
+            value: 24.
             src_ind: -1
             src_port: ""
          -
@@ -214,7 +214,7 @@ nodes:
          -
             type: 2
             name: in
-            src_ind: 4
+            src_ind: 0
             src_port: out
          -
             type: 1
@@ -231,13 +231,13 @@ nodes:
          -
             type: 1
             name: x
-            value: 17.
+            value: 13.
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: y
-            value: 0.
+            value: 73.
             src_ind: -1
             src_port: ""
          -
@@ -268,7 +268,7 @@ nodes:
       ind: 3
       typeid: "bm::EqualizeHist"
       name: "bm::EqualizeHist"
-      loc: [ 4.6284492492675781e+01, -1.5767155647277832e+01 ]
+      loc: [ 4.8954906463623047e+01, -2.3432073593139648e+01 ]
       inputs:
          -
             type: 1
@@ -321,11 +321,17 @@ nodes:
             value: 1.2679396820068359e+02
             src_ind: -1
             src_port: ""
+         -
+            type: 1
+            name: black
+            value: 0.
+            src_ind: -1
+            src_port: ""
    -
       ind: 4
       typeid: "bm::ImageDir"
       name: "bm::ImageDir"
-      loc: [ 1.6771545410156250e+02, 1.4076712036132812e+02 ]
+      loc: [ 168., 141. ]
       dir: "../data"
       inputs:
          -
@@ -364,7 +370,7 @@ nodes:
          -
             type: 1
             name: cur_size
-            value: 33.
+            value: 32.
             src_ind: -1
             src_port: ""
          -

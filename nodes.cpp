@@ -205,16 +205,6 @@ namespace bm {
         
       }
     } 
-
-    if (saturate == ROLL) {
-      //const float span = val_max - val_min;
-      if (value < val_min) value = val_max; 
-      if (value > val_max) value = val_min;
-    } else if (saturate == SATURATE) {
-      if (value < val_min) value = val_min; 
-      if (value > val_max) value = val_max;
-    } // saturate
-
     return true;
   }
   
@@ -249,9 +239,23 @@ namespace bm {
     return true;
   }
 
-  bool Connector::setSignal(const float val)
+  bool Connector::setSignal(float val)
   {
     if (this->value == val) return true;
+
+    if (saturate == ROLL) {
+      //const float span = val_max - val_min;
+      if (val < val_min) val = val_max; 
+      if (val > val_max) val = val_min;
+    } else if (saturate == SATURATE) {
+      if (val < val_min) val = val_min; 
+      if (val > val_max) val = val_max;
+    } // saturate
+
+    if (this->value == val) return true;
+    
+    VLOG(5) << name << " " << val << " " << val_min << " " << val_max;
+
     this->value = val;
     setDirty();
 
@@ -260,8 +264,9 @@ namespace bm {
 
   bool Connector::setString(const std::string new_str)
   {
-    if (this->str == new_str) return true;
-    this->str = new_str;
+    VLOG(999999999) << "setString " << name << " " << new_str;
+    if (str.compare(new_str) == 0) return true;
+    str = new_str;
     setDirty();
 
     return true;
@@ -956,18 +961,16 @@ namespace bm {
     // can't set signal if it is controlled by src port 
     if (con->src) return false;
 
-    const float val_orig = con->value;
-    if (val != val_orig) {
-      con->value = val;
-      con->setDirty();
-    }
 
     if (saturate > 0) {
-      LOG(INFO) << name << " - " << port << ((saturate == 1) ? " - saturating " : " - rolling over") << min << " " << max;
+      LOG(INFO) << name << " - " << port << ((saturate == 1) ? " - saturating " : " - rolling over ") 
+          << min << " " << max;
       con->saturate = saturate;
       con->val_min = min;
       con->val_max = max;
     }
+    
+    con->setSignal(val);
 
     return true;
   }
@@ -1170,7 +1173,7 @@ namespace bm {
   {
     Connector* con = NULL;
     string src_port;
-    if (!getInputPort(SIGNAL, port, con, src_port)) {
+    if (!getInputPort(STRING, port, con, src_port)) {
       
       // create it if it doesn't exist
       setInputPort(STRING, port);
@@ -1182,16 +1185,13 @@ namespace bm {
     
       // only use this setting if the port is new (TBD)
       con->internally_set = internally_set;
-    }
+    } 
     
     // can't set signal if it is controlled by src port 
     if (con->src) return false;
 
-    const float val_orig = con->value;
-    if (new_str != con->str) {
-      con->str = new_str;
-      con->setDirty();
-    }
+    con->setString(new_str);
+    VLOG(9) << name << " " << con->name << " " << con->getString() << " " << con << " " << this;
   
     return true;
   }
@@ -1213,13 +1213,16 @@ namespace bm {
       return "";
     }
 
-    if (!con) return "";
-    //VLOG(1) << name << " " << src_port << " " << valid << " " << new_val << " " << val;
+    if (!con) {
+      LOG(ERROR) << "no connector " << port;
+      return "";
+    }
+    VLOG(9) << name << " " << con->name << " " << src_port << " " << valid << " " << con->getString() << " " << con << " " << this;
     //if (!valid) return val;
     
     // TBD setDirty?  Probably shouldn't, would defeat the isDirty loop prevention
     valid = true;
-    return con->str;
+    return con->getString();
   }
   //////////////////////////////////////////////////////////////////////////////////////////
   ImageNode::ImageNode(const std::string name) : Node(name)

@@ -184,6 +184,8 @@ class CamThing : public Output
         node = getNode<Flip>(name, loc);
       } else if (type_id.compare("bm::EqualizeHist") == 0) {
         node = getNode<EqualizeHist>(name, loc);
+      } else if (type_id.compare("bm::Normalize") == 0) {
+        node = getNode<Normalize>(name, loc);
       } else if (type_id.compare("bm::MorphologyEx") == 0) {
         node = getNode<MorphologyEx>(name, loc);
       } else if (type_id.compare("bm::Rot2D") == 0) {
@@ -475,6 +477,7 @@ class CamThing : public Output
     node_types.push_back("bm::Resize");
     node_types.push_back("bm::Flip");
     node_types.push_back("bm::EqualizeHist");
+    node_types.push_back("bm::Normalize");
     node_types.push_back("bm::MorphologyEx");
     node_types.push_back("bm::Rot2D");
     node_types.push_back("bm::Undistort");
@@ -1571,8 +1574,11 @@ class CamThing : public Output
     cv::resize(graph_ui, out,
           out.size(), 0, 0, cv::INTER_NEAREST );
     setImage("out", out);          
-   
-    setString("node", node_types[getSignal("node_ind")]);
+
+    const int ind = getSignal("node_ind");
+    // TBD the node_ind signal may not have been updated here
+    setString("node", node_types[ind]);
+    VLOG(9) << "node_ind " << ind << " " << node_types[ind] << " " << getString("node"); //node_types[ind];
 
     return true;
   }
@@ -1716,7 +1722,10 @@ class CamThing : public Output
     LOG(INFO) << " camthing handlekey";
     if (key == '[') {
       int ind = getSignal("node_ind");
-           setSignal("node", ind);
+
+      LOG(INFO) << "node_ind " << ind;
+
+      setString("node", node_types[ind]);
 
       LOG(INFO) << "creating node " << node_types[ind];
       getNodeByName(node_types[ind], 

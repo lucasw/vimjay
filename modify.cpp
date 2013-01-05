@@ -1260,8 +1260,63 @@ CMP_NE
     return true;
   }
 
+  ////////////////////////////////////////
+  Normalize::Normalize(const std::string name) :
+      ImageNode(name)
+  {
+    cv::Mat tmp;
+    setImage("in", tmp);
+    setImage("mask", tmp);
+    setSignal("type", 0, false, ROLL, 0, 3);
+    setSignal("alpha", 0);
+    setSignal("beta", 255);
+  }
 
-  
+  bool Normalize::update()
+  {
+    if (!Node::update()) return false;
+
+    // TBD make sure keyboard changed parameters make this dirty 
+    if (!isDirty(this, 5)) { 
+      VLOG(4) << name << " not dirty ";
+      return true; 
+    }
+
+    cv::Mat in = getImage("in");
+
+    if (in.empty()) {
+      VLOG(2) << name << " in is empty";
+      return false;
+    }
+    
+    cv::Mat mask4 = getImage("mask");
+
+    cv::Mat mask;
+    if (!mask4.empty()) {
+      mask = cv::Mat( mask4.size(), CV_8UC1);
+      //int chm[] = {0, 0};
+      //mixChannels(&mask4, 1, &mask, 1, chm, 1);
+      cv::cvtColor(mask4, mask, CV_BGR2GRAY);
+    }
+
+    int type = getSignal("type");
+
+    int norm_type = NORM_MINMAX;
+    if (type == 1) norm_type = NORM_INF;
+    if (type == 2) norm_type = NORM_L1;
+    if (type == 3) norm_type = NORM_L2;
+
+    cv::Mat out;
+
+    cv::normalize(in, out, getSignal("alpha"), getSignal("beta"), norm_type, -1, mask);
+
+    setImage("out", out);
+
+
+    return true;
+
+  }
+
 
 } //bm
 

@@ -112,6 +112,7 @@ class Connector : public Elem
   protected:
   // only used if conType == Image or Buffer
   cv::Mat im;
+  std::string str;
 
   public:
   Connector(const std::string name);
@@ -144,7 +145,7 @@ class Connector : public Elem
   std::vector<cv::Point2f> connector_points;
 
   bool setImage(cv::Mat im);
-  bool setSignal(const float val);
+  bool setSignal(float val);
   bool setString(const std::string new_str);
   
   float getSignal() { return value; }
@@ -162,7 +163,6 @@ class Connector : public Elem
   float val_max;
 
 
-  std::string str;
 
   // TBD could store a copy of a sigbuf here
   // std::vector<float> sigbuf;
