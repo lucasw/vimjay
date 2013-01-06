@@ -1,11 +1,11 @@
 %YAML:1.0
-date: "Sat Jan  5 21:13:41 2013\n"
+date: "Sat Jan  5 21:55:32 2013\n"
 nodes:
    -
       ind: 0
       typeid: "bm::CamThing"
       name: cam_thing
-      loc: [ -7., 94. ]
+      loc: [ -7.6756027221679688e+01, 9.1626358032226562e+01 ]
       inputs:
          -
             type: 1
@@ -44,13 +44,13 @@ nodes:
          -
             type: 1
             name: x
-            value: 93.
+            value: 631.
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: y
-            value: 89.
+            value: 127.
             src_ind: -1
             src_port: ""
          -
@@ -68,7 +68,7 @@ nodes:
          -
             type: 1
             name: node_ind
-            value: 0.
+            value: 17.
             src_ind: -1
             src_port: ""
          -
@@ -91,13 +91,13 @@ nodes:
          -
             type: 1
             name: "2_x"
-            value: 7.6761944580078125e+02
+            value: 4.2368872070312500e+02
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: "2_y"
-            value: 2.5521591186523438e+02
+            value: 5.0928674316406250e+02
             src_ind: -1
             src_port: ""
          -
@@ -132,8 +132,8 @@ nodes:
          -
             type: 2
             name: in
-            src_ind: 3
-            src_port: flipped
+            src_ind: 6
+            src_port: out
          -
             type: 1
             name: decor
@@ -149,13 +149,13 @@ nodes:
          -
             type: 1
             name: x
-            value: 926.
+            value: 17.
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: y
-            value: 404.
+            value: 487.
             src_ind: -1
             src_port: ""
          -
@@ -186,7 +186,7 @@ nodes:
       ind: 2
       typeid: "bm::Output"
       name: preview
-      loc: [ 345., 182. ]
+      loc: [ 429., 228. ]
       inputs:
          -
             type: 1
@@ -208,8 +208,8 @@ nodes:
          -
             type: 2
             name: in
-            src_ind: 3
-            src_port: out
+            src_ind: 6
+            src_port: add1
          -
             type: 1
             name: decor
@@ -225,13 +225,13 @@ nodes:
          -
             type: 1
             name: x
-            value: 926.
+            value: 81.
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: y
-            value: 0.
+            value: 63.
             src_ind: -1
             src_port: ""
          -
@@ -258,11 +258,17 @@ nodes:
             value: 360.
             src_ind: -1
             src_port: ""
+         -
+            type: 1
+            name: write_count
+            value: 1.
+            src_ind: -1
+            src_port: ""
    -
       ind: 3
       typeid: "bm::ContourFlip"
       name: "bm::ContourFlip"
-      loc: [ 119., -27. ]
+      loc: [ 1.3109191894531250e+02, -8.9834739685058594e+01 ]
       inputs:
          -
             type: 1
@@ -287,20 +293,117 @@ nodes:
             src_ind: 4
             src_port: out
          -
+            type: 1
+            name: epsilon
+            value: 8.
+            src_ind: -1
+            src_port: ""
+         -
             type: 2
             name: to_flip
-            src_ind: 4
+            src_ind: 5
             src_port: out
          -
             type: 2
             name: flipped
             src_ind: -1
             src_port: ""
+         -
+            type: 2
+            name: dist
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: count
+            value: 16.
+            src_ind: -1
+            src_port: ""
    -
       ind: 4
       typeid: "bm::ImageDir"
       name: "bm::ImageDir"
-      loc: [ 168., 144. ]
+      loc: [ 1.1824164581298828e+02, 2.2665969848632812e+02 ]
+      dir: "../data"
+      inputs:
+         -
+            type: 1
+            name: enable
+            value: 1.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: force_update
+            value: 0.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 2
+            name: out
+            src_ind: -1
+            src_port: ""
+         -
+            type: 2
+            name: in
+            src_ind: -1
+            src_port: ""
+         -
+            type: 3
+            name: out
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: max_size
+            value: 100.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: cur_size
+            value: 34.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: mode
+            value: 3.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: keep_aspect
+            value: 0.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 5
+            name: dir
+            src_ind: -1
+            src_port: ""
+         -
+            type: 5
+            name: name
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: ind
+            value: 17.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: load
+            value: 0.
+            src_ind: -1
+            src_port: ""
+   -
+      ind: 5
+      typeid: "bm::ImageDir"
+      name: "bm::ImageDir_2"
+      loc: [ 287., 96. ]
       dir: "../data"
       inputs:
          -
@@ -351,7 +454,7 @@ nodes:
          -
             type: 1
             name: keep_aspect
-            value: 1.
+            value: 0.
             src_ind: -1
             src_port: ""
          -
@@ -367,12 +470,57 @@ nodes:
          -
             type: 1
             name: ind
-            value: 13.
+            value: 6.
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: load
             value: 0.
+            src_ind: -1
+            src_port: ""
+   -
+      ind: 6
+      typeid: "bm::Add"
+      name: "bm::Add"
+      loc: [ 1.0042248535156250e+02, 8.9548629760742188e+01 ]
+      inputs:
+         -
+            type: 1
+            name: enable
+            value: 1.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: force_update
+            value: 0.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 2
+            name: out
+            src_ind: -1
+            src_port: ""
+         -
+            type: 2
+            name: add0
+            src_ind: 3
+            src_port: dist
+         -
+            type: 1
+            name: add0
+            value: 1.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 2
+            name: add1
+            src_ind: 3
+            src_port: out
+         -
+            type: 1
+            name: add1
+            value: 1.
             src_ind: -1
             src_port: ""
