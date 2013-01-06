@@ -84,8 +84,11 @@ ContourFlip::ContourFlip(const std::string name) : Contour(name)
 // v w is the two points of the line segment, p is the test point
 //float minimum_distance(cv::Mat v, cv::Mat w, cv::Mat p) {
 float minimum_distance(cv::Point2f v, cv::Point2f w, cv::Point2f p, cv::Point2f& closest) {
+  
   // Return minimum distance between line segment vw and point p
-  const float l2 = cv::norm(cv::Mat(v - w), cv::NORM_L1);  // i.e. |w-v|^2 -  avoid a sqrt
+  float l2 = cv::norm(w - v); 
+  l2 *= l2;
+  //const float l2 = cv::norm(cv::Mat(v - w), cv::NORM_L1);  // i.e. |w-v|^2 -  avoid a sqrt
   if (l2 == 0.0) {
     closest = v;
     return cv::norm(p - v);   // v == w case
@@ -93,7 +96,7 @@ float minimum_distance(cv::Point2f v, cv::Point2f w, cv::Point2f p, cv::Point2f&
   // Consider the line extending the segment, parameterized as v + t (w - v).
   // We find projection of point p onto the line. 
   // It falls where t = [(p-v) . (w-v)] / |w-v|^2
-  const float t = (p - v).dot(w - v) / l2;
+  const float t = ((p - v).dot(w - v)) / l2;
   if (t < 0.0) {
     closest = v;
     return cv::norm(p - v);       // Beyond the 'v' end of the segment
@@ -103,7 +106,16 @@ float minimum_distance(cv::Point2f v, cv::Point2f w, cv::Point2f p, cv::Point2f&
   }
     
   closest = v + t * (w - v);  // Projection falls on the segment
-  return cv::norm(p - closest);
+ 
+  const float dist = cv::norm(p - closest);
+  LOG_FIRST_N(INFO, 10) << v.x << " " << v.y << ", " 
+      << w.x << " " << w.y << ", " 
+      << p.x << " " << p.y << ", "
+      << closest.x << " " << closest.y << ", "
+      << l2 << " " << t << " " <<  dist
+      ;
+  
+  return dist;
 }
 
 bool ContourFlip::update()
@@ -155,8 +167,8 @@ bool ContourFlip::update()
   if ( (x == 0) && ( y == 0) ) setSignal("count", count);
 
   // TBD make a reflection effect instead of straight rolling over the edges?
-  const int src_x = ((x + (int) ( 2 * min_closest.x) ) + flipped.cols) % flipped.cols; 
-  const int src_y = ((y + (int) ( 2 * min_closest.y) ) + flipped.rows) % flipped.rows;
+  const int src_x = ((x + (int) ( 2 * (min_closest.x - x)) ) + flipped.cols) % flipped.cols; 
+  const int src_y = ((y + (int) ( 2 * (min_closest.y - y)) ) + flipped.rows) % flipped.rows;
  
   // TBD this could be a map for remap and if the in image doesn't change it will
   // be more efficient
