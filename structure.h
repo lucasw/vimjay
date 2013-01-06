@@ -9,12 +9,21 @@ namespace bm {
 
 class Contour : public ImageNode
 {
+  protected:
+  std::vector<std::vector<cv::Point> > contours0;
+  std::vector<cv::Vec4i> hierarchy;
+  
   public:
   Contour(const std::string name);
   virtual bool update();
 };
 
-
+class ContourFlip : public Contour
+{
+  public:
+  ContourFlip(const std::string name);
+  virtual bool update();
+};
 
 // TBD an IIR could be generated from a FIR chained to another FIR with an add block at the end
 // but it would be nice to be able to capture that inside a single Node- how to correctly handle 
