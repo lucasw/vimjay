@@ -80,6 +80,8 @@ ContourFlip::ContourFlip(const std::string name) : Contour(name)
   //setSignal("mode",0);
   setImage("flipped", tmp, true);
   setImage("dist", tmp, true);
+  setImage("mapx", tmp, true);
+  setImage("mapy", tmp, true);
 
   setSignal("border", 0, false, ROLL, 0, 4);
   setSignal("mode", 0, false, ROLL, 0, 4);
@@ -131,16 +133,12 @@ float minimum_distance(cv::Point2f v, cv::Point2f w, cv::Point2f p, cv::Point2f&
 
 bool ContourFlip::update()
 {
-  if (!isDirty(this, 23)) { return true;}
-  
-  bool valid;
-  bool is_dirty;
-  cv::Mat in = getImage("in", valid, is_dirty);
-  
   //if (!ImageNode::update()) return false;
   if (!Contour::update()) return false;
 
   // TBD get dirtiness of in to see if flip map needs to be recomputed
+  
+  if (!isDirty(this, 23)) { return true;}
 
   cv::Mat to_flip = getImage("to_flip");
   if (to_flip.empty()) {
@@ -149,8 +147,12 @@ bool ContourFlip::update()
   }
   
   cv::Mat flipped = cv::Mat(to_flip.size(), to_flip.type());
-
-  //if (is_dirty) 
+ 
+  bool valid;
+  bool is_dirty;
+  cv::Mat in = getImage("in", valid, is_dirty, 51);
+  
+  if (is_dirty) 
   {
   
   LOG(INFO) << "contour flip updating " << is_dirty;

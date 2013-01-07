@@ -244,7 +244,8 @@ class Node : public Elem
   cv::Mat getImage(
       const std::string port,
       bool& valid = bool_val,
-      bool& is_dirty = bool_val);//,
+      bool& is_dirty = bool_val,
+      const int is_dirty_ind = 3);//,
       //bool& is_dirty);
       //const bool require_dirty= false);
   

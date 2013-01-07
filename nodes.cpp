@@ -979,7 +979,9 @@ namespace bm {
   cv::Mat Node::getImage(
     const string port,
     bool& valid,
-    bool& is_dirty)
+    bool& is_dirty,
+    const int is_dirty_ind
+    )
   {
     /*
     string type = "ImageNode";
@@ -1000,11 +1002,10 @@ namespace bm {
       return im;
     }
 
-     
     {
       boost::mutex::scoped_lock l(con->im_mutex);
       im = con->getImage();  // TBD has con->im been updated?  need a con->getImage()
-      is_dirty = con->isDirty(this, 3);
+      is_dirty = con->isDirty(this, is_dirty_ind);
     }
     valid = true;
     
