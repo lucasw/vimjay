@@ -129,7 +129,7 @@ namespace bm {
   {
     if (!do_update) return false;
 
-    VLOG(2) << name << " update";
+    VLOG(3) << name << " update";
 
     do_update = false;
 
@@ -160,7 +160,7 @@ namespace bm {
     // This will frequently already have been run
     if (parent) {
 
-      VLOG(2) << parent->name << " : " << name << " update";
+      VLOG(3) << parent->name << " : " << name << " update";
       parent->update();
     }
 
@@ -179,7 +179,7 @@ namespace bm {
          //||  (src->parent == parent)  // TBD special loop detection, TBD not sure why this is necessary
         ) { 
 
-        VLOG(2) << "src " << src->name << " : " << name << " update";
+        VLOG(3) << "src " << src->name << " : " << name << " update";
         
         // the reason we can't forward propagate is that dst isn't a vector 
         // of every dst, there is a one to many possible mapping
@@ -1379,6 +1379,11 @@ namespace bm {
     // then look at input nodes
     getInputPort(SIGNAL, port, con, src_port);
 
+    if (!con) {
+      LOG(ERROR) << "no mode connector";
+      // TBD put a getSignal() instead which will create the connector
+      return cv::INTER_NEAREST;
+    }
 
     // used to do rollover here, but now require all calling 
     // nodes to set it up properly with

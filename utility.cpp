@@ -22,6 +22,8 @@
 
 #include "utility.h"
 
+#include "config.h"
+
 #include <boost/timer.hpp>
 #include <glog/logging.h>
 
@@ -29,6 +31,19 @@
 #include <cxxabi.h> // non portable
 
 namespace bm {
+
+  void initRemaps(cv::Mat& base_x, cv::Mat& base_y)
+  {
+    base_x = cv::Mat( Config::inst()->getImSize(), CV_32FC1);
+    base_y = base_x.clone();
+
+    for (int i = 0; i < base_x.rows; i++) {
+      for (int j = 0; j < base_x.cols; j++) {
+        base_x.at<float>(i,j) = j;
+        base_y.at<float>(i,j) = i;
+      }
+    }
+  }
 
   std::string getId(Node* ptr) 
   {

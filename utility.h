@@ -30,6 +30,8 @@ namespace bm {
 
 class Node;
 
+void initRemaps(cv::Mat& base_x, cv::Mat& base_y);
+
 std::string getId(Node* ptr);
 
 std::string logMat(const cv::Mat& m);

@@ -1234,7 +1234,7 @@ class CamThing : public Output
           XGetEventData(display, &ev.xcookie))
       //if (XCheckWindowEvent(display, win, PointerMotionMask | ButtonPressMask | ButtonReleaseMask, &ev))
       {
-        VLOG(2) <<" event found"; 
+        VLOG(3) <<" event found"; 
         XIDeviceEvent* evData = (XIDeviceEvent*)(ev.xcookie.data);
         int deviceid = evData->deviceid;
 
@@ -1244,12 +1244,12 @@ class CamThing : public Output
             //LOG(INFO) <<  "motion";
             setSignal(boost::lexical_cast<string>(deviceid) + "_x", evData->event_x);
             setSignal(boost::lexical_cast<string>(deviceid) + "_y", evData->event_y);
-            VLOG(2) << deviceid << " " << evData->event_x << " " << evData->event_y;
+            VLOG(3) << deviceid << " " << evData->event_x << " " << evData->event_y;
 
             break;
 
           case XI_ButtonPress:
-            VLOG(2) << deviceid << " button: " << evData->detail;
+            VLOG(3) << deviceid << " button: " << evData->detail;
             setSignal(boost::lexical_cast<string>(deviceid) + "_" + 
                 boost::lexical_cast<string>(evData->detail), 1);
 
@@ -1523,7 +1523,7 @@ class CamThing : public Output
 
   bool nodeUpdate()
   {
-    VLOG(2) << CLTXT << "=====================================" << CLNRM;
+    VLOG(3) << CLTXT << "=====================================" << CLNRM;
     boost::mutex::scoped_lock l(update_mutex);
 
     // TBD will behaviour change depending on the arrangement of nodes-

@@ -20,6 +20,15 @@ class Contour : public ImageNode
 
 class ContourFlip : public Contour
 {
+  protected:
+  cv::Mat base_x;
+  cv::Mat base_y;
+
+  cv::Mat off_x;
+  cv::Mat off_y;
+
+  cv::Mat dist_xy16, dist_int;
+
   public:
   ContourFlip(const std::string name);
   virtual bool update();

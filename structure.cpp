@@ -35,7 +35,8 @@ Contour::Contour(const std::string name) : ImageNode(name)
   cv::Mat tmp;
   setImage("in", tmp);
   setSignal("epsilon" , 3.0);
-  //setSignal("mode",0);
+
+//setSignal("mode",0);
 }
 
 bool Contour::update()
@@ -79,6 +80,14 @@ ContourFlip::ContourFlip(const std::string name) : Contour(name)
   //setSignal("mode",0);
   setImage("flipped", tmp, true);
   setImage("dist", tmp, true);
+
+  setSignal("border", 0, false, ROLL, 0, 4);
+  setSignal("mode", 0, false, ROLL, 0, 4);
+
+  initRemaps(base_x, base_y);
+    
+  off_x = cv::Mat( Config::inst()->getImSize(), CV_32FC1);
+  off_y = off_x.clone();
 }
 
 // v w is the two points of the line segment, p is the test point
@@ -108,37 +117,53 @@ float minimum_distance(cv::Point2f v, cv::Point2f w, cv::Point2f p, cv::Point2f&
   closest = v + t * (w - v);  // Projection falls on the segment
  
   const float dist = cv::norm(p - closest);
-  LOG_FIRST_N(INFO, 10) << v.x << " " << v.y << ", " 
+  if (VLOG_IS_ON(3)) {
+    LOG_FIRST_N(INFO, 10) << v.x << " " << v.y << ", " 
       << w.x << " " << w.y << ", " 
       << p.x << " " << p.y << ", "
       << closest.x << " " << closest.y << ", "
       << l2 << " " << t << " " <<  dist
       ;
-  
+  }
+
   return dist;
 }
 
 bool ContourFlip::update()
 {
+  if (!isDirty(this, 23)) { return true;}
+  
+  bool valid;
+  bool is_dirty;
+  cv::Mat in = getImage("in", valid, is_dirty);
+  
   //if (!ImageNode::update()) return false;
   if (!Contour::update()) return false;
 
-  if (!isDirty(this, 23)) { return true;}
-
   // TBD get dirtiness of in to see if flip map needs to be recomputed
-  cv::Mat in = getImage("in");
 
   cv::Mat to_flip = getImage("to_flip");
   if (to_flip.empty()) {
     VLOG(2) << name << " in is empty";
     return false;
   }
-
+  
   cv::Mat flipped = cv::Mat(to_flip.size(), to_flip.type());
+
+  //if (is_dirty) 
+  {
+  
+  LOG(INFO) << "contour flip updating " << is_dirty;
   cv::Mat dist = cv::Mat(to_flip.size(), to_flip.type());
 
-  for (int y = 0; y < flipped.rows; y++) {
-  for (int x = 0; x < flipped.cols; x++) {
+  const int wd = dist.cols;
+  const int ht = dist.rows;
+
+  // This is very slow for dense contours, maybe make
+  // scale option that will process the image at a lower resolution 
+  // then upscale the off_x,off_y for the remap
+  for (int y = 0; y < ht; y++) {
+  for (int x = 0; x < wd; x++) {
 
   float min_dist = 1e9;
   cv::Point2f min_closest;
@@ -167,18 +192,50 @@ bool ContourFlip::update()
   if ( (x == 0) && ( y == 0) ) setSignal("count", count);
 
   // TBD make a reflection effect instead of straight rolling over the edges?
-  const int src_x = ((x + (int) ( 2 * (min_closest.x - x)) ) + flipped.cols) % flipped.cols; 
-  const int src_y = ((y + (int) ( 2 * (min_closest.y - y)) ) + flipped.rows) % flipped.rows;
+  const int src_x = ((x + (int) ( 2 * (min_closest.x - x) ) ) + wd) % wd; 
+  const int src_y = ((y + (int) ( 2 * (min_closest.y - y) ) ) + ht) % ht;
  
   // TBD this could be a map for remap and if the in image doesn't change it will
   // be more efficient
-  flipped.at<cv::Vec4b>(y, x) = to_flip.at<cv::Vec4b>(src_y, src_x);
+  //flipped.at<cv::Vec4b>(y, x) = to_flip.at<cv::Vec4b>(src_y, src_x);
+  off_x.at<float>(y, x) = src_x - x;
+  off_y.at<float>(y, x) = src_y - y;
+  //LOG_FIRST_N(INFO,20) << src_x << " " << x << ", " << src_y << " " << y;
   dist.at<cv::Vec4b>(y, x) = cv::Scalar::all(min_dist); // % 255);
   }}
 
-  setImage("flipped", flipped);
-  setImage("dist", dist);
+  cv::Mat dist_x = base_x + (off_x); //_scaled - offsetx * scalex);
+  cv::Mat dist_y = base_y + (off_y); //_scaled - offsety * scaley);
+
+  cv::convertMaps(dist_x, dist_y, dist_xy16, dist_int, CV_16SC2, true);
   
+  setImage("dist", dist);
+
+  {
+    cv::Mat dist_xy8;
+    cv::Mat dist_xy16_temp;
+    cv::convertMaps(off_x, off_y, dist_xy16_temp, dist_int, CV_16SC2, true);
+    dist_xy16_temp.convertTo(dist_xy8, CV_8UC2, getSignal("map_scale"));
+    cv::Mat mapx = cv::Mat( Config::inst()->getImSize(), CV_8UC4, cv::Scalar(0,0,0,0));
+    cv::Mat mapy = cv::Mat( Config::inst()->getImSize(), CV_8UC4, cv::Scalar(0,0,0,0));
+
+    int chx[] = {0,0, 0,1, 0,2};
+    mixChannels(&dist_xy8, 1, &mapx, 1, chx, 3 );
+    int chy[] = {1,0, 1,1, 1,2};
+    mixChannels(&dist_xy8, 1, &mapy, 1, chy, 3 );
+
+    setImage("mapx", mapx);
+    setImage("mapy", mapy);
+  }
+
+  }
+  
+ 
+  if (!dist_xy16.empty()) 
+    cv::remap(to_flip, flipped, dist_xy16, cv::Mat(), getModeType(), getBorderType());
+
+  setImage("flipped", flipped);
+
   return true;
 }
 

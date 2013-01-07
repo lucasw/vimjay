@@ -238,21 +238,12 @@ namespace bm {
     // TBD mode selector to toggle how pieces are tiled - flip u/d, l/r, 
     // TBD tiling pieces can be rotated
 
-    base_x = cv::Mat( Config::inst()->getImSize(), CV_32FC1);
-    base_y = base_x.clone();
+    initRemaps(base_x, base_y);
 
-    for (int i = 0; i < base_x.rows; i++) {
-    for (int j = 0; j < base_x.cols; j++) {
-      base_x.at<float>(i,j) = j;
-      base_y.at<float>(i,j) = i;
-    }
-    }
-
-#if 0
+    #if 0
     setSignal("x0", 0); setSignal("y0", 0);
     setSignal("x1", 100); setSignal("y1", 0);
     setSignal("x2", 100); setSignal("y2", 100);
-
     #endif
   }
 
@@ -584,7 +575,7 @@ namespace bm {
     cv::convertMaps(dist_x, dist_y, dist_xy16, dist_int, CV_16SC2, true);
 
     cv::remap(in, out, dist_xy16, cv::Mat(), getModeType(), getBorderType());
-   #else
+    #else
     cv::remap(in, out, base_x, base_y, getModeType() );
     #endif
     setImage("out", out);
