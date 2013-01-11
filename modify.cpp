@@ -1308,6 +1308,64 @@ CMP_NE
 
   }
 
+  ////////////////////////////////////////
+  Distance::Distance(const std::string name) :
+      ImageNode(name)
+  {
+    cv::Mat tmp;
+    setImage("in", tmp);
+    setSignal("threshold", 128);
+    //setImage("mask", tmp);
+    setSignal("type", 0, false, ROLL, 0, 2);
+    setSignal("alpha", 1);
+    setSignal("beta", 0);
+  }
+
+  bool Distance::update()
+  {
+    if (!Node::update()) return false;
+
+    // TBD make sure keyboard changed parameters make this dirty 
+    if (!isDirty(this, 5)) { 
+      VLOG(4) << name << " not dirty ";
+      return true; 
+    }
+
+    cv::Mat in = getImage("in");
+
+    if (in.empty()) {
+      VLOG(2) << name << " in is empty";
+      return false;
+    }
+    
+    cv::Mat mask;
+    cv::cvtColor(in > getSignal("threshold"), mask, CV_BGR2GRAY);
+
+    int type = getSignal("type");
+
+    int distance_type = CV_DIST_L1;
+    if (type == 1) distance_type = CV_DIST_L2;
+    if (type == 2) distance_type = CV_DIST_C;
+
+    cv::Mat out32;
+    cv::distanceTransform(mask, out32, distance_type, 3);
+
+    cv::Mat out8;
+    out32.convertTo(out8, CV_8UC1, getSignal("alpha"), getSignal("beta") );
+
+    cv::Mat out_3;
+    cv::cvtColor(out8, out_3, CV_GRAY2BGR);
+
+    cv::Mat out = cv::Mat( in.size(), CV_8UC4, cv::Scalar::all(0) );
+    int ch3[] = {0,0, 1,1, 2,2}; 
+    mixChannels(&out_3, 1, &out, 1, ch3, 3 );
+    
+
+    setImage("out", out);
+
+    return true;
+  }
+
 
 } //bm
 

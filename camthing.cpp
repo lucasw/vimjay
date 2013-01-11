@@ -186,6 +186,8 @@ class CamThing : public Output
         node = getNode<EqualizeHist>(name, loc);
       } else if (type_id.compare("bm::Normalize") == 0) {
         node = getNode<Normalize>(name, loc);
+      } else if (type_id.compare("bm::Distance") == 0) {
+        node = getNode<Distance>(name, loc);
       } else if (type_id.compare("bm::MorphologyEx") == 0) {
         node = getNode<MorphologyEx>(name, loc);
       } else if (type_id.compare("bm::Rot2D") == 0) {
@@ -455,39 +457,42 @@ class CamThing : public Output
     node_types.push_back("bm::ImageDir");
     node_types.push_back("bm::Webcam");
     node_types.push_back("bm::ScreenCap");
-    node_types.push_back("bm::ImageNode");
-    node_types.push_back("bm::Sobel");
-    node_types.push_back("bm::Laplacian");
-    node_types.push_back("bm::PyrMean");
-    node_types.push_back("bm::GaussianBlur");
-    node_types.push_back("bm::MedianBlur");
-    node_types.push_back("bm::BilateralFilter");
-    //} else if (type_id.compare("bm::InPaint");
-    node_types.push_back("bm::OpticalFlow");
+    node_types.push_back("bm::Rot2D");
     node_types.push_back("bm::Buffer");
     node_types.push_back("bm::Mux");
-    node_types.push_back("bm::MuxBuffer");
-    node_types.push_back("bm::FilterFIR");
-    node_types.push_back("bm::Cluster");
-    node_types.push_back("bm::Mean");
+    node_types.push_back("bm::Laplacian");
     node_types.push_back("bm::Add");
     node_types.push_back("bm::AddMasked");
     node_types.push_back("bm::Multiply");
     node_types.push_back("bm::AbsDiff");
     node_types.push_back("bm::Greater");
     node_types.push_back("bm::Max");
+    node_types.push_back("bm::SigAdd");
+    node_types.push_back("bm::SigGreater");
+    node_types.push_back("bm::Trig");
+    
+    node_types.push_back("bm::ImageNode");
+    node_types.push_back("bm::Sobel");
+    node_types.push_back("bm::PyrMean");
+    node_types.push_back("bm::GaussianBlur");
+    node_types.push_back("bm::MedianBlur");
+    node_types.push_back("bm::BilateralFilter");
+    //} else if (type_id.compare("bm::InPaint");
+    node_types.push_back("bm::OpticalFlow");
+    node_types.push_back("bm::MuxBuffer");
+    node_types.push_back("bm::FilterFIR");
+    node_types.push_back("bm::Cluster");
+    node_types.push_back("bm::Mean");
     node_types.push_back("bm::Resize");
     node_types.push_back("bm::Flip");
     node_types.push_back("bm::EqualizeHist");
     node_types.push_back("bm::Normalize");
+    node_types.push_back("bm::Distance");
     node_types.push_back("bm::MorphologyEx");
-    node_types.push_back("bm::Rot2D");
     node_types.push_back("bm::Undistort");
     node_types.push_back("bm::Remap");
     node_types.push_back("bm::Kaleid");
     node_types.push_back("bm::Signal");
-    node_types.push_back("bm::SigAdd");
-    node_types.push_back("bm::SigGreater");
     node_types.push_back("bm::MiscSignal");
     node_types.push_back("bm::SigBuffer");
     node_types.push_back("bm::Tap");
@@ -498,7 +503,6 @@ class CamThing : public Output
     node_types.push_back("bm::Circle");
     node_types.push_back("bm::Noise");
     node_types.push_back("bm::SimplexNoise");
-    node_types.push_back("bm::Trig");
 
     node_types.push_back("bm::OpenGL");
     

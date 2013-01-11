@@ -162,6 +162,13 @@ class Normalize : public ImageNode
   virtual bool update();
 };
 
+class Distance : public ImageNode
+{
+  public:
+  Distance(const std::string name);
+  virtual bool update();
+};
+
 
 
 } // bm
