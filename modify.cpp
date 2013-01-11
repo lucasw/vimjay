@@ -1389,13 +1389,16 @@ CMP_NE
     setSignal("r", 128, false, SATURATE, 0, 255);
     setSignal("g", 128, false, SATURATE, 0, 255);
     setSignal("b", 128, false, SATURATE, 0, 255);
-    //setImage("mask", tmp);
+    //setImage("mask_in", tmp);  // TBD
     
     // normalized 0-10
     setSignal("x", 5, false, ROLL, 0, 10);
     setSignal("y", 5, false, ROLL, 0, 10);
     setSignal("lodiff", 10); //, false, ROLL, 0, 2);
     setSignal("hidiff", 10);
+    
+    setSignal("mask_mode", 0, false, ROLL, 0, 1);
+    setSignal("fill_mode", 0, false, ROLL, 0, 1);
   }
 
   bool FloodFill::update()
@@ -1426,26 +1429,55 @@ CMP_NE
         );
 
     int connectivity = 4; // also could be 8
-    int ffillMode = 1;
+    int ffillMode = getSignal("fill_mode") < 0.5;
+    // newMaskVal is not really documented but is the single channel value of
+    // what to output in the FLOODFILL_MASK_ONLY option
     const int newMaskVal = 255;
     const int flags = connectivity + 
-        //(newMaskVal << 8) +   // not sure what newMaskVal is doing
+        (newMaskVal << 8) +   
         (ffillMode == 1 ? CV_FLOODFILL_FIXED_RANGE : 0);
     
     cv::Rect ccomp;
     // TBD clone may not be necessary
     cv::Mat out_3 = chan4to3(in).clone(); //cv::Mat(in.size(), CV_8UC3); //in.clone();
 
-    cv::floodFill(out_3, 
+    if (getSignal("mask_mode") > 0.5) {
+      
+      cv::Mat mask = cv::Mat( cv::Size(in.cols + 2, in.rows + 2), CV_8UC1, cv::Scalar::all(0) ); 
+      cv::floodFill(
+        out_3,
+        mask,
+        seed_pt, 
+        newval, 
+        &ccomp,
+        cv::Scalar::all((int)getSignal("lodiff")),
+        cv::Scalar::all((int)getSignal("hidiff")),
+        flags | FLOODFILL_MASK_ONLY);
+
+      cv::Mat out_1 = mask(cv::Rect(1, 1, in.cols, in.rows));
+      //cv::Mat out_1 = cv::Mat(in.size(), CV_8UC1, cv::Scalar::all(200));
+
+      cv::Mat out = chan1to4(out_1);
+
+      setImage("out", out);
+
+    } else {
+
+      cv::floodFill(
+        out_3, 
         seed_pt, 
         newval, 
         &ccomp,
         cv::Scalar::all((int)getSignal("lodiff")),
         cv::Scalar::all((int)getSignal("hidiff")),
         flags);
-   
-    cv::Mat out =  chan3to4(out_3);
-    setImage("out", out);
+
+      cv::Mat out = chan3to4(out_3);
+      setImage("out", out);
+
+    }
+
+    return true;
   }   
 
 } //bm

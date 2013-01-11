@@ -83,7 +83,7 @@ namespace bm {
     // TBD use step for the random number seed
     int new_state = step;
     if (new_state != state) {
-     LOG(INFO) << name << " " << state << " " << step << " new state " << 0xFFFFFFF - (int)state; 
+      LOG(INFO) << name << " " << state << " " << step << " new state " << 0xFFFFFFF - (int)state; 
       state = step; // 0xFFFFFFF - (int)step;
       rng = cv::RNG(0xFFFFFFF - (int)state);
     }
