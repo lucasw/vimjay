@@ -188,6 +188,8 @@ class CamThing : public Output
         node = getNode<Normalize>(name, loc);
       } else if (type_id.compare("bm::Distance") == 0) {
         node = getNode<Distance>(name, loc);
+      } else if (type_id.compare("bm::FloodFill") == 0) {
+        node = getNode<FloodFill>(name, loc);
       } else if (type_id.compare("bm::MorphologyEx") == 0) {
         node = getNode<MorphologyEx>(name, loc);
       } else if (type_id.compare("bm::Rot2D") == 0) {
@@ -470,6 +472,8 @@ class CamThing : public Output
     node_types.push_back("bm::SigAdd");
     node_types.push_back("bm::SigGreater");
     node_types.push_back("bm::Trig");
+    
+    node_types.push_back("bm::FloodFill");
     
     node_types.push_back("bm::ImageNode");
     node_types.push_back("bm::Sobel");

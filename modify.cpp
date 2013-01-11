@@ -43,6 +43,38 @@ using namespace std;
 namespace bm {
 //////////////////////////////////////////////////
 
+  cv::Mat chan3to4(const cv::Mat& in_3)
+  {
+    cv::Mat out = cv::Mat( in_3.size(), CV_8UC4, cv::Scalar::all(0) );
+    int ch3[] = {0,0, 1,1, 2,2}; 
+    mixChannels(&in_3, 1, &out, 1, ch3, 3 );
+    return out;
+  } 
+
+  cv::Mat chan4to3(const cv::Mat& in_4)
+  {
+    cv::Mat out = cv::Mat( in_4.size(), CV_8UC3, cv::Scalar::all(0) );
+    int ch3[] = {0,0, 1,1, 2,2}; 
+    mixChannels(&in_4, 1, &out, 1, ch3, 3 );
+    return out;
+  } 
+
+  cv::Mat chan1to4(const cv::Mat& in_1)
+  {
+    cv::Mat out_3;
+    cv::cvtColor(in_1, out_3, CV_GRAY2BGR);
+    return chan3to4(out_3);
+  }
+
+  cv::Mat chan4to1(const cv::Mat& in_4)
+  {
+    cv::Mat out = cv::Mat( in_4.size(), CV_8UC1);
+    // TBD use BGR2GRAY?
+    int ch1[] = {0, 0};
+    mixChannels(&in_4, 1, &out, 1, ch1, 1);
+    return out;
+  }
+
   Rot2D::Rot2D(const std::string name) : ImageNode(name)
   {
     cv::Mat tmp;
@@ -274,11 +306,8 @@ namespace bm {
       // but not in green will have different masks on those channels)
       mask4 = in.clone();
     }
-    cv::Mat mask1 = cv::Mat( Config::inst()->getImSize(), CV_8UC1);
-    int ch1[] = {0, 0};
-    mixChannels(&mask4, 1, &mask1, 1, ch1, 1);
-
-    //const int offset = getSignal("offset");
+    cv::Mat mask1 = chan4to1(mask4); 
+        //const int offset = getSignal("offset");
     mask1 = (mask1 > getSignal("offset"));
     
     cv::Mat mask;
@@ -829,10 +858,6 @@ namespace bm {
     int offset = getSignal("offset");
     cv::Mat mask = mask4 - cv::Scalar(offset,offset,offset,0); // cv::Mat(mask4.size(), CV_8UC1);
     // TBD use first channel as mask, TBD could combine all channels
-    //int ch1[] = {0, 0};
-    //mixChannels(&mask4, 1, &mask, 1, ch1, 1);
-    
-    //cv::Mat mask4_neg = 255 - mask4;
     
     // this is masking individually on all color channels, probably
     cv::Mat out = add0 & (mask == 0);
@@ -1200,8 +1225,7 @@ CMP_NE
 
     if (!mask4.empty()) {
       cv::Mat mask = cv::Mat( mask4.size(), CV_8UC1);
-      //int chm[] = {0, 0};
-      //mixChannels(&mask4, 1, &mask, 1, chm, 1);
+      
       cv::cvtColor(mask4, mask, CV_BGR2GRAY);
       cv::Scalar masked_mean = cv::mean(in, mask); //[0];
       setSignal("m_b", masked_mean[0]); 
@@ -1236,10 +1260,8 @@ CMP_NE
     cv::Mat out_3;
     cv::cvtColor(hsv, out_3, CV_HSV2BGR);
 
-    cv::Mat out = cv::Mat( in.size(), CV_8UC4, cv::Scalar::all(0) );
-    int ch3[] = {0,0, 1,1, 2,2}; 
-    mixChannels(&out_3, 1, &out, 1, ch3, 3 );
-    
+    cv::Mat out = chan3to4(out_3);
+
     if (!mask4.empty()) {
       // now restore the masked out areas... this doesn't seem like it will
       // work, probably need to work with calcHist and apply histograms manually 
@@ -1285,8 +1307,6 @@ CMP_NE
     cv::Mat mask;
     if (!mask4.empty()) {
       mask = cv::Mat( mask4.size(), CV_8UC1);
-      //int chm[] = {0, 0};
-      //mixChannels(&mask4, 1, &mask, 1, chm, 1);
       cv::cvtColor(mask4, mask, CV_BGR2GRAY);
     }
 
@@ -1352,20 +1372,81 @@ CMP_NE
 
     cv::Mat out8;
     out32.convertTo(out8, CV_8UC1, getSignal("alpha"), getSignal("beta") );
-
-    cv::Mat out_3;
-    cv::cvtColor(out8, out_3, CV_GRAY2BGR);
-
-    cv::Mat out = cv::Mat( in.size(), CV_8UC4, cv::Scalar::all(0) );
-    int ch3[] = {0,0, 1,1, 2,2}; 
-    mixChannels(&out_3, 1, &out, 1, ch3, 3 );
-    
+  
+    cv::Mat out = chan1to4(out8); 
 
     setImage("out", out);
 
     return true;
   }
 
+  ////////////////////////////////////////
+  FloodFill::FloodFill(const std::string name) :
+      ImageNode(name)
+  {
+    cv::Mat tmp;
+    setImage("in", tmp);
+    setSignal("r", 128, false, SATURATE, 0, 255);
+    setSignal("g", 128, false, SATURATE, 0, 255);
+    setSignal("b", 128, false, SATURATE, 0, 255);
+    //setImage("mask", tmp);
+    
+    // normalized 0-10
+    setSignal("x", 5, false, ROLL, 0, 10);
+    setSignal("y", 5, false, ROLL, 0, 10);
+    setSignal("lodiff", 10); //, false, ROLL, 0, 2);
+    setSignal("hidiff", 10);
+  }
+
+  bool FloodFill::update()
+  {
+    if (!Node::update()) return false;
+
+    // TBD make sure keyboard changed parameters make this dirty 
+    if (!isDirty(this, 5)) { 
+      VLOG(4) << name << " not dirty ";
+      return true; 
+    }
+
+    cv::Mat in = getImage("in");
+
+    if (in.empty()) {
+      VLOG(2) << name << " in is empty";
+      return false;
+    }
+  
+    cv::Point seed_pt = cv::Point(
+        getSignal("x")/10.0 * Config::inst()->getImSize().width,
+        getSignal("y")/10.0 * Config::inst()->getImSize().height
+        );
+    cv::Scalar newval = cv::Scalar(
+        getSignal("r"),
+        getSignal("g"),
+        getSignal("b")
+        );
+
+    int connectivity = 4; // also could be 8
+    int ffillMode = 1;
+    const int newMaskVal = 255;
+    const int flags = connectivity + 
+        //(newMaskVal << 8) +   // not sure what newMaskVal is doing
+        (ffillMode == 1 ? CV_FLOODFILL_FIXED_RANGE : 0);
+    
+    cv::Rect ccomp;
+    // TBD clone may not be necessary
+    cv::Mat out_3 = chan4to3(in).clone(); //cv::Mat(in.size(), CV_8UC3); //in.clone();
+
+    cv::floodFill(out_3, 
+        seed_pt, 
+        newval, 
+        &ccomp,
+        cv::Scalar::all((int)getSignal("lodiff")),
+        cv::Scalar::all((int)getSignal("hidiff")),
+        flags);
+   
+    cv::Mat out =  chan3to4(out_3);
+    setImage("out", out);
+  }   
 
 } //bm
 
