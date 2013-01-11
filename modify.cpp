@@ -1339,6 +1339,9 @@ CMP_NE
     setSignal("type", 0, false, ROLL, 0, 2);
     setSignal("alpha", 1);
     setSignal("beta", 0);
+    setSignal("make_labels", 0, false, ROLL, 0, 1);
+    setImage("labels", tmp, true);
+    setSignal("label_type", 0, false, ROLL, 0, 1);
   }
 
   bool Distance::update()
@@ -1368,7 +1371,25 @@ CMP_NE
     if (type == 2) distance_type = CV_DIST_C;
 
     cv::Mat out32;
-    cv::distanceTransform(mask, out32, distance_type, 3);
+    if (getSignal("make_labels") < 0.5) {
+      cv::distanceTransform(mask, out32, distance_type, 3);
+    } else {
+      cv::Mat labels32;
+      
+      int label_ind = getSignal("label_type");
+      int label_type = DIST_LABEL_CCOMP;
+      if (label_ind == 1) label_type = DIST_LABEL_PIXEL;
+      // TBD these labels could be useful for ContourFlip so it doesn't have to use Contours-
+      // how do the labels get matched to their pixel coordinates though?
+      cv::distanceTransform(mask, out32, labels32, distance_type, 3, label_type);
+
+      cv::normalize(labels32, labels32, 0, 255, NORM_MINMAX);
+      cv::Mat labels8;
+      labels32.convertTo(labels8, CV_8UC1);
+      cv::Mat labels = chan1to4(labels8);
+
+      setImage("labels", labels);
+    }
 
     cv::Mat out8;
     out32.convertTo(out8, CV_8UC1, getSignal("alpha"), getSignal("beta") );
