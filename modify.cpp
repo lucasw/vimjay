@@ -1512,7 +1512,7 @@ CMP_NE
       label_it = label_map.find(label);
       if (label_it == label_map.end()) {
         // TBD use current pixel
-        LOG(ERROR) << label << " not in map " << x << " " << y;
+        //LOG(ERROR) << label << " not in map " << x << " " << y;
         continue;
       }
 
