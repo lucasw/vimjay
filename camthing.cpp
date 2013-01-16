@@ -216,8 +216,8 @@ class CamThing : public Output
         node = getNode<TapInd>(name, loc);
       } else if (type_id.compare("bm::Contour") == 0) {
         node = getNode<Contour>(name, loc);
-      } else if (type_id.compare("bm::ContourFlip") == 0) {
-        node = getNode<ContourFlip>(name, loc);
+      } else if (type_id.compare("bm::DistanceFlip") == 0) {
+        node = getNode<DistanceFlip>(name, loc);
       } else if (type_id.compare("bm::Bezier") == 0) {
         node = getNode<Bezier>(name, loc);
       } else if (type_id.compare("bm::Circle") == 0) {
@@ -502,7 +502,7 @@ class CamThing : public Output
     node_types.push_back("bm::Tap");
     node_types.push_back("bm::TapInd");
     node_types.push_back("bm::Contour");
-    node_types.push_back("bm::ContourFlip");
+    node_types.push_back("bm::DistanceFlip");
     node_types.push_back("bm::Bezier");
     node_types.push_back("bm::Circle");
     node_types.push_back("bm::Noise");

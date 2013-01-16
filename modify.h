@@ -169,6 +169,14 @@ class Distance : public ImageNode
   virtual bool update();
 };
 
+class DistanceFlip : public ImageNode
+{
+  public:
+  DistanceFlip(const std::string name);
+  virtual bool update();
+};
+
+
 class FloodFill : public ImageNode
 {
   public:

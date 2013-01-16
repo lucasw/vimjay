@@ -23,6 +23,7 @@
 #include <iostream>
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
 
 #include <boost/thread.hpp>
 #include <boost/filesystem/operations.hpp>
@@ -1419,7 +1420,8 @@ CMP_NE
 
   bool DistanceFlip::update()
   {
-    if (!Node::update()) return false;
+    const bool rv = Node::update();
+    if (!rv) return false;
 
     // TBD make sure keyboard changed parameters make this dirty 
     if (!isDirty(this, 5)) { 
@@ -1440,7 +1442,10 @@ CMP_NE
       VLOG(2) << name << " in is empty";
       return false;
     }
-   
+  
+    //cv::Mat flipped = cv::Mat(to_flip.size(), to_flip.type(), cv::Scalar(128,0,64,0));
+    cv::Mat flipped = cv::Mat(to_flip.size(), CV_8UC4, cv::Scalar(128,0,64,0));
+
     cv::Mat mask;
     cv::cvtColor(to_threshold > getSignal("threshold"), mask, CV_BGR2GRAY);
 
@@ -1451,14 +1456,9 @@ CMP_NE
     if (type == 2) distance_type = CV_DIST_C;
 
     cv::Mat dist32;
+    cv::Mat labels32;
+    cv::distanceTransform(mask, dist32, labels32, distance_type, 3, DIST_LABEL_PIXEL);
     {  
-      cv::Mat labels32;
-      
-      const int label_type = DIST_LABEL_PIXEL;
-      // TBD these labels could be useful for ContourFlip so it doesn't have to use Contours-
-      // how do the labels get matched to their pixel coordinates though?
-      cv::distanceTransform(mask, dist32, labels32, distance_type, 3, label_type);
-
       // for display, make optional if it cost much?
       cv::Mat labels32b;
       cv::normalize(labels32, labels32b, 0, 255, NORM_MINMAX);
@@ -1468,13 +1468,32 @@ CMP_NE
       setImage("labels", labels);
     }
 
-    cv::Mat out8;
-    out32.convertTo(out8, CV_8UC1, getSignal("alpha"), getSignal("beta") );
-    cv::Mat dist = chan1to4(out8); 
-    setImage("dist", dist);
+    {
+      cv::Mat dist8, dist32b;
+      //dist32.convertTo(dist8, CV_8UC1, getSignal("alpha"), getSignal("beta") );
+      cv::normalize(dist32, dist32b, 0, 255, NORM_MINMAX);
+      dist32b.convertTo(dist8, CV_8UC1, getSignal("alpha"), getSignal("beta") );
+      cv::Mat dist = chan1to4(dist8); 
+      setImage("dist", dist);
+    }
 
-    const int wd = dist.cols;
-    const int ht = dist.rows;
+    const int wd = labels32.cols;
+    const int ht = labels32.rows;
+
+    // make a mapping between label values and pixel coordinates,
+    // it would be nice if distanceTransform did this or just provided
+    // pixel coordinates to begin with and the following would work:
+    // const int lx = label % wd;
+    //  const int ly = label / wd;
+    std::map<int, cv::Point> label_map;
+    int k = 1;
+    for (int y = 0; y < ht; y++) {
+    for (int x = 0; x < wd; x++) {
+      if (mask.at<uchar>(y,x) == 0) {
+        label_map[k] = cv::Point(x,y);
+        k++;
+      }
+    }}
 
     // loop through every pixel, if it is labeled with itself do nothing, but 
     // if the label at the location is different then use the pixel that is the same 
@@ -1482,9 +1501,47 @@ CMP_NE
     for (int y = 0; y < ht; y++) {
     for (int x = 0; x < wd; x++) {
 
+      const int ind = y * wd + x;
+      const int label = labels32.at<int>(y,x);
+      //if (label == ind) continue;
+     
+      // don't actually need the distance
+      //const float distance = dist.at<float>(y,x);
+
+      map<int, cv::Point >::iterator label_it;
+      label_it = label_map.find(label);
+      if (label_it == label_map.end()) {
+        // TBD use current pixel
+        LOG(ERROR) << label << " not in map " << x << " " << y;
+        continue;
+      }
+
+      cv::Point pos = label_map[label]; 
+
+      // TBD make a reflection effect instead of straight rolling over the edges?
+      const int src_x = ((x + (int) ( 2 * (pos.x - x) ) ) + wd) % wd;
+      const int src_y = ((y + (int) ( 2 * (pos.y - y) ) ) + ht) % ht;
+    
+      //if (VLOG_IS_ON(1) ) {
+      LOG_FIRST_N(INFO, wd*2) 
+          << y     << " " << x     << " " << ind << ",\t" 
+          << pos.y    << " " << pos.x    << " " << label << ",\t" 
+          << src_y << " " << src_x << ",\t" 
+          << ind%255;
+      //}
+             
+      flipped.at<cv::Vec4b>(y, x) = to_flip.at<cv::Vec4b>(src_y, src_x);
+      //flipped.at<cv::Vec4b>(y, x) = to_flip.at<cv::Vec4b>(y, x);
+
+      // flipped.at<cv::Vec4b>(y, x) = cv::Scalar::all(label%255); //to_flip.at<cv::Vec4b>(src_y, src_x);
+      // flipped.at<cv::Vec4b>(y, x) = cv::Scalar::all(ind%255); //cv::Vec4b(ind%255, label%255, ind%255, 0); //to_flip.at<cv::Vec4b>(src_y, src_x);
+      // flipped.at<cv::Vec4b>(src_y, src_x) = to_flip.at<cv::Vec4b>(y,x); //cv::Scalar(ind%255, label%255, 0, 0); //to_flip.at<cv::Vec4b>(src_y, src_x);
+
     }}
 
+    setImage("out", flipped);
 
+    return true;
   }
 
   ////////////////////////////////////////
