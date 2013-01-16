@@ -1401,6 +1401,92 @@ CMP_NE
     return true;
   }
 
+  /////////////////////////////////////////////////////////
+  DistanceFlip::DistanceFlip(const std::string name) :
+      ImageNode(name)
+  {
+    cv::Mat tmp;
+    setImage("to_flip", tmp);
+    setImage("to_threshold", tmp);
+    setSignal("threshold", 128);
+    //setImage("mask", tmp);
+    setSignal("type", 0, false, ROLL, 0, 2);
+    setSignal("alpha", 1);
+    setSignal("beta", 0);
+    setImage("labels", tmp, true);
+    setImage("dist", tmp, true);
+  }
+
+  bool DistanceFlip::update()
+  {
+    if (!Node::update()) return false;
+
+    // TBD make sure keyboard changed parameters make this dirty 
+    if (!isDirty(this, 5)) { 
+      VLOG(4) << name << " not dirty ";
+      return true; 
+    }
+
+    cv::Mat to_flip = getImage("to_flip");
+
+    if (to_flip.empty()) {
+      VLOG(2) << name << " in is empty";
+      return false;
+    }
+
+    cv::Mat to_threshold = getImage("to_threshold");
+
+    if (to_threshold.empty()) {
+      VLOG(2) << name << " in is empty";
+      return false;
+    }
+   
+    cv::Mat mask;
+    cv::cvtColor(to_threshold > getSignal("threshold"), mask, CV_BGR2GRAY);
+
+    int type = getSignal("type");
+
+    int distance_type = CV_DIST_L1;
+    if (type == 1) distance_type = CV_DIST_L2;
+    if (type == 2) distance_type = CV_DIST_C;
+
+    cv::Mat dist32;
+    {  
+      cv::Mat labels32;
+      
+      const int label_type = DIST_LABEL_PIXEL;
+      // TBD these labels could be useful for ContourFlip so it doesn't have to use Contours-
+      // how do the labels get matched to their pixel coordinates though?
+      cv::distanceTransform(mask, dist32, labels32, distance_type, 3, label_type);
+
+      // for display, make optional if it cost much?
+      cv::Mat labels32b;
+      cv::normalize(labels32, labels32b, 0, 255, NORM_MINMAX);
+      cv::Mat labels8;
+      labels32b.convertTo(labels8, CV_8UC1);
+      cv::Mat labels = chan1to4(labels8);
+      setImage("labels", labels);
+    }
+
+    cv::Mat out8;
+    out32.convertTo(out8, CV_8UC1, getSignal("alpha"), getSignal("beta") );
+    cv::Mat dist = chan1to4(out8); 
+    setImage("dist", dist);
+
+    const int wd = dist.cols;
+    const int ht = dist.rows;
+
+    // loop through every pixel, if it is labeled with itself do nothing, but 
+    // if the label at the location is different then use the pixel that is the same 
+    // distance away on the opposite side of the label pixel.
+    for (int y = 0; y < ht; y++) {
+    for (int x = 0; x < wd; x++) {
+
+    }}
+
+
+  }
+
   ////////////////////////////////////////
   FloodFill::FloodFill(const std::string name) :
       ImageNode(name)
