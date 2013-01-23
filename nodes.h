@@ -254,7 +254,8 @@ class Node : public Elem
 
   float getSignal(
       const std::string port, 
-      bool& valid = bool_val);
+      bool& valid = bool_val,
+      bool& is_dirty = bool_val);
 
   bool setSignal(const std::string port, 
       const float val=0.0,
@@ -291,6 +292,7 @@ class Node : public Elem
   bool setString(const std::string port, 
     const std::string new_str,
     const bool internally_set= bool_val);
+
   std::string getString(const std::string port,
       bool& valid = bool_val);
 
@@ -304,14 +306,8 @@ class Node : public Elem
 class ImageNode : public Node
 {
 public:
-  // TBD make all three private
-  //cv::Mat out;
-  //cv::Mat out_old;
-  //cv::Mat tmp; // scratch image
-  //int write_count;
-    
-  ImageNode(const std::string name);// : Node()
-  //ImageNode(std::string name, cv::Point loc, cv::Mat graph_ui ); 
+   
+  ImageNode(const std::string name);
 
   virtual bool update();
 

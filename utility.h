@@ -30,6 +30,8 @@ namespace bm {
 
 class Node;
 
+bool getImageNamesAndSubDirs(const std::string dir, std::vector<std::string>& image_names, std::vector<std::string>& sub_dirs);
+
 void initRemaps(cv::Mat& base_x, cv::Mat& base_y);
 
 std::string getId(Node* ptr);

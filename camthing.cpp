@@ -164,6 +164,8 @@ class CamThing : public Output
         node = getNode<Cluster>(name, loc);
       } else if (type_id.compare("bm::ImageDir") == 0) {
         node = getNode<ImageDir>(name, loc);
+      } else if (type_id.compare("bm::BrowseDir") == 0) {
+        node = getNode<BrowseDir>(name, loc);
       } else if (type_id.compare("bm::Mean") == 0) {
         node = getNode<Mean>(name, loc);
       } else if (type_id.compare("bm::Add") == 0) {
@@ -457,6 +459,7 @@ class CamThing : public Output
 
     //node_types.push_back("bm::CamThing"); // TBD can't spawn a new one of these
     node_types.push_back("bm::ImageDir");
+    node_types.push_back("bm::BrowseDir");
     node_types.push_back("bm::Webcam");
     node_types.push_back("bm::ScreenCap");
     node_types.push_back("bm::Rot2D");
@@ -1586,10 +1589,16 @@ class CamThing : public Output
           out.size(), 0, 0, cv::INTER_NEAREST );
     setImage("out", out);          
 
-    const int ind = getSignal("node_ind");
-    // TBD the node_ind signal may not have been updated here
-    setString("node", node_types[ind]);
-    VLOG(9) << "node_ind " << ind << " " << node_types[ind] << " " << getString("node"); //node_types[ind];
+    {
+      bool is_valid;
+      bool is_dirty;
+      const int ind = getSignal("node_ind", is_valid, is_dirty);
+      // TBD the node_ind signal may not have been updated here
+      if (is_dirty) {
+        setString("node", node_types[ind]);
+        VLOG(9) << "node_ind " << ind << " " << node_types[ind] << " " << getString("node"); //node_types[ind];
+      }
+    }
 
     return true;
   }

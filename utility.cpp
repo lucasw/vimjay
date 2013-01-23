@@ -22,6 +22,8 @@
 
 #include "utility.h"
 
+#include <boost/filesystem/operations.hpp>
+
 #include "config.h"
 
 #include <boost/timer.hpp>
@@ -31,6 +33,54 @@
 #include <cxxabi.h> // non portable
 
 namespace bm {
+
+
+/**
+  Provide a list of all the images (png or jpg) in a directory, 
+  and also all the subdirectories.
+*/
+  bool getImageNamesAndSubDirs(const std::string dir, std::vector<std::string>& image_names, std::vector<std::string>& sub_dirs)
+  {
+
+    image_names.clear();
+    sub_dirs.clear();
+
+    boost::filesystem::path image_path(dir);
+    if (!is_directory(image_path)) {
+      LOG(ERROR) << CLERR << " not a directory " << CLNRM << dir;
+      return false;
+    }
+
+    boost::filesystem::directory_iterator end_itr; // default construction yields past-the-end
+    for ( boost::filesystem::directory_iterator itr( image_path );
+        itr != end_itr;
+        ++itr )
+    {
+
+      std::stringstream ss;
+      ss << *itr;
+      std::string str = ( ss.str() );
+      // strip off "" at beginning/end
+      str = str.substr(1, str.size()-2);
+
+      if ( is_directory( *itr ) ) {
+        sub_dirs.push_back( str );
+        VLOG(1) << dir << " sub dir " << str;
+      } else {
+        if (!((str.substr(str.size()-3,3) != "jpg") ||
+              (str.substr(str.size()-3,3) != "png"))
+           ) {
+          VLOG(1) << "not expected image type: " << str;
+          continue;
+        }
+
+        image_names.push_back(str);
+        VLOG(1) << dir << " image " << str; 
+      }
+
+    } //
+
+  } // get image and sub dir names
 
   void initRemaps(cv::Mat& base_x, cv::Mat& base_y)
   {

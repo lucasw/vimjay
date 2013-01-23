@@ -363,7 +363,91 @@ namespace bm {
     return true;
   }
 
-  
+ 
+  ///////////////////////////////////////////////////////////////
+  BrowseDir::BrowseDir(const std::string name) : ImageNode(name) 
+  {
+    setString("dir", "../data"); //"temp");
+    setString("cur_dir","", true);
+    setSignal("ind", 0, false, ROLL, 0, 0);
+    //cv::Mat tmp;
+    //setImage("out", tmp);
+  }
+
+  bool BrowseDir::update()
+  {
+    const bool rv = Node::update();
+    if (!rv) return false;
+    
+    if (!isDirty(this, 27)) return true;
+
+    std::vector<string> image_names;
+    std::vector<string> sub_dirs;
+    
+    const string dir = getString("dir");
+    const bool rv2 = getImageNamesAndSubDirs( dir, image_names, sub_dirs );
+
+    std::vector<int> num_sub_images;
+    std::vector<int> num_sub_dirs;
+
+    for (int i = 0; i < sub_dirs.size(); i++) 
+    {
+      std::vector<string> image_names2;
+      std::vector<string> sub_dirs2;
+      const bool rv3 = getImageNamesAndSubDirs( dir + "/" + sub_dirs[i], image_names2, sub_dirs2);
+      
+      num_sub_dirs.push_back(sub_dirs2.size());
+      num_sub_images.push_back(image_names2.size());
+    }
+    
+    setSignal("ind", getSignal("ind"), false, ROLL, 0, sub_dirs.size()-1);
+    
+    const int ind = getSignal("ind");
+    const string cur_dir = sub_dirs[ind];
+    LOG(INFO) << name << " " << cur_dir;
+    setString("cur_dir", cur_dir);
+    
+    {
+      cv::Mat out = cv::Mat( Config::inst()->getImSize(), CV_8UC4, cv::Scalar::all(0) );
+      
+      // make text scroll with selection
+      int offset = 0;
+      const int text_rows = out.rows/10;
+      if (ind > text_rows/2) offset -= (ind - text_rows/2)*10;
+
+      for (int i = 0; i < sub_dirs.size(); i++) {
+        stringstream dir_info;
+
+        dir_info << sub_dirs[i] << " " << num_sub_images[i] << " " << num_sub_dirs[i];
+       
+        cv::Scalar col = cv::Scalar(200, 200, 200);
+
+        if (i == ind) {
+          dir_info << " " << ind;
+          col = cv::Scalar(200, 200, 255);
+        }
+      
+        cv::putText(out, dir_info.str(), cv::Point(10, 10 + 10*i + offset), 1, 1, col, 1);
+      }
+
+      offset += sub_dirs.size()*10;
+
+      for (int i = 0; i < image_names.size(); i++) {
+        stringstream dir_info;
+
+        dir_info << image_names[i];
+       
+        cv::Scalar col = cv::Scalar(200, 255, 170);
+      
+        cv::putText(out, dir_info.str(), cv::Point(10, 10 + 10*i + offset), 1, 1, col, 1);
+      }
+
+      setImage("out", out);
+
+    }
+
+    return true;
+  }
 
 } //bm
 

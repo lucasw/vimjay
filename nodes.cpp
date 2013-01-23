@@ -264,11 +264,12 @@ namespace bm {
 
   bool Connector::setString(const std::string new_str)
   {
-    VLOG(999999999) << "setString " << name << " " << new_str;
-    if (str.compare(new_str) == 0) return true;
+    VLOG(0) << "setString " << CLTXT << name << " " << CLVAL << new_str << CLNRM;
+    //if (str.compare(new_str) == 0) return true;
+    if (str == new_str) return true;
     str = new_str;
     setDirty();
-
+    VLOG(0) << new_str;
     return true;
   }
 
@@ -394,7 +395,7 @@ namespace bm {
     } else if (type == SIGBUF) {
       col = cv::Scalar(bval, bval/2 + cval/2, bval/2 + cval/2);
     } else if (type == STRING) {
-      col = cv::Scalar(bval, bval/2, bval/2 + cval/2);
+      col = cv::Scalar(3*bval/4, bval/2, bval + cval/2);
       port_info << " " << str;
     }
    
@@ -963,7 +964,7 @@ namespace bm {
 
 
     if (saturate > 0) {
-      LOG(INFO) << name << " - " << port << ((saturate == 1) ? " - saturating " : " - rolling over ") 
+      VLOG(1) << name << " - " << port << ((saturate == 1) ? " - saturating " : " - rolling over ") 
           << min << " " << max;
       con->saturate = saturate;
       con->val_min = min;
@@ -1016,7 +1017,8 @@ namespace bm {
 
   float Node::getSignal(
     const string port, 
-    bool& valid)
+    bool& valid,
+    bool& is_dirty)
   {
     valid = false; 
     // first try non-input node map
@@ -1036,6 +1038,9 @@ namespace bm {
     //if (!valid) return val;
     float val = con->value;
     
+    const int is_dirty_ind = 71;
+    is_dirty = con->isDirty(this, is_dirty_ind);
+
     // TBD setDirty?  Probably shouldn't, would defeat the isDirty loop prevention
     valid = true;
     return val;
@@ -1209,7 +1214,7 @@ namespace bm {
     // then look at input nodes
     if (!getInputPort(STRING, port, con, src_port)) {
       // create it if it doesn't exist
-      VLOG(1) << name << " creating SIGNAL " << CLTXT <<  name << " " << port << CLNRM;
+      VLOG(0) << name << " creating STRING " << CLTXT <<  name << " " << port << CLNRM;
       setInputPort(STRING, port, NULL, "");
       return "";
     }

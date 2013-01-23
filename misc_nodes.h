@@ -55,6 +55,18 @@ class ImageDir : public Buffer
   virtual bool save(cv::FileStorage& fs);
 };
 
+/////////////////////////////////
+class BrowseDir : public ImageNode
+{
+
+  public:
+
+  BrowseDir(const std::string name);
+
+  virtual bool update();
+};
+
+
 
 
 } // bm
