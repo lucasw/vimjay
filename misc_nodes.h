@@ -58,11 +58,11 @@ class ImageDir : public Buffer
 /////////////////////////////////
 class BrowseDir : public ImageNode
 {
-
   public:
 
   BrowseDir(const std::string name);
-
+  
+  virtual bool handleKey(int key);
   virtual bool update();
 };
 

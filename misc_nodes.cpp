@@ -27,6 +27,7 @@
 #include <boost/thread.hpp>
 #include <boost/filesystem/operations.hpp>
 #include <boost/lexical_cast.hpp>
+#include <boost/timer.hpp>
 
 #include "opencv2/highgui/highgui.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
@@ -190,9 +191,13 @@ namespace bm {
 
   bool ImageDir::loadImages()
   {
+    // TBD this needs to go in separate thread
+
+    boost::timer t1;
     std::string dir = getString("dir");
     LOG(INFO) << name << " loading " << dir;
-    
+   
+    // TBD use getImageNamesAndSubdirs from utility.cpp
     boost::filesystem::path image_path(dir);
     if (!is_directory(image_path)) {
       LOG(ERROR) << name << CLERR << " not a directory " << CLNRM << dir; 
@@ -250,7 +255,7 @@ namespace bm {
       return false;
     }
     
-    LOG(INFO) << name << " " << frames_orig.size() << " image loaded";
+    LOG(INFO) << name << " " << frames_orig.size() << " image loaded " << t1.elapsed();
     setSignal("ind", getSignal("ind"), false, ROLL, 0, frames_orig.size()-1);
     //max_size = frames.size() + 1;
     setDirty();
@@ -346,15 +351,22 @@ namespace bm {
       resizeImages();
     } else {
       // TBD need better method of this
-      Connector* con = NULL;
-      string src_port;
-      getInputPort(SIGNAL, "mode", con, src_port);
-      
-      Connector* con2 = NULL;
-      getInputPort(SIGNAL, "keep_aspect", con2, src_port);
-      
-      if (con->isDirty(this, 48) || con2->isDirty(this,48)) {
+      bool is_valid, is_dirty1, is_dirty2;
+
+      getSignal("mode", is_valid, is_dirty1, 72);
+      getSignal("keep", is_valid, is_dirty2, 72);
+     
+      if (is_dirty1 || is_dirty2) {
         resizeImages();
+      }
+      
+      ////////////
+      // TBD if dir is_dirty, loadImages()
+
+      getString("dir", is_valid, is_dirty1, 72);
+      if (is_dirty1)
+      {
+        loadImages();
       }
     }
     // flush dirtiness, TBD is this necessary
@@ -394,7 +406,8 @@ namespace bm {
     {
       std::vector<string> image_names2;
       std::vector<string> sub_dirs2;
-      const bool rv3 = getImageNamesAndSubDirs( dir + "/" + sub_dirs[i], image_names2, sub_dirs2);
+      //const bool rv3 = getImageNamesAndSubDirs( dir + "/" + sub_dirs[i], image_names2, sub_dirs2);
+      const bool rv3 = getImageNamesAndSubDirs( sub_dirs[i], image_names2, sub_dirs2);
       
       num_sub_dirs.push_back(sub_dirs2.size());
       num_sub_images.push_back(image_names2.size());
@@ -404,7 +417,7 @@ namespace bm {
     
     const int ind = getSignal("ind");
     const string cur_dir = sub_dirs[ind];
-    LOG(INFO) << name << " " << cur_dir;
+    VLOG(1) << name << " " << cur_dir;
     setString("cur_dir", cur_dir);
     
     {
@@ -447,6 +460,25 @@ namespace bm {
     }
 
     return true;
+  }
+
+
+  bool BrowseDir::handleKey(int key)
+  {
+    bool valid_key = ImageNode::handleKey(key);
+    if (valid_key) return true;
+
+    valid_key = true;
+    if (key == '[') {
+      setString("dir", getString("cur_dir"));
+    } else {
+      valid_key = false;
+    }
+
+    // TBD 
+    //if (valid_key) setDirty();
+
+    return valid_key;
   }
 
 } //bm

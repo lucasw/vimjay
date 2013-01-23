@@ -255,7 +255,9 @@ class Node : public Elem
   float getSignal(
       const std::string port, 
       bool& valid = bool_val,
-      bool& is_dirty = bool_val);
+      bool& is_dirty = bool_val,
+      const int is_dirty_ind = 71
+      );
 
   bool setSignal(const std::string port, 
       const float val=0.0,
@@ -294,7 +296,10 @@ class Node : public Elem
     const bool internally_set= bool_val);
 
   std::string getString(const std::string port,
-      bool& valid = bool_val);
+      bool& valid = bool_val,
+      bool& is_dirty = bool_val,
+      const int is_dirty_ind = 71
+      );
 
   virtual bool handleKey(int key);
 };

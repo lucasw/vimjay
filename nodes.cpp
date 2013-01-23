@@ -264,12 +264,12 @@ namespace bm {
 
   bool Connector::setString(const std::string new_str)
   {
-    VLOG(0) << "setString " << CLTXT << name << " " << CLVAL << new_str << CLNRM;
+    VLOG(1) << "setString " << CLTXT << name << " " << CLVAL << new_str << CLNRM;
     //if (str.compare(new_str) == 0) return true;
     if (str == new_str) return true;
     str = new_str;
     setDirty();
-    VLOG(0) << new_str;
+    VLOG(1) << new_str;
     return true;
   }
 
@@ -1018,7 +1018,8 @@ namespace bm {
   float Node::getSignal(
     const string port, 
     bool& valid,
-    bool& is_dirty)
+    bool& is_dirty,
+    const int is_dirty_ind)
   {
     valid = false; 
     // first try non-input node map
@@ -1038,7 +1039,6 @@ namespace bm {
     //if (!valid) return val;
     float val = con->value;
     
-    const int is_dirty_ind = 71;
     is_dirty = con->isDirty(this, is_dirty_ind);
 
     // TBD setDirty?  Probably shouldn't, would defeat the isDirty loop prevention
@@ -1204,7 +1204,10 @@ namespace bm {
 
   string Node::getString(
     const string port, 
-    bool& valid)
+    bool& valid,
+    bool& is_dirty,
+    const int is_dirty_ind
+    )
   {
     valid = false; 
     // first try non-input node map
@@ -1226,6 +1229,8 @@ namespace bm {
     VLOG(9) << name << " " << con->name << " " << src_port << " " << valid << " " << con->getString() << " " << con << " " << this;
     //if (!valid) return val;
     
+    is_dirty = con->isDirty(this, is_dirty_ind);
+
     // TBD setDirty?  Probably shouldn't, would defeat the isDirty loop prevention
     valid = true;
     return con->getString();
