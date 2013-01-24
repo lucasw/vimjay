@@ -346,12 +346,13 @@ namespace bm {
     
     if (!isDirty(this, 27)) return true;
 
-    if (getSignal("load") > 0.5) {
+    bool is_valid, is_dirty1, is_dirty2;
+    getString("dir", is_valid, is_dirty1, 72);
+
+    if ((getSignal("load") > 0.5) || is_dirty1) {
       loadImages();
       resizeImages();
     } else {
-      // TBD need better method of this
-      bool is_valid, is_dirty1, is_dirty2;
 
       getSignal("mode", is_valid, is_dirty1, 72);
       getSignal("keep", is_valid, is_dirty2, 72);
@@ -360,17 +361,10 @@ namespace bm {
         resizeImages();
       }
       
-      ////////////
-      // TBD if dir is_dirty, loadImages()
-
-      getString("dir", is_valid, is_dirty1, 72);
-      if (is_dirty1)
-      {
-        loadImages();
-      }
     }
+
     // flush dirtiness, TBD is this necessary
-    isDirty(this, 27);
+    //isDirty(this, 27);
 
     return true;
   }
