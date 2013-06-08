@@ -47,7 +47,7 @@ namespace bm {
     image_names.clear();
     sub_dirs.clear();
 
-    LOG(INFO) << "get image names " << dir;
+    VLOG(1) << "get image names " << dir;
 
     boost::filesystem::path image_path(dir);
     if (!is_directory(image_path)) {
@@ -56,9 +56,24 @@ namespace bm {
     }
 
     boost::filesystem::directory_iterator end_itr; // default construction yields past-the-end
-    for ( boost::filesystem::directory_iterator itr( image_path );
-        itr != end_itr;
-        ++itr )
+
+    
+    boost::filesystem::directory_iterator itr;
+   
+    try {
+      itr = boost::filesystem::directory_iterator( image_path );
+    } 
+    //catch (boost::exception const& ex)
+    catch (const boost::filesystem::filesystem_error& ex)
+    {
+      LOG(ERROR) << dir << ": " << boost::diagnostic_information(ex);
+      return false;
+    }
+
+    //for ( boost::filesystem::directory_iterator itr( image_path );
+    //    itr != end_itr;
+    //    ++itr )
+    while (itr != end_itr)
     {
 
       std::stringstream ss;
@@ -82,7 +97,8 @@ namespace bm {
         image_names.push_back(str);
         VLOG(1) << dir << " image " << str; 
       }
-
+      
+      ++itr;
     } //
     
     return true;

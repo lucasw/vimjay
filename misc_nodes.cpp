@@ -379,11 +379,76 @@ namespace bm {
   BrowseDir::BrowseDir(const std::string name) : ImageNode(name) 
   {
     setString("dir", "../data"); //"temp");
+    setString("old_dir", "../data"); //"temp");
     setString("cur_dir","", true);
     setSignal("ind", 0, false, ROLL, 0, 0);
     //cv::Mat tmp;
     //setImage("out", tmp);
+    browse_thread = boost::thread(&BrowseDir::runThread, this);
   }
+  
+  void BrowseDir::runThread()
+  {
+    
+    /*
+       The idea is that this runs only when "dir" is changed,
+       if it takes a long time to finish then it will be dirty 
+       again when it starts over (if it changed multiple times
+       it will only get the very last value
+      */
+    while (true) {
+      bool dir_valid, dir_dirty;
+      const string dir = getString("dir", dir_valid, dir_dirty);
+
+      if (dir_valid && dir_dirty) {
+        setSignal("is_updating", 1, true);
+       
+        std::vector<string> image_names_tmp;
+        // TBD make a struct for these
+        std::vector<string> sub_dirs_tmp;
+        std::vector<int> num_sub_images_tmp;
+        std::vector<int> num_sub_dirs_tmp;
+
+        const bool rv2 = getImageNamesAndSubDirs( dir, image_names_tmp, sub_dirs_tmp );
+        if (rv2) {
+
+        // filter out the unusable/bad directories
+        for (int i = 0; i < sub_dirs_tmp.size(); i++) 
+        {
+          std::vector<string> image_names2;
+          std::vector<string> sub_dirs2;
+          //const bool rv3 = getImageNamesAndSubDirs( dir + "/" + sub_dirs[i], image_names2, sub_dirs2);
+          const bool rv3 = getImageNamesAndSubDirs( 
+              sub_dirs_tmp[i], image_names2, sub_dirs2);
+          //if (!rv3) continue;
+
+          num_sub_dirs_tmp.push_back(sub_dirs2.size());
+          num_sub_images_tmp.push_back(image_names2.size());
+        }
+       
+        {
+          // lock the class variables while updating
+          boost::mutex::scoped_lock l(dirs_mutex);
+          image_names = image_names_tmp;
+          sub_dirs = sub_dirs_tmp;
+          num_sub_images = num_sub_images_tmp;
+          num_sub_dirs = num_sub_dirs_tmp;
+        }
+
+        } else {
+          // bad dir
+          LOG(INFO) << "restoring old dir " << getString("old_dir");
+          setString("dir", getString("old_dir"));
+        }
+
+        setSignal("is_updating", 0);
+        setDirty();
+      }
+
+      sleep(1);
+    }
+  }
+
 
   bool BrowseDir::update()
   {
@@ -391,30 +456,7 @@ namespace bm {
     if (!rv) return false;
     
     if (!isDirty(this, 27)) return true;
-
-    std::vector<string> image_names;
-    std::vector<string> sub_dirs;
-    
-    const string dir = getString("dir");
-    const bool rv2 = getImageNamesAndSubDirs( dir, image_names, sub_dirs );
-    if (!rv2) return false;
-
-    std::vector<int> num_sub_images;
-    std::vector<int> num_sub_dirs;
-
-    // filter out the unusable/bad directories
-    for (int i = 0; i < sub_dirs.size(); i++) 
-    {
-      std::vector<string> image_names2;
-      std::vector<string> sub_dirs2;
-      //const bool rv3 = getImageNamesAndSubDirs( dir + "/" + sub_dirs[i], image_names2, sub_dirs2);
-      const bool rv3 = getImageNamesAndSubDirs( sub_dirs[i], image_names2, sub_dirs2);
-      if (!rv3) continue;
-
-      num_sub_dirs.push_back(sub_dirs2.size());
-      num_sub_images.push_back(image_names2.size());
-    }
-    
+      
     setSignal("ind", getSignal("ind"), false, ROLL, 0, sub_dirs.size()-1);
     
     const int ind = getSignal("ind");
@@ -423,6 +465,9 @@ namespace bm {
     setString("cur_dir", cur_dir);
     
     {
+      // the assumption is none of this takes very long, so no point
+      // in making copies of the dir vectors
+      boost::mutex::scoped_lock l(dirs_mutex);
       cv::Mat out = cv::Mat( Config::inst()->getImSize(), CV_8UC4, cv::Scalar::all(0) );
       
       // make text scroll with selection
@@ -472,7 +517,8 @@ namespace bm {
 
     valid_key = true;
     if (key == '[') {
-      // descend into currently selected directory
+      // descend into currently selected directory, save the old one
+      setString("old_dir", getString("dir"));
       setString("dir", getString("cur_dir"));
     } else if (key == '\'') {
       // go up to parent directory
@@ -497,6 +543,7 @@ namespace bm {
       if (is_directory(image_path)) {
         LOG(INFO) << "parent dir " << cur_dir << " -> " << parent_dir;
         // or provide way to reset value to default
+        setString("old_dir", getString("dir"));
         setString("dir", parent_dir);
       } else {
         LOG(INFO) << "parent dir is not valid (could be at root), not using " 
