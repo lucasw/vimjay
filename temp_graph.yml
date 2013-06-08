@@ -1,11 +1,11 @@
 %YAML:1.0
-date: "Wed Jan 16 11:12:05 2013\n"
+date: "Thu Jan 24 06:41:15 2013\n"
 nodes:
    -
       ind: 0
       typeid: "bm::CamThing"
       name: cam_thing
-      loc: [ -18., 95. ]
+      loc: [ -8.1360748291015625e+01, 1.7858669281005859e+01 ]
       inputs:
          -
             type: 1
@@ -44,13 +44,13 @@ nodes:
          -
             type: 1
             name: x
-            value: 3.
+            value: 48.
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: y
-            value: 122.
+            value: 0.
             src_ind: -1
             src_port: ""
          -
@@ -91,13 +91,13 @@ nodes:
          -
             type: 1
             name: "2_x"
-            value: 4.8783306884765625e+02
+            value: 7.8560198974609375e+02
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: "2_y"
-            value: 5.7090393066406250e+02
+            value: 3.8358340454101562e+02
             src_ind: -1
             src_port: ""
          -
@@ -149,13 +149,13 @@ nodes:
          -
             type: 1
             name: x
-            value: 876.
+            value: 951.
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: y
-            value: 24.
+            value: 0.
             src_ind: -1
             src_port: ""
          -
@@ -186,7 +186,7 @@ nodes:
       ind: 2
       typeid: "bm::Output"
       name: preview
-      loc: [ 339., 164. ]
+      loc: [ 3.6293963623046875e+02, 1.6231669616699219e+02 ]
       inputs:
          -
             type: 1
@@ -208,7 +208,7 @@ nodes:
          -
             type: 2
             name: in
-            src_ind: 3
+            src_ind: 4
             src_port: out
          -
             type: 1
@@ -225,13 +225,13 @@ nodes:
          -
             type: 1
             name: x
-            value: 889.
+            value: 914.
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: y
-            value: 428.
+            value: 407.
             src_ind: -1
             src_port: ""
          -
@@ -294,15 +294,15 @@ nodes:
          -
             type: 1
             name: ind
-            value: 7.
+            value: 5.
             src_ind: -1
             src_port: ""
    -
       ind: 4
       typeid: "bm::ImageDir"
       name: "bm::ImageDir"
-      loc: [ 167., 164. ]
-      dir: "../data/record/1355763130_buffer"
+      loc: [ 1.8684825134277344e+02, 1.6808638000488281e+02 ]
+      dir: "../data/record/1355296706_buffer_2"
       inputs:
          -
             type: 1
@@ -340,7 +340,7 @@ nodes:
          -
             type: 1
             name: cur_size
-            value: 380.
+            value: 100.
             src_ind: -1
             src_port: ""
          -
@@ -368,9 +368,9 @@ nodes:
          -
             type: 1
             name: ind
-            value: 379.
-            src_ind: -1
-            src_port: ""
+            value: 0.
+            src_ind: 5
+            src_port: value
          -
             type: 1
             name: load
@@ -381,5 +381,59 @@ nodes:
             type: 1
             name: keep
             value: 0.
+            src_ind: -1
+            src_port: ""
+   -
+      ind: 5
+      typeid: "bm::MiscSignal"
+      name: "bm::ImageDir_sig"
+      loc: [ 3.6572711944580078e+01, 2.4873825073242188e+02 ]
+      inputs:
+         -
+            type: 1
+            name: enable
+            value: 1.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: force_update
+            value: 0.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: value
+            value: 8.4082366943359375e+01
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: min
+            value: 0.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: max
+            value: 100.
+            src_ind: 4
+            src_port: cur_size
+         -
+            type: 1
+            name: step
+            value: 7.2171003557741642e-03
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: mode
+            value: 0.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: t
+            value: 6.4489453125000000e+02
             src_ind: -1
             src_port: ""

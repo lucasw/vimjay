@@ -7,9 +7,10 @@ set(PROJECT_NAME camthing)
 #set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/build )
 
 include_directories( . )
-#include_directories( $ENV{HG_CLONE_DIR}/external/include )
+include_directories( $ENV{HG_EXTERNAL_DIR}/include )
 include_directories( $ENV{HOME}/other/install/include )
 link_directories($ENV{HOME}/other/install/lib)
+link_directories($ENV{HOME}/hg/external/lib)
 
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 #include_directories(${CMAKE_BINARY_DIR}/other)

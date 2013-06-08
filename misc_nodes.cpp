@@ -189,6 +189,11 @@ namespace bm {
     //setSignal("ind", 0, false, ROLL, 0, 0);
   }
 
+  /**
+    load a directory full of images
+
+    TBD do in separate thread
+    */
   bool ImageDir::loadImages()
   {
     // TBD this needs to go in separate thread
@@ -392,17 +397,20 @@ namespace bm {
     
     const string dir = getString("dir");
     const bool rv2 = getImageNamesAndSubDirs( dir, image_names, sub_dirs );
+    if (!rv2) return false;
 
     std::vector<int> num_sub_images;
     std::vector<int> num_sub_dirs;
 
+    // filter out the unusable/bad directories
     for (int i = 0; i < sub_dirs.size(); i++) 
     {
       std::vector<string> image_names2;
       std::vector<string> sub_dirs2;
       //const bool rv3 = getImageNamesAndSubDirs( dir + "/" + sub_dirs[i], image_names2, sub_dirs2);
       const bool rv3 = getImageNamesAndSubDirs( sub_dirs[i], image_names2, sub_dirs2);
-      
+      if (!rv3) continue;
+
       num_sub_dirs.push_back(sub_dirs2.size());
       num_sub_images.push_back(image_names2.size());
     }
@@ -464,7 +472,38 @@ namespace bm {
 
     valid_key = true;
     if (key == '[') {
+      // descend into currently selected directory
       setString("dir", getString("cur_dir"));
+    } else if (key == '\'') {
+      // go up to parent directory
+
+      const std::string cur_dir = getString("dir");
+     
+      const int len = cur_dir.size();
+      std::string parent_dir;
+
+      if ((len >= 2) && (cur_dir[len-2] == '.') && (cur_dir[len-1] == '.')) {
+        parent_dir = cur_dir + "/..";
+      } else {
+        const size_t pos = cur_dir.find_last_of("/");
+        parent_dir = cur_dir.substr(0, pos);
+        if (parent_dir == cur_dir) {
+          parent_dir = parent_dir + "/..";
+        }
+      }
+
+      const boost::filesystem::path image_path(parent_dir);
+      // validate before setting
+      if (is_directory(image_path)) {
+        LOG(INFO) << "parent dir " << cur_dir << " -> " << parent_dir;
+        // or provide way to reset value to default
+        setString("dir", parent_dir);
+      } else {
+        LOG(INFO) << "parent dir is not valid (could be at root), not using " 
+            << parent_dir;
+      }
+
+
     } else {
       valid_key = false;
     }

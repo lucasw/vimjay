@@ -38,12 +38,16 @@ namespace bm {
 /**
   Provide a list of all the images (png or jpg) in a directory, 
   and also all the subdirectories.
+
+  TBD run this in separate thread
 */
   bool getImageNamesAndSubDirs(const std::string dir, std::vector<std::string>& image_names, std::vector<std::string>& sub_dirs)
   {
 
     image_names.clear();
     sub_dirs.clear();
+
+    LOG(INFO) << "get image names " << dir;
 
     boost::filesystem::path image_path(dir);
     if (!is_directory(image_path)) {
@@ -63,6 +67,7 @@ namespace bm {
       // strip off "" at beginning/end
       str = str.substr(1, str.size()-2);
 
+
       if ( is_directory( *itr ) ) {
         sub_dirs.push_back( str );
         VLOG(1) << dir << " sub dir " << str;
@@ -79,7 +84,8 @@ namespace bm {
       }
 
     } //
-
+    
+    return true;
   } // get image and sub dir names
 
   void initRemaps(cv::Mat& base_x, cv::Mat& base_y)
