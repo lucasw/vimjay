@@ -1223,19 +1223,9 @@ class CamThing : public Output
     }
     return true;
   } 
-  
-  bool handleInput() 
-  {
-    // TBD call from update instead, and make sure update is called?
-    autoScroll();
-
-    count++;
-
-    key = -1;
-    if (!display) return false;
-
-      while (XPending(display)) {
-
+ 
+  int getKey() {
+    int key = -1;
       XKeyPressedEvent key_data;
       XEvent ev;
       /* Get next event; blocks until an event occurs */
@@ -1307,9 +1297,23 @@ class CamThing : public Output
       } // correct event
 
       XFreeEventData(display, &ev.xcookie);
-  
+    return key;
+  }
+
+  bool handleInput() 
+  {
+    // TBD call from update instead, and make sure update is called?
+    autoScroll();
+
+    count++;
+
+    int key = -1;
+    if (!display) return false;
+
+      while (XPending(display)) {
+        key = getKey();
+      } 
       //usleep(1000); 
-    } // while
 
     /*
     if (VLOG_IS_ON(10) || paused) 
