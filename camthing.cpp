@@ -1494,6 +1494,7 @@ class CamThing : public Output
             SIGNAL, selected_node->selected_port, 
             node, "value");
       }
+      // TBD if the port is an image create a buffer for it to output to?
 
       //node = getNode<MiscSignal>(name, loc);
     } else if (key == '3') {  // connect this image to output in
