@@ -1195,19 +1195,29 @@ class CamThing : public Output
   bool autoScroll()
   {
     if (selected_node) {
-      const float dxy = 190;
+      const float pad = 30;
       float dx = 0;
       float dy = 0;
 
-      dx = selected_node->loc.x + dxy - (graph_ui.cols - ui_offset.x);
-      dy = selected_node->loc.y + dxy/2 - (graph_ui.rows - ui_offset.y); 
+      const cv::Point2f true_upper_left = selected_node->upper_left;
+          //selected_node->thumb_offset;
+      const cv::Point2f true_lower_right = selected_node->upper_left + 
+          selected_node->extent;
+      
+      // determine if part of the currently selected node is offscreen
+      // and if so move the screen so that it is not.
+      
+      // see if node is hanging off the right or bottom
+      dx = true_lower_right.x + pad - (graph_ui.cols - ui_offset.x);
+      dy = true_lower_right.y + pad - (graph_ui.rows - ui_offset.y); 
      
+      // see if node is hanging off left or top
       if (dx < 0) {
-        dx =  (selected_node->loc.x - dxy/5 + ui_offset.x);
+        dx = true_upper_left.x - pad + ui_offset.x;
         if (dx > 0) dx = 0;
       }
       if (dy < 0) {
-        dy =   selected_node->loc.y - dxy/5 + ui_offset.y;
+        dy = true_upper_left.y - pad + ui_offset.y;
         if (dy > 0) dy = 0;
       }
 
@@ -1711,15 +1721,15 @@ class CamThing : public Output
           
           // loc is actually the upper left corner of the
           // node
-          cv::Point2f l1  = all_nodes[i]->upper_left;
-          cv::Point2f l1b = all_nodes[i]->extent;
-          cv::Point2f l1c = l1 + (l1b * 0.5);
+          const cv::Point2f l1  = all_nodes[i]->upper_left;
+          const cv::Point2f l1b = all_nodes[i]->extent;
+          const cv::Point2f l1c = l1 + (l1b * 0.5);
           
-          cv::Point2f l2  = all_nodes[j]->upper_left;
-          cv::Point2f l2b = all_nodes[j]->extent;
-          cv::Point2f l2c = l2 + (l2b * 0.5);
+          const cv::Point2f l2  = all_nodes[j]->upper_left;
+          const cv::Point2f l2b = all_nodes[j]->extent;
+          const cv::Point2f l2c = l2 + (l2b * 0.5);
           
-          cv::Point2f dxy = l1c - l2c;
+          const cv::Point2f dxy = l1c - l2c;
 
           float dist = sqrt(dxy.x*dxy.x + dxy.y*dxy.y);
           float max_dist1 = sqrt(l1b.x*l1b.x + l1b.y*l1b.y);
