@@ -81,6 +81,9 @@ class Elem
   //Elem();
   Elem(const std::string name);
 
+  // the coordinates of the element
+  cv::Point2f loc;
+  
   std::string name;
   std::string description;
   // is the output of this node different from the last  timestep
@@ -140,8 +143,6 @@ class Connector : public Elem
   // src types
   conType type;
  
-  cv::Point2f loc;
-  
   std::vector<cv::Point2f> connector_points;
 
   bool setImage(cv::Mat im);
@@ -192,8 +193,12 @@ class Node : public Elem
   int getIndFromPointer(Connector* con);
   bool selectPortByInd(const int ind);
  
+  // the upper left coordinate of the node is loc
+  // the distance to the lower right part of the node as drawn
+  cv::Point2f extent;
+  cv::Point2f upper_left;
+  cv::Point2f thumb_offset;
 
-  cv::Point2f loc;
   // TBD get rid of this and pass it to draw every time
   cv::Mat graph_ui;
   cv::Scalar vcol;

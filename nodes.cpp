@@ -523,6 +523,8 @@ namespace bm {
     return true;
   }
 
+  // each node has a velocity that could be imparted by the user or
+  // by repulsion forces from adjacent nodes
   bool Node::posUpdate() 
   {
     // pos update
@@ -596,14 +598,23 @@ namespace bm {
     {
       boost::mutex::scoped_lock l(port_mutex);
       // draw rectangle around entire node
+      // update this here because it sometimes changes
+      
+      const cv::Point2f rect_origin = loc + cv::Point2f(-5, -15);
+      upper_left = loc + thumb_offset;
+      const cv::Point2f rect_wh = cv::Point2f(140, ports.size()*10 + 2);
+      extent = loc + rect_wh - upper_left;
+
+
       cv::rectangle(graph_ui, 
-          loc + cv::Point2f(-5, -15) + ui_offset, 
-          loc + cv::Point2f(140, ports.size()*10 + 2) + ui_offset, 
-          vcol*0.2, //cv::Scalar(255,0,0),
+          rect_origin + ui_offset, 
+          loc + rect_wh + ui_offset, 
+          vcol * 0.2, //cv::Scalar(255,0,0),
           2);
     
     int max_width = 0;
     for (int i = 0; i < ports.size(); i++) {
+      // highlight the selected port
       if (i == selected_port_ind) {
         ports[i]->highlight = true;
         if (highlight) { 
@@ -676,7 +687,15 @@ namespace bm {
     VLOG(2) << selected_type << " \"" << selected_port << "\"";
     if ((selected_type == SIGNAL) && (selected_port != "")) { 
       float value = getSignal(selected_port);
+  
 
+      // keys for manipulating numerical values
+      // there needs to be more of these, but it would 
+      // take up a lot of key real estate, maybe there should
+      // be a mode where more keys are dedicated to manipulating these.
+      // Also could have more of a floaty feel, where the value has
+      // a velocity and friction and the user accelerates it.
+      // Certainly need a way to type in a number
       if (key == '.') {
         value *= 0.9;   
       }
@@ -684,6 +703,7 @@ namespace bm {
         value *= 1.1;
       }
       else if (key == ',') {
+        // TBD maybe this '1' should be itself a signal value to be manipulated
         value += 1;   
       }
       else if (key == 'm') {
@@ -708,9 +728,9 @@ namespace bm {
       const float acc_step = 3.0;
       // TBD alternatively could handle loc as a Signal
       
-            if (key == '8') {  // UP
+      if (key == '8') {  // UP
         acc.y -= acc_step;
-    //    LOG(INFO) << "acc.y " << acc.y;
+        // LOG(INFO) << "acc.y " << acc.y;
       } else if (key == '2') {  // DOWN
         acc.y += acc_step;
       } else if (key == '4') {  // LEFT
@@ -1301,8 +1321,8 @@ namespace bm {
       //cv::Scalar col = cv::Scalar(vcol/fr);
       cv::Scalar col = vcol * (1.0/fr); //cv::Scalar(vcol/fr);
 
-      cv::Point2f thumb_offset = cv::Point2f(0, -sz.height - 20);
-     
+      thumb_offset = cv::Point2f(0, -sz.height - 20);
+
       // draw thumbnail
       {
         cv::Point2f pth = loc + ui_offset + thumb_offset;
@@ -1649,15 +1669,21 @@ namespace bm {
       // TBD make this optional
       if (out.empty()) out = frames[0];//.clone();
 
-      cv::Size sz = cv::Size(Config::inst()->thumb_width * 0.25, Config::inst()->thumb_height * 0.25);
+      // make previews 25% of regular thumbnail size
+      const float thumb_fr = 0.25;
+      cv::Size sz = cv::Size(Config::inst()->thumb_width * thumb_fr, 
+          Config::inst()->thumb_height * thumb_fr);
 
       cv::Mat thumbnail = cv::Mat(sz, CV_8UC4);
       cv::resize(frame, thumbnail, sz, 0, 0, cv::INTER_NEAREST );
       //cv::resize(tmp->get(), thumbnail, cv::INTER_NEAREST );
 
-      const float xth = loc.x + ui_offset.x + 100 + i * sz.width;
-      const float yth = loc.y + ui_offset.y + sz.height*4;
+      // position the preview frames in a strip above the regular 
+      // thumbnail
+      const float xth = loc.x + ui_offset.x + i * sz.width;
+      const float yth = loc.y + ui_offset.y - sz.height * 6;
 
+      // only draw if on screen
       if ((xth > 0) && (yth > 0) && 
           (xth + sz.width < graph_ui.cols) && (yth + sz.height < graph_ui.rows)) {
 
