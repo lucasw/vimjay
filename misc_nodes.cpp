@@ -49,31 +49,10 @@ namespace bm {
       ImageNode(name),
       error_count(0)
   {
-    setSignal("mode", 0, false, ROLL, 0, 4);
-
-    LOG(INFO) << "camera opening ...";
-    capture = VideoCapture(0); //CV_CAP_OPENNI );
-    LOG(INFO) << "done.";
-
-    if ( !capture.isOpened() ) {
-      LOG(ERROR) << "Can not open a capture object.";
-      return;// -1;
-    }
-
-        //bool rv1 = capture.set( CV_CAP_PROP_FRAME_WIDTH, 800);
-        //    //bool rv2 = capture.set( CV_CAP_PROP_FRAME_HEIGHT, 600);
-        //        //LOG(INFO) << "set res " << rv1 << " " << rv2;
-        //
-        //
-    
-    //update();
-    //update();
     is_thread_dirty = false;
+    setSignal("mode", 0, false, ROLL, 0, 4);
+    setString("file", "../data/test.mp4");
     cam_thread = boost::thread(&Webcam::runThread, this);
-
-    // wait for single frame so there is a sample with the correct size
-    // TBD or time out
-    while(!is_thread_dirty && (error_count < 20)) {}
   }
   
   Webcam::~Webcam()
@@ -84,41 +63,63 @@ namespace bm {
     cam_thread.join();
 
     LOG(INFO) << name << " releasing the camera";
-    capture.release();
+    video.release();
   }
 
-  void Webcam::runThread()
+  void Webcam::spinOnce()
   {
-    do_capture = true;
-    run_thread = true;
+      if (!video.isOpened() ) {
+        usleep(10000);
+        return;
+      }
 
-    //cv::namedWindow("webcam", CV_GUI_NORMAL);
+      {
+        bool is_valid, is_dirty;
+        float set_avi_ratio = getSignal("set_avi_ratio", is_valid, is_dirty, 1);
+        if (is_valid && is_dirty) {
+          LOG(INFO) << set_avi_ratio;
+          video.set(CV_CAP_PROP_POS_AVI_RATIO, set_avi_ratio); 
+        }
+      }
 
+        setSignal("pos_msec",     video.get(CV_CAP_PROP_POS_MSEC));
+        setSignal("pos_frames",   video.get(CV_CAP_PROP_POS_FRAMES));
+        setSignal("avi_ratio",    video.get(CV_CAP_PROP_POS_AVI_RATIO));
+        setSignal("frame_width",  video.get(CV_CAP_PROP_FRAME_WIDTH));
+        setSignal("frame_height", video.get(CV_CAP_PROP_FRAME_HEIGHT));
+        setSignal("fps",          video.get(CV_CAP_PROP_FPS));
+        setSignal("frame_count",  video.get(CV_CAP_PROP_FRAME_COUNT));
 
-    while(run_thread) {
-      if (do_capture && error_count < 20) {
-        /// TBD need to make this in separate thread
-        if( !capture.grab() )
+        // TBD check enable before grabbing
+        // TBD the behavior for webcams is to grab continuously,
+        // but maybe avi files should be buffered as quickly as 
+        // possible?  Doesn't work well for large videos?
+        // Currently the video plays at very high speed in this
+        // separate thread and there is no way to change the frame
+        // Why duplicate the image buffer interface?  There may
+        // be a good reason.
+        if( !video.grab() )
         {
-          LOG(ERROR) << name << " Can not grab images." << endl;
+          // TBD this is only an error with a live webcam
+          //LOG(ERROR) << name << " Can not grab images." << endl;
           error_count++;
-          continue;
+          return;
           //return false;
         } 
 
         cv::Mat new_out;
-        capture.retrieve(new_out);
+        video.retrieve(new_out);
 
         if (new_out.empty()) {
           LOG(ERROR) << name << " new image empty";
           error_count++;
-          continue;
+          return;
           //return false;
         }
 
         error_count--;
         if (error_count < 0) error_count = 0;
-        // I think opencv is reusing a mat within capture so have to clone it
+        // I think opencv is reusing a mat within video so have to clone it
 
         //if (&new_out.data == &out.data) {
         //
@@ -135,13 +136,14 @@ namespace bm {
         cv::Mat tmp;
         tmp0.convertTo(tmp, MAT_FORMAT,scale); //, 1.0/(255.0));//*255.0*255.0*255.0));
 
+        // TBD add black borders to preserve aspect ratio of original
         cv::Size sz = Config::inst()->getImSize();
         cv::Mat tmp1;
         cv::resize(tmp, tmp1, sz, 0, 0, getModeType() );
         
-
         //out_lock.lock();
         setImage("out", tmp1);
+        // TBD is this still necessary
         is_thread_dirty = true;
         //out_lock.unlock();
         //} else {
@@ -152,24 +154,38 @@ namespace bm {
         // TBD out is the same address every time, why doesn't clone produce a new one?
         //VLOG(3) << 
 
-      } else {
-        usleep(1000);
-      }
-    }
-  } // runThread
 
-/*
-  cv::Mat get()
+  } // spinOnce
+
+  void Webcam::runThread()
   {
+    do_capture = true;
+    run_thread = true;
+    //cv::namedWindow("webcam", CV_GUI_NORMAL);
 
-  }
-  */
+    while(run_thread) {
+      {
+        bool is_valid, is_dirty;
+        std::string file = getString("file", is_valid, is_dirty, 1);
+        if (is_valid && is_dirty) {
+          LOG(INFO) << name << " opening new video source " 
+            << CLTXT << file << CLNRM;
+          video.open(file);
+        }
+      }
+
+      //spinOnce();
+    } // while run_thread
+  } // runThread
 
   bool Webcam::update()
   {
     // don't call ImageNode update because it will clobber the "out" image set in the thread
     Node::update();
     //ImageNode::update();
+
+    // TBD don't multi thread the webcam, or does grabbing take up a lot of time?
+    spinOnce();
 
       if ( is_thread_dirty ) setDirty();
       is_thread_dirty = false;
@@ -384,6 +400,7 @@ namespace bm {
     setSignal("ind", 0, false, ROLL, 0, 0);
     //cv::Mat tmp;
     //setImage("out", tmp);
+    
     browse_thread = boost::thread(&BrowseDir::runThread, this);
   }
   

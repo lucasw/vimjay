@@ -16,10 +16,11 @@
 #include "nodes.h"
 
 namespace bm {
+
 class Webcam : public ImageNode
 {
 
-  cv::VideoCapture capture; //CV_CAP_OPENNI );
+  cv::VideoCapture video; 
   void runThread();
   bool is_thread_dirty;
   bool do_capture;
@@ -27,6 +28,8 @@ class Webcam : public ImageNode
   boost::thread cam_thread;
 
   int error_count;
+  
+  void spinOnce();
 
   public:
   Webcam(const std::string name);
