@@ -111,15 +111,7 @@ class CamThing : public Output
     {
       Node* node = NULL;
 
-      if (type_id.compare("bm::Webcam") == 0) {
-        // TBD make a version of getNode that takes a type_id string
-        Webcam* cam_in = getNode<Webcam>(name, loc);
-        node = cam_in;
-
-        test_im = cam_in->getImage("out").clone();
-        test_im = cv::Scalar(200,200,200);
-
-      } else if (type_id.compare("bm::CamThing") == 0) {
+      if (type_id.compare("bm::CamThing") == 0) {
         // TBD  don't allow duplicate camthings
         VLOG(1) << CLVAL << all_nodes.size()  << CLTX2 
           << " new node " << CLNRM << name << " " << loc.x << ", " << loc.y;
@@ -132,6 +124,10 @@ class CamThing : public Output
       } else if (type_id.compare("bm::ScreenCap") == 0) {
         node = getNode<ScreenCap>(name, loc);
         node->update();
+      } else if (type_id.compare("bm::Webcam") == 0) {
+        node = getNode<Webcam>(name, loc);
+      } else if (type_id.compare("bm::Video") == 0) {
+        node = getNode<Video>(name, loc);
       } else if (type_id.compare("bm::ImageNode") == 0) {
         node = getNode<ImageNode>(name, loc);
       } else if (type_id.compare("bm::Sobel") == 0) {
@@ -416,7 +412,6 @@ class CamThing : public Output
     }
   } // gridGraph
 
-  Webcam* cam_in;
   int count;
 
   cv::Mat test_im;
@@ -461,6 +456,7 @@ class CamThing : public Output
     node_types.push_back("bm::ImageDir");
     node_types.push_back("bm::BrowseDir");
     node_types.push_back("bm::Webcam");
+    node_types.push_back("bm::Video");
     node_types.push_back("bm::ScreenCap");
     node_types.push_back("bm::Rot2D");
     node_types.push_back("bm::Buffer");

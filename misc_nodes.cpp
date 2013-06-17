@@ -44,38 +44,48 @@ using namespace std;
 namespace bm {
 //////////////////////////////////////////////////
 
-  ////////////////////////////////////////////////////////////
-  Webcam::Webcam(const std::string name) : 
+  VideoCapture::VideoCapture(const std::string name) : 
       ImageNode(name),
       error_count(0)
+  {
+
+    LOG(INFO) << name << " video capture";
+  }
+
+  ///////////////////////////////////////////////
+
+  Video::Video(const std::string name) : 
+      VideoCapture(name)
   {
     is_thread_dirty = false;
     setSignal("mode", 0, false, ROLL, 0, 4);
     setString("file", "../data/test.mp4");
-
-    is_webcam = true;
-    cam_thread = boost::thread(&Webcam::runThread, this);
-  }
-  
-  Webcam::~Webcam()
-  {
-    LOG(INFO) << name << " stopping camera capture thread";
-    do_capture = false;
-    run_thread = false;
-    cam_thread.join();
-
-    LOG(INFO) << name << " releasing the camera";
-    video.release();
+    
+    LOG(INFO) << name << " video";
+    cam_thread = boost::thread(&Video::runThread, this);
   }
 
-  void Webcam::spinOnce()
+  void Video::runThread()
   {
-      if (!video.isOpened() ) {
-        usleep(10000);
-        return;
+
+    while (true) {
+      {
+        bool is_valid, is_dirty;
+        std::string file = getString("file", is_valid, is_dirty, 1);
+        if (is_valid && is_dirty) {
+          LOG(INFO) << name << " opening new video source " 
+            << CLTXT << file << CLNRM;
+          video.open(file);
+        }
       }
 
-      if (!is_webcam) {
+    } // while true
+  } // runThread
+
+  bool Video::spinOnce() 
+  {
+    if (!VideoCapture::spinOnce()) return false;
+
       {
         bool is_valid, is_dirty;
         float set_avi_ratio = getSignal("set_avi_ratio", is_valid, is_dirty, 1);
@@ -92,9 +102,52 @@ namespace bm {
         setSignal("frame_height", video.get(CV_CAP_PROP_FRAME_HEIGHT));
         setSignal("fps",          video.get(CV_CAP_PROP_FPS));
         setSignal("frame_count",  video.get(CV_CAP_PROP_FRAME_COUNT));  
-      }
+  
+    return true;
+  }
+  
+  bool Video::update()
+  {
+    const bool rv = Node::update();
+    if (!rv) return false;
+   
+    spinOnce();
 
-        // TBD check enable before grabbing
+    return true;
+  }
+
+
+  ////////////////////////////////////////////////////////////
+  Webcam::Webcam(const std::string name) : 
+      VideoCapture(name)
+  {
+    is_thread_dirty = false;
+    setSignal("mode", 0, false, ROLL, 0, 4);
+
+    cam_thread = boost::thread(&Webcam::runThread, this);
+  }
+  
+  Webcam::~Webcam()
+  {
+    LOG(INFO) << name << " stopping camera capture thread";
+    do_capture = false;
+    run_thread = false;
+    cam_thread.join();
+
+    LOG(INFO) << name << " releasing the camera";
+    video.release();
+  }
+
+  bool VideoCapture::spinOnce()
+  {
+
+    if (!video.isOpened() ) {
+        usleep(10000);
+        return false;
+    }
+
+    //if (!VideoCapture::spinOnce()) return false;
+              // TBD check enable before grabbing
         // TBD the behavior for webcams is to grab continuously,
         // but maybe avi files should be buffered as quickly as 
         // possible?  Doesn't work well for large videos?
@@ -107,8 +160,7 @@ namespace bm {
           // TBD this is only an error with a live webcam
           //LOG(ERROR) << name << " Can not grab images." << endl;
           error_count++;
-          return;
-          //return false;
+          return false;
         } 
 
         cv::Mat new_out;
@@ -117,8 +169,7 @@ namespace bm {
         if (new_out.empty()) {
           LOG(ERROR) << name << " new image empty";
           error_count++;
-          return;
-          //return false;
+          return false;
         }
 
         error_count--;
@@ -158,6 +209,7 @@ namespace bm {
         // TBD out is the same address every time, why doesn't clone produce a new one?
         //VLOG(3) << 
 
+    return true;
 
   } // spinOnce
 
@@ -166,22 +218,14 @@ namespace bm {
     do_capture = true;
     run_thread = true;
     //cv::namedWindow("webcam", CV_GUI_NORMAL);
+   
+    video.open(0);
 
-    while(run_thread) {
-      {
-        bool is_valid, is_dirty;
-        std::string file = getString("file", is_valid, is_dirty, 1);
-        if (is_valid && is_dirty) {
-          LOG(INFO) << name << " opening new video source " 
-            << CLTXT << file << CLNRM;
-          //video.open(file);
-          video.open(0);
-        }
-      }
+    while (run_thread) {
+     
+      
 
-      if (is_webcam) {
-        spinOnce();
-      }
+      spinOnce();
 
     } // while run_thread
   } // runThread
@@ -192,12 +236,8 @@ namespace bm {
     Node::update();
     //ImageNode::update();
 
-    // TBD don't multi thread the webcam, or does grabbing take up a lot of time?
-    if (!is_webcam) 
-      spinOnce();
-
-      if ( is_thread_dirty ) setDirty();
-      is_thread_dirty = false;
+    if ( is_thread_dirty ) setDirty();
+    is_thread_dirty = false;
 
     return true;
   }
