@@ -1,11 +1,11 @@
 %YAML:1.0
-date: "Sun Jun 16 22:29:53 2013\n"
+date: "Sun Jun 16 22:39:49 2013\n"
 nodes:
    -
       ind: 0
       typeid: "bm::CamThing"
       name: cam_thing
-      loc: [ -1.0545597076416016e+02, 8.9867774963378906e+01 ]
+      loc: [ -105., 90. ]
       inputs:
          -
             type: 1
@@ -92,71 +92,7 @@ nodes:
       ind: 1
       typeid: "bm::Output"
       name: output
-      loc: [ 40., 416. ]
-      inputs:
-         -
-            type: 1
-            name: enable
-            value: 1.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: force_update
-            value: 1.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 2
-            name: out
-            src_ind: -1
-            src_port: ""
-         -
-            type: 2
-            name: in
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: decor
-            value: 1.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: mode
-            value: 0.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: x
-            value: 24.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: y
-            value: 0.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: w
-            value: 640.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: h
-            value: 360.
-            src_ind: -1
-            src_port: ""
-   -
-      ind: 2
-      typeid: "bm::Output"
-      name: preview
-      loc: [ 3.9224957275390625e+02, 6.0616714477539062e+01 ]
+      loc: [ 5.9999977111816406e+01, 416. ]
       inputs:
          -
             type: 1
@@ -201,7 +137,71 @@ nodes:
          -
             type: 1
             name: y
-            value: 489.
+            value: 0.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: w
+            value: 640.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: h
+            value: 360.
+            src_ind: -1
+            src_port: ""
+   -
+      ind: 2
+      typeid: "bm::Output"
+      name: preview
+      loc: [ 4.0199978637695312e+02, 61. ]
+      inputs:
+         -
+            type: 1
+            name: enable
+            value: 1.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: force_update
+            value: 1.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 2
+            name: out
+            src_ind: -1
+            src_port: ""
+         -
+            type: 2
+            name: in
+            src_ind: 3
+            src_port: out
+         -
+            type: 1
+            name: decor
+            value: 1.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: mode
+            value: 0.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: x
+            value: 14.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: y
+            value: 0.
             src_ind: -1
             src_port: ""
          -
@@ -232,7 +232,7 @@ nodes:
       ind: 3
       typeid: "bm::Webcam"
       name: "bm::Webcam"
-      loc: [ 1.2331085968017578e+02, 1.3679382324218750e+02 ]
+      loc: [ 123., 137. ]
       inputs:
          -
             type: 1

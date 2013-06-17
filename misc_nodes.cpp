@@ -52,6 +52,8 @@ namespace bm {
     is_thread_dirty = false;
     setSignal("mode", 0, false, ROLL, 0, 4);
     setString("file", "../data/test.mp4");
+
+    is_webcam = true;
     cam_thread = boost::thread(&Webcam::runThread, this);
   }
   
@@ -73,6 +75,7 @@ namespace bm {
         return;
       }
 
+      if (!is_webcam) {
       {
         bool is_valid, is_dirty;
         float set_avi_ratio = getSignal("set_avi_ratio", is_valid, is_dirty, 1);
@@ -88,7 +91,8 @@ namespace bm {
         setSignal("frame_width",  video.get(CV_CAP_PROP_FRAME_WIDTH));
         setSignal("frame_height", video.get(CV_CAP_PROP_FRAME_HEIGHT));
         setSignal("fps",          video.get(CV_CAP_PROP_FPS));
-        setSignal("frame_count",  video.get(CV_CAP_PROP_FRAME_COUNT));
+        setSignal("frame_count",  video.get(CV_CAP_PROP_FRAME_COUNT));  
+      }
 
         // TBD check enable before grabbing
         // TBD the behavior for webcams is to grab continuously,
@@ -170,11 +174,15 @@ namespace bm {
         if (is_valid && is_dirty) {
           LOG(INFO) << name << " opening new video source " 
             << CLTXT << file << CLNRM;
-          video.open(file);
+          //video.open(file);
+          video.open(0);
         }
       }
 
-      //spinOnce();
+      if (is_webcam) {
+        spinOnce();
+      }
+
     } // while run_thread
   } // runThread
 
@@ -185,7 +193,8 @@ namespace bm {
     //ImageNode::update();
 
     // TBD don't multi thread the webcam, or does grabbing take up a lot of time?
-    spinOnce();
+    if (!is_webcam) 
+      spinOnce();
 
       if ( is_thread_dirty ) setDirty();
       is_thread_dirty = false;

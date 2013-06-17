@@ -25,6 +25,8 @@ class Webcam : public ImageNode
   bool is_thread_dirty;
   bool do_capture;
   bool run_thread;
+  
+  bool is_webcam;
   boost::thread cam_thread;
 
   int error_count;
