@@ -1,5 +1,5 @@
-#ifndef __MISC_NODES_H__
-#define __MISC_NODES_H__
+#ifndef __VIDEO_H__
+#define __VIDEO_H__
 
 #include <iostream>
 #include <stdio.h>
@@ -60,47 +60,6 @@ public:
   //virtual ~Video();
   virtual bool update();
 };
-
-/////////////////////////////////
-class ImageDir : public Buffer
-{
-  std::deque<cv::Mat> frames_orig;
-  std::vector<std::string> all_files;
-  bool resizeImages();
-
-  public:
-
-  ImageDir(const std::string name);
-
-  bool loadImages();
-
-  virtual bool update();
-  virtual bool load(cv::FileNodeIterator nd);
-  virtual bool save(cv::FileStorage& fs);
-};
-
-/////////////////////////////////
-class BrowseDir : public ImageNode
-{
-  public:
-
-  BrowseDir(const std::string name);
-  
-  virtual bool handleKey(int key);
-  virtual bool update();
-  
-  private:
-  boost::thread browse_thread;
-  void runThread();
-  
-  boost::mutex dirs_mutex;
-  std::vector<std::string> image_names;
-  std::vector<std::string> sub_dirs;
-  std::vector<int> num_sub_images;
-  std::vector<int> num_sub_dirs;
-
-};
-
 
 
 

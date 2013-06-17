@@ -48,6 +48,7 @@
 #include "input.h"
 #include "structure.h"
 #include "opengl.h"
+#include "video.h"
 
 using namespace cv;
 using namespace std;

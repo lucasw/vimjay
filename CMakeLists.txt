@@ -49,6 +49,7 @@ utility.cpp
 output.cpp
 input.cpp
 opengl.cpp
+video.cpp
 other/simplexnoise.cpp
 other/simplextextures.cpp
 

@@ -17,49 +17,6 @@
 
 namespace bm {
 
-class VideoCapture : public ImageNode
-{
-
-  protected:
-  cv::VideoCapture video; 
-  boost::thread cam_thread;
-  virtual bool spinOnce();
-  bool is_thread_dirty;
-  int error_count;
-  
-  public:
-  VideoCapture(const std::string name);
-  //virtual ~VideoCapture();
-  //
-  
-};
-
-class Webcam : public VideoCapture
-{
-  bool do_capture;
-  bool run_thread;
-
-  void runThread();
-
-  public:
-  Webcam(const std::string name);
-  virtual ~Webcam();
-
-  virtual bool update();
-
-};
-
-class Video : public VideoCapture 
-{
-  void runThread();
-protected:
-  virtual bool spinOnce();
-
-public:
-  Video(const std::string name);
-  //virtual ~Video();
-  virtual bool update();
-};
 
 /////////////////////////////////
 class ImageDir : public Buffer
