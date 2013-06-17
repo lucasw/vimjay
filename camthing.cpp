@@ -1671,8 +1671,8 @@ class CamThing : public Output
 
       
       if (source_node) {
-        cv::circle(graph_ui, source_node->loc + ui_offset, 13, cv::Scalar(29,51,11), -1);
-        cv::circle(graph_ui, source_node->loc + ui_offset, 12, cv::Scalar(229,151,51), -1);
+        cv::circle(graph_ui, source_node->loc + ui_offset, 23, cv::Scalar(29,51,11), -1);
+        cv::circle(graph_ui, source_node->loc + ui_offset, 22, cv::Scalar(229,151,51), -1);
       }
       VLOG(4) << "cv draw time" << t1.elapsed(); 
 

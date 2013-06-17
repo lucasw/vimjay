@@ -484,7 +484,7 @@ namespace bm {
     }
 
     // TBD should this occur before updating the inputs?
-    if (!(getSignal("enable") >= 1.0)) 
+    if (!getBool("enable")) 
       return false;
     
     bool inputs_dirty = false;
@@ -568,8 +568,8 @@ namespace bm {
     //cv::Scalar col = cv::Scalar(vcol/fr);
     cv::Scalar col = vcol * (1.0/fr); //cv::Scalar(vcol/fr);
 
-    if (!(getSignal("enable") >= 1.0)) 
-      cv::circle(graph_ui, loc + ui_offset, 10, cv::Scalar(0,0,100), -1);
+    if (!getBool("enable")) 
+      cv::circle(graph_ui, loc + ui_offset, 15, cv::Scalar(0, 0, 200), -1);
 
     cv::circle(graph_ui, loc + ui_offset, 24, col, 4);
 
@@ -1033,6 +1033,17 @@ namespace bm {
     VLOG(4) << name << " " << port << " " << " " << src_port << " ";
 
     return im;
+  }
+
+  /// convenience function, there isn't a bool port type but the numerical
+  /// signals can be used as one
+  bool Node::getBool(
+    const string port, 
+    bool& valid,
+    bool& is_dirty,
+    const int is_dirty_ind)
+  {
+    return (getSignal(port, valid, is_dirty, is_dirty_ind) > 0.5);
   }
 
   float Node::getSignal(

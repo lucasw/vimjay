@@ -1,11 +1,11 @@
 %YAML:1.0
-date: "Sun Jun 16 23:29:44 2013\n"
+date: "Mon Jun 17 07:23:45 2013\n"
 nodes:
    -
       ind: 0
       typeid: "bm::CamThing"
       name: cam_thing
-      loc: [ -2.0466841125488281e+02, 8.0608345031738281e+01 ]
+      loc: [ -3.6755682373046875e+02, 8.3436820983886719e+01 ]
       inputs:
          -
             type: 1
@@ -44,13 +44,13 @@ nodes:
          -
             type: 1
             name: x
-            value: 618.
+            value: 614.
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: y
-            value: 129.
+            value: 58.
             src_ind: -1
             src_port: ""
          -
@@ -68,7 +68,7 @@ nodes:
          -
             type: 1
             name: node_ind
-            value: 3.
+            value: 22.
             src_ind: -1
             src_port: ""
          -
@@ -91,20 +91,26 @@ nodes:
          -
             type: 1
             name: "2_x"
-            value: 1.8119201660156250e+01
+            value: 5.3270751953125000e+02
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: "2_y"
-            value: 6.4341625976562500e+02
+            value: 3.9253265380859375e+01
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: "2_1"
+            value: 1.
             src_ind: -1
             src_port: ""
    -
       ind: 1
       typeid: "bm::Output"
       name: output
-      loc: [ 4.1005771636962891e+01, 4.3196810913085938e+02 ]
+      loc: [ 7.1550910949707031e+01, 4.6798342895507812e+02 ]
       inputs:
          -
             type: 1
@@ -126,84 +132,8 @@ nodes:
          -
             type: 2
             name: in
-            src_ind: 3
+            src_ind: 5
             src_port: out
-         -
-            type: 1
-            name: decor
-            value: 1.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: mode
-            value: 0.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: x
-            value: 14.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: y
-            value: 0.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: w
-            value: 640.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: h
-            value: 360.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: im_w
-            value: 640.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: im_h
-            value: 360.
-            src_ind: -1
-            src_port: ""
-   -
-      ind: 2
-      typeid: "bm::Output"
-      name: preview
-      loc: [ 4.1758615112304688e+02, 7.2218498229980469e+01 ]
-      inputs:
-         -
-            type: 1
-            name: enable
-            value: 1.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: force_update
-            value: 1.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 2
-            name: out
-            src_ind: -1
-            src_port: ""
-         -
-            type: 2
-            name: in
-            src_ind: 1
-            src_port: in
          -
             type: 1
             name: decor
@@ -253,10 +183,86 @@ nodes:
             src_ind: -1
             src_port: ""
    -
+      ind: 2
+      typeid: "bm::Output"
+      name: preview
+      loc: [ 4.3799993896484375e+02, 72. ]
+      inputs:
+         -
+            type: 1
+            name: enable
+            value: 1.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: force_update
+            value: 1.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 2
+            name: out
+            src_ind: -1
+            src_port: ""
+         -
+            type: 2
+            name: in
+            src_ind: 5
+            src_port: in
+         -
+            type: 1
+            name: decor
+            value: 1.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: mode
+            value: 0.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: x
+            value: 14.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: y
+            value: 0.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: w
+            value: 640.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: h
+            value: 360.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: im_w
+            value: 640.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: im_h
+            value: 360.
+            src_ind: -1
+            src_port: ""
+   -
       ind: 3
       typeid: "bm::Webcam"
       name: "bm::Webcam"
-      loc: [ 2.1905059814453125e+02, 4.2429882049560547e+01 ]
+      loc: [ 2.2899996948242188e+02, 42. ]
       inputs:
          -
             type: 1
@@ -285,7 +291,7 @@ nodes:
       ind: 4
       typeid: "bm::Video"
       name: "bm::Video"
-      loc: [ 3.3333400726318359e+01, 1.7917698669433594e+02 ]
+      loc: [ 1.1012762451171875e+02, 2.2856042480468750e+02 ]
       inputs:
          -
             type: 1
@@ -361,5 +367,103 @@ nodes:
             type: 1
             name: frame_count
             value: 345.
+            src_ind: -1
+            src_port: ""
+   -
+      ind: 5
+      typeid: "bm::Laplacian"
+      name: "bm::Laplacian"
+      loc: [ -1.1609326362609863e+01, -6.2904727935791016e+01 ]
+      inputs:
+         -
+            type: 1
+            name: enable
+            value: 1.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: force_update
+            value: 0.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 2
+            name: out
+            src_ind: -1
+            src_port: ""
+         -
+            type: 2
+            name: in
+            src_ind: 6
+            src_port: out
+         -
+            type: 1
+            name: ksize
+            value: 3.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: scale
+            value: 1.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: delta
+            value: 5.4260683059692383e+00
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: border
+            value: 0.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: write_count
+            value: 1.
+            src_ind: -1
+            src_port: ""
+   -
+      ind: 6
+      typeid: "bm::GaussianBlur"
+      name: "bm::GaussianBlur"
+      loc: [ -1.0023966217041016e+02, 1.6389654541015625e+02 ]
+      inputs:
+         -
+            type: 1
+            name: enable
+            value: 1.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: force_update
+            value: 0.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 2
+            name: out
+            src_ind: -1
+            src_port: ""
+         -
+            type: 2
+            name: in
+            src_ind: 3
+            src_port: out
+         -
+            type: 1
+            name: k_width
+            value: 15.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: k_height
+            value: 15.
             src_ind: -1
             src_port: ""

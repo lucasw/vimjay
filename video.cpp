@@ -146,6 +146,9 @@ namespace bm {
         return false;
     }
 
+    if (!getBool("enable"))
+      return true;
+
     //if (!VideoCapture::spinOnce()) return false;
               // TBD check enable before grabbing
         // TBD the behavior for webcams is to grab continuously,

@@ -257,6 +257,13 @@ class Node : public Elem
   // set image, only succeeds if not an input TBD - rw permissions?
   bool setImage(const std::string port, cv::Mat& im, const bool internally_set=false);
 
+  bool getBool(
+      const std::string port, 
+      bool& valid = bool_val,
+      bool& is_dirty = bool_val,
+      const int is_dirty_ind = 73
+      );
+
   float getSignal(
       const std::string port, 
       bool& valid = bool_val,
