@@ -1360,7 +1360,7 @@ class CamThing : public Output
       // TBD need someway to disable this, maybe a camthing signal
       //draw_nodes = !draw_nodes;
       if (selected_node) {
-        selected_node->setSignal("force_update",  !((bool)selected_node->getSignal("force_update")));
+        selected_node->setSignal("force_update",  !(selected_node->getBool("force_update")));
       }
     }
     else if (key == 'a') {
@@ -1556,11 +1556,11 @@ class CamThing : public Output
       // TBD force update selected node.  This may not always be desired behaviour
       // especially when the user has to cross so many other nodes to get to the
       // one they really want.
-      if ((all_nodes[i] == selected_node) || (all_nodes[i]->getSignal("force_update") > 0.5))
+      if ((all_nodes[i] == selected_node) || (all_nodes[i]->getBool("force_update")))
         all_nodes[i]->setUpdate();
     }
     for (int i = 0; i < all_nodes.size(); i++) {
-      if ((all_nodes[i] == selected_node) || (all_nodes[i]->getSignal("force_update") > 0.5))
+      if ((all_nodes[i] == selected_node) || (all_nodes[i]->getBool("force_update")))
         all_nodes[i]->update();
     }
 

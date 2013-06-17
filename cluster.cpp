@@ -132,7 +132,7 @@ bool Cluster::update()
   cv::Mat in = getImage("in");
   if (in.empty()) return false;
 	
-  const bool use_manhat = getSignal("manhat") > 0.5;
+  const bool use_manhat = getBool("manhat");
   float max_space_dist = (in.cols*in.cols + in.rows*in.rows);
   if (use_manhat) max_space_dist = (in.cols + in.rows); 
 
@@ -168,7 +168,7 @@ bool Cluster::update()
     }
   }
 
-  const bool wrap = getSignal("wrap") > 0.5;
+  const bool wrap = getBool("wrap");
   const int wd = in.cols;
   const int ht = in.rows;
 

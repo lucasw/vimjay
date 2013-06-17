@@ -218,7 +218,7 @@ namespace bm {
     bool is_valid, is_dirty1, is_dirty2;
     getString("dir", is_valid, is_dirty1, 72);
 
-    if ((getSignal("load") > 0.5) || is_dirty1) {
+    if ((getBool("load")) || is_dirty1) {
       loadImages();
       resizeImages();
     } else {

@@ -156,7 +156,7 @@ namespace bm {
     in_roi = in_roi.clone(); 
     cv::Mat out_roi = in_roi.clone();
  
-    if (getSignal("manual_xy") < 0.5) {
+    if (!getBool("manual_xy")) {
       //////////////////////////////////////////////////
       /// This implements a standard rotozoom
       // move the image prior to rotation
@@ -362,10 +362,10 @@ namespace bm {
       for (int k = 0; k < 4; k++)
         out_pts.at<float>(k,1) += y_off*j;// + ht/2;
 
-      if (getSignal("do_y_offset") > 0.5) { 
+      if (getBool("do_y_offset")) { 
       }
 
-      if (getSignal("do_flip") > 0.5) {
+      if (getBool("do_flip")) {
       }
    
 
@@ -1372,7 +1372,7 @@ CMP_NE
     if (type == 2) distance_type = CV_DIST_C;
 
     cv::Mat out32;
-    if (getSignal("make_labels") < 0.5) {
+    if (!getBool("make_labels")) {
       cv::distanceTransform(mask, out32, distance_type, 3);
     } else {
       cv::Mat labels32;
@@ -1605,7 +1605,7 @@ CMP_NE
     // TBD clone may not be necessary
     cv::Mat out_3 = chan4to3(in).clone(); //cv::Mat(in.size(), CV_8UC3); //in.clone();
 
-    if (getSignal("mask_mode") > 0.5) {
+    if (getBool("mask_mode")) {
       
       cv::Mat mask = cv::Mat( cv::Size(in.cols + 2, in.rows + 2), CV_8UC1, cv::Scalar::all(0) ); 
       cv::floodFill(
