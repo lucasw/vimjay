@@ -43,6 +43,51 @@ using namespace std;
 
 namespace bm {
 ///////////////////////////////////////////////////////////
+ 
+ /// resize the source tmp0 mat to fit inside tmp1 with borders
+ /// tmp0 and tmp1 have to be initialized already
+ /// TBD add another mode which chops off the edges so there
+ /// are no borders?
+ bool fixAspect(cv::Mat& tmp0, cv::Mat& tmp1, const int mode)
+ {
+      const float aspect_0 = (float)tmp0.cols/(float)tmp0.rows;
+      const float aspect_1 = (float)tmp1.cols/(float)tmp1.rows;
+
+        const cv::Size sz = tmp1.size();
+
+        // this is the subimage that has to fit within tmp1
+        // it will be shrunk down as necessary and border offset
+        // values adjusted
+        cv::Size tmp_sz = tmp1.size();
+        int off_x = 0;
+        int off_y = 0;
+
+        // TBD could have epsilon defined by 1 pixel width
+        if (aspect_0 > aspect_1) {
+          // have to have a border on top
+          tmp_sz.height = tmp_sz.width / aspect_0;
+          off_y = (sz.height - tmp_sz.height)/2;
+        } else if (aspect_0 < aspect_1) {
+          // have a border on the sides
+          tmp_sz.width = tmp_sz.height * aspect_0;  
+          off_x = (sz.width - tmp_sz.width)/2;
+        }
+       
+        VLOG(3) << aspect_0 << " " << aspect_1 << ", " 
+            << off_x << " " << off_y << " " << tmp_sz.width << " " << tmp_sz.height;
+        
+        // the source image with the right aspect ratio and size
+        // to fit within the dest image
+        cv::Mat tmp_aspect;
+        cv::resize( tmp0, tmp_aspect, tmp_sz, 0, 0, mode );
+        
+        // TBD put offset so image is centered
+        cv::Mat tmp1_roi = tmp1(cv::Rect(off_x, off_y, tmp_sz.width, tmp_sz.height));
+        tmp_aspect.copyTo(tmp1_roi);
+
+
+  return true;
+}
 
   ImageDir::ImageDir(const std::string name) : Buffer(name) 
   {
@@ -145,36 +190,10 @@ namespace bm {
     for (int i = 0; i < frames_orig.size(); i++) {
       cv::Mat tmp0 = frames_orig[i]; 
       cv::Size sz = Config::inst()->getImSize();
-      
       cv::Mat tmp1 = cv::Mat( sz, tmp0.type(), cv::Scalar::all(0));
-      
-      const float aspect_0 = (float)tmp0.cols/(float)tmp0.rows;
-      const float aspect_1 = (float)tmp1.cols/(float)tmp1.rows;
      
       if (keep_aspect) {
-
-        cv::Size tmp_sz = sz;
-        
-        int off_x = 0;
-        int off_y = 0;
-        // TBD could have epsilon defined by 1 pixel width
-        if (aspect_0 > aspect_1) {
-          tmp_sz.height = tmp_sz.width / aspect_0;
-          off_y = (sz.height - tmp_sz.height)/2;
-        } else if (aspect_0 < aspect_1) {
-          tmp_sz.width = tmp_sz.height * aspect_0;  
-          off_x = (sz.width - tmp_sz.width)/2;
-        }
-        
-        cv::Mat tmp_aspect;
-        cv::resize( tmp0, tmp_aspect, tmp_sz, 0, 0, mode );
-        
-        // TBD put offset so image is centered
-        cv::Mat tmp1_roi = tmp1(cv::Rect(off_x, off_y, tmp_sz.width, tmp_sz.height));
-        tmp_aspect.copyTo(tmp1_roi);
-
-        VLOG(3) << aspect_0 << " " << aspect_1 << ", " 
-            << off_x << " " << off_y << " " << tmp_sz.width << " " << tmp_sz.height;
+        fixAspect(tmp0, tmp1, mode);
       } else {
         cv::resize( tmp0, tmp1, sz, 0, 0, mode );
       }

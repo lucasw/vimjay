@@ -138,31 +138,17 @@ namespace bm {
     video.release();
   }
 
-  bool VideoCapture::spinOnce()
-  {
-
-    if (!video.isOpened() ) {
-        usleep(10000);
-        return false;
-    }
-
-    if (!getBool("enable"))
-      return true;
-
-    //if (!VideoCapture::spinOnce()) return false;
-              // TBD check enable before grabbing
-        // TBD the behavior for webcams is to grab continuously,
-        // but maybe avi files should be buffered as quickly as 
-        // possible?  Doesn't work well for large videos?
-        // Currently the video plays at very high speed in this
-        // separate thread and there is no way to change the frame
-        // Why duplicate the image buffer interface?  There may
-        // be a good reason.
+bool getVideoFrame(
+    cv::VideoCapture& video, 
+    const std::string name, 
+    const int mode_type,
+    cv::Mat& dst) 
+{
         if( !video.grab() )
         {
           // TBD this is only an error with a live webcam
           //LOG(ERROR) << name << " Can not grab images." << endl;
-          error_count++;
+          //error_count++;
           return false;
         } 
 
@@ -171,12 +157,12 @@ namespace bm {
 
         if (new_out.empty()) {
           LOG(ERROR) << name << " new image empty";
-          error_count++;
+          //error_count++;
           return false;
         }
 
-        error_count--;
-        if (error_count < 0) error_count = 0;
+        //error_count--;
+        //if (error_count < 0) error_count = 0;
         // I think opencv is reusing a mat within video so have to clone it
 
         //if (&new_out.data == &out.data) {
@@ -196,24 +182,49 @@ namespace bm {
 
         // TBD add black borders to preserve aspect ratio of original
         cv::Size sz = Config::inst()->getImSize();
-        cv::Mat tmp1;
-        cv::resize(tmp, tmp1, sz, 0, 0, getModeType() );
-        
-        //out_lock.lock();
-        setImage("out", tmp1);
-        // TBD is this still necessary
-        is_thread_dirty = true;
-        //out_lock.unlock();
-        //} else {
-        //  VLOG(3) << name << " dissimilar capture";
-        //  out = new_out;
-        //}
+        cv::resize(tmp, dst, sz, 0, 0, mode_type );
+       
+    return true;
+  }
 
-        // TBD out is the same address every time, why doesn't clone produce a new one?
-        //VLOG(3) << 
+  bool VideoCapture::spinOnce()
+  {
+
+    if (!video.isOpened() ) {
+        usleep(10000);
+        return false;
+    }
+
+    if (!getBool("enable"))
+      return true;
+
+    // TBD check enable before grabbing
+    // TBD the behavior for webcams is to grab continuously,
+    // but maybe avi files should be buffered as quickly as 
+    // possible?  Doesn't work well for large videos?
+    // Currently the video plays at very high speed in this
+    // separate thread and there is no way to change the frame
+    // Why duplicate the image buffer interface?  There may
+    // be a good reason.
+
+    cv::Mat dst;
+    if (!getVideoFrame(video, name, getModeType(), dst)) 
+      return false;
+
+    //out_lock.lock();
+    setImage("out", dst);
+    // TBD is this still necessary
+    is_thread_dirty = true;
+    //out_lock.unlock();
+    //} else {
+    //  VLOG(3) << name << " dissimilar capture";
+    //  out = new_out;
+    //}
+
+    // TBD out is the same address every time, why doesn't clone produce a new one?
+    //VLOG(3) << 
 
     return true;
-
   } // spinOnce
 
   void Webcam::runThread()
@@ -225,12 +236,9 @@ namespace bm {
     video.open(0);
 
     while (run_thread) {
-     
-      
-
       spinOnce();
-
     } // while run_thread
+
   } // runThread
 
   bool Webcam::update()
