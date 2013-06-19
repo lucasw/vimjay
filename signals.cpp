@@ -212,6 +212,9 @@ namespace bm {
     return true;
   }
   /////////////////////////////////////////////////////////////////////////////
+
+  /// It would be useful if all signals had buffers, it wouldn't cost 
+  /// much and would add a lot of convenience.  
   SigBuffer::SigBuffer(const std::string name) :
       ImageNode(name)
   {
@@ -227,9 +230,10 @@ namespace bm {
 
     setSignal("min", 0);
     setSignal("max", 0);
-    setSignal("max_size", 100);
+    setSignal("max_size", 2000);
     setSignal("cur_size", 0);
-   
+  
+    setSignal("scale_mode", 0, false, ROLL, 0, 2);
   }
 
   bool SigBuffer::update()
@@ -251,6 +255,7 @@ namespace bm {
    
     setSignal("out", sigs[0]);
 
+
     setDirty();
 
     return true;
@@ -271,32 +276,53 @@ namespace bm {
       // TBD error check the mat
       vis = cv::Scalar(0);
 
-      float new_min = 1e6;
+      float new_min =  1e6;
       float new_max = -1e6;
       const float min = getSignal("min");
       const float max = getSignal("max");
 
-      float sc = fabs(max);
-      if (fabs(min) > sc) sc = fabs(min);
-      sc *= 2.1;
+      // TBD only do this if scale_mode == 0
+      const int scale_mode = getSignal("scale_mode");
+      float middle = (max + min) / 2.0;
+      // the 2.1 creates a little padding
+      float scale = fabs(max - min);
+      if (scale_mode == 1) {
+        middle = getSignal("middle");
+        scale = getSignal("scale");
+      } else {
+        setSignal("middle", middle);
+        setSignal("scale", scale);
+      }
     
-      float div = (float)sigs.size()/(float)vis.cols;
+      float div = (float)sigs.size() / (float)vis.cols;
 
+      // this causes signal values to be skipped 
+      // if there are more than the number of column pixels
+      // This maybe should be optional, it is nice to see the extent
+      // of the higher frequency signal even if it can't be
+      // completely resolved.
       int inc = 1;
       if (div > 1.0) inc = (int) div;
       
-      VLOG(5) <<sigs.size()<<":"<< div << " " << inc << " " << sc;
+      VLOG(5) << sigs.size() << ":" << div << " " << inc << " " 
+          << scale << " " << middle;
 
-      for (int i = 0; i < (int)sigs.size() - 1; i += inc) {
+      // TBD should we always redraw?  Should we 
+      for (int i = 0; i < (int)sigs.size() - inc; i += inc) {
         const float val = sigs[i];
-        const float val2 = sigs[i+1];
+        const float val2 = sigs[i + inc];
         if (val > new_max) new_max = val;
         if (val < new_min) new_min = val;
 
+        const float y1 = vis.rows * ( 0.5 + (val  - middle) / scale);
+        const float y2 = vis.rows * ( 0.5 + (val2 - middle) / scale);
+
         cv::line( vis,
-          cv::Point2f((float)(i)/div,     vis.rows * (0.5 + val/sc)),
-          cv::Point2f((float)(i + 1)/div, vis.rows * (0.5 + val2/sc)),
-          cv::Scalar(255,255,255), (div + 1), 4);
+          cv::Point2f((float)(i)/div,     y1),
+          cv::Point2f((float)(i + 1)/div, y2),
+          cv::Scalar(255,255,255), 
+          1, 
+          4);
       }
      
       // an external signal will override, but no way for manual input to override
