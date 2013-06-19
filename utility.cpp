@@ -728,5 +728,61 @@ bool matToXImage(cv::Mat& im, XImage* ximage, Window& win, Display& display, Scr
     return true;
   }
 
+bool getVideoFrame(
+    cv::VideoCapture& video, 
+    cv::Mat& dst,
+    const std::string name, 
+    const int mode_type,
+    const int aspect_mode
+    ) 
+{
+        if( !video.grab() )
+        {
+          // TBD this is only an error with a live webcam
+          //LOG(ERROR) << name << " Can not grab images." << endl;
+          //error_count++;
+          return false;
+        } 
+
+        cv::Mat new_out;
+        video.retrieve(new_out);
+
+        if (new_out.empty()) {
+          LOG(ERROR) << name << " new image empty";
+          //error_count++;
+          return false;
+        }
+
+        //error_count--;
+        //if (error_count < 0) error_count = 0;
+        // I think opencv is reusing a mat within video so have to clone it
+
+        //if (&new_out.data == &out.data) {
+        //
+        //cv::Mat tmp; // new_out.clone();
+       
+        float scale = 1.0;
+        if (MAT_FORMAT == CV_16S) scale = 255;
+        if (MAT_FORMAT == CV_32F) scale = 1.0/255.0;
+        if (MAT_FORMAT == CV_8U) scale = 1.0;
+        cv::Mat tmp0 = cv::Mat(new_out.size(), CV_8UC4, cv::Scalar(0)); 
+        // just calling reshape(4) doesn't do the channel reassignment like this does
+        int ch[] = {0,0, 1,1, 2,2}; 
+        mixChannels(&new_out, 1, &tmp0, 1, ch, 3 );
+        cv::Mat tmp;
+        tmp0.convertTo(tmp, MAT_FORMAT, scale); //, 1.0/(255.0));//*255.0*255.0*255.0));
+
+        if (aspect_mode == 1) {
+          fixAspect(tmp, dst, mode_type);
+        } else if (aspect_mode == 2) {
+          fixAspectFill(tmp, dst, mode_type);
+        } else {
+          const cv::Size sz = Config::inst()->getImSize();
+          cv::resize(tmp, dst, sz, 0, 0, mode_type );
+        }
+       
+    return true;
+  }
+
 
 }//bm

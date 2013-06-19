@@ -55,20 +55,29 @@ namespace bm {
   ///////////////////////////////////////////////
 
   Video::Video(const std::string name) : 
-      VideoCapture(name)
+      Buffer(name)
+      //VideoCapture(name)
   {
     is_thread_dirty = false;
     setSignal("mode", 0, false, ROLL, 0, 4);
-    setString("file", "../data/test.mp4");
+    //setString("file", "../data/test.mp4");
+    setString("file", "../data/test.webm");
     
     LOG(INFO) << name << " video";
     cam_thread = boost::thread(&Video::runThread, this);
   }
+  
+  Video::~Video() 
+  {
+    run_thread = false;
+    cam_thread.join();
+  }
 
   void Video::runThread()
   {
+    run_thread = true;
 
-    while (true) {
+    while (run_thread) {
       {
         bool is_valid, is_dirty;
         std::string file = getString("file", is_valid, is_dirty, 1);
@@ -76,17 +85,40 @@ namespace bm {
           LOG(INFO) << name << " opening new video source " 
             << CLTXT << file << CLNRM;
           video.open(file);
+
+          boost::mutex::scoped_lock l(frames_mutex);
+          frames.clear();
         }
       }
+      
+      spinOnce();
+
+      usleep(2000);
 
     } // while true
   } // runThread
 
   bool Video::spinOnce() 
   {
-    if (!VideoCapture::spinOnce()) return false;
+    //if (!VideoCapture::spinOnce()) return false;
+    if (!video.isOpened() ) {
+        usleep(10000);
+        return false;
+    }
 
-      {
+    if (!getBool("enable"))
+      return true;
+
+    cv::Mat dst;
+    if (!getVideoFrame(video, dst, name, getModeType(), getSignal("keep_aspect"))) 
+      return false;
+    
+    add(dst, false); 
+    
+    // TBD is this still necessary
+    is_thread_dirty = true;
+    
+      if (false) {
         bool is_valid, is_dirty;
         float set_avi_ratio = getSignal("set_avi_ratio", is_valid, is_dirty, 1);
         if (is_valid && is_dirty) {
@@ -103,15 +135,19 @@ namespace bm {
         setSignal("fps",          video.get(CV_CAP_PROP_FPS));
         setSignal("frame_count",  video.get(CV_CAP_PROP_FRAME_COUNT));  
   
+
+
     return true;
   }
   
   bool Video::update()
   {
+    // don't do Buffer update
     const bool rv = Node::update();
     if (!rv) return false;
    
-    spinOnce();
+    // set the out to whatever the ind input is asking for
+    manualUpdate();
 
     return true;
   }
@@ -130,61 +166,11 @@ namespace bm {
   Webcam::~Webcam()
   {
     LOG(INFO) << name << " stopping camera capture thread";
-    do_capture = false;
     run_thread = false;
     cam_thread.join();
 
     LOG(INFO) << name << " releasing the camera";
     video.release();
-  }
-
-bool getVideoFrame(
-    cv::VideoCapture& video, 
-    const std::string name, 
-    const int mode_type,
-    cv::Mat& dst) 
-{
-        if( !video.grab() )
-        {
-          // TBD this is only an error with a live webcam
-          //LOG(ERROR) << name << " Can not grab images." << endl;
-          //error_count++;
-          return false;
-        } 
-
-        cv::Mat new_out;
-        video.retrieve(new_out);
-
-        if (new_out.empty()) {
-          LOG(ERROR) << name << " new image empty";
-          //error_count++;
-          return false;
-        }
-
-        //error_count--;
-        //if (error_count < 0) error_count = 0;
-        // I think opencv is reusing a mat within video so have to clone it
-
-        //if (&new_out.data == &out.data) {
-        //
-        //cv::Mat tmp; // new_out.clone();
-       
-        float scale = 1.0;
-        if (MAT_FORMAT == CV_16S) scale = 255;
-        if (MAT_FORMAT == CV_32F) scale = 1.0/255.0;
-        if (MAT_FORMAT == CV_8U) scale = 1.0;
-        cv::Mat tmp0 = cv::Mat(new_out.size(), CV_8UC4, cv::Scalar(0)); 
-        // just calling reshape(4) doesn't do the channel reassignment like this does
-        int ch[] = {0,0, 1,1, 2,2}; 
-        mixChannels(&new_out, 1, &tmp0, 1, ch, 3 );
-        cv::Mat tmp;
-        tmp0.convertTo(tmp, MAT_FORMAT,scale); //, 1.0/(255.0));//*255.0*255.0*255.0));
-
-        // TBD add black borders to preserve aspect ratio of original
-        cv::Size sz = Config::inst()->getImSize();
-        cv::resize(tmp, dst, sz, 0, 0, mode_type );
-       
-    return true;
   }
 
   bool VideoCapture::spinOnce()
@@ -208,13 +194,13 @@ bool getVideoFrame(
     // be a good reason.
 
     cv::Mat dst;
-    if (!getVideoFrame(video, name, getModeType(), dst)) 
+    if (!getVideoFrame(video, dst, name, getModeType(), getSignal("keep_aspect"))) 
       return false;
 
     //out_lock.lock();
     setImage("out", dst);
     // TBD is this still necessary
-    is_thread_dirty = true;
+    //is_thread_dirty = true;
     //out_lock.unlock();
     //} else {
     //  VLOG(3) << name << " dissimilar capture";
@@ -229,7 +215,6 @@ bool getVideoFrame(
 
   void Webcam::runThread()
   {
-    do_capture = true;
     run_thread = true;
     //cv::namedWindow("webcam", CV_GUI_NORMAL);
    
@@ -244,8 +229,9 @@ bool getVideoFrame(
   bool Webcam::update()
   {
     // don't call ImageNode update because it will clobber the "out" image set in the thread
-    Node::update();
+    if (!Node::update()) return false;
     //ImageNode::update();
+
 
     if ( is_thread_dirty ) setDirty();
     is_thread_dirty = false;

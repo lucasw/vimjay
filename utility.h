@@ -68,6 +68,14 @@ bool matToXImage(cv::Mat& im, XImage* ximage, Window& win, Display& display, Scr
 bool fixAspect(cv::Mat& tmp0, cv::Mat& tmp1, const int mode);
 bool fixAspectFill(cv::Mat& tmp0, cv::Mat& tmp1, const int mode);
 
+bool getVideoFrame(
+    cv::VideoCapture& video, 
+    cv::Mat& dst,
+    const std::string name, 
+    const int mode_type,
+    const int aspect_mode
+    );
+
 } // bm
 
 #endif

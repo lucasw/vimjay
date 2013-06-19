@@ -1626,6 +1626,8 @@ namespace bm {
   {
     boost::mutex::scoped_lock l(frames_mutex);
     if (frames.size() <= 0) return false;
+
+    // TBD also provide a 0-1.0 input, take whichever is dirty here
     int ind = (int)getSignal("ind");
     if (ind < 0) ind = 0;
     if (ind >= frames.size()) ind = frames.size()-1;

@@ -24,7 +24,6 @@ class VideoCapture : public ImageNode
   cv::VideoCapture video; 
   boost::thread cam_thread;
   virtual bool spinOnce();
-  bool is_thread_dirty;
   int error_count;
   
   public:
@@ -36,8 +35,8 @@ class VideoCapture : public ImageNode
 
 class Webcam : public VideoCapture
 {
-  bool do_capture;
   bool run_thread;
+  bool is_thread_dirty;
 
   void runThread();
 
@@ -49,15 +48,22 @@ class Webcam : public VideoCapture
 
 };
 
-class Video : public VideoCapture 
+/// multiple inheritance would maybe make this better
+/// but doesn't seem like a good fit/ or requires upstream
+/// changes I don't want to mess with right now.
+class Video : public Buffer //public VideoCapture 
 {
+  cv::VideoCapture video; 
+  boost::thread cam_thread;
+  bool run_thread;
+  bool is_thread_dirty;
   void runThread();
 protected:
   virtual bool spinOnce();
 
 public:
   Video(const std::string name);
-  //virtual ~Video();
+  virtual ~Video();
   virtual bool update();
 };
 
