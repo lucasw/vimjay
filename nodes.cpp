@@ -1613,10 +1613,7 @@ namespace bm {
     if (!in.empty() && con_is_dirty) 
       add(in); 
    
-    const int cur_size =  frames.size();
-    setSignal("cur_size", cur_size, true);
-    if (cur_size <= 0) return false;
-    //const int ind =  ((int)getSignal("ind") + cur_size) % cur_size;
+       //const int ind =  ((int)getSignal("ind") + cur_size) % cur_size;
     //setSignal("ind", ind);
 
     return true;
@@ -1722,6 +1719,7 @@ namespace bm {
   
   bool Buffer::addCore(cv::Mat& new_frame, bool restrict_size)
   {
+
     if ((frames.size() > 0) && 
         (new_frame.refcount == frames[frames.size()-1].refcount)) {
       new_frame = new_frame.clone();
@@ -1736,7 +1734,11 @@ namespace bm {
       while (frames.size() > getSignal("max_size")) frames.pop_front();
     }
 
-    VLOG(4) << name << " sz " << frames.size();
+    const int cur_size =  frames.size();
+    setSignal("cur_size", cur_size, true);
+    if (cur_size <= 0) return false;
+
+    VLOG(4) << name << " sz " << cur_size;
     return true;
   }
 
@@ -1747,7 +1749,9 @@ namespace bm {
       return false;// TBD LOG(ERROR)
     }
    
-    {
+    { 
+      // locking here instead of inside addCore because
+      // another method locks and then calls addCore
       boost::mutex::scoped_lock l(frames_mutex);
       addCore(new_frame, restrict_size);
     }

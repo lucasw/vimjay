@@ -60,8 +60,8 @@ namespace bm {
   {
     is_thread_dirty = false;
     setSignal("mode", 0, false, ROLL, 0, 4);
-    setString("file", "../data/test.mp4");
-    //setString("file", "../data/test.webm");
+    //setString("file", "../data/test.mp4");
+    setString("file", "../data/test.webm");
     
     LOG(INFO) << name << " video";
     cam_thread = boost::thread(&Video::runThread, this);
