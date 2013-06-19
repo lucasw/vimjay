@@ -70,7 +70,7 @@ namespace bm {
     setSignal("decor", window_decorations_on);
     bm::setWindowDecorations(display, win, window_decorations_on);
 
-    VLOG(3) << "decor draw time" << t1.elapsed(); 
+    VLOG(4) << "decor draw time" << t1.elapsed(); 
     /*
     XWindowAttributes xwAttr;
     Status ret = XGetWindowAttributes( display, win, &xwAttr );
@@ -202,7 +202,7 @@ namespace bm {
     setSignal("im_w", Config::inst()->im_width);
     setSignal("im_h", Config::inst()->im_height);
     
-    VLOG(4) << "attr time" << t1.elapsed(); 
+    VLOG(5) << "attr time" << t1.elapsed(); 
 
     // TBD is this necessary or does X do it for me if the window is resized?
     const cv::Size sz = cv::Size(w, h);
@@ -212,18 +212,18 @@ namespace bm {
     else
       cv::resize(in, scaled, sz, 0, 0, getModeType() );
    
-    VLOG(5) << "resize time" << t1.elapsed();
+    VLOG(6) << "resize time" << t1.elapsed();
 
     XDestroyImage(ximage);
     ximage = XGetImage(display, DefaultRootWindow(display), 0, 0, w, h, AllPlanes, ZPixmap);
     
-    VLOG(4) << "get im time" << t1.elapsed();
+    VLOG(5) << "get im time" << t1.elapsed();
     // this is slow
     bm::matToXImage(scaled, ximage, win, *display, *screen);
-    VLOG(4) << "matToXImage time" << t1.elapsed();
+    VLOG(5) << "matToXImage time" << t1.elapsed();
     
     XPutImage(display, win,  gc, ximage, 0, 0, 0, 0, ximage->width, ximage->height);
-    VLOG(3) << "put image time" << t1.elapsed();
+    VLOG(4) << "put image time" << t1.elapsed();
     } // ximage and input image is valid
 
     return ImageNode::draw(ui_offset);

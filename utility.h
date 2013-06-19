@@ -65,7 +65,10 @@ cv::Mat XImage2OpenCVImage(XImage& ximage, Display& _xDisplay, Screen& _xScreen)
 
 bool matToXImage(cv::Mat& im, XImage* ximage, Window& win, Display& display, Screen& screen);
 
-}
+bool fixAspect(cv::Mat& tmp0, cv::Mat& tmp1, const int mode);
+bool fixAspectFill(cv::Mat& tmp0, cv::Mat& tmp1, const int mode);
+
+} // bm
 
 #endif
 

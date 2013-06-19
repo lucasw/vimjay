@@ -1242,7 +1242,7 @@ class CamThing : public Output
           XGetEventData(display, &ev.xcookie))
       //if (XCheckWindowEvent(display, win, PointerMotionMask | ButtonPressMask | ButtonReleaseMask, &ev))
       {
-        VLOG(3) <<" event found"; 
+        VLOG(4) <<" event found"; 
         XIDeviceEvent* evData = (XIDeviceEvent*)(ev.xcookie.data);
         int deviceid = evData->deviceid;
 
@@ -1252,7 +1252,7 @@ class CamThing : public Output
             //LOG(INFO) <<  "motion";
             setSignal(boost::lexical_cast<string>(deviceid) + "_x", evData->event_x);
             setSignal(boost::lexical_cast<string>(deviceid) + "_y", evData->event_y);
-            VLOG(3) << deviceid << " " << evData->event_x << " " << evData->event_y;
+            VLOG(4) << deviceid << " " << evData->event_x << " " << evData->event_y;
 
             break;
 
@@ -1641,7 +1641,7 @@ class CamThing : public Output
     }
 
    
-    VLOG(3) << "bg draw time" << t1.elapsed(); 
+    VLOG(4) << "bg draw time" << t1.elapsed(); 
 
     if (draw_nodes) {
       if (source_node && selected_node) {

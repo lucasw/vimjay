@@ -43,56 +43,11 @@ using namespace std;
 
 namespace bm {
 ///////////////////////////////////////////////////////////
- 
- /// resize the source tmp0 mat to fit inside tmp1 with borders
- /// tmp0 and tmp1 have to be initialized already
- /// TBD add another mode which chops off the edges so there
- /// are no borders?
- bool fixAspect(cv::Mat& tmp0, cv::Mat& tmp1, const int mode)
- {
-      const float aspect_0 = (float)tmp0.cols/(float)tmp0.rows;
-      const float aspect_1 = (float)tmp1.cols/(float)tmp1.rows;
-
-        const cv::Size sz = tmp1.size();
-
-        // this is the subimage that has to fit within tmp1
-        // it will be shrunk down as necessary and border offset
-        // values adjusted
-        cv::Size tmp_sz = tmp1.size();
-        int off_x = 0;
-        int off_y = 0;
-
-        // TBD could have epsilon defined by 1 pixel width
-        if (aspect_0 > aspect_1) {
-          // have to have a border on top
-          tmp_sz.height = tmp_sz.width / aspect_0;
-          off_y = (sz.height - tmp_sz.height)/2;
-        } else if (aspect_0 < aspect_1) {
-          // have a border on the sides
-          tmp_sz.width = tmp_sz.height * aspect_0;  
-          off_x = (sz.width - tmp_sz.width)/2;
-        }
-       
-        VLOG(3) << aspect_0 << " " << aspect_1 << ", " 
-            << off_x << " " << off_y << " " << tmp_sz.width << " " << tmp_sz.height;
-        
-        // the source image with the right aspect ratio and size
-        // to fit within the dest image
-        cv::Mat tmp_aspect;
-        cv::resize( tmp0, tmp_aspect, tmp_sz, 0, 0, mode );
-        
-        // TBD put offset so image is centered
-        cv::Mat tmp1_roi = tmp1(cv::Rect(off_x, off_y, tmp_sz.width, tmp_sz.height));
-        tmp_aspect.copyTo(tmp1_roi);
-
-
-  return true;
-}
 
   ImageDir::ImageDir(const std::string name) : Buffer(name) 
   {
     setSignal("mode", 0, false, ROLL, 0, 4);
-    setSignal("keep_aspect", 1, false, ROLL, 0, 1);
+    setSignal("keep_aspect", 1, false, ROLL, 0, 2);
     setString("dir", "../data"); //"temp");
     setString("name","");
     //setSignal("ind", 0, false, ROLL, 0, 0);
@@ -185,15 +140,17 @@ namespace bm {
     boost::mutex::scoped_lock l(frames_mutex);
     frames.clear();
    
-    const bool keep_aspect = getSignal("keep_aspect");
+    const int keep_aspect = getSignal("keep_aspect");
 
     for (int i = 0; i < frames_orig.size(); i++) {
       cv::Mat tmp0 = frames_orig[i]; 
       cv::Size sz = Config::inst()->getImSize();
       cv::Mat tmp1 = cv::Mat( sz, tmp0.type(), cv::Scalar::all(0));
      
-      if (keep_aspect) {
+      if (keep_aspect == 1) {
         fixAspect(tmp0, tmp1, mode);
+      } else if (keep_aspect == 2) {
+        fixAspectFill(tmp0, tmp1, mode);
       } else {
         cv::resize( tmp0, tmp1, sz, 0, 0, mode );
       }
@@ -243,7 +200,7 @@ namespace bm {
     } else {
 
       getSignal("mode", is_valid, is_dirty1, 72);
-      getSignal("keep", is_valid, is_dirty2, 72);
+      getSignal("keep_aspect", is_valid, is_dirty2, 72);
      
       if (is_dirty1 || is_dirty2) {
         resizeImages();
