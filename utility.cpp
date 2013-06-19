@@ -773,10 +773,13 @@ bool getVideoFrame(
         tmp0.convertTo(tmp, MAT_FORMAT, scale); //, 1.0/(255.0));//*255.0*255.0*255.0));
 
         if (aspect_mode == 1) {
+          dst = cv::Mat(Config::inst()->getImSize(), MAT_FORMAT_C3);
           fixAspect(tmp, dst, mode_type);
         } else if (aspect_mode == 2) {
+          dst = cv::Mat(Config::inst()->getImSize(), MAT_FORMAT_C3);
           fixAspectFill(tmp, dst, mode_type);
         } else {
+          // resize will create the dst Mat properly
           const cv::Size sz = Config::inst()->getImSize();
           cv::resize(tmp, dst, sz, 0, 0, mode_type );
         }
