@@ -31,7 +31,6 @@
 #include <deque>
 //#include <pair>
 
-#include <boost/lexical_cast.hpp>
 
 #include "opencv2/highgui/highgui.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
@@ -156,76 +155,6 @@ bool Mouse::update()
 }
 #endif
 
-bool getMouse(
-    Display* display,
-    const int opcode,
-    vector<string>& sig_name,
-    vector<float>& sig_val
-    )
-{
-  if (!display) {
-    LOG(ERROR) << "no display";
-    return false;
-  }
-  //VLOG(1) << "mouse";
-
-  XEvent ev;
-  /* Get next event; blocks until an event occurs */
-  while(XPending(display)) {
-    XNextEvent(display, &ev);
-    if (ev.xcookie.type == GenericEvent &&
-        ev.xcookie.extension == opcode &&
-        XGetEventData(display, &ev.xcookie))
-      //if (XCheckWindowEvent(display, win, PointerMotionMask | ButtonPressMask | ButtonReleaseMask, &ev))
-    {
-      VLOG(1) <<" event found"; 
-      XIDeviceEvent* evData = (XIDeviceEvent*)(ev.xcookie.data);
-      int deviceid = evData->deviceid;
-
-      switch(ev.xcookie.evtype)
-      {
-        case XI_Motion:
-          VLOG(1) << "motion " <<deviceid << " " << evData->event_x 
-              << " " << evData->event_y;
-          sig_name.push_back(boost::lexical_cast<string>(deviceid) + "_x");
-          sig_val.push_back(evData->event_x);
-          sig_name.push_back(boost::lexical_cast<string>(deviceid) + "_y");
-          sig_val.push_back(evData->event_y);
-          break;
-
-        case XI_ButtonPress:
-          VLOG(1) << deviceid << " button: " << evData->detail;
-          sig_name.push_back(boost::lexical_cast<string>(deviceid) + "_" + 
-              boost::lexical_cast<string>(evData->detail));
-          sig_val.push_back(1);
-          break;
-
-        case XI_ButtonRelease:
-          VLOG(1) << deviceid << " unclick";
-          sig_name.push_back(boost::lexical_cast<string>(deviceid) + "_" + 
-              boost::lexical_cast<string>(evData->detail));
-          sig_val.push_back(0);
-          break;
-#if 0
-        case XI_KeyPress:
-          LOG(INFO) << "key down";
-          break;
-
-        case XI_KeyRelease:
-          printf("key up\n");
-          break;
-#endif
-      } // switch 
-    } // correct event
-
-    XFreeEventData(display, &ev.xcookie);
-
-  } // while
-  //usleep(1000);
-  return true;
-} // getMouse
-
-
 bool Mouse::draw(cv::Point2f ui_offset)
 {
   Node::draw(ui_offset);
@@ -233,7 +162,11 @@ bool Mouse::draw(cv::Point2f ui_offset)
  
   vector<string> sig_name;
   vector<float> sig_val;
-  
+
+  /// TBD it would be nice to be able to get the display
+  /// of the root window so all mouse moves can be in here
+  /// or optionally the display of the preview window, or 
+  /// gui window
   if (!getMouse(display, opcode, sig_name, sig_val))
     return false;      
  

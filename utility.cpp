@@ -23,6 +23,7 @@
 #include "utility.h"
 
 #include <boost/filesystem/operations.hpp>
+#include <boost/lexical_cast.hpp>
 
 #include "config.h"
 
@@ -632,7 +633,78 @@ bool matToXImage(cv::Mat& im, XImage* ximage, Window& win, Display& display, Scr
     }
     return true;
 }
- 
+
+/// get mouse device and x and y position and button clicks
+bool getMouse(
+    Display* display,
+    const int opcode,
+    std::vector<std::string>& sig_name,
+    std::vector<float>& sig_val
+    )
+{
+  if (!display) {
+    LOG(ERROR) << "no display";
+    return false;
+  }
+  //VLOG(1) << "mouse";
+
+  XEvent ev;
+  /* Get next event; blocks until an event occurs */
+  while(XPending(display)) {
+    XNextEvent(display, &ev);
+    if (ev.xcookie.type == GenericEvent &&
+        ev.xcookie.extension == opcode &&
+        XGetEventData(display, &ev.xcookie))
+      //if (XCheckWindowEvent(display, win, PointerMotionMask | ButtonPressMask | ButtonReleaseMask, &ev))
+    {
+      VLOG(1) <<" event found"; 
+      XIDeviceEvent* evData = (XIDeviceEvent*)(ev.xcookie.data);
+      int deviceid = evData->deviceid;
+
+      switch(ev.xcookie.evtype)
+      {
+        case XI_Motion:
+          VLOG(1) << "motion " << deviceid << " " << evData->event_x 
+              << " " << evData->event_y;
+          sig_name.push_back(boost::lexical_cast<std::string>(deviceid) + "_x");
+          sig_val.push_back(evData->event_x);
+          sig_name.push_back(boost::lexical_cast<std::string>(deviceid) + "_y");
+          sig_val.push_back(evData->event_y);
+          break;
+
+        case XI_ButtonPress:
+          VLOG(1) << deviceid << " button: " << evData->detail;
+          sig_name.push_back(boost::lexical_cast<std::string>(deviceid) + "_" + 
+              boost::lexical_cast<std::string>(evData->detail));
+          sig_val.push_back(1);
+          break;
+
+        case XI_ButtonRelease:
+          VLOG(1) << deviceid << " unclick";
+          sig_name.push_back(boost::lexical_cast<std::string>(deviceid) + "_" + 
+              boost::lexical_cast<std::string>(evData->detail));
+          sig_val.push_back(0);
+          break;
+#if 0
+        case XI_KeyPress:
+          LOG(INFO) << "key down";
+          break;
+
+        case XI_KeyRelease:
+          printf("key up\n");
+          break;
+#endif
+      } // switch 
+    } // correct event
+
+    XFreeEventData(display, &ev.xcookie);
+
+  } // while
+  //usleep(1000);
+  return true;
+} // getMouse
+
+
   /// resize the source tmp0 mat to fit inside tmp1 with borders
   /// tmp0 and tmp1 have to be initialized already
   /// TBD add another mode which chops off the edges so there
