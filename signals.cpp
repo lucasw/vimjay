@@ -229,6 +229,7 @@ namespace bm {
     setSignal("out", 0);
     setSigBuf("out", true);
     setSignal("ind", 0);
+    setSignal("fr", 0);
 
     setSignal("min", 0);
     setSignal("max", 0);
@@ -243,8 +244,18 @@ namespace bm {
     if (sigs.size() <= 0) return false;
 
     // TBD also provide a 0-1.0 input, take whichever is dirty here
-    int ind = (int)getSignal("ind");
-    float val = get(ind);
+    bool b1, ind_is_dirty, fr_is_dirty;
+    int ind = (int)getSignal("ind", b1, ind_is_dirty);
+    float fr = getSignal("fr", b1, fr_is_dirty);
+    float val = 0;
+    // want to keeping getting with last dirty input
+    if (fr_is_dirty || (!ind_is_dirty && last_get_was_fr)) {
+      val = getFr(fr);
+      last_get_was_fr = true;
+    } else {
+      val = getInd(ind);
+      last_get_was_fr = false;
+    }
     setSignal("out", val);
     return true;
   }
@@ -328,7 +339,7 @@ namespace bm {
       {
         // TBD make this optional
         int ind = int(getSignal("ind")); 
-        const float val = get(ind);
+        const float val = getInd(ind);
         const float y1 = vis.rows - vis.rows * (0.5 + (val  - middle) / scale);
         cv::line(vis, 
             cv::Point2f((float)(ind)/div,     y1),
@@ -371,17 +382,18 @@ namespace bm {
 
   // not the same as the inherited get on purpose
   // many callers per time step could be calling this
-  float SigBuffer::get(const float fr) 
+  float SigBuffer::getFr(const float fr) 
   {
-    const int ind = (int)(fr * (float)sigs.size());
+    int ind = (int)(fr * (float)sigs.size());
     //if (fr < 0) {
     //  ind = frames.size() - ind;
     //}
-    
-    return get(ind);
+   
+    // TBD set the signal ind to be this ind?
+    return getInd(ind);
   }
 
-  float SigBuffer::get(int& ind)
+  float SigBuffer::getInd(int& ind)
   {
     boost::mutex::scoped_lock l(sigs_mutex);
     if (sigs.size() < 1) {

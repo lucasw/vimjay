@@ -33,14 +33,15 @@ class SigBuffer : public ImageNode
   std::deque<float> sigs;
   bool setOut();
   boost::mutex sigs_mutex;
+  bool last_get_was_fr;
 
   public:
   SigBuffer(const std::string name);
   virtual bool update();
   virtual bool draw(cv::Point2f ui_offset);
   
-  float get(const float fr);
-  float get(int& ind);
+  float getFr(const float fr);
+  float getInd(int& ind);
 
   //bool writeSignals();
 };
