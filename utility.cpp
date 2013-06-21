@@ -634,6 +634,10 @@ bool matToXImage(cv::Mat& im, XImage* ximage, Window& win, Display& display, Scr
     return true;
 }
 
+/// TBD just make thread hang out and continually poll mouse,
+/// and have singleton object provide current mouse position within
+/// root or any window, and whether button is clicked or not.
+//
 /// get mouse device and x and y position and button clicks
 bool getMouse(
     Display* display,

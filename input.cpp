@@ -177,5 +177,29 @@ bool Mouse::draw(cv::Point2f ui_offset)
   return true;
 }
 
+#if 0
+MouseSignal::MouseSignal(const std::string name) : 
+  SigBuffer(name),
+  display(NULL) 
+{ 
+  sigs.resize( Config::inst()->im_width);
+}
+
+bool MouseSignal::draw( )
+{
+  
+  vector<string> sig_name;
+  vector<float> sig_val;
+  // TBD getMouse is completely unsuitable for this
+  if (!getMouse(display, opcode, sig_name, sig_val))
+    return false;      
+
+  
+ 
+  return true;
+}
+#endif
+
+
 } //  bm
 

@@ -43,6 +43,19 @@ class Mouse : public Node
   virtual bool draw(cv::Point2f ui_offset);
 };
 
+#if 0
+// draw a signal into a signal buffer
+class MouseSignal : public SigBuffer
+{
+  public: 
+  MouseSignal(const std::string name);
+  virtual bool update();
+
+  Display* display;
+  Window win;
+  int opcode;
+};
+#endif
 
 // Joystick
 // https://github.com/Grumbel/jstest-gtk/blob/master/src/joystick.cpp
