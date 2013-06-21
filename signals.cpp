@@ -82,6 +82,7 @@ namespace bm {
    
     // TBD use step for the random number seed
     int new_state = step;
+    // TBD step changes a lot, this may not be that ideal
     if (new_state != state) {
       LOG(INFO) << name << " " << state << " " << step << " new state " << 0xFFFFFFF - (int)state; 
       state = step; // 0xFFFFFFF - (int)step;
@@ -256,11 +257,11 @@ namespace bm {
     int max_size = getSignal("max_size");
     if (max_size < 0) max_size = 0;
 
-    {
+    // TBD optionally sample all the time
+    bool b1, con_is_dirty;
+    const float new_sig = getSignal("in", b1, con_is_dirty);
+    if (con_is_dirty) {
     boost::mutex::scoped_lock l(sigs_mutex);
-    const float new_sig = getSignal("in");
-    // TBD wait to be dirty, or sample signal anyway?  Control behaviour with parameter?
-    // probably should check to see if it is dirty
     sigs.push_back(new_sig);
 
     while (sigs.size() > max_size) sigs.pop_front(); 
@@ -271,7 +272,6 @@ namespace bm {
     setOut();
     //setSignal("out", sigs[0]);
 
-    setDirty();
 
     return true;
   }
