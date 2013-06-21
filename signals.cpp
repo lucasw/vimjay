@@ -227,6 +227,7 @@ namespace bm {
     setImage("out", tmp);
     setSignal("out", 0);
     setSigBuf("out", true);
+    setSignal("ind", 0);
 
     setSignal("min", 0);
     setSignal("max", 0);
@@ -234,6 +235,17 @@ namespace bm {
     setSignal("cur_size", 0);
   
     setSignal("scale_mode", 0, false, ROLL, 0, 2);
+  }
+
+  bool SigBuffer::setOut()
+  {
+    if (sigs.size() <= 0) return false;
+
+    // TBD also provide a 0-1.0 input, take whichever is dirty here
+    int ind = (int)getSignal("ind");
+    float val = get(ind);
+    setSignal("out", val);
+    return true;
   }
 
   bool SigBuffer::update()
@@ -244,6 +256,8 @@ namespace bm {
     int max_size = getSignal("max_size");
     if (max_size < 0) max_size = 0;
 
+    {
+    boost::mutex::scoped_lock l(sigs_mutex);
     const float new_sig = getSignal("in");
     // TBD wait to be dirty, or sample signal anyway?  Control behaviour with parameter?
     // probably should check to see if it is dirty
@@ -252,9 +266,10 @@ namespace bm {
     while (sigs.size() > max_size) sigs.pop_front(); 
     
     setSignal("cur_size", sigs.size());
-   
-    setSignal("out", sigs[0]);
+    }
 
+    setOut();
+    //setSignal("out", sigs[0]);
 
     setDirty();
 
@@ -307,15 +322,31 @@ namespace bm {
       VLOG(5) << sigs.size() << ":" << div << " " << inc << " " 
           << scale << " " << middle;
 
-      // TBD should we always redraw?  Should we 
+      // TBD should we always redraw?  Should we
+      { 
+
+      {
+        // TBD make this optional
+        int ind = int(getSignal("ind")); 
+        const float val = get(ind);
+        const float y1 = vis.rows - vis.rows * (0.5 + (val  - middle) / scale);
+        cv::line(vis, 
+            cv::Point2f((float)(ind)/div,     y1),
+            cv::Point2f((float)(ind)/div, vis.rows),
+            cv::Scalar(255,0,0), 
+            1);
+      }
+      
+      boost::mutex::scoped_lock l(sigs_mutex);
+
       for (int i = 0; i < (int)sigs.size() - inc; i += inc) {
         const float val = sigs[i];
         const float val2 = sigs[i + inc];
         if (val > new_max) new_max = val;
         if (val < new_min) new_min = val;
 
-        const float y1 = vis.rows * ( 0.5 + (val  - middle) / scale);
-        const float y2 = vis.rows * ( 0.5 + (val2 - middle) / scale);
+        const float y1 = vis.rows - vis.rows * ( 0.5 + (val  - middle) / scale);
+        const float y2 = vis.rows - vis.rows * ( 0.5 + (val2 - middle) / scale);
 
         cv::line( vis,
           cv::Point2f((float)(i)/div,     y1),
@@ -323,6 +354,7 @@ namespace bm {
           cv::Scalar(255,255,255), 
           1, 
           4);
+      }
       }
      
       // an external signal will override, but no way for manual input to override
@@ -349,8 +381,9 @@ namespace bm {
     return get(ind);
   }
 
-  float SigBuffer::get(int ind)
+  float SigBuffer::get(int& ind)
   {
+    boost::mutex::scoped_lock l(sigs_mutex);
     if (sigs.size() < 1) {
       VLOG(1) << "no sigs returning 0";
       return 0;

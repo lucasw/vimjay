@@ -31,6 +31,8 @@ class SigBuffer : public ImageNode
 {
   protected:
   std::deque<float> sigs;
+  bool setOut();
+  boost::mutex sigs_mutex;
 
   public:
   SigBuffer(const std::string name);
@@ -38,8 +40,7 @@ class SigBuffer : public ImageNode
   virtual bool draw(cv::Point2f ui_offset);
   
   float get(const float fr);
-  float get(int ind);
-
+  float get(int& ind);
 
   //bool writeSignals();
 };

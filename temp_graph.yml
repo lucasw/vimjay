@@ -1,11 +1,11 @@
 %YAML:1.0
-date: "Wed Jun 19 06:28:01 2013\n"
+date: "Thu Jun 20 21:38:10 2013\n"
 nodes:
    -
       ind: 0
       typeid: "bm::CamThing"
       name: cam_thing
-      loc: [ -5.1419268798828125e+02, -3.8816349029541016e+01 ]
+      loc: [ -1.7156050109863281e+02, 2.2285247802734375e+01 ]
       inputs:
          -
             type: 1
@@ -44,13 +44,13 @@ nodes:
          -
             type: 1
             name: x
-            value: 618.
+            value: 577.
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: y
-            value: 129.
+            value: 81.
             src_ind: -1
             src_port: ""
          -
@@ -91,13 +91,13 @@ nodes:
          -
             type: 1
             name: "2_x"
-            value: 1.7483013916015625e+02
+            value: 4.2260351562500000e+02
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: "2_y"
-            value: 1.3439862060546875e+02
+            value: 3.7811657714843750e+02
             src_ind: -1
             src_port: ""
          -
@@ -110,7 +110,7 @@ nodes:
       ind: 1
       typeid: "bm::Output"
       name: output
-      loc: [ 7.0492378234863281e+01, 4.8208526611328125e+02 ]
+      loc: [ 5.5790069580078125e+01, 4.6124899291992188e+02 ]
       inputs:
          -
             type: 1
@@ -149,13 +149,13 @@ nodes:
          -
             type: 1
             name: x
-            value: 852.
+            value: 22.
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: y
-            value: 0.
+            value: 14.
             src_ind: -1
             src_port: ""
          -
@@ -174,7 +174,7 @@ nodes:
       ind: 2
       typeid: "bm::Output"
       name: preview
-      loc: [ 4.8719677734375000e+02, -7.8278671264648438e+01 ]
+      loc: [ 3.7647576904296875e+02, 5.1562938690185547e+00 ]
       inputs:
          -
             type: 1
@@ -196,7 +196,7 @@ nodes:
          -
             type: 2
             name: in
-            src_ind: 9
+            src_ind: 3
             src_port: out
          -
             type: 1
@@ -213,13 +213,13 @@ nodes:
          -
             type: 1
             name: x
-            value: 71.
+            value: 18.
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: y
-            value: 22.
+            value: 412.
             src_ind: -1
             src_port: ""
          -
@@ -248,10 +248,9 @@ nodes:
             src_port: ""
    -
       ind: 3
-      typeid: "bm::ImageDir"
-      name: "bm::ImageDir"
-      loc: [ 2.8798742675781250e+02, 3.1482125854492188e+02 ]
-      dir: "../data"
+      typeid: "bm::SigBuffer"
+      name: "bm::SigBuffer"
+      loc: [ 2.1369972229003906e+02, 1.6965119934082031e+02 ]
       inputs:
          -
             type: 1
@@ -271,262 +270,75 @@ nodes:
             src_ind: -1
             src_port: ""
          -
-            type: 2
+            type: 1
             name: in
+            value: 5.9742343425750732e-01
+            src_ind: 4
+            src_port: value
+         -
+            type: 1
+            name: out
+            value: 3.9997786283493042e-01
             src_ind: -1
             src_port: ""
          -
-            type: 3
+            type: 4
             name: out
             src_ind: -1
             src_port: ""
          -
             type: 1
+            name: ind
+            value: 0.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: min
+            value: 2.0276072621345520e-01
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: max
+            value: 7.6362740993499756e-01
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
             name: max_size
-            value: 100.
+            value: 2000.
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: cur_size
-            value: 34.
+            value: 2000.
             src_ind: -1
             src_port: ""
          -
             type: 1
-            name: mode
+            name: scale_mode
             value: 0.
             src_ind: -1
             src_port: ""
          -
             type: 1
-            name: keep_aspect
-            value: 1.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 5
-            name: dir
-            src_ind: -1
-            src_port: ""
-         -
-            type: 5
-            name: name
+            name: middle
+            value: 4.8339232802391052e-01
             src_ind: -1
             src_port: ""
          -
             type: 1
-            name: ind
-            value: 3.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: load
-            value: 0.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: keep
-            value: 0.
+            name: scale
+            value: 5.6085735559463501e-01
             src_ind: -1
             src_port: ""
    -
       ind: 4
-      typeid: "bm::ImageDir"
-      name: "bm::ImageDir"
-      loc: [ 2.4156979370117188e+02, 1.7539513111114502e+00 ]
-      dir: "../data"
-      inputs:
-         -
-            type: 1
-            name: enable
-            value: 1.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: force_update
-            value: 0.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 2
-            name: out
-            src_ind: -1
-            src_port: ""
-         -
-            type: 2
-            name: in
-            src_ind: -1
-            src_port: ""
-         -
-            type: 3
-            name: out
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: max_size
-            value: 100.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: cur_size
-            value: 34.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: mode
-            value: 0.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: keep_aspect
-            value: 1.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 5
-            name: dir
-            src_ind: -1
-            src_port: ""
-         -
-            type: 5
-            name: name
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: load
-            value: 0.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: ind
-            value: 0.
-            src_ind: -1
-            src_port: ""
-   -
-      ind: 5
-      typeid: "bm::Video"
-      name: "bm::Video"
-      loc: [ 5.3053035736083984e+01, 1.6633364868164062e+02 ]
-      inputs:
-         -
-            type: 1
-            name: enable
-            value: 1.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: force_update
-            value: 0.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 2
-            name: out
-            src_ind: -1
-            src_port: ""
-         -
-            type: 2
-            name: in
-            src_ind: -1
-            src_port: ""
-         -
-            type: 3
-            name: out
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: max_size
-            value: 100.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: cur_size
-            value: 0.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: mode
-            value: 0.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 5
-            name: file
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: keep_aspect
-            value: 0.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: pos_msec
-            value: 13800.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: pos_frames
-            value: 345.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: avi_ratio
-            value: 3.9999999105930328e-02
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: frame_width
-            value: 640.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: frame_height
-            value: 360.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: fps
-            value: 25.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: frame_count
-            value: 345.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: ind
-            value: 3.5510490417480469e+01
-            src_ind: 8
-            src_port: out
-   -
-      ind: 6
       typeid: "bm::MiscSignal"
-      name: "bm::Video_sig"
-      loc: [ -3.0466101074218750e+02, 2.6386599731445312e+02 ]
+      name: "bm::SigBuffer_sig"
+      loc: [ -2.2309461593627930e+01, 2.4716835021972656e+02 ]
       inputs:
          -
             type: 1
@@ -543,7 +355,7 @@ nodes:
          -
             type: 1
             name: value
-            value: 1.0133299827575684e+01
+            value: 5.9742343425750732e-01
             src_ind: -1
             src_port: ""
          -
@@ -555,13 +367,13 @@ nodes:
          -
             type: 1
             name: max
-            value: 20.
+            value: 1.
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: step
-            value: 1.9966783002018929e-03
+            value: 9.9999997764825821e-03
             src_ind: -1
             src_port: ""
          -
@@ -573,172 +385,6 @@ nodes:
          -
             type: 1
             name: t
-            value: 1.4188055664062500e+04
-            src_ind: -1
-            src_port: ""
-   -
-      ind: 7
-      typeid: "bm::MiscSignal"
-      name: "bm::Video_sig"
-      loc: [ -2.0900187683105469e+02, 1.4091242980957031e+02 ]
-      inputs:
-         -
-            type: 1
-            name: enable
-            value: 1.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: force_update
-            value: 0.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: value
-            value: 1.4365140914916992e+01
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: min
-            value: 0.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: max
-            value: 3.4512164306640625e+02
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: step
-            value: -1.7593595385551453e-01
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: mode
-            value: 0.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: t
-            value: 2.1452710937500000e+04
-            src_ind: -1
-            src_port: ""
-   -
-      ind: 8
-      typeid: "bm::SigAdd"
-      name: "bm::SigAdd"
-      loc: [ -4.1013484954833984e+01, -6.1802455902099609e+01 ]
-      inputs:
-         -
-            type: 1
-            name: enable
-            value: 1.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: force_update
-            value: 0.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: out
-            value: 3.1918850708007812e+02
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: mula0
-            value: 3.0905520629882812e+02
-            src_ind: 7
-            src_port: value
-         -
-            type: 1
-            name: mulb0
-            value: 1.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: mula1
-            value: 1.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: mulb1
-            value: 1.0133299827575684e+01
-            src_ind: 6
-            src_port: value
-   -
-      ind: 9
-      typeid: "bm::SigBuffer"
-      name: "bm::SigBuffer"
-      loc: [ -2.6501431274414062e+02, -9.5102027893066406e+01 ]
-      inputs:
-         -
-            type: 1
-            name: enable
-            value: 1.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: force_update
-            value: 0.
-            src_ind: -1
-            src_port: ""
-         -
-            type: 2
-            name: out
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: in
-            value: 1.4365140914916992e+01
-            src_ind: 7
-            src_port: value
-         -
-            type: 1
-            name: out
-            value: 2.8149520874023438e+02
-            src_ind: -1
-            src_port: ""
-         -
-            type: 4
-            name: out
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: min
-            value: 1.7883855819702148e+01
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: max
-            value: 3.4512164306640625e+02
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: max_size
-            value: 2.2430983886718750e+03
-            src_ind: -1
-            src_port: ""
-         -
-            type: 1
-            name: cur_size
-            value: 2243.
+            value: 7.8148284912109375e+01
             src_ind: -1
             src_port: ""
