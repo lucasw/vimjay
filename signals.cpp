@@ -390,7 +390,11 @@ namespace bm {
     //}
    
     // TBD set the signal ind to be this ind?
-    return getInd(ind);
+    const float val = getInd(ind);
+    
+    setSignal("ind", ind);
+
+    return val;
   }
 
   float SigBuffer::getInd(int& ind)
