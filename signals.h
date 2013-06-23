@@ -46,6 +46,13 @@ class SigBuffer : public ImageNode
   //bool writeSignals();
 };
 
+class SigBufferXY : public SigBuffer
+{
+  public:
+  SigBufferXY(const std::string name);
+  virtual bool update();
+};
+
 class Trig : public Node
 {
   public:

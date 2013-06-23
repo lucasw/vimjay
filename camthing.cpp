@@ -209,6 +209,8 @@ class CamThing : public Output
         node = getNode<MiscSignal>(name, loc);
       } else if (type_id.compare("bm::SigBuffer") == 0) {
         node = getNode<SigBuffer>(name, loc);
+      } else if (type_id.compare("bm::SigBufferXY") == 0) {
+        node = getNode<SigBufferXY>(name, loc);
       } else if (type_id.compare("bm::Tap") == 0) {
         node = getNode<Tap>(name, loc);
       } else if (type_id.compare("bm::TapInd") == 0) {
@@ -499,6 +501,7 @@ class CamThing : public Output
     node_types.push_back("bm::Signal");
     node_types.push_back("bm::MiscSignal");
     node_types.push_back("bm::SigBuffer");
+    node_types.push_back("bm::SigBufferXY");
     node_types.push_back("bm::Tap");
     node_types.push_back("bm::TapInd");
     node_types.push_back("bm::Contour");

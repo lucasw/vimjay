@@ -214,7 +214,7 @@ namespace bm {
   }
   /////////////////////////////////////////////////////////////////////////////
 
-  /// It would be useful if all signals had buffers, it wouldn't cost 
+  /// TBD It would be useful if all signals had buffers, it wouldn't cost 
   /// much and would add a lot of convenience.  
   SigBuffer::SigBuffer(const std::string name) :
       ImageNode(name)
@@ -416,6 +416,37 @@ namespace bm {
   }
 
   
+SigBufferXY::SigBufferXY(const std::string name) :
+    SigBuffer(name)
+{
+  setSignal("set_ind", 0);
+}
+
+bool SigBufferXY::update()
+{
+  const bool rv = Node::update();
+  if (!rv) return false;
+
+  const int max_size = int(getSignal("max_size")); 
+  // TBD optionally sample all the time
+  bool b1, con_is_dirty_1, con_is_dirty_2;
+  int ind = getSignal("set_ind", b1, con_is_dirty_1);
+  const float new_sig = getSignal("in", b1, con_is_dirty_2);
+  if (con_is_dirty_1 || con_is_dirty_2) {
+    boost::mutex::scoped_lock l(sigs_mutex);
+    if (max_size != sigs.size()) 
+      sigs.resize(max_size, 0);
+
+    ind %= sigs.size();
+    if (sigs.size() > 0)
+      sigs[ind] = new_sig;
+
+  }
+
+  return true;
+}
+
+////////////////////////////////////////////////////////////////////////////// 
 // Sig add is similar in structure to the image multiply, 
 // so it has pairs of signal inputs that are each multiplied together
 // but then each set is summed
