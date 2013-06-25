@@ -299,11 +299,13 @@ namespace bm {
     if (!isDirty(this, 27)) return true;
       
     setSignal("ind", getSignal("ind"), false, ROLL, 0, sub_dirs.size()-1);
-    
+   
     const int ind = getSignal("ind");
-    const string cur_dir = sub_dirs[ind];
-    VLOG(1) << name << " " << cur_dir;
-    setString("cur_dir", cur_dir);
+    if (sub_dirs.size() > 0) {
+      const string cur_dir = sub_dirs[ind];
+      VLOG(1) << name << " " << cur_dir;
+      setString("cur_dir", cur_dir);
+    }
     
     {
       // the assumption is none of this takes very long, so no point
@@ -357,11 +359,11 @@ namespace bm {
     if (valid_key) return true;
 
     valid_key = true;
-    if (key == '[') {
+    if (key == 13) { // enter key
       // descend into currently selected directory, save the old one
       setString("old_dir", getString("dir"));
       setString("dir", getString("cur_dir"));
-    } else if (key == '\'') {
+    } else if (key == '\'') { 
       // go up to parent directory
 
       const std::string cur_dir = getString("dir");
@@ -378,7 +380,8 @@ namespace bm {
           parent_dir = parent_dir + "/..";
         }
       }
-
+      
+      try {
       const boost::filesystem::path image_path(parent_dir);
       // validate before setting
       if (is_directory(image_path)) {
@@ -390,7 +393,10 @@ namespace bm {
         LOG(INFO) << "parent dir is not valid (could be at root), not using " 
             << parent_dir;
       }
-
+      } catch (boost::filesystem3::filesystem_error& ex) {
+        LOG(ERROR) << "bad dir " << parent_dir << " "
+            << boost::diagnostic_information(ex);
+      }
 
     } else {
       valid_key = false;

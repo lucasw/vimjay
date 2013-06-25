@@ -1519,7 +1519,7 @@ class CamThing : public Output
       command_text.append(tmp.str());
       VLOG(4) << tmp.str() << " " << command_text;
     } else if (key >= 0) {
-      LOG(INFO) << "unused keypress:" << (char)key << " " << key;
+      LOG(INFO) << "unused keypress:" << key << " " << (char)key;
     }
 
     int max_count = 24;

@@ -18,7 +18,7 @@
 
 namespace bm {
 
-static int ind;
+static int default_ind;
 // TBD need threshold filter
 // resize (or build resizing into input/output
 // image directory loading- just a no input buffer after finished (need to resize every loaded image)
@@ -282,14 +282,14 @@ class Node : public Elem
   cv::Mat getBuffer(
     const std::string port,
     const float val,
-    int& actual_ind = ind
+    int& actual_ind = default_ind
     );
     //cv::Mat& image);
 
   cv::Mat getBuffer(
     const std::string port,
     const int val,
-    int& actual_ind = ind
+    int& actual_ind = default_ind
     );
     //cv::Mat& image);
 
@@ -384,8 +384,8 @@ class Buffer : public ImageNode
   virtual bool draw(cv::Point2f ui_offset);
   
   virtual cv::Mat get();
-  virtual cv::Mat get(const float fr, int& actual_ind=ind);
-  virtual cv::Mat get(int ind, int& actual_ind=ind);
+  virtual cv::Mat get(const float fr, int& actual_ind = default_ind);
+  virtual cv::Mat get(int ind, int& actual_ind = default_ind);
 
   // TBD get(int ind), negative ind index from last
   
@@ -423,8 +423,8 @@ class MuxBuffer : public Buffer
   public:
   MuxBuffer(const std::string name); 
  
-  virtual cv::Mat get(const float fr, int& actual_ind=ind);
-  virtual cv::Mat get(int ind, int& actual_ind= ind);
+  virtual cv::Mat get(const float fr, int& actual_ind = default_ind);
+  virtual cv::Mat get(int ind, int& actual_ind = default_ind);
 
   virtual bool update();
   virtual bool handleKey(int key);
