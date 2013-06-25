@@ -51,7 +51,7 @@ class BrowseDir : public ImageNode
   void runThread();
   
   boost::mutex dirs_mutex;
-  std::vector<std::string> image_names;
+  std::vector<std::string> file_names;
   std::vector<std::string> sub_dirs;
   std::vector<int> num_sub_images;
   std::vector<int> num_sub_dirs;

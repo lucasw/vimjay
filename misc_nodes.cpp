@@ -244,33 +244,33 @@ namespace bm {
       if (dir_valid && dir_dirty) {
         setSignal("is_updating", 1, true);
        
-        std::vector<string> image_names_tmp;
+        std::vector<string> file_names_tmp;
         // TBD make a struct for these
         std::vector<string> sub_dirs_tmp;
         std::vector<int> num_sub_images_tmp;
         std::vector<int> num_sub_dirs_tmp;
 
-        const bool rv2 = getImageNamesAndSubDirs( dir, image_names_tmp, sub_dirs_tmp );
+        const bool rv2 = getImageNamesAndSubDirs( dir, file_names_tmp, sub_dirs_tmp );
         if (rv2) {
 
         // filter out the unusable/bad directories
         for (int i = 0; i < sub_dirs_tmp.size(); i++) 
         {
-          std::vector<string> image_names2;
+          std::vector<string> file_names2;
           std::vector<string> sub_dirs2;
-          //const bool rv3 = getImageNamesAndSubDirs( dir + "/" + sub_dirs[i], image_names2, sub_dirs2);
+          //const bool rv3 = getImageNamesAndSubDirs( dir + "/" + sub_dirs[i], file_names2, sub_dirs2);
           const bool rv3 = getImageNamesAndSubDirs( 
-              sub_dirs_tmp[i], image_names2, sub_dirs2);
+              sub_dirs_tmp[i], file_names2, sub_dirs2);
           //if (!rv3) continue;
 
           num_sub_dirs_tmp.push_back(sub_dirs2.size());
-          num_sub_images_tmp.push_back(image_names2.size());
+          num_sub_images_tmp.push_back(file_names2.size());
         }
        
         {
           // lock the class variables while updating
           boost::mutex::scoped_lock l(dirs_mutex);
-          image_names = image_names_tmp;
+          file_names = file_names_tmp;
           sub_dirs = sub_dirs_tmp;
           num_sub_images = num_sub_images_tmp;
           num_sub_dirs = num_sub_dirs_tmp;
@@ -335,10 +335,10 @@ namespace bm {
 
       offset += sub_dirs.size()*10;
 
-      for (int i = 0; i < image_names.size(); i++) {
+      for (int i = 0; i < file_names.size(); i++) {
         stringstream dir_info;
 
-        dir_info << image_names[i];
+        dir_info << file_names[i];
        
         cv::Scalar col = cv::Scalar(200, 255, 170);
       
