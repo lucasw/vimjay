@@ -298,18 +298,21 @@ namespace bm {
     
     if (!isDirty(this, 27)) return true;
       
-    setSignal("ind", getSignal("ind"), false, ROLL, 0, 
-        file_names.size() + sub_dirs.size() - 1);
+    const int ind_size = file_names.size() + sub_dirs.size() - 1;
+    setSignal("ind", getSignal("ind"), false, ROLL, 0, ind_size);
    
     const int ind = getSignal("ind");
     const int file_ind = ind - sub_dirs.size();
     bool highlight_dir_not_file = true;
 
+    // TBD this is ugly
+    // index into directories
     if ((sub_dirs.size() > 0) && (ind < sub_dirs.size())) {
       const string cur_dir = sub_dirs[ind];
       VLOG(1) << name << " dir " << cur_dir;
       setString("cur_dir", cur_dir);
       highlight_dir_not_file = true;
+    // index into files
     } else if ((file_names.size() > 0) && (file_ind >= 0) && 
         (file_ind < file_names.size())) {
       const string cur_file = file_names[file_ind];
