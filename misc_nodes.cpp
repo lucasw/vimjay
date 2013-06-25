@@ -298,15 +298,26 @@ namespace bm {
     
     if (!isDirty(this, 27)) return true;
       
-    setSignal("ind", getSignal("ind"), false, ROLL, 0, sub_dirs.size()-1);
+    setSignal("ind", getSignal("ind"), false, ROLL, 0, 
+        file_names.size() + sub_dirs.size() - 1);
    
     const int ind = getSignal("ind");
-    if (sub_dirs.size() > 0) {
+    const int file_ind = ind - sub_dirs.size();
+    bool highlight_dir_not_file = true;
+
+    if ((sub_dirs.size() > 0) && (ind < sub_dirs.size())) {
       const string cur_dir = sub_dirs[ind];
-      VLOG(1) << name << " " << cur_dir;
+      VLOG(1) << name << " dir " << cur_dir;
       setString("cur_dir", cur_dir);
+      highlight_dir_not_file = true;
+    } else if ((file_names.size() > 0) && (file_ind >= 0) && 
+        (file_ind < file_names.size())) {
+      const string cur_file = file_names[file_ind];
+      VLOG(1) << name << " file " << cur_file;
+      setString("cur_file", cur_file);
+      highlight_dir_not_file = false;
     }
-    
+
     {
       // the assumption is none of this takes very long, so no point
       // in making copies of the dir vectors
@@ -341,7 +352,12 @@ namespace bm {
         dir_info << file_names[i];
        
         cv::Scalar col = cv::Scalar(200, 255, 170);
-      
+ 
+        if (i == file_ind) {
+          dir_info << " " << file_ind;
+          col = cv::Scalar(200, 200, 255);
+        }
+     
         cv::putText(out, dir_info.str(), cv::Point(10, 10 + 10*i + offset), 1, 1, col, 1);
       }
 
