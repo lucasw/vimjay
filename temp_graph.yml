@@ -1,11 +1,11 @@
 %YAML:1.0
-date: "Sun Jun 23 06:56:49 2013\n"
+date: "Mon Jun 24 12:32:09 2013\n"
 nodes:
    -
       ind: 0
       typeid: "bm::CamThing"
       name: cam_thing
-      loc: [ -1.6824452209472656e+02, 1.5292279243469238e+01 ]
+      loc: [ -2.7064053344726562e+02, 2.3355655670166016e+01 ]
       inputs:
          -
             type: 1
@@ -44,13 +44,13 @@ nodes:
          -
             type: 1
             name: x
-            value: 618.
+            value: 581.
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: y
-            value: 129.
+            value: 68.
             src_ind: -1
             src_port: ""
          -
@@ -68,7 +68,7 @@ nodes:
          -
             type: 1
             name: node_ind
-            value: 42.
+            value: 52.
             src_ind: -1
             src_port: ""
          -
@@ -88,11 +88,29 @@ nodes:
             value: 360.
             src_ind: -1
             src_port: ""
+         -
+            type: 1
+            name: "2_x"
+            value: 3.5917095947265625e+02
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: "2_y"
+            value: 5.9327850341796875e+01
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: "2_1"
+            value: 1.
+            src_ind: -1
+            src_port: ""
    -
       ind: 1
       typeid: "bm::Output"
       name: output
-      loc: [ 3.8647514343261719e+01, 4.4165863037109375e+02 ]
+      loc: [ 8.2006500244140625e+01, 4.3936175537109375e+02 ]
       inputs:
          -
             type: 1
@@ -131,13 +149,13 @@ nodes:
          -
             type: 1
             name: x
-            value: 24.
+            value: 0.
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: y
-            value: 0.
+            value: 52.
             src_ind: -1
             src_port: ""
          -
@@ -168,7 +186,7 @@ nodes:
       ind: 2
       typeid: "bm::Output"
       name: preview
-      loc: [ 4.4687265014648438e+02, -4.2585673332214355e+00 ]
+      loc: [ 4.9511431884765625e+02, -1.9743614196777344e+01 ]
       inputs:
          -
             type: 1
@@ -207,13 +225,13 @@ nodes:
          -
             type: 1
             name: x
-            value: 938.
+            value: 28.
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: y
-            value: 387.
+            value: 314.
             src_ind: -1
             src_port: ""
          -
@@ -244,7 +262,7 @@ nodes:
       ind: 3
       typeid: "bm::SigBufferXY"
       name: "bm::SigBufferXY"
-      loc: [ 2.6372857666015625e+02, 1.7829164123535156e+02 ]
+      loc: [ 2.7189852905273438e+02, 1.8846694946289062e+02 ]
       inputs:
          -
             type: 1
@@ -266,9 +284,9 @@ nodes:
          -
             type: 1
             name: in
-            value: 6.0578763484954834e-01
-            src_ind: 4
-            src_port: value
+            value: 1.3312832641601562e+02
+            src_ind: 6
+            src_port: "2_y"
          -
             type: 1
             name: out
@@ -301,15 +319,15 @@ nodes:
          -
             type: 1
             name: max
-            value: 7.9646527767181396e-01
+            value: 3.5289672851562500e+02
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: max_size
-            value: 2000.
-            src_ind: -1
-            src_port: ""
+            value: 640.
+            src_ind: 0
+            src_port: im_w
          -
             type: 1
             name: cur_size
@@ -325,19 +343,19 @@ nodes:
          -
             type: 1
             name: set_ind
-            value: 1.0991971435546875e+03
-            src_ind: 5
-            src_port: value
+            value: 5.4839959716796875e+02
+            src_ind: 6
+            src_port: "2_x"
          -
             type: 1
             name: middle
-            value: 3.9823263883590698e-01
+            value: 1.7644836425781250e+02
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: scale
-            value: 7.9646527767181396e-01
+            value: 3.5289672851562500e+02
             src_ind: -1
             src_port: ""
          -
@@ -350,7 +368,7 @@ nodes:
       ind: 4
       typeid: "bm::MiscSignal"
       name: "bm::SigBufferXY_sig"
-      loc: [ -1.0581204223632812e+02, 2.5787911987304688e+02 ]
+      loc: [ -9.5708648681640625e+01, 2.5829898071289062e+02 ]
       inputs:
          -
             type: 1
@@ -367,7 +385,7 @@ nodes:
          -
             type: 1
             name: value
-            value: 6.0578763484954834e-01
+            value: 7.4803948402404785e-01
             src_ind: -1
             src_port: ""
          -
@@ -397,14 +415,14 @@ nodes:
          -
             type: 1
             name: t
-            value: 3.2212307739257812e+02
+            value: 5.0832473754882812e+02
             src_ind: -1
             src_port: ""
    -
       ind: 5
       typeid: "bm::MiscSignal"
       name: "bm::SigBufferXY_sig"
-      loc: [ -2.7416012287139893e+00, 1.5107867431640625e+02 ]
+      loc: [ 2.2968259811401367e+01, 1.5831123352050781e+02 ]
       inputs:
          -
             type: 1
@@ -421,7 +439,7 @@ nodes:
          -
             type: 1
             name: value
-            value: 1.0991971435546875e+03
+            value: 3.1040512084960938e+02
             src_ind: -1
             src_port: ""
          -
@@ -433,7 +451,7 @@ nodes:
          -
             type: 1
             name: max
-            value: 2000.
+            value: 640.
             src_ind: 3
             src_port: max_size
          -
@@ -451,6 +469,42 @@ nodes:
          -
             type: 1
             name: t
-            value: 2.0911434936523438e+02
+            value: 3.8284231567382812e+02
+            src_ind: -1
+            src_port: ""
+   -
+      ind: 6
+      typeid: "bm::Mouse"
+      name: "bm::Mouse"
+      loc: [ 1.4082510948181152e+01, 1.7253980636596680e+01 ]
+      inputs:
+         -
+            type: 1
+            name: enable
+            value: 1.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: force_update
+            value: 0.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: "0_x"
+            value: 0.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: "2_x"
+            value: 5.4839959716796875e+02
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: "2_y"
+            value: 1.3312832641601562e+02
             src_ind: -1
             src_port: ""

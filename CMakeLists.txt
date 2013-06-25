@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.4.6)
 cmake_policy(SET CMP0003 OLD)
 
-set(PROJECT_NAME camthing)
+set(PROJECT_NAME vimjay)
 
 #set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/build )
 #set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/build )
