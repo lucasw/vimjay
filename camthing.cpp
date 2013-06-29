@@ -1632,6 +1632,8 @@ class CamThing : public Output
     }
 
     cv::Mat out_node_im = output_node->getImage("out").clone();
+
+    // draw the output in the background, dimmed down
     if (false) { //(!out_node_im.empty()) {
       cv::resize(out_node_im * (draw_nodes ? 0.2 : 1.0),  graph_ui,
           graph_ui.size(), 0, 0, cv::INTER_NEAREST );
@@ -1639,17 +1641,16 @@ class CamThing : public Output
     else
       graph_ui = cv::Scalar(0,0,0);
     
-    
-    if (!ImageNode::draw(ui_offset)) {
-    //if (!Node::draw(ui_offset)) {
-      LOG(ERROR) << "something wrong with node drawing";
-      return false;
-    }
-
-   
     VLOG(4) << "bg draw time" << t1.elapsed(); 
 
     if (draw_nodes) {
+      
+      // loop through and draw connectors
+      for (int i = 0; i < all_nodes.size(); i++) {
+        all_nodes[i]->highlight = (all_nodes[i] == selected_node);
+        all_nodes[i]->preDraw(ui_offset);
+      }
+
       if (source_node && selected_node) {
         cv::line( graph_ui, 
             source_node->loc + ui_offset, selected_node->loc + ui_offset, 
@@ -1695,14 +1696,20 @@ class CamThing : public Output
       
       // move nodes away from each other
       nodeRepell();
+      
+      if (!ImageNode::draw(ui_offset)) {
+        //if (!Node::draw(ui_offset)) {
+        LOG(ERROR) << "something wrong with node drawing";
+        return false;
+      }
 
-      // loop through
+      // now draw node boxes 
       for (int i = 0; i < all_nodes.size(); i++) {
         if (all_nodes[i] != this) {
-          all_nodes[i]->highlight = (all_nodes[i] == selected_node);
           all_nodes[i]->draw(ui_offset);
         }
       }
+
       VLOG(4) << "node draw time " << t1.elapsed();
     }
 

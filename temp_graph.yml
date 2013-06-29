@@ -1,11 +1,11 @@
 %YAML:1.0
-date: "Tue Jun 25 13:55:23 2013\n"
+date: "Tue Jun 25 14:02:55 2013\n"
 nodes:
    -
       ind: 0
       typeid: "bm::CamThing"
       name: cam_thing
-      loc: [ -1.9800392150878906e+02, 8.1455734252929688e+01 ]
+      loc: [ -198., 81. ]
       inputs:
          -
             type: 1
@@ -96,20 +96,20 @@ nodes:
          -
             type: 1
             name: "2_x"
-            value: 5.8329858398437500e+02
+            value: 5.2470361328125000e+02
             src_ind: -1
             src_port: ""
          -
             type: 1
             name: "2_y"
-            value: 1.1458673095703125e+02
+            value: 2.0911386108398438e+02
             src_ind: -1
             src_port: ""
    -
       ind: 1
       typeid: "bm::Output"
       name: output
-      loc: [ 6.9999984741210938e+01, 416. ]
+      loc: [ 9.9999992370605469e+01, 416. ]
       inputs:
          -
             type: 1
@@ -131,8 +131,8 @@ nodes:
          -
             type: 2
             name: in
-            src_ind: -1
-            src_port: ""
+            src_ind: 4
+            src_port: out
          -
             type: 1
             name: decor
@@ -169,11 +169,23 @@ nodes:
             value: 360.
             src_ind: -1
             src_port: ""
+         -
+            type: 1
+            name: im_w
+            value: 640.
+            src_ind: -1
+            src_port: ""
+         -
+            type: 1
+            name: im_h
+            value: 360.
+            src_ind: -1
+            src_port: ""
    -
       ind: 2
       typeid: "bm::Output"
       name: preview
-      loc: [ 3.4873870849609375e+02, 1.7303665161132812e+01 ]
+      loc: [ 3.6899993896484375e+02, 17. ]
       inputs:
          -
             type: 1
@@ -195,7 +207,7 @@ nodes:
          -
             type: 2
             name: in
-            src_ind: 3
+            src_ind: 4
             src_port: out
          -
             type: 1
@@ -249,7 +261,7 @@ nodes:
       ind: 3
       typeid: "bm::BrowseDir"
       name: "bm::BrowseDir"
-      loc: [ 2.8118569946289062e+02, 2.3489657592773438e+02 ]
+      loc: [ 2.9099978637695312e+02, 235. ]
       inputs:
          -
             type: 1
@@ -286,7 +298,7 @@ nodes:
          -
             type: 1
             name: ind
-            value: 1.
+            value: 2.
             src_ind: -1
             src_port: ""
          -
@@ -304,8 +316,8 @@ nodes:
       ind: 4
       typeid: "bm::ImageDir"
       name: "bm::ImageDir"
-      loc: [ 4.3658775329589844e+01, 6.3044490814208984e+01 ]
-      dir: "../data"
+      loc: [ 44., 63. ]
+      dir: ""
       inputs:
          -
             type: 1
@@ -343,7 +355,7 @@ nodes:
          -
             type: 1
             name: cur_size
-            value: 33.
+            value: 1.
             src_ind: -1
             src_port: ""
          -
@@ -361,8 +373,8 @@ nodes:
          -
             type: 5
             name: dir
-            src_ind: -1
-            src_port: ""
+            src_ind: 3
+            src_port: selection
          -
             type: 5
             name: name
@@ -370,13 +382,13 @@ nodes:
             src_port: ""
          -
             type: 1
-            name: load
+            name: ind
             value: 0.
             src_ind: -1
             src_port: ""
          -
             type: 1
-            name: ind
+            name: load
             value: 0.
             src_ind: -1
             src_port: ""

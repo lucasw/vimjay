@@ -279,6 +279,78 @@ namespace bm {
     return im;
   }
 
+  void Connector::preDraw(cv::Mat graph_ui, cv::Point2f ui_offset) 
+  {
+    // draw connecting line if there is a connector connected to this one
+    if (src) {
+    
+      cv::Scalar hash_col = hashStringColor(/*parent->name +*/ typeToString(type) + name);
+
+      cv::Scalar dst_hash_col = hashStringColor(/*src->parent->name +*/ typeToString(src->type) + src->name);
+
+      vector<cv::Point2f> control_points;
+      control_points.resize(4);
+      control_points[0] = src->parent->loc + src->loc + cv::Point2f(src->name.size()*10, -5);
+      control_points[3] = parent->loc + loc + cv::Point2f(0,-5);
+      
+
+      // TBD if control_points dirty
+      {
+        cv::Point2f diff = control_points[3] - control_points[0];
+        float dist = abs(diff.x) + abs(diff.y);
+
+        // don't want lines going
+        float y_off = 0;
+        if ((control_points[3].x < control_points[0].x) && 
+            (abs(control_points[3].y - control_points[0].y) < 100)) y_off = 100;
+
+        control_points[1] = control_points[0] + cv::Point2f(dist/3.0,  y_off);
+        control_points[2] = control_points[3] - cv::Point2f(dist/3.0, -y_off);
+        getBezier(control_points, connector_points, 32);
+      }
+
+      // draw dark outline around curve
+      for (int i = 1; i < connector_points.size(); i++) {
+        cv::Scalar outline_col = cv::Scalar(10,10,10);
+        if (highlight2) outline_col *= 4;
+        cv::line(graph_ui, 
+            connector_points[i-1] + ui_offset, 
+            connector_points[i] + ui_offset, 
+            outline_col, 4, CV_AA ); 
+      }
+
+      // now draw a colored interior curve
+      for (int i = 1; i < connector_points.size(); i++) {
+        cv::Scalar col;
+        const float fr = (float)i/(float)connector_points.size();
+
+        // colorize the lines so that starts and ends are distinct, and 
+        // use the hash colors so similarly named connector ends are similarly colored.
+        float wt1, wt2;
+        if (fr < 0.5) {
+          wt1 = 1.0 * (1.0-fr*fr);
+          wt2 = 0.0;
+        } else {
+          wt1 = ((1.0-fr)*(1.0-fr));
+          wt2 = 1.0 * (fr);
+        }
+        cv::Scalar hc2 = dst_hash_col * cv::Scalar(wt1);
+        //cv::Scalar hc1 = hash_col *( 1.0-(1.0-fr));
+        cv::Scalar hc1 = hash_col * cv::Scalar(wt2);
+        col = hc1 + hc2;
+        
+        if (highlight2) col *= 3;
+        if (src && src->highlight2) col *= 2;
+
+        cv::line(graph_ui, 
+          connector_points[i-1] + ui_offset, 
+          connector_points[i] + ui_offset, 
+          col, 2, CV_AA ); 
+      }
+    }
+
+  } // preDraw
+
   void Connector::draw(cv::Mat graph_ui, cv::Point2f ui_offset) 
   {
    
@@ -313,71 +385,7 @@ namespace bm {
           CV_FILLED);
     }
 
-    // draw connecting line if there is a connector connected to this one
-    if (src) {
-
-      cv::Scalar dst_hash_col = hashStringColor(/*src->parent->name +*/ typeToString(src->type) + src->name);
-
-      vector<cv::Point2f> control_points;
-      control_points.resize(4);
-      control_points[0] = src->parent->loc + src->loc + cv::Point2f(src->name.size()*10, -5);
-      control_points[3] = parent->loc + loc + cv::Point2f(0,-5);
-      
-
-      // TBD if control_points dirty
-      {
-        cv::Point2f diff = control_points[3] - control_points[0];
-        float dist = abs(diff.x) + abs(diff.y);
-
-        // don't want lines going
-        float y_off = 0;
-        if ((control_points[3].x < control_points[0].x) && 
-            (abs(control_points[3].y - control_points[0].y) < 100)) y_off = 100;
-
-        control_points[1] = control_points[0] + cv::Point2f(dist/3.0,  y_off);
-        control_points[2] = control_points[3] - cv::Point2f(dist/3.0, -y_off);
-        getBezier(control_points, connector_points, 32);
-      }
-
-      // draw dark outline around curve
-      for (int i = 1; i < connector_points.size(); i++) {
-        cv::Scalar outline_col = cv::Scalar(10,10,10);
-        if (highlight2) outline_col *= 4;
-        cv::line(graph_ui, 
-            connector_points[i-1] + ui_offset, 
-            connector_points[i] + ui_offset, 
-            outline_col, 4, CV_AA ); 
-      }
-      // now draw a colored interior curve
-      for (int i = 1; i < connector_points.size(); i++) {
-        cv::Scalar col;
-        const float fr = (float)i/(float)connector_points.size();
-
-        // colorize the lines so that starts and ends are distinct, and 
-        // use the hash colors so similarly named connector ends are similarly colored.
-        float wt1, wt2;
-        if (fr < 0.5) {
-          wt1 = 1.0 * (1.0-fr*fr);
-          wt2 = 0.0;
-        } else {
-          wt1 = ((1.0-fr)*(1.0-fr));
-          wt2 = 1.0 * (fr);
-        }
-        cv::Scalar hc2 = dst_hash_col * cv::Scalar(wt1);
-        //cv::Scalar hc1 = hash_col *( 1.0-(1.0-fr));
-        cv::Scalar hc1 = hash_col * cv::Scalar(wt2);
-        col = hc1 + hc2;
-        
-        if (highlight2) col *= 3;
-        if (src && src->highlight2) col *= 2;
-
-        cv::line(graph_ui, 
-          connector_points[i-1] + ui_offset, 
-          connector_points[i] + ui_offset, 
-          col, 2, CV_AA ); 
-      }
-    }
-
+  
     stringstream port_info;
     port_info << name;
 
@@ -554,9 +562,36 @@ namespace bm {
     #endif
   }
 
-  bool Node::draw(cv::Point2f ui_offset) 
+  bool Node::preDraw(cv::Point2f ui_offset)
   {
     posUpdate();
+
+    if (graph_ui.empty()) {  
+      LOG(ERROR) << "graph empty";
+      return false;
+    }
+
+    //int max_width = 0;
+    for (int i = 0; i < ports.size(); i++) {
+      // highlight the selected port
+      if (i == selected_port_ind) {
+        ports[i]->highlight = true;
+        if (highlight) { 
+          ports[i]->highlight2 = true;
+        } else {
+          ports[i]->highlight2 = false;
+        }
+      } else {
+        ports[i]->highlight = false;
+        ports[i]->highlight2 = false;
+      }
+      ports[i]->preDraw(graph_ui, ui_offset);
+    }
+  }
+
+  bool Node::draw(cv::Point2f ui_offset) 
+  {
+    //posUpdate();
   
     if (graph_ui.empty()) {  
       LOG(ERROR) << "graph empty";
@@ -612,22 +647,10 @@ namespace bm {
           vcol * 0.2, //cv::Scalar(255,0,0),
           2);
     
-    int max_width = 0;
+    //int max_width = 0;
     for (int i = 0; i < ports.size(); i++) {
-      // highlight the selected port
-      if (i == selected_port_ind) {
-        ports[i]->highlight = true;
-        if (highlight) { 
-          ports[i]->highlight2 = true;
-        } else {
-          ports[i]->highlight2 = false;
-        }
-      } else {
-        ports[i]->highlight = false;
-        ports[i]->highlight2 = false;
-      }
       ports[i]->draw(graph_ui, ui_offset);
-    }
+    } 
     }
 
     cv::putText(graph_ui, name, loc - cv::Point2f(9,  ht) + ui_offset, 1, 1, cv::Scalar(115,115,115));

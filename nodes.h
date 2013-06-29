@@ -153,6 +153,8 @@ class Connector : public Elem
   std::string getString() {return str; }
   cv::Mat getImage();
 
+  // draw background stuff first
+  void preDraw(cv::Mat, cv::Point2f ui_offset);
   void draw(cv::Mat, cv::Point2f ui_offset);
 
   // TBD could even have a float val or Mat here to store the last value
@@ -223,6 +225,7 @@ class Node : public Elem
   // process or not
   virtual bool update(); 
 
+  virtual bool preDraw(cv::Point2f ui_offset);
   virtual bool draw(cv::Point2f ui_offset); 
 
   virtual bool save(cv::FileStorage& fs);
