@@ -163,6 +163,8 @@ class CamThing : public Output
         node = getNode<OpticalFlow>(name, loc);
       } else if (type_id.compare("bm::Buffer") == 0) {
         node = getNode<Buffer>(name, loc);
+      } else if (type_id.compare("bm::SigToInd") == 0) {
+        node = getNode<SigToInd>(name, loc);
       } else if (type_id.compare("bm::Mux") == 0) {
         node = getNode<Mux>(name, loc);
       } else if (type_id.compare("bm::MuxBuffer") == 0) {
@@ -474,6 +476,7 @@ class CamThing : public Output
     node_types.push_back("bm::Video");
     node_types.push_back("bm::ScreenCap");
     node_types.push_back("bm::Rot2D");
+    node_types.push_back("bm::SigToInd");
     node_types.push_back("bm::Buffer");
     node_types.push_back("bm::Mux");
     node_types.push_back("bm::Laplacian");
@@ -1379,6 +1382,7 @@ class CamThing : public Output
       // TBD define path to data somewhere to be reused by all
       file_name << base_dir << t1 << "_" << name << ".yml";
       saveGraph(file_name.str());
+      saveGraph(FLAGS_graph);
       setString("graph_out", file_name.str());
     }
     //else if (key == 'a') {

@@ -99,6 +99,16 @@ class SigADSR : public ImageNode
   virtual bool update();
 };
 
+// TBD could be image node, light up
+// blocks to show which signal inputs
+// are active
+class SigToInd : public Signal
+{
+  public:
+  SigToInd(const std::string name);
+  virtual void init();
+  virtual bool update();
+};
 
 #ifdef NOT_YET_IMPLEMENTED
 /////////////////////////////////

@@ -1932,7 +1932,7 @@ namespace bm {
     //fs << "max_size" << max_size;
   }
   
-  //////////////////////////////////////////////////////////////////////////////////////////
+  /////////////////////////////////////////////////////////////////////////////
   Mux::Mux(const std::string name) : Buffer(name)
   {
   }
@@ -1955,6 +1955,10 @@ namespace bm {
     frames.resize(2);
     frames[0] = tmp;
     frames[1] = tmp;
+    // the input to a Mux is a Buffer ind, 
+    // TBD make a Signal that 
+    // takes any number of signal inputs and converts them to a ind output
+    // a change on the nth input will cause the output value to be n
   }
  
 

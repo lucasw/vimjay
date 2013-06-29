@@ -690,11 +690,11 @@ void SigADSR::init()
   const bool internally_set = true;
   // 5 different phase:
   // low, attack, decay, sustain, release
-  setSignal(sig + "_phase", 0, internally_set, ROLL, LOW, RELEASE);
+  setSignal("phase_" + sig, 0, internally_set, ROLL, LOW, RELEASE);
   // by setting internally set to false, it is possible 
   // to keep updating the output and TBD it should stop once LOW
   // is reached
-  setSignal(sig + "_out", 0); //, internally_set);
+  setSignal("out_" + sig, 0); //, internally_set);
 }
 
 bool SigADSR::update()
@@ -724,15 +724,18 @@ bool SigADSR::update()
     
     float val = getSignal(sig);
     if (val < 0) val = 0;
+    
+    const string sig_out = "out_" + sig;
+    const string sig_phase = "phase_" + sig;
 
-    float val_out = getSignal(sig + "_out");
-    const int phase = getSignal(sig + "_phase");
+    float val_out = getSignal(sig_out);
+    const int phase = getSignal(sig_phase);
     
     if (phase == LOW) {
-      setSignal(sig + "_out",  0.0); 
+      setSignal(sig_out,  0.0); 
       
       if (val > 0.0) {
-        setSignal(sig + "_phase", ATTACK);
+        setSignal(sig_phase, ATTACK);
       }
 
     } else if (phase == ATTACK) {
@@ -745,39 +748,39 @@ bool SigADSR::update()
       // by that?
       // if (val_out > peak * val) { 
       if (val <= 0) {
-        setSignal(sig + "_phase", RELEASE);
+        setSignal(sig_phase, RELEASE);
       } else if (val_out > peak) { 
         val_out = peak;
-        setSignal(sig + "_phase", DECAY);
+        setSignal(sig_phase, DECAY);
       }
-      setSignal(sig + "_out", val_out);
+      setSignal(sig_out, val_out);
      
     } else if (phase == DECAY) {
 
       val_out -= decay * peak; 
       if (val <= 0) {
-        setSignal(sig + "_phase", RELEASE);
+        setSignal(sig_phase, RELEASE);
       } else if (val_out < sustain) { 
         val_out = sustain;
-        setSignal(sig + "_phase", SUSTAIN);
+        setSignal(sig_phase, SUSTAIN);
       }
-      setSignal(sig + "_out", val_out);
+      setSignal(sig_out, val_out);
 
     } else if (phase == SUSTAIN) {
 
       if (val <= 0) {
-        setSignal(sig + "_phase", RELEASE);
+        setSignal(sig_phase, RELEASE);
       }
-      setSignal(sig + "_out", sustain);
+      setSignal(sig_out, sustain);
 
     } else if (phase == RELEASE) {
 
       val_out -= release * peak; 
       if (val_out < 0) { // TBD have low value also 
         val_out = 0;
-        setSignal(sig + "_phase", LOW);
+        setSignal(sig_phase, LOW);
       }
-      setSignal(sig + "_out", val_out);
+      setSignal(sig_out, val_out);
 
     }
 
@@ -786,6 +789,70 @@ bool SigADSR::update()
   return true;
 } // sig adsr update
 
+
+SigToInd::SigToInd(const std::string name) :
+    Signal(name)
+{
+
+}
+
+void SigToInd::init()
+{
+  Signal::init();
+  
+  setSignal("out", 0);
+  setSignal("in0", 0);
+  setSignal("in1", 0);
+  setSignal("in2", 0);
+  setSignal("in3", 0);
+}
+
+bool getMatchingPorts(
+    const std::string pattern,
+    const int port_type,
+    vector<boost::shared_ptr<Connector> >& ports, 
+    vector<boost::shared_ptr<Connector> >& matched_ports
+    )
+{
+  for (int i = 0; i < ports.size(); i++) {
+    if (ports[i]->type != port_type) continue; 
+    const string port = ports[i]->name;
+    if (port.substr(0,2) != pattern) {
+      VLOG(5) << /*name <<*/ " : " << port.substr(0,3) << " " << port;
+      continue;
+    }
+    
+    matched_ports.push_back(ports[i]);
+  }
+
+  return true;
+}
+
+bool SigToInd::update()
+{
+  if (!Node::update()) return false;
+  
+  if (!isDirty(this, 35)) {
+    return true;
+  }
+
+  vector<boost::shared_ptr<Connector> > matched_ports;
+  getMatchingPorts("in", SIGNAL, ports, matched_ports);
+
+  for (size_t i = 0; i < matched_ports.size(); i++) {
+    bool b1 = false;
+    bool is_dirty = false; 
+    // kind of needless, could get the signal straight from the port
+    float val = getSignal(matched_ports[i]->name, b1, is_dirty);
+    if ((val > 0) && is_dirty) {
+      setSignal("out", i);
+      LOG(INFO) << name << " " << matched_ports[i]->name << " " << val;
+      break;
+    }
+  }
+
+  return true;
+} // SigToInd::update
 
 } //bm
 
