@@ -140,6 +140,7 @@ Mouse::Mouse(const std::string name) :
 
 void Mouse::init()
 {
+  Node::init();
   setSignal("0_x", 0);
 
   //event_thread = boost::thread(&Mouse::runThread, this);

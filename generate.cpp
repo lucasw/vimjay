@@ -40,6 +40,7 @@ Bezier::Bezier(const std::string name) : ImageNode(name)
 
 void Bezier::init()
 {
+  ImageNode::init();
   // TBD take x and y sigbuf inputs
   setSignal("x0",10);
   setSignal("y0",10);
@@ -95,6 +96,7 @@ Circle::Circle(const std::string name) : ImageNode(name)
 
 void Circle::init()
 {
+  ImageNode::init();
   // hard to enforce these all being the same size
   //setSigBuf("x");
   //setSigBuf("y");
@@ -150,6 +152,7 @@ Noise::Noise(const std::string name) : ImageNode(name)
 
 void Noise::init()
 {
+  ImageNode::init();
   setSignal("mean", 10);
   setSignal("stddev", 128);
 }
@@ -182,6 +185,7 @@ SimplexNoise::SimplexNoise(const std::string name) : ImageNode(name)
 
 void SimplexNoise::init()
 {
+  ImageNode::init();
   //setSignal("octaves", 2, false, SATURATE, 1, 20);
   //setSignal("persist", 0.8);//, false, SATURATE, 0.0, 1.0);
   

@@ -440,6 +440,7 @@ namespace bm {
  
   void Node::init()
   {
+    Elem::init();
     vcol = cv::Scalar(200,200,200);
     
     // Can't call these in the constructor because
@@ -1325,6 +1326,7 @@ namespace bm {
 
   void ImageNode::init() 
   {
+    Node::init();
     vcol = cv::Scalar(255,0,255);
   
     // create the entry for out
@@ -1650,6 +1652,7 @@ namespace bm {
 
   void Buffer::init()
   {
+    ImageNode::init();
     //this->max_size = max_size;
     //LOG(INFO) << "new buffer max_size " << this->max_size;
     vcol = cv::Scalar(200, 30, 200);
@@ -1925,6 +1928,7 @@ namespace bm {
 
   void Mux::init()
   {
+    Buffer::init();
     //this->max_size = max_size;
     //LOG(INFO) << "new buffer max_size " << this->max_size;
     vcol = cv::Scalar(200, 30, 200);
@@ -2039,6 +2043,7 @@ namespace bm {
 
   void MuxBuffer::init()
   {
+    Buffer::init();
     vcol = cv::Scalar(200, 30, 200);
 
     setSignal("ind",0);

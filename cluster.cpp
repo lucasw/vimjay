@@ -42,6 +42,8 @@ Cluster::Cluster(const std::string name) : ImageNode(name)
 
 void Cluster::init()
 {
+  ImageNode::init();
+
   cv::Mat tmp;
   setImage("in", tmp);
 	setSignal("dist_weight", 0.5);
@@ -296,6 +298,7 @@ PyrMean::PyrMean(const std::string name) : ImageNode(name)
 
 void PyrMean::init()
 {
+  ImageNode::init();
   cv::Mat in;
   setImage("in", in);
   setSignal("sp", 30);

@@ -55,6 +55,7 @@ namespace bm {
 
   void MiscSignal::init()
   {
+    Signal::init();
     vcol = cv::Scalar(0,90,255);
     setSignal("mode", 7, false, ROLL, 0, 7);
   }
@@ -194,6 +195,7 @@ namespace bm {
 
   void Trig::init()
   {
+    Node::init();
     setSignal("in", 0);
     setSignal("radius", 1);
     setSignal("rad_deg_nrm", 2);
@@ -231,6 +233,7 @@ namespace bm {
 
   void SigBuffer::init()
   {
+    ImageNode::init();
     setSignal("in", 0);
     
     VLOG(1) <<" setting out image";
@@ -435,6 +438,7 @@ SigBufferXY::SigBufferXY(const std::string name) :
 
 void SigBufferXY::init()
 {
+  SigBuffer::init();
   setSignal("set_ind", 0);
 }
 
@@ -473,6 +477,7 @@ SigAdd::SigAdd(const std::string name) :
 
 void SigAdd::init()
 {
+  Node::init();
   setSignal("out",0, true);
   setSignal("mula0",1);
   setSignal("mulb0",0);
@@ -566,6 +571,7 @@ SigGreater::SigGreater(const std::string name) :
 
 void SigGreater::init()
 {
+  Signal::init();
   // TBD more convenient to output all possibilities, or provide mode selector?
   setSignal("greater",0, true);
   setSignal("less",0, true);
@@ -603,6 +609,7 @@ Mean::Mean(const std::string name) :
 
 void Mean::init()
 {
+  Signal::init();
   // TBD more convenient to output all possibilities, or provide mode selector?
   cv::Mat tmp;
   setImage("in",tmp);

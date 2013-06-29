@@ -50,6 +50,7 @@ namespace bm {
 
   void ImageDir::init()
   {
+    Buffer::init();
     setSignal("mode", 0, false, ROLL, 0, 4);
     setSignal("keep_aspect", 1, false, ROLL, 0, 2);
     setString("dir", "../data"); //"temp");
@@ -226,6 +227,7 @@ namespace bm {
 
   void BrowseDir::init()
   {
+    ImageNode::init();
     setString("dir", "../data"); //"temp");
     setString("old_dir", "../data"); //"temp");
     setString("selection","", true);

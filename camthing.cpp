@@ -463,6 +463,14 @@ class CamThing : public Output
       //paused(true)
       paused(true) // TBD control from config file?
   {
+  }
+
+  virtual void init()
+  { 
+    // TBD use a different methodology that doesn't require
+    // calling the base function?
+    Output::init();
+
     count = 0;
 
     //node_types.push_back("bm::CamThing"); // TBD can't spawn a new one of these

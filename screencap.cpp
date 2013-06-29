@@ -40,6 +40,7 @@ ScreenCap::ScreenCap(const std::string name) :
 
 void ScreenCap::init()
 {
+  ImageNode::init();
   display = XOpenDisplay(NULL); // Open first (-best) display
   if (display == NULL) {
     LOG(ERROR) << name << " bad display";

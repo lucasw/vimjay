@@ -41,6 +41,7 @@ namespace bm {
 
   void OpenGL::init()
   {
+    ImageNode::init();
     cv::Mat out; setImage("in",out);
 
     setSignal("x1", -1.0);

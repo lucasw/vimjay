@@ -36,6 +36,7 @@ Contour::Contour(const std::string name) : ImageNode(name)
 
 void Contour::init()
 {
+  ImageNode::init();
   cv::Mat tmp;
   setImage("in", tmp);
   setSignal("epsilon" , 3.0);
@@ -83,6 +84,7 @@ ContourFlip::ContourFlip(const std::string name) : Contour(name)
 
 void ContourFlip::init()
 {
+  Contour::init();
   cv::Mat tmp;
   setImage("to_flip", tmp); // the image that will be flipped based on the contour found in in
   //setSignal("mode",0);

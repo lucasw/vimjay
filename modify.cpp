@@ -82,6 +82,7 @@ namespace bm {
 
   void Rot2D::init()
   {
+    ImageNode::init();
     cv::Mat tmp;
     setImage("in",tmp);
     setSignal("phi", 0);
@@ -260,6 +261,7 @@ namespace bm {
   
   void Kaleid::init()
   {
+    ImageNode::init();
     cv::Mat tmp;
     setImage("in",tmp);
 
@@ -460,6 +462,7 @@ namespace bm {
 
   void Undistort::init()
   {
+    ImageNode::init();
     cv::Mat tmp;
     setImage("in",tmp);
     setSignal("fx", Config::inst()->im_width/2 );
@@ -518,6 +521,7 @@ namespace bm {
 
   void Remap::init()
   {
+    ImageNode::init();
     cv::Mat in;
     setImage("in", in);
     cv::Mat offx;
@@ -636,6 +640,7 @@ namespace bm {
 
   void Tap::init()
   {
+    ImageNode::init();
     vcol = cv::Scalar(100, 30, 250);
 
     getSignal("value");
@@ -683,6 +688,7 @@ namespace bm {
 
   void TapInd::init()
   {
+    Tap::init();
 
   }
 
@@ -721,6 +727,7 @@ namespace bm {
 
   void Add::init()
   {
+    ImageNode::init();
     cv::Mat tmp;
     setImage("add0", tmp);
     setSignal("add0", 1.0);
@@ -862,6 +869,7 @@ namespace bm {
 
   void AddMasked::init()
   {
+    ImageNode::init();
     cv::Mat tmp;
     setImage("add0", tmp);
     //setSignal("add0", 1.0);
@@ -916,6 +924,7 @@ namespace bm {
 
   void Multiply::init()
   {
+    ImageNode::init();
     cv::Mat tmp;
     setImage("mul0", tmp);
     setImage("mul1", tmp);
@@ -990,6 +999,7 @@ namespace bm {
   
   void AbsDiff::init()
   {
+    ImageNode::init();
     cv::Mat tmp;
     setImage("diff0", tmp);
     setImage("diff1", tmp);
@@ -1032,6 +1042,7 @@ namespace bm {
 
   void Max::init()
   {
+    ImageNode::init();
     cv::Mat tmp;
     setImage("in0", tmp);
     setImage("in1", tmp);
@@ -1085,6 +1096,7 @@ namespace bm {
 
   void Greater::init()
   {
+    ImageNode::init();
     cv::Mat tmp;
     setImage("in0", tmp);
     setImage("in1", tmp);
@@ -1148,6 +1160,7 @@ CMP_NE
 
   void Resize::init()
   {
+    ImageNode::init();
     cv::Mat tmp;
     setImage("in", tmp);
     setSignal("fx", 0.2);
@@ -1215,6 +1228,7 @@ CMP_NE
 
   void Flip::init()
   {
+    ImageNode::init();
     cv::Mat tmp;
     setImage("in", tmp);
     setSignal("flip_code", 0);
@@ -1267,6 +1281,7 @@ CMP_NE
 
   void EqualizeHist::init()
   {
+    ImageNode::init();
     cv::Mat tmp;
     setImage("in", tmp);
     setImage("mask", tmp);
@@ -1351,6 +1366,7 @@ CMP_NE
 
   void Normalize::init()
   {
+    ImageNode::init();
     cv::Mat tmp;
     setImage("in", tmp);
     setImage("mask", tmp);
@@ -1410,6 +1426,7 @@ CMP_NE
 
   void Distance::init()
   {
+    ImageNode::init();
     cv::Mat tmp;
     setImage("in", tmp);
     setSignal("threshold", 128);
@@ -1487,6 +1504,7 @@ CMP_NE
 
   void DistanceFlip::init()
   {
+    ImageNode::init();
     cv::Mat tmp;
     setImage("to_flip", tmp);
     setImage("to_threshold", tmp);
@@ -1633,6 +1651,7 @@ CMP_NE
 
   void FloodFill::init()
   {
+    ImageNode::init();
     cv::Mat tmp;
     setImage("in", tmp);
     setSignal("r", 128, false, SATURATE, 0, 255);

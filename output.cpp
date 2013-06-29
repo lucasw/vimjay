@@ -37,6 +37,7 @@ namespace bm {
 
   void Output::init()
   {
+    ImageNode::init();
     cv::Mat out; setImage("in",out);
 
     setSignal("decor",1, false, SATURATE, 0, 1); // TBD make a SATURATE_INTEGER, or ROLL_INTEGER type?

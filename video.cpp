@@ -54,6 +54,7 @@ namespace bm {
 
   void VideoCapture::init() 
   {
+    ImageNode::init();
   }
 
   ///////////////////////////////////////////////
@@ -66,6 +67,7 @@ namespace bm {
 
   void Video::init()
   {
+    Buffer::init();
     is_thread_dirty = false;
     setSignal("mode", 0, false, ROLL, 0, 4);
     //setString("file", "../data/test.mp4");
@@ -169,6 +171,7 @@ namespace bm {
 
   void Webcam::init()
   {
+    VideoCapture::init();
     is_thread_dirty = false;
     setSignal("mode", 0, false, ROLL, 0, 4);
 

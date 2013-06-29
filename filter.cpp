@@ -41,6 +41,7 @@ FilterFIR::FilterFIR(const std::string name) : Buffer(name)
 
 void FilterFIR::init()
 {
+  Buffer::init();
 
 }
 
@@ -135,6 +136,7 @@ Sobel::Sobel(const std::string name) : ImageNode(name)
 
 void Sobel::init()
 {
+  ImageNode::init();
   cv::Mat tmp;
   setImage("in", tmp);
   setSignal("xorder",1);
@@ -199,6 +201,7 @@ Laplacian::Laplacian(const std::string name) : ImageNode(name)
 
 void Laplacian::init()
 {
+  ImageNode::init();
   cv::Mat tmp;
   setImage("in", tmp);
   // TBD Signals should allo min max parameters to be set
@@ -247,6 +250,7 @@ bool Laplacian::update()
 
   void GaussianBlur::init()
   {
+    ImageNode::init();
     cv::Mat tmp;
     setImage("in", tmp);
     setSignal("k_width",2);
@@ -286,6 +290,7 @@ bool Laplacian::update()
 
   void MedianBlur::init()
   {
+    ImageNode::init();
     cv::Mat tmp;
     setImage("in", tmp);
     setSignal("k_size", 2, false, SATURATE, 1, 10);
@@ -322,6 +327,7 @@ bool Laplacian::update()
 
   void BilateralFilter::init()
   {
+    ImageNode::init();
     cv::Mat tmp;
     setImage("in", tmp);
     setSignal("d", 2, false, SATURATE, -1, 10);
@@ -426,6 +432,7 @@ MorphologyEx::MorphologyEx(const std::string name) : ImageNode(name)
 
 void MorphologyEx::init()
 {
+  ImageNode::init();
   cv::Mat in;
   setImage("in", in);
   setSignal("element", 0, false, ROLL, 0, 2);
@@ -506,6 +513,7 @@ bool MorphologyEx::update()
 
   void OpticalFlow::init()
   {
+    Remap::init();
     cv::Mat tmp, tmp2, tmp3, tmp4;
     //setImage("prev", tmp);
     setImage("next", tmp2);
