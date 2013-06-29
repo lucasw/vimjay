@@ -220,7 +220,7 @@ namespace bm {
   {
     setString("dir", "../data"); //"temp");
     setString("old_dir", "../data"); //"temp");
-    setString("cur_dir","", true);
+    setString("selection","", true);
     setSignal("ind", 0, false, ROLL, 0, 0);
     //cv::Mat tmp;
     //setImage("out", tmp);
@@ -308,16 +308,16 @@ namespace bm {
     // TBD this is ugly
     // index into directories
     if ((sub_dirs.size() > 0) && (ind < sub_dirs.size())) {
-      const string cur_dir = sub_dirs[ind];
-      VLOG(1) << name << " dir " << cur_dir;
-      setString("cur_dir", cur_dir);
+      //const string cur_dir = sub_dirs[ind];
+      //VLOG(1) << name << " dir " << cur_dir;
+      //setString("cur_dir", cur_dir);
       highlight_dir_not_file = true;
     // index into files
     } else if ((file_names.size() > 0) && (file_ind >= 0) && 
         (file_ind < file_names.size())) {
-      const string cur_file = file_names[file_ind];
-      VLOG(1) << name << " file " << cur_file;
-      setString("cur_file", cur_file);
+      //const string cur_file = file_names[file_ind];
+      //VLOG(1) << name << " file " << cur_file;
+      //setString("cur_file", cur_file);
       highlight_dir_not_file = false;
     }
 

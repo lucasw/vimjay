@@ -369,6 +369,7 @@ class CamThing : public Output
     fs << "]";
     fs.release();
     
+    setString("graph_file", graph_file);
 
     return true;
   }
@@ -530,7 +531,7 @@ class CamThing : public Output
     //node->name = name;
     //node->loc = loc;
 
-    if ((FLAGS_graph == "") || (!loadGraph(FLAGS_graph))) {
+    if ((FLAGS_graph == "") || (!loadGraph(FLAGS_graph))) { 
       defaultGraph();
     } 
     output_node->setSignal("force_update", 1.0);
@@ -570,7 +571,7 @@ class CamThing : public Output
   bool loadGraph(const std::string graph_file)
   {
     boost::mutex::scoped_lock l(update_mutex);
-    LOG(INFO) << "loading graph " << graph_file;
+    LOG(INFO) << "loading graph " << CLTXT << graph_file << CLNRM;
     
     FileStorage fs; 
     fs.open(graph_file, FileStorage::READ);
@@ -697,6 +698,8 @@ class CamThing : public Output
     LOG(INFO) << all_nodes.size() << " nodes total";
     //output_node->loc = cv::Point2f(graph.cols - (test_im.cols/2+100), 20);
    
+    setString("graph_file", graph_file);
+
     return true;
 
   } // loadGraph
@@ -1349,7 +1352,7 @@ class CamThing : public Output
       // TBD load the graph in a temp object, then copy it over only if successful
       LOG(INFO) << "reloading graph file";
       clearNodes();
-      loadGraph(FLAGS_graph);
+      loadGraph(getString("graph_file"));
       output_node->setSignal("force_update", 1.0);
     }
     else if( key == 'w' ) {
