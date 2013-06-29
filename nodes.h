@@ -85,6 +85,7 @@ class Elem : public boost::enable_shared_from_this<Elem>
   //Elem();
   Elem(const std::string name);
   
+  virtual ~Elem();
   virtual void init() {}
 
   // the coordinates of the element

@@ -106,6 +106,7 @@ class CamThing : public Output
       node->loc = loc;
       node->graph_ui = graph_ui;
 
+      // instead of push_back create a gateway function to handle it
       all_nodes.push_back(node);
 
       return node;
@@ -121,6 +122,8 @@ class CamThing : public Output
       boost::shared_ptr<Node> node = boost::shared_ptr<Node>();
 
       if (type_id.compare("bm::CamThing") == 0) {
+        LOG(INFO) << "already have cam thing";
+        /*
         // TBD  don't allow duplicate camthings
         VLOG(1) << CLVAL << all_nodes.size()  << CLTX2 
           << " new node " << CLNRM << name << " " << loc.x << ", " << loc.y;
@@ -130,6 +133,7 @@ class CamThing : public Output
         node->loc = loc;
         node->name = name;
         all_nodes.push_back(node);
+        */
       } else if (type_id.compare("bm::ScreenCap") == 0) {
         node = getNode<ScreenCap>(name, loc);
         node->update();
@@ -239,34 +243,24 @@ class CamThing : public Output
         node = getNode<Trig>(name, loc);
       } else if (type_id.compare("bm::Mouse") == 0) {
         node = getNode<Mouse>(name, loc);
+        
+        if (input_node) {
+          LOG(WARNING) << "TBD multiple mouse nodes";
+        }
 
         input_node = dynamic_pointer_cast<Mouse>(node);
+        // TBD need better way to share X11 info- Config probably
         if (output_node) {
           input_node->display = output_node->display;
           input_node->win = output_node->win;
           input_node->opcode = output_node->opcode;
+        } else {
+          LOG(ERROR) << "output_node should always exist by this point";
         }
       } else if (type_id.compare("bm::Output") == 0) {
-        node = getNode<Output>(name, loc);
-        
-        if (!output_node) {
-          output_node = boost::dynamic_pointer_cast<Output>(node);
-          output_node->setup(Config::inst()->out_width, Config::inst()->out_height);
-
-          // TBD need better way to share X11 info- Config probably
-          if (input_node) {
-            input_node->display = output_node->display;
-            input_node->win = output_node->win;
-            input_node->opcode = output_node->opcode;
-          }
-        } else { 
-          // must be preview node
-          // TBD this makes it so the order in the yaml file determines the difference
-          // between output and preview, may want to fix that
-          preview_node = dynamic_pointer_cast<Output>(node);
-          preview_node->setup(Config::inst()->out_width, Config::inst()->out_height);
-
-        }
+        LOG(INFO) << "already created output and preview nodes, ignoring " 
+            << CLTXT << name << CLNRM;
+        //node = getNode<Output>(name, loc);
 
       } else {
         LOG(WARNING) << "unknown node type " << type_id << ", assuming imageNode";
@@ -289,10 +283,11 @@ class CamThing : public Output
     //}
 
     // this should cause all smart pointers to delete
-    all_nodes.resize(0);
-    
-    output_node  = boost::shared_ptr<Output>();
-    preview_node = boost::shared_ptr<Output>();
+    // 3 is the magic number of nodes that persist across
+    // loading: cam_thing, preview, and output
+    all_nodes.resize(3);
+       
+    // dangling reference to input_node
     input_node   = boost::shared_ptr<Mouse>();
   }
 
@@ -542,9 +537,35 @@ class CamThing : public Output
     graph_ui = cv::Mat(cv::Size(Config::inst()->ui_width, Config::inst()->ui_height), MAT_FORMAT_C3);
     graph_ui = cv::Scalar(0);
 
-    //node->name = name;
-    //node->loc = loc;
+    
+    // camthing always exists, put it in first
+    loc = cv::Point2f(400,400);
+    
+    boost::shared_ptr<Node> node =
+        dynamic_pointer_cast<Node>(shared_from_this());
+    // TBD these shouldn't be necessary
+    
+    all_nodes.push_back(node);
 
+    //// make default output nodes
+    {
+    boost::shared_ptr<Node> node1 = getNode<Output>("output", loc);
+    {
+      output_node = dynamic_pointer_cast<Output>(node1);
+      output_node->setup(Config::inst()->out_width, Config::inst()->out_height);
+      // force output node to move window
+      output_node->draw(ui_offset);
+      output_node->setSignal("x", Config::inst()->ui_width + 28);
+      output_node->draw(ui_offset);
+    }
+    
+    boost::shared_ptr<Node> node2 = getNode<Output>("preview", loc);
+    {
+      preview_node = dynamic_pointer_cast<Output>(node2);
+      preview_node->setup(Config::inst()->out_width, Config::inst()->out_height);
+    }
+    }
+  
     if ((FLAGS_graph == "") || (!loadGraph(FLAGS_graph))) { 
       defaultGraph();
     } 
@@ -576,9 +597,9 @@ class CamThing : public Output
       XISelectEvents(display, win, &eventmask, 1);
     }
 
-
     update_nodes = true;
     node_thread = boost::thread(&CamThing::updateThread, this);
+
   }
 
   ///////////////////////////////////////////////
@@ -623,7 +644,9 @@ class CamThing : public Output
         (dynamic_pointer_cast<ImageNode> (node))->setImage("out", test_im);
       }
       node->load(it);
-
+      
+      // TBD do nothing special for these
+      /*
       if (name == "output") {
         output_node = dynamic_pointer_cast<Output>(node);
         cv::Mat tmp;
@@ -632,6 +655,7 @@ class CamThing : public Output
       if (name == "preview") {
         preview_node = dynamic_pointer_cast<Output>(node);
       }
+      */
 
       VLOG(1) << type_id << " " << CLTXT << name << CLVAL << " " 
           << node  << " " << loc << " " << enable << CLNRM;
@@ -725,18 +749,12 @@ class CamThing : public Output
     boost::mutex::scoped_lock l(update_mutex);
 
     LOG(INFO) << "creating default graph";
-    boost::shared_ptr<Node> node;
     
     // create a bunch of nodes of every type (TBD make sure new ones get added)
     // but don't connect them, user will do that
-    
-    cv::Point2f loc = cv::Point2f(400,400);
-    
-    node = dynamic_pointer_cast<Node>(shared_from_this());
-    // TBD these shouldn't be necessary
-    node->loc = loc;
-    node->name = "cam_thing";
-    all_nodes.push_back(node);
+   
+
+
 
     // Images
     // inputs
@@ -814,36 +832,7 @@ class CamThing : public Output
     
     node = getNode<SigBuffer>("sig_buf", loc);
 #endif    
-    node = getNode<Output>("output", loc);
-    
-    {
-      output_node = dynamic_pointer_cast<Output>(node);
-      output_node->setup(Config::inst()->out_width, Config::inst()->out_height);
-      // TBD put in config file?
-      {
-        // force output node to move window
-        output_node->draw(ui_offset);
-        output_node->setSignal("x", Config::inst()->ui_width + 28);
-        output_node->draw(ui_offset);
-      }
-
-      // TBD need better way to share X11 info- Config probably
-      if (input_node) {
-        input_node->display = output_node->display;
-        input_node->win = output_node->win;
-        input_node->opcode = output_node->opcode;
-      }
-    }
-    
-    node = getNode<Output>("preview", loc);
-
-    {
-      preview_node = dynamic_pointer_cast<Output>(node);
-      preview_node->setup(Config::inst()->out_width, Config::inst()->out_height);
-      // TBD put in config file?
-    }
-
-  #if MAKE_FIR
+      #if MAKE_FIR
     {
       FilterFIR* fir = getNode<FilterFIR>("fir_filter", cv::Point2(500,150));
 
@@ -1370,8 +1359,13 @@ class CamThing : public Output
       // TBD load the graph in a temp object, then copy it over only if successful
       LOG(INFO) << "reloading graph file";
       clearNodes();
-      loadGraph(getString("graph_file"));
-      output_node->setSignal("force_update", 1.0);
+      if (!loadGraph(getString("graph_file"))) defaultGraph();
+      
+      // TBD is there a cleaner place to put this?  In a function
+      // at least?  Duplicates with init(), but we don't want to
+      // call init here
+      update_nodes = true;
+      node_thread = boost::thread(&CamThing::updateThread, this);
     }
     else if( key == 'w' ) {
       // TBD increment a count so old saves aren't overwritten?
@@ -1757,6 +1751,10 @@ class CamThing : public Output
   {
       for (int i = 0; i < all_nodes.size(); i++) {
         for (int j = i+1; j < all_nodes.size(); j++) {
+          if (all_nodes[i] == all_nodes[j]) {
+            LOG(ERROR) << "duplicate nodes in all_nodes " <<
+                all_nodes[i]->name << " " << all_nodes[j]->name;
+          }
           //if (i == j) continue;
           
           // loc is actually the upper left corner of the
@@ -1783,7 +1781,9 @@ class CamThing : public Output
           if (dist < max_dist1) {
             // avoid singularities
             if (dist == 0) { 
-              all_nodes[i]->acc += cv::Point2f(1.0,0); 
+              LOG(WARNING) << all_nodes[i]->name << " " << i << ", " 
+                  << all_nodes[j]->name << " " << j << " " << dist; 
+              all_nodes[i]->acc += cv::Point2f(i/100.0,j/100.0); 
               continue;
             }
             VLOG(3) << i << " " << j << " " << dist; 
@@ -1855,7 +1855,7 @@ int main( int argc, char* argv[] )
   }
   struct input_event ev;
   #else 
-  boost::shared_ptr<bm::CamThing> cam_thing(new bm::CamThing("camthing"));
+  boost::shared_ptr<bm::CamThing> cam_thing(new bm::CamThing("cam_thing"));
   cam_thing->init();
   #endif
 

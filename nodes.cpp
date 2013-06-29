@@ -84,6 +84,12 @@ namespace bm {
     highlight2(false),
     do_update(false)
   {
+    VLOG(1) << name << " constructor";
+  }
+  
+  Elem::~Elem()
+  {
+    VLOG(1) << name << " destructor";
   }
 
   bool Elem::isDirty(const void* caller, const int ind, const bool clear) 

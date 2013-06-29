@@ -35,6 +35,10 @@ namespace bm {
       int im_width;
       int im_height;
       cv::Size getImSize() { return cv::Size(im_width, im_height); }
+
+      // TBD register every Elem creation from the constructor
+      // and destructor- debug if clearNodes is doing right thing,
+      // or specific node deletion 
   };
 
 };
