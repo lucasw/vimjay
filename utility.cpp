@@ -118,7 +118,7 @@ namespace bm {
     }
   }
 
-  std::string getId(Node* ptr) 
+  std::string getId(boost::shared_ptr<Node> ptr) 
   {
     int status; 
     return (abi::__cxa_demangle(typeid(*ptr).name(), 0, 0, &status));

@@ -5,6 +5,7 @@
 #include <sstream>
 #include <stdio.h>
 
+#include <boost/enable_shared_from_this.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/thread.hpp>
 #include <boost/thread/mutex.hpp>
@@ -69,8 +70,10 @@ enum satType {
   ROLL
 };
 
+//class Elem;
+
 // base class for Connector and Node to inherit from
-class Elem
+class Elem : public boost::enable_shared_from_this<Elem>
 {
   protected:
 
@@ -134,12 +137,15 @@ class Connector : public Elem
   // the Connector that is sourcing this one, if any
   // this is somewhat odd, the connector is in three parts- the src, this, and dst
   // and each has a copy of the data
-  boost::shared_ptr<Connector> src;
+  // TBD most traversals are toward src rather than dst, maybe
+  // weak and shared ptrs should be swapped
+  boost::weak_ptr<Connector> src;
   // TBD this needs to be a vector that is easy to remove elements
   // from in any way
   boost::shared_ptr<Connector> dst;
 
-  Node* parent;
+  // TBD this needs to be a weak_ptr?
+  boost::weak_ptr<Node> parent;
 
   // src types
   conType type;
@@ -238,13 +244,13 @@ class Node : public Elem
   bool getInputPort(
       const conType type, 
       const std::string port,
-      boost::shared_ptr<Connector> con,
+      boost::shared_ptr<Connector>& con,
       std::string& src_port);
 
   void setInputPort(
       const conType type, 
       const std::string port,
-      Node* src_node = NULL,
+      boost::shared_ptr<Node> src_node = boost::shared_ptr<Node>(),
       const std::string src_port = "" 
     );
 

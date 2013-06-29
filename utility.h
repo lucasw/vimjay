@@ -34,7 +34,7 @@ bool getImageNamesAndSubDirs(const std::string dir, std::vector<std::string>& im
 
 void initRemaps(cv::Mat& base_x, cv::Mat& base_y);
 
-std::string getId(Node* ptr);
+std::string getId(boost::shared_ptr<Node> ptr);
 
 std::string logMat(const cv::Mat& m);
 

@@ -139,9 +139,6 @@ namespace bm {
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////
   Connector::Connector(const std::string name) : 
     Elem(name),
-    parent(NULL),
-    src(NULL),
-    dst(NULL),
     //writeable(true),
     type(SIGNAL),
     saturate(0),
@@ -158,34 +155,34 @@ namespace bm {
     if (!Elem::update()) return false;
 
     // This will frequently already have been run
-    if (parent) {
+    if (parent.lock()) {
 
-      VLOG(3) << parent->name << " : " << name << " update";
-      parent->update();
+      VLOG(3) << parent.lock()->name << " : " << name << " update";
+      parent.lock()->update();
     }
 
-    if (src) { // && src->parent) {
-      src->update();
+    if (src.lock()) { // && src.lock()->parent) {
+      src.lock()->update();
     //}
 
     //if (dst) {
-      //src->parent->update(); // why not src->update()?
+      //src->parent.lock()->update(); // why not src->update()?
       // TBD this overlooks the case where the connector has changed inputs
       // but with a src that isn't dirty- the image still needs to propagate,
       // w:w
       // here does the dirtiness properly belong to force the im = src->im or value = src->value?
-      if ( src->isDirty(this, 0) 
+      if ( src.lock()->isDirty(this, 0) 
       //if ( isDirty(this, 0) 
-         //||  (src->parent == parent)  // TBD special loop detection, TBD not sure why this is necessary
+         //||  (src.lock()->parent == parent)  // TBD special loop detection, TBD not sure why this is necessary
         ) { 
 
-        VLOG(3) << "src " << src->name << " : " << name << " update";
+        VLOG(3) << "src " << src.lock()->name << " : " << name << " update";
         
         // the reason we can't forward propagate is that dst isn't a vector 
         // of every dst, there is a one to many possible mapping
-        if (type == SIGNAL) setSignal(src->getSignal());
-        else if (type == IMAGE) setImage(src->getImage());
-        else if (type == STRING) setString(src->getString());
+        if (type == SIGNAL) setSignal(src.lock()->getSignal());
+        else if (type == IMAGE) setImage(src.lock()->getImage());
+        else if (type == STRING) setString(src.lock()->getString());
         
         //if (type == SIGNAL) dst->setSignal(value);
         //else if (type == IMAGE) dst->setImage(im);
@@ -201,7 +198,7 @@ namespace bm {
         //internally_set = false;
 
         // TBD get copy of sigbuf
-        // sigbuf = src->sigbuf;
+        // sigbuf = src.lock()->sigbuf;
         
       }
     } 
@@ -211,7 +208,7 @@ namespace bm {
   bool Connector::setDirty()
   {
     Elem::setDirty();
-    if (!internally_set && parent) parent->setDirty();
+    if (!internally_set && parent.lock()) parent.lock()->setDirty();
   }
 
   std::string typeToString(const conType type)
@@ -282,16 +279,17 @@ namespace bm {
   void Connector::preDraw(cv::Mat graph_ui, cv::Point2f ui_offset) 
   {
     // draw connecting line if there is a connector connected to this one
-    if (src) {
+    boost::shared_ptr<Connector> tmp_src = src.lock();
+    if (tmp_src) {
     
-      cv::Scalar hash_col = hashStringColor(/*parent->name +*/ typeToString(type) + name);
+      cv::Scalar hash_col = hashStringColor(/*parent.lock()->name +*/ typeToString(type) + name);
 
-      cv::Scalar dst_hash_col = hashStringColor(/*src->parent->name +*/ typeToString(src->type) + src->name);
+      cv::Scalar dst_hash_col = hashStringColor(/*src.lock()->parent.lock()->name +*/ typeToString(tmp_src->type) + tmp_src->name);
 
       vector<cv::Point2f> control_points;
       control_points.resize(4);
-      control_points[0] = src->parent->loc + src->loc + cv::Point2f(src->name.size()*10, -5);
-      control_points[3] = parent->loc + loc + cv::Point2f(0,-5);
+      control_points[0] = tmp_src->parent.lock()->loc + tmp_src->loc + cv::Point2f(tmp_src->name.size()*10, -5);
+      control_points[3] = parent.lock()->loc + loc + cv::Point2f(0,-5);
       
 
       // TBD if control_points dirty
@@ -340,7 +338,7 @@ namespace bm {
         col = hc1 + hc2;
         
         if (highlight2) col *= 3;
-        if (src && src->highlight2) col *= 2;
+        if (tmp_src && tmp_src->highlight2) col *= 2;
 
         cv::line(graph_ui, 
           connector_points[i-1] + ui_offset, 
@@ -354,7 +352,7 @@ namespace bm {
   void Connector::draw(cv::Mat graph_ui, cv::Point2f ui_offset) 
   {
    
-    cv::Scalar hash_col = hashStringColor(/*parent->name +*/ typeToString(type) + name);
+    cv::Scalar hash_col = hashStringColor(/*parent.lock()->name +*/ typeToString(type) + name);
     VLOG(6) << name << " " << hash_col[0] << " " << hash_col[1] << " " << hash_col[2];
 
     bool is_dirty = isDirty(this, 1);
@@ -366,21 +364,24 @@ namespace bm {
     if (highlight) {
       rect_col = cv::Scalar(140, 80, 80);
     }
+
+    const cv::Point2f ploc = parent.lock()->loc;
+
     cv::rectangle(graph_ui, 
-          parent->loc + loc + ui_offset, 
-          parent->loc + loc + ui_offset + cv::Point2f(name.size()*10, -10), 
+          ploc + loc + ui_offset, 
+          ploc + loc + ui_offset + cv::Point2f(name.size()*10, -10), 
           rect_col,
           CV_FILLED);
 
     cv::rectangle(graph_ui, 
-          parent->loc + loc + ui_offset, 
-          parent->loc + loc + ui_offset + cv::Point2f(name.size()*10, -10), 
+          ploc + loc + ui_offset, 
+          ploc + loc + ui_offset + cv::Point2f(name.size()*10, -10), 
           hash_col);
     
     if (internally_set) {
       cv::rectangle(graph_ui,
-          parent->loc + loc + ui_offset,
-          parent->loc + loc + ui_offset - cv::Point2f(5, 5),
+          ploc + loc + ui_offset,
+          ploc + loc + ui_offset - cv::Point2f(5, 5),
           cv::Scalar(255, 255, 255),
           CV_FILLED);
     }
@@ -409,7 +410,7 @@ namespace bm {
    
     port_info << " " << description;
 
-    cv::putText(graph_ui, port_info.str(), parent->loc + loc + ui_offset, 1, 1, col, 1);
+    cv::putText(graph_ui, port_info.str(), ploc + loc + ui_offset, 1, 1, col, 1);
   }
 
   // Buffers are different than Signals and Images because it isn't desirable to copy them (though maybe the overhead isn't that bad for small buffers?)
@@ -470,7 +471,7 @@ namespace bm {
       
       // TBD ports[i]->setUpdate() could provide both of these
       ports[i]->do_update = true;
-      if (ports[i]->src) ports[i]->src->parent->setUpdate();
+      if (ports[i]->src.lock()) ports[i]->src.lock()->parent.lock()->setUpdate();
     }
     
     return true;
@@ -693,14 +694,15 @@ namespace bm {
 
   bool Node::save(cv::FileStorage& fs)
   {
-    string type = getId(this);
+    const string type = getId(dynamic_pointer_cast<Node>(shared_from_this()));
 
     fs << "typeid" << type;
     //fs << "typeid_mangled" << typeid(*all_nodes[i]).name();
     fs << "name" << name; 
     fs << "loc" << loc; 
     //fs << "vcol" << p->vcol  ; 
-    
+   
+    return true;
   }
   
   bool Node::handleKey(int key)
@@ -771,7 +773,7 @@ namespace bm {
 
   //////////////////////////////////////////////////////
 
-  int Node::getIndFromPointer(Connector* con)
+  int Node::getIndFromPointer(boost::shared_ptr<Connector> con)
   {
     if (con == NULL) return -1;
     
@@ -848,10 +850,10 @@ namespace bm {
   bool Node::getInputPort(
       const conType type, 
       const string port,
-      Connector*& con,
+      boost::shared_ptr<Connector>& con,
       string& src_port)
   {
-    con = NULL;
+    con = boost::shared_ptr<Connector>((Connector*)NULL);
   
     boost::mutex::scoped_lock l(port_mutex);
 
@@ -861,8 +863,8 @@ namespace bm {
       
       if ((ports[i]->type == type) && (ports[i]->name == port)) {
         con = ports[i];
-        if (ports[i]->src) {
-          src_port = ports[i]->src->name;
+        if (ports[i]->src.lock()) {
+          src_port = ports[i]->src.lock()->name;
         }
         return true;        
       }
@@ -880,20 +882,25 @@ namespace bm {
   void Node::setInputPort(
       const conType type, 
       const std::string port,
-      Node* src_node,
+      boost::shared_ptr<Node> src_node,
       const std::string src_port
     )
   {
     // this will create the entries if they don't alread exists, without clobbering their values
     // TBD only do this if requested?
    
-    Connector* con;
+    boost::shared_ptr<Connector> con;
     string existing_port;
     bool con_exists = getInputPort(type, port, con, existing_port);
     if (!con_exists) {
       // TBD may not always want to create the connector if it doesn't exist
-      con = new Connector(port);
-      con->parent = this;
+      con = boost::shared_ptr<Connector>(new Connector(port));
+      // it seems like this present the opportunity for a memory leak
+      // but as long as deleting con the deletes con->parent it ought to be
+      // okay.  Could shared_ptr get confused by circular references?
+      // 
+      con->parent = boost::weak_ptr<Node>(
+          dynamic_pointer_cast<Node>(shared_from_this()));
       con->type = type;
     
       boost::mutex::scoped_lock l(port_mutex);
@@ -901,29 +908,30 @@ namespace bm {
 
       ports.push_back(con);
 
-      VLOG(2) << "\"" << con->parent->name << "\"" <<CLTX2 << " new connector " << CLNRM 
+      VLOG(2) << "\"" << con->parent.lock()->name << "\"" 
+          << CLTX2 << " new connector " << CLNRM 
           << type << " \"" << con->name << "\"";
     }
       
     // blank out existing dst connection if it exists, it will be overwritten next
-    if (con->src) {
-      con->src->dst = NULL;
+    if (con->src.lock()) {
+      con->src.lock()->dst = boost::shared_ptr<Connector>();
     }
 
-    Connector* src_con = NULL;
+    boost::shared_ptr<Connector> src_con = boost::shared_ptr<Connector>();
     if (src_node) {
       bool src_con_exists = src_node->getInputPort(type, src_port, src_con, existing_port);
       if (!src_con_exists) {
         // this will produce connectors in the src parent in an order determined
         // by the way the earlier connections use them as ports
-        src_con = new Connector(src_port);
+        src_con = boost::shared_ptr<Connector>(new Connector(src_port));
         src_con->parent = src_node;
         src_con->type = type;
         boost::mutex::scoped_lock l(src_node->port_mutex);
         src_con->loc = cv::Point2f(0, src_node->ports.size()*10);
         
         src_node->ports.push_back(src_con);
-        VLOG(2) << con->parent->name << " new src Connector " << type << " " << src_con->name; 
+        VLOG(2) << con->parent.lock()->name << " new src Connector " << type << " " << src_con->name; 
 
       }
       
@@ -950,11 +958,11 @@ namespace bm {
     //  type = "ImageOut";
     //}
 
-    Connector* con = NULL;
+    boost::shared_ptr<Connector> con = boost::shared_ptr<Connector>();
     string src_port;
     if (!getInputPort(IMAGE, port, con, src_port)) {
       // create it since it doesn't exist
-      setInputPort(IMAGE, port, NULL, "");
+      setInputPort(IMAGE, port); //, NULL, "");
       // now get it again TBD actually check rv
       if (!getInputPort(IMAGE, port, con, src_port)) {
         LOG(ERROR) << "still can't get port";
@@ -986,7 +994,7 @@ namespace bm {
       )
   {
     
-    Connector* con = NULL;
+    boost::shared_ptr<Connector> con = boost::shared_ptr<Connector>(NULL);
     string src_port;
     if (!getInputPort(SIGNAL, port, con, src_port)) {
       
@@ -1036,7 +1044,7 @@ namespace bm {
   
     valid = false;
     cv::Mat im;
-    Connector* con = NULL;
+    boost::shared_ptr<Connector> con = boost::shared_ptr<Connector>(NULL);
     string src_port = "";
 
     if (!getInputPort(IMAGE, port, con, src_port)) {
@@ -1078,7 +1086,7 @@ namespace bm {
     valid = false; 
     // first try non-input node map
     
-    Connector* con = NULL;
+    boost::shared_ptr<Connector> con = boost::shared_ptr<Connector>(NULL);
     string src_port;
     // then look at input nodes
     if (!getInputPort(SIGNAL, port, con, src_port)) {
@@ -1107,7 +1115,7 @@ namespace bm {
   {
    
     cv::Mat tmp;
-    Connector* con;
+    boost::shared_ptr<Connector> con;
     string src_port;
     if (!getInputPort(BUFFER, port, con, src_port)) {
       return tmp;
@@ -1118,10 +1126,10 @@ namespace bm {
 
     tmp = con->getImage();
 
-    if ((!con->src) || (!con->src->parent)) return tmp;
+    if ((!con->src.lock) || (!con->src.lock()->parent)) return tmp;
 
     //Buffer* im_in = con->getBuffer(); // dynamic_cast<Buffer*> (con->src->parent);
-    Buffer* im_in = dynamic_cast<Buffer*> (con->src->parent);
+    Buffer* im_in = dynamic_cast<Buffer*> (con->src.lock()->parent);
 
     if (!im_in) {
       LOG(ERROR) << name  << " " << port << " improper Buffer connected";
@@ -1143,7 +1151,7 @@ namespace bm {
   {
     
     cv::Mat tmp;
-    Connector* con;
+    boost::shared_ptr<Connector> con;
     string src_port;
     if (!getInputPort(BUFFER, port, con, src_port)) {
       return tmp;
@@ -1154,9 +1162,9 @@ namespace bm {
 
     tmp = con->getImage();
 
-    if ((!con->src) || (!con->src->parent)) return tmp;
+    if ((!con->src.lock()) || (!con->src.lock()->parent)) return tmp;
 
-    Buffer* im_in = dynamic_cast<Buffer*> (con->src->parent);
+    Buffer* im_in = dynamic_cast<Buffer*> (con->src.lock()->parent);
 
     if (!im_in) {
       LOG(ERROR) << name  << " " << port << " improper Buffer connected";
@@ -1183,7 +1191,7 @@ namespace bm {
     const bool internally_set
   )
   {
-    Connector* con = NULL;
+    boost::shared_ptr<Connector> con = boost::shared_ptr<Connector>(NULL);
     string src_port;
     if (!getInputPort(BUFFER, port, con, src_port)) {
       // create it since it doesn't exist
@@ -1208,7 +1216,7 @@ namespace bm {
     const bool internally_set
   )
   {
-    Connector* con = NULL;
+    boost::shared_ptr<Connector> con = boost::shared_ptr<Connector>(NULL);
     string src_port;
     if (!getInputPort(SIGBUF, port, con, src_port)) {
       // create it since it doesn't exist
@@ -1231,7 +1239,7 @@ namespace bm {
 
   bool Node::setString(const std::string port, const std::string new_str, const bool internally_set)
   {
-    Connector* con = NULL;
+    boost::shared_ptr<Connector> con = boost::shared_ptr<Connector>(NULL);
     string src_port;
     if (!getInputPort(STRING, port, con, src_port)) {
       
@@ -1266,7 +1274,7 @@ namespace bm {
     valid = false; 
     // first try non-input node map
     
-    Connector* con = NULL;
+    boost::shared_ptr<Connector> con = boost::shared_ptr<Connector>(NULL);
     string src_port;
     // then look at input nodes
     if (!getInputPort(STRING, port, con, src_port)) {
@@ -1439,7 +1447,7 @@ namespace bm {
   int ImageNode::getModeType() // TBD supply string optionally/
   {
     const string port = "mode";
-    Connector* con = NULL;
+    boost::shared_ptr<Connector> con = boost::shared_ptr<Connector>(NULL);
     string src_port;
     // then look at input nodes
     getInputPort(SIGNAL, port, con, src_port);
@@ -1478,7 +1486,7 @@ namespace bm {
     string port = "border";
     int border = getSignal(port);
     
-    Connector* con = NULL;
+    boost::shared_ptr<Connector> con = boost::shared_ptr<Connector>(NULL);
     string src_port;
     // then look at input nodes
     getInputPort(SIGNAL, port, con, src_port);
@@ -1781,7 +1789,7 @@ namespace bm {
 
     {
       // TBD is this really necessary?
-      Connector* con;
+      boost::shared_ptr<Connector> con;
       string src_port;
       if (getInputPort(BUFFER, "out", con, src_port)) {
         con->setDirty();
@@ -2027,8 +2035,8 @@ namespace bm {
         continue;
       }
       if (cur_size == ind) {
-        if ((ports[i]->src) && (ports[i]->src->parent)) {
-          selected_buffer = dynamic_cast<Buffer*> (ports[i]->src->parent);
+        if ((ports[i]->src) && (ports[i]->src.lock()->parent)) {
+          selected_buffer = dynamic_cast<Buffer*> (ports[i]->src.lock()->parent);
         }
       }
       cur_size++;

@@ -26,6 +26,7 @@
 #include <time.h>
 
 #include <deque>
+
 #include <boost/lexical_cast.hpp>
 #include <boost/timer.hpp>
 
@@ -63,20 +64,20 @@ namespace bm {
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-class CamThing : public Output 
+class CamThing : public Output
 {
   // TBD informal timer for the system
   
   // make sure all Nodes are stored here
-  deque<Node*> all_nodes;
+  deque<boost::shared_ptr<Node> > all_nodes;
 
   // the final output 
   // TBD make this a special node type
-  Output* output_node;
-  Output* preview_node;
+  boost::shared_ptr<Output> output_node;
+  boost::shared_ptr<Output> preview_node;
 
   // TBD temp- currently need to connect output Xlib parameters to Mouse
-  Mouse* input_node;
+  boost::shared_ptr<Mouse> input_node;
 
   // where the ui pointer is (currently controlled by keyboard
   cv::Point cursor;
@@ -90,9 +91,10 @@ class CamThing : public Output
 
   // conveniently create and store node
   template <class nodeType>
-    nodeType* getNode(string name = "", cv::Point2f loc=cv::Point2f(0.0, 0.0))
+    boost::shared_ptr<nodeType> getNode(string name = "", cv::Point2f loc=cv::Point2f(0.0, 0.0))
     {
-      nodeType* node = new nodeType(name);//name, loc, graph_ui);
+      boost::shared_ptr<nodeType> node = 
+          boost::shared_ptr<nodeType>(new nodeType(name));//name, loc, graph_ui);
       
       VLOG(1) << CLVAL << all_nodes.size()  << CLTX2 
           << " new node " << CLNRM << " " << getId(node) << " "  
@@ -108,9 +110,13 @@ class CamThing : public Output
     }
 
   
-    Node* getNodeByName(string type_id, string name = "", cv::Point2f loc=cv::Point2f(0.0, 0.0))
+    boost::shared_ptr<Node> getNodeByName(
+        string type_id, 
+        string name = "", 
+        cv::Point2f loc = cv::Point2f(0.0, 0.0)
+        )
     {
-      Node* node = NULL;
+      boost::shared_ptr<Node> node = boost::shared_ptr<Node>();
 
       if (type_id.compare("bm::CamThing") == 0) {
         // TBD  don't allow duplicate camthings
@@ -118,7 +124,7 @@ class CamThing : public Output
           << " new node " << CLNRM << name << " " << loc.x << ", " << loc.y;
         // the node already exists
         //node = getNode<ScreenCap>(name, loc);
-        node = this;
+        node = dynamic_pointer_cast<Node>(shared_from_this());
         node->loc = loc;
         node->name = name;
         all_nodes.push_back(node);
@@ -232,7 +238,7 @@ class CamThing : public Output
       } else if (type_id.compare("bm::Mouse") == 0) {
         node = getNode<Mouse>(name, loc);
 
-        input_node = (Mouse*) node;
+        input_node = dynamic_pointer_cast<Mouse>(node);
         if (output_node) {
           input_node->display = output_node->display;
           input_node->win = output_node->win;
@@ -242,7 +248,7 @@ class CamThing : public Output
         node = getNode<Output>(name, loc);
         
         if (!output_node) {
-          output_node = (Output*)node;
+          output_node = boost::dynamic_pointer_cast<Output>(node);
           output_node->setup(Config::inst()->out_width, Config::inst()->out_height);
 
           // TBD need better way to share X11 info- Config probably
@@ -255,7 +261,7 @@ class CamThing : public Output
           // must be preview node
           // TBD this makes it so the order in the yaml file determines the difference
           // between output and preview, may want to fix that
-          preview_node = (Output*)node;
+          preview_node = dynamic_pointer_cast<Output>(node);
           preview_node->setup(Config::inst()->out_width, Config::inst()->out_height);
 
         }
@@ -275,19 +281,20 @@ class CamThing : public Output
     LOG(INFO) << CLTX2 << "clearing nodes" << CLNRM;
     update_nodes = false;
     node_thread.join();
-    for (int i = 0; i < all_nodes.size(); i++) {
+    //for (int i = 0; i < all_nodes.size(); i++) {
       // TBD use smart pointers
-      if (all_nodes[i] != this) {
-        delete all_nodes[i];
-      }
+      //if (all_nodes[i].get() != this) {
+      //  all_nodes[i];
+      //}
       //ports.resize(0); 
-    }
+    //}
 
+    // this should cause all smart pointers to delete
     all_nodes.resize(0);
     
-    output_node = NULL;
-    preview_node = NULL;
-    input_node = NULL;
+    output_node  = boost::shared_ptr<Output>();
+    preview_node = boost::shared_ptr<Output>();
+    input_node   = boost::shared_ptr<Mouse>();
   }
 
   void clearAllNodeUpdates() 
@@ -299,7 +306,7 @@ class CamThing : public Output
     }
   }
 
-  int getIndFromPointer(Node* node)
+  int getIndFromPointer(boost::shared_ptr<Node> node)
   {
     if (node == NULL) return -1;
 
@@ -343,7 +350,7 @@ class CamThing : public Output
       VLOG(2) << all_nodes[i]->name << " saving " << all_nodes[i]->ports.size() << " inputs";
       for (int j = 0; j < all_nodes[i]->ports.size(); j++) {
           
-          Connector* con = all_nodes[i]->ports[j];
+          boost::shared_ptr<Connector> con = all_nodes[i]->ports[j];
 
           fs << "{";
           fs << "type" << con->type;
@@ -356,10 +363,10 @@ class CamThing : public Output
 
           string src_port = "";
           int src_ind = -1;
-          if (con->src) {
-            src_port = con->src->name;
+          if (con->src.lock()) {
+            src_port = con->src.lock()->name;
             // TBD this function is currently why this isn't in the Node::save()
-            src_ind = getIndFromPointer(con->src->parent);  
+            src_ind = getIndFromPointer(con->src.lock()->parent.lock());  
           }
 
           fs << "src_ind" << src_ind;
@@ -394,11 +401,11 @@ class CamThing : public Output
     int y = 20;
     for (int i = 0; i < all_nodes.size(); i++) {
       
-      if ( dynamic_cast<ImageNode*> (all_nodes[i])) y += tht;
+      if ( dynamic_pointer_cast<ImageNode> (all_nodes[i])) y += tht;
 
       if (y + all_nodes[i]->ports.size()*10 > graph_ui.rows) {
         y = 20;
-        if ( dynamic_cast<ImageNode*> (all_nodes[i])) y += tht;
+        if ( dynamic_pointer_cast<ImageNode> (all_nodes[i])) y += tht;
 
         x += 180;
       }
@@ -429,11 +436,11 @@ class CamThing : public Output
 
   // TBD make struct for these two
   int selected_ind;
-  Node* selected_node;
+  boost::shared_ptr<Node> selected_node;
 
   // store a node to be connected to a different selected node
   int source_ind;
-  Node* source_node;
+  boost::shared_ptr<Node> source_node;
   // ImageNode, Signal, or Buffer for now- TBD use enums instead of strings
   //conType source_type;
   //string source_port;
@@ -446,15 +453,10 @@ class CamThing : public Output
   CamThing(const std::string name) :
       Output(name),
       selected_ind(0), 
-      selected_node(NULL),
       source_ind(0),
-      source_node(NULL),
       //source_type(NONE),
       //source_port(""),
       //source_port_ind(0),
-      output_node(NULL),
-      preview_node(NULL),
-      input_node(NULL),
       draw_nodes(true),
       //paused(true)
       paused(true) // TBD control from config file?
@@ -603,25 +605,25 @@ class CamThing : public Output
       bool enable;
       (*it)["enable"] >> enable;
       
-      Node* node = getNodeByName(type_id, name, loc);
+      boost::shared_ptr<Node> node = getNodeByName(type_id, name, loc);
       
       if (node == NULL) { 
         LOG(ERROR) << "couldn't get node made " << type_id << " " << name;
         continue;
       }
 
-      if (dynamic_cast<ImageNode*>(node)) {
-        (dynamic_cast<ImageNode*> (node))->setImage("out", test_im);
+      if (dynamic_pointer_cast<ImageNode>(node)) {
+        (dynamic_pointer_cast<ImageNode> (node))->setImage("out", test_im);
       }
       node->load(it);
 
       if (name == "output") {
-        output_node = (Output*)node;
+        output_node = dynamic_pointer_cast<Output>(node);
         cv::Mat tmp;
         node->setImage("in", tmp); 
       }
       if (name == "preview") {
-        preview_node = (Output*)node;
+        preview_node = dynamic_pointer_cast<Output>(node);
       }
 
       VLOG(1) << type_id << " " << CLTXT << name << CLVAL << " " 
@@ -650,7 +652,7 @@ class CamThing : public Output
         if (type == "Buffer") con_type = BUFFER;
         */
         
-        node->setInputPort((conType)type, port, NULL, "");
+        node->setInputPort((conType)type, port); //, NULL, "");
       }
     }
 
@@ -697,7 +699,8 @@ class CamThing : public Output
           << all_nodes[all_nodes.size() - 1]->name << CLNRM;
       // TBD could make sure that this node is an output node
       
-      output_node = (Output*) all_nodes[all_nodes.size() - 1];
+      output_node = dynamic_pointer_cast<Output>( 
+          all_nodes[all_nodes.size() - 1]);
     }
 
     LOG(INFO) << all_nodes.size() << " nodes total";
@@ -715,14 +718,15 @@ class CamThing : public Output
     boost::mutex::scoped_lock l(update_mutex);
 
     LOG(INFO) << "creating default graph";
-    Node* node;
+    boost::shared_ptr<Node> node;
     
     // create a bunch of nodes of every type (TBD make sure new ones get added)
     // but don't connect them, user will do that
     
     cv::Point2f loc = cv::Point2f(400,400);
     
-    node = this;
+    node = dynamic_pointer_cast<Node>(shared_from_this());
+    // TBD these shouldn't be necessary
     node->loc = loc;
     node->name = "cam_thing";
     all_nodes.push_back(node);
@@ -806,7 +810,7 @@ class CamThing : public Output
     node = getNode<Output>("output", loc);
     
     {
-      output_node = (Output*)node;
+      output_node = dynamic_pointer_cast<Output>(node);
       output_node->setup(Config::inst()->out_width, Config::inst()->out_height);
       // TBD put in config file?
       {
@@ -827,7 +831,7 @@ class CamThing : public Output
     node = getNode<Output>("preview", loc);
 
     {
-      preview_node = (Output*)node;
+      preview_node = dynamic_pointer_cast<Output>(node);
       preview_node->setup(Config::inst()->out_width, Config::inst()->out_height);
       // TBD put in config file?
     }
@@ -879,7 +883,7 @@ class CamThing : public Output
        
       Add* add_iir = getNode<Add>("add_iir", cv::Point2f(400,100) );
       add_iir->out = test_im;
-      vector<ImageNode*> add_in;
+      vector<boost::shared_ptr<ImageNode>> add_in;
       add_in.push_back(fir);
       add_in.push_back(denom);
       vector<float> nf;
@@ -946,7 +950,7 @@ class CamThing : public Output
     } else {
       // select no source port, allows cycling through all inputs
       source_ind = 0;
-      source_node = NULL;
+      source_node = boost::shared_ptr<Node>();
       //source_type = NONE;
       //source_port = "";
       VLOG(1) << "cleared source node";
@@ -989,7 +993,8 @@ class CamThing : public Output
     if (!preview_node) return false;
     if (!selected_node) return false;
 
-    ImageNode* im_src = dynamic_cast<ImageNode*> (selected_node);
+    boost::shared_ptr<ImageNode> im_src = 
+        boost::dynamic_pointer_cast<ImageNode> (selected_node);
     if (!im_src) {
       VLOG(1) << "no images to preview";
       return false;
@@ -1010,7 +1015,7 @@ class CamThing : public Output
 
     // disconnect current input
     if (selected_node && (selected_node->selected_type != NONE) && (selected_node->selected_port != "")) {
-      selected_node->setInputPort(selected_node->selected_type, selected_node->selected_port, NULL, "");
+      selected_node->setInputPort(selected_node->selected_type, selected_node->selected_port); //, NULL, "");
     }
   }
 
@@ -1049,13 +1054,14 @@ class CamThing : public Output
     if (selected_node->selected_port_ind < 0) return false;
     if (selected_node->selected_port_ind >= selected_node->ports.size()) return false;
 
-    Connector* con = selected_node->ports[selected_node->selected_port_ind];
-    if (!con->src) return false;
+    boost::shared_ptr<Connector> con = 
+        selected_node->ports[selected_node->selected_port_ind];
+    if (!con->src.lock()) return false;
 
-    selected_node = con->src->parent;
+    selected_node = con->src.lock()->parent.lock();
     selected_ind = getIndFromPointer(selected_node); 
 
-    selected_node->selected_port_ind = selected_node->getIndFromPointer(con->src);
+    selected_node->selected_port_ind = selected_node->getIndFromPointer(con->src.lock());
 
     // tell the node to select the port
     selected_node->selectPortByInd(selected_node->selected_port_ind);
@@ -1074,12 +1080,12 @@ class CamThing : public Output
     if (selected_node->selected_port_ind < 0) return false;
     if (selected_node->selected_port_ind >= selected_node->ports.size()) return false;
 
-    Connector* con = selected_node->ports[selected_node->selected_port_ind];
+    boost::shared_ptr<Connector> con = selected_node->ports[selected_node->selected_port_ind];
     if (!con->dst) return false;
     
-    const string src = con->parent->name;
+    const string src = con->parent.lock()->name;
 
-    selected_node = con->dst->parent;
+    selected_node = con->dst->parent.lock();
     selected_ind = getIndFromPointer(selected_node); 
 
     selected_node->selected_port_ind = selected_node->getIndFromPointer(con->dst);
@@ -1390,7 +1396,7 @@ class CamThing : public Output
     else if (key == ']') {
       // duplicate selected_node node
       // TBD make it possible to deselect all nodes, so the node specific keys can be reused?
-      if (selected_node == this) {
+      if (selected_node.get() == this) {
         LOG(WARNING) << "can't duplicate camthing";
       }
       else if (selected_node) {
@@ -1495,7 +1501,10 @@ class CamThing : public Output
     } else if (key == '1') {  // create generic signal generator feeding into this port
       
       if ((selected_node) && (selected_node->selected_type == SIGNAL)) { 
-        Node* node = getNode<MiscSignal>(selected_node->name + "_sig", selected_node->loc + cv::Point2f(-150,10));
+        boost::shared_ptr<Node> node = 
+            getNode<MiscSignal>(
+                selected_node->name + "_sig", 
+                selected_node->loc + cv::Point2f(-150,10));
       
         float val = selected_node->getSignal(selected_node->selected_port);
         node->setSignal("value", val);
@@ -1717,7 +1726,7 @@ class CamThing : public Output
 
       // now draw node boxes 
       for (int i = 0; i < all_nodes.size(); i++) {
-        if (all_nodes[i] != this) {
+        if (all_nodes[i].get() != this) {
           all_nodes[i]->draw(ui_offset);
         }
       }

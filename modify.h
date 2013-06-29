@@ -90,7 +90,10 @@ class Add : public ImageNode
   Add(const std::string name); 
   // TBD could require pair be passed in to enforce size
   // TBD get rid of this?
-  void setup(std::vector<ImageNode*> np, std::vector<float> nf); 
+  void setup(
+      std::vector<boost::shared_ptr<ImageNode> > np, 
+      std::vector<float> nf
+      ); 
   virtual bool update();
   virtual bool handleKey(int key);
 };
