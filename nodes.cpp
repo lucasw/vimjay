@@ -958,6 +958,7 @@ namespace bm {
     //  type = "ImageOut";
     //}
 
+    // TBD Don't think the initialization is necessary
     boost::shared_ptr<Connector> con = boost::shared_ptr<Connector>();
     string src_port;
     if (!getInputPort(IMAGE, port, con, src_port)) {
@@ -977,7 +978,7 @@ namespace bm {
     }
 
     // can't set signal if it is controlled by src port 
-    if (con->src) return false;
+    if (con->src.lock()) return false;
 
     con->setImage(im);
   
@@ -994,7 +995,7 @@ namespace bm {
       )
   {
     
-    boost::shared_ptr<Connector> con = boost::shared_ptr<Connector>(NULL);
+    boost::shared_ptr<Connector> con = boost::shared_ptr<Connector>();
     string src_port;
     if (!getInputPort(SIGNAL, port, con, src_port)) {
       
@@ -1011,7 +1012,7 @@ namespace bm {
     }
     
     // can't set signal if it is controlled by src port 
-    if (con->src) return false;
+    if (con->src.lock()) return false;
 
 
     if (saturate > 0) {
@@ -1044,13 +1045,13 @@ namespace bm {
   
     valid = false;
     cv::Mat im;
-    boost::shared_ptr<Connector> con = boost::shared_ptr<Connector>(NULL);
+    boost::shared_ptr<Connector> con = boost::shared_ptr<Connector>();
     string src_port = "";
 
     if (!getInputPort(IMAGE, port, con, src_port)) {
       // create it if it doesn't exist
       VLOG(1) << name << " creating IMAGE " << CLTXT <<  name << " " << port << CLNRM;
-      setInputPort(IMAGE, port, NULL, "");
+      setInputPort(IMAGE, port); //, NULL, "");
       return im;
     }
 
@@ -1086,13 +1087,13 @@ namespace bm {
     valid = false; 
     // first try non-input node map
     
-    boost::shared_ptr<Connector> con = boost::shared_ptr<Connector>(NULL);
+    boost::shared_ptr<Connector> con = boost::shared_ptr<Connector>();
     string src_port;
     // then look at input nodes
     if (!getInputPort(SIGNAL, port, con, src_port)) {
       // create it if it doesn't exist
       VLOG(1) << name << " creating SIGNAL " << CLTXT <<  name << " " << port << CLNRM;
-      setInputPort(SIGNAL, port, NULL, "");
+      setInputPort(SIGNAL, port); //, NULL, "");
       return 0;
     }
 
@@ -1126,10 +1127,13 @@ namespace bm {
 
     tmp = con->getImage();
 
-    if ((!con->src.lock) || (!con->src.lock()->parent)) return tmp;
+    boost::shared_ptr<Connector> tmp_src = con->src.lock();
+    
+    if ((!tmp_src) || (!tmp_src->parent.lock())) return tmp;
 
-    //Buffer* im_in = con->getBuffer(); // dynamic_cast<Buffer*> (con->src->parent);
-    Buffer* im_in = dynamic_cast<Buffer*> (con->src.lock()->parent);
+    //Buffer* im_in = con->getBuffer(); // dynamic_cast<Buffer*> (tmp_src->parent);
+    boost::shared_ptr<Buffer> im_in = 
+        dynamic_pointer_cast<Buffer>(tmp_src->parent.lock());
 
     if (!im_in) {
       LOG(ERROR) << name  << " " << port << " improper Buffer connected";
@@ -1161,10 +1165,13 @@ namespace bm {
     if (!con) return tmp;
 
     tmp = con->getImage();
+    
+    boost::shared_ptr<Connector> tmp_src = con->src.lock();
 
-    if ((!con->src.lock()) || (!con->src.lock()->parent)) return tmp;
+    if ((!tmp_src) || (!tmp_src->parent.lock())) return tmp;
 
-    Buffer* im_in = dynamic_cast<Buffer*> (con->src.lock()->parent);
+    boost::shared_ptr<Buffer> im_in = 
+        dynamic_pointer_cast<Buffer>(tmp_src->parent.lock());
 
     if (!im_in) {
       LOG(ERROR) << name  << " " << port << " improper Buffer connected";
@@ -1191,11 +1198,11 @@ namespace bm {
     const bool internally_set
   )
   {
-    boost::shared_ptr<Connector> con = boost::shared_ptr<Connector>(NULL);
+    boost::shared_ptr<Connector> con = boost::shared_ptr<Connector>();
     string src_port;
     if (!getInputPort(BUFFER, port, con, src_port)) {
       // create it since it doesn't exist
-      setInputPort(BUFFER, port, NULL, "");
+      setInputPort(BUFFER, port); //, NULL, "");
       // now get it again TBD actually check rv
       if (!getInputPort(BUFFER, port, con, src_port)) {
         LOG(ERROR) << "still can't get connector";
@@ -1216,11 +1223,11 @@ namespace bm {
     const bool internally_set
   )
   {
-    boost::shared_ptr<Connector> con = boost::shared_ptr<Connector>(NULL);
+    boost::shared_ptr<Connector> con = boost::shared_ptr<Connector>();
     string src_port;
     if (!getInputPort(SIGBUF, port, con, src_port)) {
       // create it since it doesn't exist
-      setInputPort(SIGBUF, port, NULL, "");
+      setInputPort(SIGBUF, port); //, NULL, "");
       // now get it again TBD actually check rv
       if (!getInputPort(SIGBUF, port, con, src_port)) {
         LOG(ERROR) << "still can't get connector";
@@ -1239,7 +1246,7 @@ namespace bm {
 
   bool Node::setString(const std::string port, const std::string new_str, const bool internally_set)
   {
-    boost::shared_ptr<Connector> con = boost::shared_ptr<Connector>(NULL);
+    boost::shared_ptr<Connector> con = boost::shared_ptr<Connector>();
     string src_port;
     if (!getInputPort(STRING, port, con, src_port)) {
       
@@ -1256,7 +1263,7 @@ namespace bm {
     } 
     
     // can't set signal if it is controlled by src port 
-    if (con->src) return false;
+    if (con->src.lock()) return false;
 
     con->setString(new_str);
     VLOG(9) << name << " " << con->name << " " << con->getString() << " " << con << " " << this;
@@ -1274,13 +1281,13 @@ namespace bm {
     valid = false; 
     // first try non-input node map
     
-    boost::shared_ptr<Connector> con = boost::shared_ptr<Connector>(NULL);
+    boost::shared_ptr<Connector> con = boost::shared_ptr<Connector>();
     string src_port;
     // then look at input nodes
     if (!getInputPort(STRING, port, con, src_port)) {
       // create it if it doesn't exist
       VLOG(0) << name << " creating STRING " << CLTXT <<  name << " " << port << CLNRM;
-      setInputPort(STRING, port, NULL, "");
+      setInputPort(STRING, port); //, NULL, "");
       return "";
     }
 
@@ -1447,7 +1454,7 @@ namespace bm {
   int ImageNode::getModeType() // TBD supply string optionally/
   {
     const string port = "mode";
-    boost::shared_ptr<Connector> con = boost::shared_ptr<Connector>(NULL);
+    boost::shared_ptr<Connector> con = boost::shared_ptr<Connector>();
     string src_port;
     // then look at input nodes
     getInputPort(SIGNAL, port, con, src_port);
@@ -1486,7 +1493,7 @@ namespace bm {
     string port = "border";
     int border = getSignal(port);
     
-    boost::shared_ptr<Connector> con = boost::shared_ptr<Connector>(NULL);
+    boost::shared_ptr<Connector> con = boost::shared_ptr<Connector>();
     string src_port;
     // then look at input nodes
     getInputPort(SIGNAL, port, con, src_port);
@@ -1980,7 +1987,7 @@ namespace bm {
 
       // add a new addition port
       const string port = "inp" + boost::lexical_cast<string>(add_num);
-      setInputPort(IMAGE, port, NULL, "out");
+      setInputPort(IMAGE, port, boost::shared_ptr<Node>(), "out");
        
       // TBD make a way to delete a port
     } else {
@@ -2000,8 +2007,7 @@ namespace bm {
   // the proper source Buffer determined by ind.  A properly templated Buffer type might be able to make this simpler and more 
   // inuitive.
   MuxBuffer::MuxBuffer(const std::string name) :
-    Buffer(name), 
-    selected_buffer(NULL) 
+    Buffer(name) 
   {
     vcol = cv::Scalar(200, 30, 200);
 
@@ -2035,8 +2041,9 @@ namespace bm {
         continue;
       }
       if (cur_size == ind) {
-        if ((ports[i]->src) && (ports[i]->src.lock()->parent)) {
-          selected_buffer = dynamic_cast<Buffer*> (ports[i]->src.lock()->parent);
+        boost::shared_ptr<Connector> tmp_src = ports[i]->src.lock();
+        if ((tmp_src) && (tmp_src->parent.lock())) {
+          selected_buffer = dynamic_pointer_cast<Buffer>(tmp_src->parent.lock());
         }
       }
       cur_size++;
@@ -2106,7 +2113,7 @@ namespace bm {
 
       // add a new addition port
       const string port = "inp" + boost::lexical_cast<string>(add_num);
-      setInputPort(IMAGE, port, NULL, "out");
+      setInputPort(IMAGE, port, boost::shared_ptr<Node>(), "out");
        
       // TBD make a way to delete a port
     } else {

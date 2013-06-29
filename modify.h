@@ -65,7 +65,10 @@ class Tap : public ImageNode
 
   Tap(const std::string name);// : ImageNode()
 
-  void setup(Signal* new_signal =NULL, Buffer* new_buffer=NULL); 
+  void setup( 
+      boost::shared_ptr<Signal> new_signal = boost::shared_ptr<Signal>(), 
+      boost::shared_ptr<Buffer> new_buffer = boost::shared_ptr<Buffer>()
+      );
   
   virtual bool update();
   virtual bool draw(cv::Point2f ui_offset);

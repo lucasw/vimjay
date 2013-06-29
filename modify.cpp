@@ -620,11 +620,14 @@ namespace bm {
 
     getSignal("value");
     getBuffer("buffer",0);
-    setInputPort(BUFFER,"buffer", NULL, "out");
+    setInputPort(BUFFER,"buffer", boost::shared_ptr<Node>(), "out");
     //getImage("Buffer");
   }
 
-  void Tap::setup(Signal* new_signal, Buffer* new_buffer) 
+  void Tap::setup(
+      boost::shared_ptr<Signal> new_signal, 
+      boost::shared_ptr<Buffer> new_buffer
+      ) 
   {
     // TBD need caller to provide these
     setInputPort(SIGNAL,"value", new_signal, "value");
@@ -694,7 +697,10 @@ namespace bm {
     vcol = cv::Scalar(200, 200, 50);
   }
   
-  void Add::setup(vector<ImageNode*> np, vector<float> nf) 
+  void Add::setup(
+      vector<boost::shared_ptr<ImageNode> > np, 
+      vector<float> nf
+      ) 
   {
     if (np.size() != nf.size()) {
       LOG(ERROR) << CLWRN << "mismatched inputs and coefficients" << CLNRM;
@@ -705,7 +711,7 @@ namespace bm {
     for (int i = 0; i < np.size(); i++) {
       const string port = "add" + boost::lexical_cast<string>(i);
       setInputPort(IMAGE, port, np[i], "out");
-      setInputPort(SIGNAL, port, NULL, "value"); // this allows other signals to connect to replace nf
+      setInputPort(SIGNAL, port, boost::shared_ptr<Node>(), "value"); // this allows other signals to connect to replace nf
     }
   }
 
@@ -804,8 +810,8 @@ namespace bm {
 
       // add a new addition port
       const string port = "add" + boost::lexical_cast<string>(add_num);
-      setInputPort(IMAGE, port, NULL, "out");
-      setInputPort(SIGNAL, port, NULL, "value"); // this allows other signals to connect to replace nf
+      setInputPort(IMAGE, port, boost::shared_ptr<Node>(), "out");
+      setInputPort(SIGNAL, port, boost::shared_ptr<Node>(), "value"); // this allows other signals to connect to replace nf
        
       // TBD make a way to delete a port
     } else {

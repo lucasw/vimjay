@@ -102,7 +102,7 @@ namespace bm {
     string port = "mode";
     int mode = getSignal(port);
     
-    Connector* con = NULL;
+    boost::shared_ptr<Connector> con;
     string src_port;
     getInputPort(SIGNAL, port, con, src_port);
     

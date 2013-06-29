@@ -247,6 +247,8 @@ class Node : public Elem
       boost::shared_ptr<Connector>& con,
       std::string& src_port);
 
+  // TBD may want to rename the 3rd and 4th variables, 
+  // many instances set the third to NULL but use the fourth
   void setInputPort(
       const conType type, 
       const std::string port,
@@ -428,7 +430,7 @@ class Mux : public Buffer
  
 class MuxBuffer : public Buffer
 {
-  Buffer* selected_buffer;
+  boost::shared_ptr<Buffer> selected_buffer;
 
   public:
   MuxBuffer(const std::string name); 

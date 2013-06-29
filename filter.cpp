@@ -110,7 +110,7 @@ bool FilterFIR::handleKey(int key)
 
     // add a new addition port
     const std::string port = "xi" + boost::lexical_cast<std::string>(add_num);
-    setInputPort(SIGNAL, port, NULL, "value"); // this allows other signals to connect to replace nf
+    setInputPort(SIGNAL, port, boost::shared_ptr<Node>(), "value"); // this allows other signals to connect to replace nf
 
     // TBD make a way to delete a port
   } else {
