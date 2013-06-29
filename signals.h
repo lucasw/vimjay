@@ -91,6 +91,13 @@ class Mean : public Signal
   virtual bool update();
 };
 
+class SigADSR : public ImageNode
+{
+  public:
+  SigADSR(const std::string name);
+  virtual void init();
+  virtual bool update();
+};
 
 
 #ifdef NOT_YET_IMPLEMENTED

@@ -243,7 +243,9 @@ namespace bm {
     setImage("out", tmp);
     setSignal("out", 0);
     setSigBuf("out", true);
+    // 0 - buffer size index input
     setSignal("ind", 0);
+    // 0 - 1.0 fractional input
     setSignal("fr", 0);
 
     setSignal("min", 0);
@@ -251,7 +253,10 @@ namespace bm {
     setSignal("max_size", 2000);
     setSignal("cur_size", 0);
   
-    setSignal("scale_mode", 0, false, ROLL, 0, 2);
+    setSignal("middle", 0.5);
+    setSignal("scale", 1.0);
+    setSignal("scale_mode", 1, false, ROLL, 0, 2);
+    setSignal("sample_mode", 1, false, ROLL, 0, 1);
   }
 
   bool SigBuffer::setOut()
@@ -286,7 +291,7 @@ namespace bm {
     // TBD optionally sample all the time
     bool b1, con_is_dirty;
     const float new_sig = getSignal("in", b1, con_is_dirty);
-    if (con_is_dirty) {
+    if (con_is_dirty || getBool("sample_mode")) {
     boost::mutex::scoped_lock l(sigs_mutex);
     sigs.push_back(new_sig);
 
@@ -613,11 +618,13 @@ void Mean::init()
   // TBD more convenient to output all possibilities, or provide mode selector?
   cv::Mat tmp;
   setImage("in",tmp);
-  setSignal("mean", 0, true);
-  setSignal("mean_r", 0, true);
-  setSignal("mean_g", 0, true);
-  setSignal("mean_b", 0, true);
-  //TBD stddev  setSignal("equal",0, true);
+  const bool internally_set = true;
+  const float initial_val = 0.0;
+  setSignal("mean",   initial_val, internally_set);
+  setSignal("mean_r", initial_val, internally_set);
+  setSignal("mean_g", initial_val, internally_set);
+  setSignal("mean_b", initial_val, internally_set);
+  //TBD stddev  setSignal("equal",initial_val, internally_set);
 }
 
 bool Mean::update()
@@ -649,7 +656,136 @@ bool Mean::update()
 
 }
 
+/////////////////////////////////////////
+SigADSR::SigADSR(const std::string name) :
+    ImageNode(name)
+{
+
+}
+
+enum adsrType {
+  LOW = 0,
+  ATTACK,
+  DECAY,
+  SUSTAIN,
+  RELEASE
+};
+
+void SigADSR::init()
+{
+  ImageNode::init();
+
+  // attack is the per-update amount to add to the signal in the attack
+  // phase.
+  setSignal("attack",  0.001);
+  // peak is actually a scale value, it doesn't change the character of
+  // the other parameters
+  setSignal("peak",    1.0);
+  setSignal("decay",   0.0005);
+  setSignal("sustain", 0.5);
+  setSignal("release", 0.0002);
   
+  const string sig = "in0";
+  setSignal(sig, 0, false, 0.0, 1.0);
+  const bool internally_set = true;
+  // 5 different phase:
+  // low, attack, decay, sustain, release
+  setSignal(sig + "_phase", 0, internally_set, ROLL, LOW, RELEASE);
+  // by setting internally set to false, it is possible 
+  // to keep updating the output and TBD it should stop once LOW
+  // is reached
+  setSignal(sig + "_out", 0); //, internally_set);
+}
+
+bool SigADSR::update()
+{
+  if (!Node::update()) return false;
+
+  // TBD replace 35 with number that is a function
+  // of the string name of this class?  But we
+  // want it to be unique when the base class calls
+  // it, and it will have the same type when the
+  // base class update gets the type name.
+  if (!isDirty(this, 35) ) {
+    VLOG(1) << name << " not dirty ";
+    return true;
+  }
+
+  
+  const float attack  = getSignal("attack");
+  const float peak    = getSignal("peak");
+  const float decay   = getSignal("decay");
+  const float sustain = getSignal("sustain");
+  const float release = getSignal("release");
+
+  // TBD for loop around all inN inputs
+  {
+    const string sig = "in0";
+    
+    float val = getSignal(sig);
+    if (val < 0) val = 0;
+
+    float val_out = getSignal(sig + "_out");
+    const int phase = getSignal(sig + "_phase");
+    
+    if (phase == LOW) {
+      setSignal(sig + "_out",  0.0); 
+      
+      if (val > 0.0) {
+        setSignal(sig + "_phase", ATTACK);
+      }
+
+    } else if (phase == ATTACK) {
+      // instead of or in addition to linear addition, 
+      // should have s-curve like addition also, or exponential,
+      // or velocity/acceleration mode
+      // or anything else that seems good
+      val_out += attack * peak;
+      // TBD if val is less than 1.0, should peak be modified
+      // by that?
+      // if (val_out > peak * val) { 
+      if (val <= 0) {
+        setSignal(sig + "_phase", RELEASE);
+      } else if (val_out > peak) { 
+        val_out = peak;
+        setSignal(sig + "_phase", DECAY);
+      }
+      setSignal(sig + "_out", val_out);
+     
+    } else if (phase == DECAY) {
+
+      val_out -= decay * peak; 
+      if (val <= 0) {
+        setSignal(sig + "_phase", RELEASE);
+      } else if (val_out < sustain) { 
+        val_out = sustain;
+        setSignal(sig + "_phase", SUSTAIN);
+      }
+      setSignal(sig + "_out", val_out);
+
+    } else if (phase == SUSTAIN) {
+
+      if (val <= 0) {
+        setSignal(sig + "_phase", RELEASE);
+      }
+      setSignal(sig + "_out", sustain);
+
+    } else if (phase == RELEASE) {
+
+      val_out -= release * peak; 
+      if (val_out < 0) { // TBD have low value also 
+        val_out = 0;
+        setSignal(sig + "_phase", LOW);
+      }
+      setSignal(sig + "_out", val_out);
+
+    }
+
+  } // loop around n inputs 
+
+  return true;
+} // sig adsr update
+
 
 } //bm
 
