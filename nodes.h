@@ -5,6 +5,7 @@
 #include <sstream>
 #include <stdio.h>
 
+#include <boost/shared_ptr.hpp>
 #include <boost/thread.hpp>
 #include <boost/thread/mutex.hpp>
 
@@ -133,10 +134,10 @@ class Connector : public Elem
   // the Connector that is sourcing this one, if any
   // this is somewhat odd, the connector is in three parts- the src, this, and dst
   // and each has a copy of the data
-  Connector* src;
+  boost::shared_ptr<Connector> src;
   // TBD this needs to be a vector that is easy to remove elements
   // from in any way
-  Connector* dst;
+  boost::shared_ptr<Connector> dst;
 
   Node* parent;
 
@@ -191,8 +192,8 @@ class Node : public Elem
   cv::Point2f acc;
   cv::Point2f vel;
 
-  std::vector<Connector*> ports;
-  int getIndFromPointer(Connector* con);
+  std::vector<boost::shared_ptr<Connector> > ports;
+  int getIndFromPointer(boost::shared_ptr<Connector> con);
   bool selectPortByInd(const int ind);
  
   // the upper left coordinate of the node is loc
@@ -237,7 +238,7 @@ class Node : public Elem
   bool getInputPort(
       const conType type, 
       const std::string port,
-      Connector*& con,
+      boost::shared_ptr<Connector> con,
       std::string& src_port);
 
   void setInputPort(
