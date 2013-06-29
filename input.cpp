@@ -167,16 +167,24 @@ bool Mouse::draw(cv::Point2f ui_offset)
  
   vector<string> sig_name;
   vector<float> sig_val;
+  std::vector< std::pair<char, bool> > keys;
 
   /// TBD it would be nice to be able to get the display
   /// of the root window so all mouse moves can be in here
   /// or optionally the display of the preview window, or 
   /// gui window
-  if (!getMouse(display, opcode, sig_name, sig_val))
+  if (!getMouse(display, opcode, sig_name, sig_val, keys))
     return false;      
  
   for (size_t i = 0; i < sig_name.size(); i++) {
     setSignal(sig_name[i], sig_val[i]);
+  }
+  
+  for (size_t i = 0; i < keys.size(); i++) {
+    LOG(INFO) << keys[i].first;
+    stringstream ss;
+    ss << keys[i].first;
+    setSignal("key_" + ss.str(), keys[i].second);
   }
  
   return true;

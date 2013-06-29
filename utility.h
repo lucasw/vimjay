@@ -65,11 +65,20 @@ cv::Mat XImage2OpenCVImage(XImage& ximage, Display& _xDisplay, Screen& _xScreen)
 
 bool matToXImage(cv::Mat& im, XImage* ximage, Window& win, Display& display, Screen& screen);
 
+bool getEv(
+    Display* display,
+    XEvent& ev,
+    std::vector<std::string>& sig_name,
+    std::vector<float>& sig_val,
+    std::vector< std::pair<char, bool> >& keys
+    );
+
 bool getMouse(
     Display* display,
     const int opcode,
     std::vector<std::string>& sig_name,
-    std::vector<float>& sig_val
+    std::vector<float>& sig_val,
+    std::vector< std::pair<char, bool> >& keys
     );
  
 bool fixAspect(cv::Mat& tmp0, cv::Mat& tmp1, const int mode);

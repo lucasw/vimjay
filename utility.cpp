@@ -312,8 +312,9 @@ bool setupX(Display*& display, Window& win, const int width, const int height, i
 	XISetMask(mask, XI_Motion);
 	XISetMask(mask, XI_ButtonPress);
 	XISetMask(mask, XI_ButtonRelease);
-	//XISetMask(mask, XI_KeyPress);
-	//XISetMask(mask, XI_KeyRelease);
+  // TBD make optional?
+	XISetMask(mask, XI_KeyPress);
+	XISetMask(mask, XI_KeyRelease);
 
 	/* Register events on the window */
   int screen_num = DefaultScreen(display);
@@ -634,39 +635,21 @@ bool matToXImage(cv::Mat& im, XImage* ximage, Window& win, Display& display, Scr
     return true;
 }
 
-/// TBD just make thread hang out and continually poll mouse,
-/// and have singleton object provide current mouse position within
-/// root or any window, and whether button is clicked or not.
-//
-/// get mouse device and x and y position and button clicks
-bool getMouse(
+bool getEv(
     Display* display,
-    const int opcode,
+    XEvent& ev,
     std::vector<std::string>& sig_name,
-    std::vector<float>& sig_val
+    std::vector<float>& sig_val,
+    std::vector< std::pair<char, bool> >& keys
     )
 {
-  if (!display) {
-    LOG(ERROR) << "no display";
-    return false;
-  }
-  //VLOG(1) << "mouse";
+  XIDeviceEvent* evData = (XIDeviceEvent*)(ev.xcookie.data);
+  const int deviceid = evData->deviceid;
 
-  XEvent ev;
-  /* Get next event; blocks until an event occurs */
-  while(XPending(display)) {
-    XNextEvent(display, &ev);
-    if (ev.xcookie.type == GenericEvent &&
-        ev.xcookie.extension == opcode &&
-        XGetEventData(display, &ev.xcookie))
-      //if (XCheckWindowEvent(display, win, PointerMotionMask | ButtonPressMask | ButtonReleaseMask, &ev))
-    {
-      VLOG(1) <<" event found"; 
-      XIDeviceEvent* evData = (XIDeviceEvent*)(ev.xcookie.data);
-      int deviceid = evData->deviceid;
+  XKeyPressedEvent key_data;
 
-      switch(ev.xcookie.evtype)
-      {
+  switch(ev.xcookie.evtype)
+  {
         case XI_Motion:
           VLOG(1) << "motion " << deviceid << " " << evData->event_x 
               << " " << evData->event_y;
@@ -689,16 +672,79 @@ bool getMouse(
               boost::lexical_cast<std::string>(evData->detail));
           sig_val.push_back(0);
           break;
-#if 0
+        
         case XI_KeyPress:
-          LOG(INFO) << "key down";
+        case XI_KeyRelease:
+          //LOG(INFO) << "key down";
+         
+          // Assign info from our XIDeviceEvent to a standard XKeyPressedEvent which
+          // XLookupString() can actually understand:
+          key_data.type         = KeyPress;
+          key_data.root         = evData->root;
+          key_data.window       = evData->event;
+          key_data.subwindow    = evData->child;
+          key_data.time         = evData->time;
+          key_data.x            = evData->event_x;
+          key_data.y            = evData->event_y;
+          key_data.x_root       = evData->root_x;
+          key_data.y_root       = evData->root_y;
+          key_data.same_screen  = True;
+          key_data.send_event   = False;
+          key_data.serial       = evData->serial;
+          key_data.display      = display;
+
+          key_data.keycode      = evData->detail;
+          key_data.state        = evData->mods.effective;
+        
+          char asciiChar;
+          if (1 == XLookupString(((XKeyEvent*) (&key_data)), &asciiChar, 1, NULL, NULL)) {
+            // Mapped: Assign it.
+            const bool key_down = (ev.xcookie.evtype == XI_KeyPress);
+           
+            keys.push_back(std::pair<char, bool>(asciiChar, key_down));
+            VLOG(2) << deviceid << "key " << (int)asciiChar << " " 
+                << asciiChar << " " 
+                << key_down;
+          }
+
           break;
 
-        case XI_KeyRelease:
-          printf("key up\n");
-          break;
-#endif
-      } // switch 
+      
+  } // switch 
+  
+  return true;
+}
+
+/// TBD just make thread hang out and continually poll mouse,
+/// and have singleton object provide current mouse position within
+/// root or any window, and whether button is clicked or not.
+//
+/// get mouse device and x and y position and button clicks
+bool getMouse(
+    Display* display,
+    const int opcode,
+    std::vector<std::string>& sig_name,
+    std::vector<float>& sig_val,
+    std::vector< std::pair<char, bool> >& keys
+    )
+{
+  if (!display) {
+    LOG(ERROR) << "no display";
+    return false;
+  }
+  //VLOG(1) << "mouse";
+
+  XEvent ev;
+  /* Get next event; blocks until an event occurs */
+  while(XPending(display)) {
+    XNextEvent(display, &ev);
+    if (ev.xcookie.type == GenericEvent &&
+        ev.xcookie.extension == opcode &&
+        XGetEventData(display, &ev.xcookie))
+      //if (XCheckWindowEvent(display, win, PointerMotionMask | ButtonPressMask | ButtonReleaseMask, &ev))
+    {
+      VLOG(1) <<" event found"; 
+      getEv(display, ev, sig_name, sig_val, keys);
     } // correct event
 
     XFreeEventData(display, &ev.xcookie);
