@@ -308,16 +308,16 @@ namespace bm {
     // TBD this is ugly
     // index into directories
     if ((sub_dirs.size() > 0) && (ind < sub_dirs.size())) {
-      //const string cur_dir = sub_dirs[ind];
+      const string cur_dir = sub_dirs[ind];
       //VLOG(1) << name << " dir " << cur_dir;
-      //setString("cur_dir", cur_dir);
+      setString("cur_sel", cur_dir);
       highlight_dir_not_file = true;
     // index into files
     } else if ((file_names.size() > 0) && (file_ind >= 0) && 
         (file_ind < file_names.size())) {
-      //const string cur_file = file_names[file_ind];
+      const string cur_file = file_names[file_ind];
       //VLOG(1) << name << " file " << cur_file;
-      //setString("cur_file", cur_file);
+      setString("cur_sel", cur_file);
       highlight_dir_not_file = false;
     }
 
@@ -378,11 +378,11 @@ namespace bm {
     if (valid_key) return true;
 
     valid_key = true;
-    if (key == 13) { // enter key
+    if (key == 39) { // ;
       // descend into currently selected directory, save the old one
       setString("old_dir", getString("dir"));
       setString("dir", getString("cur_dir"));
-    } else if (key == '\'') { 
+    } else if (key == 59) { // ' 
       // go up to parent directory
 
       const std::string cur_dir = getString("dir");
@@ -416,7 +416,9 @@ namespace bm {
         LOG(ERROR) << "bad dir " << parent_dir << " "
             << boost::diagnostic_information(ex);
       }
-
+    } else if (key == 13) { // enter key
+      // confirm the selection
+      setString("selection", getString("cur_sel"));
     } else {
       valid_key = false;
     }
