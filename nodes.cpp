@@ -1547,6 +1547,11 @@ namespace bm {
   // TBD subclasses of Node that are input/output specific, or make that general somehow?
   Signal::Signal(const std::string name) : Node(name)
   {
+  }
+
+  void Signal::init()
+  {
+    Node::init();
     vcol = cv::Scalar(0,255,255);
 
     setSignal("value", 0, true);

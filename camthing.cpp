@@ -284,11 +284,8 @@ class CamThing : public Output
     update_nodes = false;
     node_thread.join();
     //for (int i = 0; i < all_nodes.size(); i++) {
-      // TBD use smart pointers
-      //if (all_nodes[i].get() != this) {
-      //  all_nodes[i];
-      //}
-      //ports.resize(0); 
+      // TBD need to gather all displays and XCloseDisplay it
+
     //}
 
     // this should cause all smart pointers to delete
@@ -1508,14 +1505,15 @@ class CamThing : public Output
       // outputs can be one-to-many
     //}
     
-    } else if (key == '1') {  // create generic signal generator feeding into this port
+    } else if (key == '1') {  
+    // create generic signal generator feeding into this port
       
       if ((selected_node) && (selected_node->selected_type == SIGNAL)) { 
         boost::shared_ptr<Node> node = 
             getNode<MiscSignal>(
                 selected_node->name + "_sig", 
                 selected_node->loc + cv::Point2f(-150,10));
-      
+   
         float val = selected_node->getSignal(selected_node->selected_port);
         node->setSignal("value", val);
         node->setSignal("min", val);

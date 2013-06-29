@@ -34,6 +34,12 @@ namespace bm {
     display(NULL)
   {
   }
+  
+  Output::~Output()
+  {
+    // TBD is this object the owner?
+    //if (display) XCloseDisplay(display);
+  }
 
   void Output::init()
   {
@@ -56,6 +62,9 @@ namespace bm {
     ximage = XGetImage(display, DefaultRootWindow(display), 0, 0, width, height, AllPlanes, ZPixmap);
     screen = DefaultScreenOfDisplay(display);
     XStoreName(display, win, name.c_str());
+    
+    LOG(INFO) << name << " created window " << CLVAL << display << " " 
+        << ximage <<CLNRM;
   }
 
   bool Output::update()

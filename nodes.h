@@ -362,6 +362,7 @@ class Signal : public Node
 {
   public:
   Signal(const std::string name); // : Node()
+  virtual void init();
 
   void setup(const float new_step=0.01, const float offset=0.0, const float min = 0.0, const float max=1.0); 
  
