@@ -378,11 +378,16 @@ namespace bm {
     if (valid_key) return true;
 
     valid_key = true;
-    if (key == 39) { // ;
+    if (key == 59) { // '
       // descend into currently selected directory, save the old one
-      setString("old_dir", getString("dir"));
-      setString("dir", getString("cur_dir"));
-    } else if (key == 59) { // ' 
+      const string cur_sel = getString("cur_sel");
+      const boost::filesystem::path image_path(cur_sel);
+      // validate before setting
+      if (is_directory(image_path)) {
+        setString("old_dir", getString("dir"));
+        setString("dir", cur_sel);
+      }
+    } else if (key == 39) { // ;
       // go up to parent directory
 
       const std::string cur_dir = getString("dir");

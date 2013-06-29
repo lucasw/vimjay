@@ -1357,7 +1357,14 @@ class CamThing : public Output
     }
     else if( key == 'w' ) {
       // TBD increment a count so old saves aren't overwritten?
-      saveGraph("../temp_graph.yml");
+      std::string base_dir = "../graphs/";
+      
+      time_t t1 = time(NULL);
+      stringstream file_name;
+      // TBD define path to data somewhere to be reused by all
+      file_name << base_dir << t1 << "_" << name << ".yml";
+      saveGraph(file_name.str());
+      setString("graph_out", file_name.str());
     }
     //else if (key == 'a') {
     //  gridGraph();
