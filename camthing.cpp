@@ -1507,9 +1507,9 @@ class CamThing : public Output
     //}
     
     } else if (key == '1') {  
-    // create generic signal generator feeding into this port
       
       if ((selected_node) && (selected_node->selected_type == SIGNAL)) { 
+        // create generic signal generator feeding into this port
         boost::shared_ptr<Node> node = 
             getNode<MiscSignal>(
                 selected_node->name + "_sig", 
@@ -1526,6 +1526,22 @@ class CamThing : public Output
         selected_node->setInputPort(
             SIGNAL, selected_node->selected_port, 
             node, "value");
+
+      } else if ((selected_node) && (selected_node->selected_port == "dir")) { 
+        // if the port is named dir or TBD other directory/file names create
+        // a BrowseDir
+        boost::shared_ptr<Node> node = 
+            getNode<BrowseDir>(
+                "dir_" + selected_node->name, 
+                selected_node->loc + cv::Point2f(-150,10));
+   
+        const string val = selected_node->getString(selected_node->selected_port);
+        node->setString("dir", val);
+
+        selected_node->setInputPort(
+            STRING, selected_node->selected_port, 
+            node, "dir");
+
       }
       // TBD if the port is an image create a buffer for it to output to?
 
