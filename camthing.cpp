@@ -272,10 +272,15 @@ class CamThing : public Output
   // delete all the nodes
   bool clearNodes()
   {
-    LOG(INFO) << "clearing nodes";
+    LOG(INFO) << CLTX2 << "clearing nodes" << CLNRM;
+    update_nodes = false;
+    node_thread.join();
     for (int i = 0; i < all_nodes.size(); i++) {
       // TBD use smart pointers
-      delete all_nodes[i];
+      if (all_nodes[i] != this) {
+        delete all_nodes[i];
+      }
+      //ports.resize(0); 
     }
 
     all_nodes.resize(0);

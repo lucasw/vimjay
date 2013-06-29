@@ -69,7 +69,7 @@ namespace bm {
     // TBD use getImageNamesAndSubdirs from utility.cpp
     boost::filesystem::path image_path(dir);
     if (!is_directory(image_path)) {
-      LOG(ERROR) << name << CLERR << " not a directory " << CLNRM << dir; 
+      LOG(ERROR) << name << CLWRN << " not a directory " << CLNRM << dir; 
       return false;
     }
 
@@ -378,7 +378,7 @@ namespace bm {
     if (valid_key) return true;
 
     valid_key = true;
-    if (key == 59) { // '
+    if (key == 39) { // '
       // descend into currently selected directory, save the old one
       const string cur_sel = getString("cur_sel");
       const boost::filesystem::path image_path(cur_sel);
@@ -387,7 +387,7 @@ namespace bm {
         setString("old_dir", getString("dir"));
         setString("dir", cur_sel);
       }
-    } else if (key == 39) { // ;
+    } else if (key == 59) { // ;
       // go up to parent directory
 
       const std::string cur_dir = getString("dir");
@@ -417,7 +417,7 @@ namespace bm {
         LOG(INFO) << "parent dir is not valid (could be at root), not using " 
             << parent_dir;
       }
-      } catch (boost::filesystem3::filesystem_error& ex) {
+      } catch (boost::filesystem::filesystem_error& ex) {
         LOG(ERROR) << "bad dir " << parent_dir << " "
             << boost::diagnostic_information(ex);
       }
