@@ -1527,20 +1527,26 @@ class CamThing : public Output
             SIGNAL, selected_node->selected_port, 
             node, "value");
 
-      } else if ((selected_node) && (selected_node->selected_port == "dir")) { 
+      } else if ((selected_node) && 
+          (selected_node->selected_port == "dir") ||
+          (selected_node->selected_port == "graph_file") ||
+          (selected_node->selected_port == "file") 
+          ) {
+        const string dir_or_file = selected_node->selected_port;
+
         // if the port is named dir or TBD other directory/file names create
         // a BrowseDir
         boost::shared_ptr<Node> node = 
             getNode<BrowseDir>(
-                "dir_" + selected_node->name, 
+                dir_or_file + selected_node->name, 
                 selected_node->loc + cv::Point2f(-150,10));
    
         const string val = selected_node->getString(selected_node->selected_port);
-        node->setString("dir", val);
+        node->setString(dir_or_file, val);
 
         selected_node->setInputPort(
             STRING, selected_node->selected_port, 
-            node, "dir");
+            node, dir_or_file);
 
       }
       // TBD if the port is an image create a buffer for it to output to?
