@@ -46,6 +46,10 @@ namespace bm {
 
   ImageDir::ImageDir(const std::string name) : Buffer(name) 
   {
+  }
+
+  void ImageDir::init()
+  {
     setSignal("mode", 0, false, ROLL, 0, 4);
     setSignal("keep_aspect", 1, false, ROLL, 0, 2);
     setString("dir", "../data"); //"temp");
@@ -217,6 +221,10 @@ namespace bm {
  
   ///////////////////////////////////////////////////////////////
   BrowseDir::BrowseDir(const std::string name) : ImageNode(name) 
+  {
+  }
+
+  void BrowseDir::init()
   {
     setString("dir", "../data"); //"temp");
     setString("old_dir", "../data"); //"temp");
@@ -417,7 +425,7 @@ namespace bm {
         LOG(INFO) << "parent dir is not valid (could be at root), not using " 
             << parent_dir;
       }
-      } catch (boost::filesystem::filesystem_error& ex) {
+      } catch (boost::filesystem3::filesystem_error& ex) {
         LOG(ERROR) << "bad dir " << parent_dir << " "
             << boost::diagnostic_information(ex);
       }

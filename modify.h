@@ -21,6 +21,7 @@ class Rot2D : public ImageNode
 {
   public:
   Rot2D(const std::string name);
+  virtual void init();
   virtual bool update();
 };
 
@@ -32,6 +33,7 @@ class Kaleid : public ImageNode
 
   public:
   Kaleid(const std::string name);
+  virtual void init();
   virtual bool update();
 };
 
@@ -40,6 +42,7 @@ class Undistort : public ImageNode
 {
   public:
   Undistort(const std::string name);
+  virtual void init();
   virtual bool update();
 };
 
@@ -53,6 +56,7 @@ protected:
 
   public:
   Remap(const std::string name);
+  virtual void init();
   virtual bool update();
 };
 ///////////////////////////////////////////////////////////
@@ -64,6 +68,7 @@ class Tap : public ImageNode
   //float value;
 
   Tap(const std::string name);// : ImageNode()
+  virtual void init();
 
   void setup( 
       boost::shared_ptr<Signal> new_signal = boost::shared_ptr<Signal>(), 
@@ -79,6 +84,7 @@ class TapInd : public Tap
   public:
 
   TapInd(const std::string name) : Tap(name) {}
+  virtual void init();
   
   // TBD make an sval?
   //int ind;
@@ -91,6 +97,7 @@ class Add : public ImageNode
 {
   public:
   Add(const std::string name); 
+  virtual void init();
   // TBD could require pair be passed in to enforce size
   // TBD get rid of this?
   void setup(
@@ -106,6 +113,7 @@ class AddMasked : public ImageNode
 {
   public:
   AddMasked(const std::string name); 
+  virtual void init();
   virtual bool update();
   //virtual bool handleKey(int key);
 };
@@ -114,6 +122,7 @@ class Multiply : public ImageNode
 {
   public:
   Multiply(const std::string name); 
+  virtual void init();
   virtual bool update();
 };
 
@@ -122,6 +131,7 @@ class AbsDiff : public ImageNode
 {
   public:
   AbsDiff(const std::string name); 
+  virtual void init();
   virtual bool update();
 };
 
@@ -129,6 +139,7 @@ class Max : public ImageNode
 {
   public:
   Max(const std::string name); 
+  virtual void init();
   virtual bool update();
 };
 
@@ -136,6 +147,7 @@ class Greater : public ImageNode
 {
   public:
   Greater(const std::string name); 
+  virtual void init();
   virtual bool update();
 };
 
@@ -144,6 +156,7 @@ class Resize : public ImageNode
 {
   public:
   Resize(const std::string name);
+  virtual void init();
   virtual bool update();
 };
 
@@ -151,6 +164,7 @@ class Flip : public ImageNode
 {
   public:
   Flip(const std::string name);
+  virtual void init();
   virtual bool update();
 };
 
@@ -158,6 +172,7 @@ class EqualizeHist : public ImageNode
 {
   public:
   EqualizeHist(const std::string name);
+  virtual void init();
   virtual bool update();
 };
 
@@ -165,6 +180,7 @@ class Normalize : public ImageNode
 {
   public:
   Normalize(const std::string name);
+  virtual void init();
   virtual bool update();
 };
 
@@ -172,6 +188,7 @@ class Distance : public ImageNode
 {
   public:
   Distance(const std::string name);
+  virtual void init();
   virtual bool update();
 };
 
@@ -179,6 +196,7 @@ class DistanceFlip : public ImageNode
 {
   public:
   DistanceFlip(const std::string name);
+  virtual void init();
   virtual bool update();
 };
 
@@ -187,6 +205,7 @@ class FloodFill : public ImageNode
 {
   public:
   FloodFill(const std::string name);
+  virtual void init();
   virtual bool update();
 };
 

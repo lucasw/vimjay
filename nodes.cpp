@@ -436,12 +436,18 @@ namespace bm {
     selected_port_ind(-1),
     selected_port("")
   {
+  }
+ 
+  void Node::init()
+  {
     vcol = cv::Scalar(200,200,200);
-
+    
+    // Can't call these in the constructor because
+    // of way shared_ptr works
     setSignal("enable", 1.0, false, SATURATE, 0,1);
     setSignal("force_update", 0.0);
   }
-  
+
 /*
   Node::Node(string name, cv::Point loc, cv::Mat graph_ui ) : 
     selected_type(NONE),
@@ -901,6 +907,14 @@ namespace bm {
       // 
       con->parent = boost::weak_ptr<Node>(
           dynamic_pointer_cast<Node>(shared_from_this()));
+     
+      /* doesn't work
+      con->parent = 
+          dynamic_pointer_cast<Node>(
+              boost::weak_ptr<Elem>(
+                  shared_from_this()
+          ));*/
+
       con->type = type;
     
       boost::mutex::scoped_lock l(port_mutex);
@@ -1307,6 +1321,10 @@ namespace bm {
   //////////////////////////////////////////////////////////////////////////////////////////
   ImageNode::ImageNode(const std::string name) : Node(name)
   {
+  }
+
+  void ImageNode::init() 
+  {
     vcol = cv::Scalar(255,0,255);
   
     // create the entry for out
@@ -1628,6 +1646,10 @@ namespace bm {
   //////////////////////////////////////////////////////////////////////////////////////////
   Buffer::Buffer(const std::string name) : ImageNode(name)
   {
+  }
+
+  void Buffer::init()
+  {
     //this->max_size = max_size;
     //LOG(INFO) << "new buffer max_size " << this->max_size;
     vcol = cv::Scalar(200, 30, 200);
@@ -1899,6 +1921,10 @@ namespace bm {
   //////////////////////////////////////////////////////////////////////////////////////////
   Mux::Mux(const std::string name) : Buffer(name)
   {
+  }
+
+  void Mux::init()
+  {
     //this->max_size = max_size;
     //LOG(INFO) << "new buffer max_size " << this->max_size;
     vcol = cv::Scalar(200, 30, 200);
@@ -2008,6 +2034,10 @@ namespace bm {
   // inuitive.
   MuxBuffer::MuxBuffer(const std::string name) :
     Buffer(name) 
+  {
+  }
+
+  void MuxBuffer::init()
   {
     vcol = cv::Scalar(200, 30, 200);
 

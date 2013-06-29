@@ -15,9 +15,9 @@ class FilterFIR : public Buffer
 
   /// filter coefficients
   std::vector<float> xi;
-
+  
   FilterFIR(const std::string name);
-
+  virtual void init();
   void setup(const std::vector<float> new_xi);
   virtual bool update();
  
@@ -29,6 +29,7 @@ class Sobel : public ImageNode
 {
   public:
   Sobel(const std::string name);
+  virtual void init();
   virtual bool update();
 };
 
@@ -36,6 +37,7 @@ class Laplacian : public ImageNode
 {
   public:
   Laplacian(const std::string name);
+  virtual void init();
   virtual bool update();
 };
 
@@ -43,6 +45,7 @@ class GaussianBlur : public ImageNode
 {
   public:
   GaussianBlur(const std::string name);
+  virtual void init();
   virtual bool update();
 };
 
@@ -50,6 +53,7 @@ class MedianBlur : public ImageNode
 {
   public:
   MedianBlur(const std::string name);
+  virtual void init();
   virtual bool update();
 };
 
@@ -57,6 +61,7 @@ class BilateralFilter : public ImageNode
 {
   public:
   BilateralFilter(const std::string name);
+  virtual void init();
   virtual bool update();
 };
 
@@ -64,6 +69,7 @@ class InPaint : public ImageNode
 {
   public:
   InPaint(const std::string name);
+  virtual void init();
   virtual bool update();
 };
 
@@ -73,6 +79,7 @@ class MorphologyEx : public ImageNode
 {
   public:
   MorphologyEx(const std::string name);
+  virtual void init();
   virtual bool update();
 };
 
@@ -84,6 +91,7 @@ class OpticalFlow : public Remap
 
   public:
   OpticalFlow(const std::string name);
+  virtual void init();
   virtual bool update();
 };
 

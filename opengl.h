@@ -22,6 +22,7 @@ class OpenGL : public ImageNode
 
   public:
   OpenGL(const std::string name);
+  virtual void init();
   
   bool setup();
   

@@ -36,6 +36,10 @@ namespace bm {
 
 Bezier::Bezier(const std::string name) : ImageNode(name)
 {
+}
+
+void Bezier::init()
+{
   // TBD take x and y sigbuf inputs
   setSignal("x0",10);
   setSignal("y0",10);
@@ -86,6 +90,10 @@ bool Bezier::update()
 //////////////////////////////////////////////////
 
 Circle::Circle(const std::string name) : ImageNode(name)
+{
+}
+
+void Circle::init()
 {
   // hard to enforce these all being the same size
   //setSigBuf("x");
@@ -138,6 +146,10 @@ bool Circle::update()
 //////////////////////////////////////////////////
 Noise::Noise(const std::string name) : ImageNode(name)
 {
+}
+
+void Noise::init()
+{
   setSignal("mean", 10);
   setSignal("stddev", 128);
 }
@@ -164,6 +176,11 @@ bool Noise::update()
 
 
 SimplexNoise::SimplexNoise(const std::string name) : ImageNode(name)
+{
+
+}
+
+void SimplexNoise::init()
 {
   //setSignal("octaves", 2, false, SATURATE, 1, 20);
   //setSignal("persist", 0.8);//, false, SATURATE, 0.0, 1.0);

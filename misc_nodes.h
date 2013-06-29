@@ -28,6 +28,7 @@ class ImageDir : public Buffer
   public:
 
   ImageDir(const std::string name);
+  virtual void init();
 
   bool loadImages();
 
@@ -42,6 +43,7 @@ class BrowseDir : public ImageNode
   public:
 
   BrowseDir(const std::string name);
+  virtual void init();
   
   virtual bool handleKey(int key);
   virtual bool update();

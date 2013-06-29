@@ -51,6 +51,10 @@ namespace bm {
 //////////////////////////////////////////////////
   MiscSignal::MiscSignal(const std::string name) : Signal(name)
   {
+  }
+
+  void MiscSignal::init()
+  {
     vcol = cv::Scalar(0,90,255);
     setSignal("mode", 7, false, ROLL, 0, 7);
   }
@@ -185,7 +189,11 @@ namespace bm {
   ///////////////////////////////////////////////////
   Trig::Trig(const string name) :
       Node(name)
-  { 
+  {
+  }
+
+  void Trig::init()
+  {
     setSignal("in", 0);
     setSignal("radius", 1);
     setSignal("rad_deg_nrm", 2);
@@ -218,6 +226,10 @@ namespace bm {
   /// much and would add a lot of convenience.  
   SigBuffer::SigBuffer(const std::string name) :
       ImageNode(name)
+  {
+  }
+
+  void SigBuffer::init()
   {
     setSignal("in", 0);
     
@@ -419,6 +431,10 @@ namespace bm {
 SigBufferXY::SigBufferXY(const std::string name) :
     SigBuffer(name)
 {
+}
+
+void SigBufferXY::init()
+{
   setSignal("set_ind", 0);
 }
 
@@ -452,6 +468,10 @@ bool SigBufferXY::update()
 // but then each set is summed
 SigAdd::SigAdd(const std::string name) :
     Node(name)
+{
+}
+
+void SigAdd::init()
 {
   setSignal("out",0, true);
   setSignal("mula0",1);
@@ -542,6 +562,10 @@ bool SigAdd::handleKey(int key)
 SigGreater::SigGreater(const std::string name) :
     Signal(name)
 {
+}
+
+void SigGreater::init()
+{
   // TBD more convenient to output all possibilities, or provide mode selector?
   setSignal("greater",0, true);
   setSignal("less",0, true);
@@ -574,6 +598,10 @@ bool SigGreater::update()
 
 Mean::Mean(const std::string name) :
     Signal(name)
+{
+}
+
+void Mean::init()
 {
   // TBD more convenient to output all possibilities, or provide mode selector?
   cv::Mat tmp;

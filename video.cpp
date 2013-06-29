@@ -52,11 +52,19 @@ namespace bm {
     LOG(INFO) << name << " video capture";
   }
 
+  void VideoCapture::init() 
+  {
+  }
+
   ///////////////////////////////////////////////
 
   Video::Video(const std::string name) : 
       Buffer(name)
       //VideoCapture(name)
+  {
+  }
+
+  void Video::init()
   {
     is_thread_dirty = false;
     setSignal("mode", 0, false, ROLL, 0, 4);
@@ -156,6 +164,10 @@ namespace bm {
   ////////////////////////////////////////////////////////////
   Webcam::Webcam(const std::string name) : 
       VideoCapture(name)
+  {
+  }
+
+  void Webcam::init()
   {
     is_thread_dirty = false;
     setSignal("mode", 0, false, ROLL, 0, 4);

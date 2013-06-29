@@ -38,6 +38,10 @@ My manual method still may be useful for exposing some internal data for use els
 */
 Cluster::Cluster(const std::string name) : ImageNode(name)
 {
+}
+
+void Cluster::init()
+{
   cv::Mat tmp;
   setImage("in", tmp);
 	setSignal("dist_weight", 0.5);
@@ -287,6 +291,10 @@ bool Cluster::update()
 
 
 PyrMean::PyrMean(const std::string name) : ImageNode(name)
+{
+}
+
+void PyrMean::init()
 {
   cv::Mat in;
   setImage("in", in);

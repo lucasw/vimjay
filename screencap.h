@@ -24,6 +24,7 @@ class ScreenCap : public ImageNode
   public:
 
   ScreenCap(const std::string name);
+  virtual void init();
   
   virtual bool update();
 

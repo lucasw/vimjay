@@ -84,6 +84,8 @@ class Elem : public boost::enable_shared_from_this<Elem>
   public:
   //Elem();
   Elem(const std::string name);
+  
+  virtual void init() {}
 
   // the coordinates of the element
   cv::Point2f loc;
@@ -223,8 +225,9 @@ class Node : public Elem
 
   //Node(std::string name, cv::Point loc, cv::Mat graph_ui ); 
   
-  // TBD need to delete all the connectors
   virtual ~Node() {}
+
+  virtual void init();
     
   bool setUpdate();
   
@@ -337,6 +340,8 @@ class ImageNode : public Node
 public:
    
   ImageNode(const std::string name);
+  
+  virtual void init();
 
   virtual bool update();
 
@@ -388,6 +393,7 @@ class Buffer : public ImageNode
   public:
 
   Buffer(const std::string name); 
+  virtual void init();
   
   bool manualUpdate();
   virtual bool update();
@@ -423,6 +429,7 @@ class Mux : public Buffer
   public:
 
   Mux(const std::string name); 
+  virtual void init();
  
   virtual bool update();
   virtual bool handleKey(int key);
@@ -434,6 +441,7 @@ class MuxBuffer : public Buffer
 
   public:
   MuxBuffer(const std::string name); 
+  virtual void init();
  
   virtual cv::Mat get(const float fr, int& actual_ind = default_ind);
   virtual cv::Mat get(int ind, int& actual_ind = default_ind);

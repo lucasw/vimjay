@@ -30,12 +30,16 @@ using namespace std;
 
 namespace bm {
 
-ScreenCap::ScreenCap(const std::string name) :ImageNode(name)
+ScreenCap::ScreenCap(const std::string name) :
+  ImageNode(name),
+  display(NULL),
+  screen(NULL),
+  xImageSample(NULL)
 {
-  display = NULL;
-  screen = NULL;
-  xImageSample = NULL;
+}
 
+void ScreenCap::init()
+{
   display = XOpenDisplay(NULL); // Open first (-best) display
   if (display == NULL) {
     LOG(ERROR) << name << " bad display";

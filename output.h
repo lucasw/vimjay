@@ -22,6 +22,7 @@ class Output : public ImageNode
   int opcode;
   
   Output(const std::string name);
+  virtual void init();
   
   bool setup(const int width, const int height);
   

@@ -15,6 +15,7 @@ class Contour : public ImageNode
   
   public:
   Contour(const std::string name);
+  virtual void init();
   virtual bool update();
 };
 
@@ -31,6 +32,7 @@ class ContourFlip : public Contour
 
   public:
   ContourFlip(const std::string name);
+  virtual void init();
   virtual bool update();
 };
 

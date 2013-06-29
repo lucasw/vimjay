@@ -40,6 +40,7 @@ class Mouse : public Node
 
   Mouse(const std::string name);
   ~Mouse();
+  virtual void init();
   virtual bool draw(cv::Point2f ui_offset);
 };
 

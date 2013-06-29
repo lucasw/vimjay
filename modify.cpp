@@ -78,6 +78,10 @@ namespace bm {
 
   Rot2D::Rot2D(const std::string name) : ImageNode(name)
   {
+  }
+
+  void Rot2D::init()
+  {
     cv::Mat tmp;
     setImage("in",tmp);
     setSignal("phi", 0);
@@ -251,6 +255,10 @@ namespace bm {
 
   //
   Kaleid::Kaleid(const std::string name) : ImageNode(name)
+  {
+  }
+  
+  void Kaleid::init()
   {
     cv::Mat tmp;
     setImage("in",tmp);
@@ -448,6 +456,10 @@ namespace bm {
   //
   Undistort::Undistort(const std::string name) : ImageNode(name)
   {
+  }
+
+  void Undistort::init()
+  {
     cv::Mat tmp;
     setImage("in",tmp);
     setSignal("fx", Config::inst()->im_width/2 );
@@ -501,6 +513,10 @@ namespace bm {
 
   Remap::Remap(const std::string name) :
       ImageNode(name)
+  {
+  }
+
+  void Remap::init()
   {
     cv::Mat in;
     setImage("in", in);
@@ -616,6 +632,10 @@ namespace bm {
 ///////////////////////////////////////////////////////////
   Tap::Tap(const std::string name) : ImageNode(name)
   {
+  }
+
+  void Tap::init()
+  {
     vcol = cv::Scalar(100, 30, 250);
 
     getSignal("value");
@@ -659,7 +679,13 @@ namespace bm {
   {
     ImageNode::draw(ui_offset);
   }
-  
+  /////////////////////////////////////////
+
+  void TapInd::init()
+  {
+
+  }
+
   bool TapInd::update()
   {
     if (!Node::update()) return false;
@@ -690,6 +716,10 @@ namespace bm {
   ///////////////////////////////////////////
   Add::Add(const std::string name) : 
       ImageNode(name)
+  {
+  }
+
+  void Add::init()
   {
     cv::Mat tmp;
     setImage("add0", tmp);
@@ -828,6 +858,10 @@ namespace bm {
   AddMasked::AddMasked(const std::string name) : 
       ImageNode(name)
   {
+  }
+
+  void AddMasked::init()
+  {
     cv::Mat tmp;
     setImage("add0", tmp);
     //setSignal("add0", 1.0);
@@ -877,6 +911,10 @@ namespace bm {
 
   ////////////////////////////////////////
   Multiply::Multiply(const std::string name) : ImageNode(name) 
+  {
+  }
+
+  void Multiply::init()
   {
     cv::Mat tmp;
     setImage("mul0", tmp);
@@ -948,6 +986,10 @@ namespace bm {
   ////////////////////////////////////////
   AbsDiff::AbsDiff(const std::string name)  : ImageNode(name) 
   {
+  }
+  
+  void AbsDiff::init()
+  {
     cv::Mat tmp;
     setImage("diff0", tmp);
     setImage("diff1", tmp);
@@ -985,6 +1027,10 @@ namespace bm {
   }
 
   Max::Max(const std::string name)  : ImageNode(name) 
+  {
+  }
+
+  void Max::init()
   {
     cv::Mat tmp;
     setImage("in0", tmp);
@@ -1034,6 +1080,10 @@ namespace bm {
 
   ////////////////////////////////////////
   Greater::Greater(const std::string name) : ImageNode(name) 
+  {
+  }
+
+  void Greater::init()
   {
     cv::Mat tmp;
     setImage("in0", tmp);
@@ -1093,6 +1143,10 @@ CMP_NE
 
   ////////////////////////////////////////
   Resize::Resize(const std::string name) : ImageNode(name) 
+  {
+  }
+
+  void Resize::init()
   {
     cv::Mat tmp;
     setImage("in", tmp);
@@ -1157,6 +1211,10 @@ CMP_NE
   Flip::Flip(const std::string name) :
       ImageNode(name)
   {
+  }
+
+  void Flip::init()
+  {
     cv::Mat tmp;
     setImage("in", tmp);
     setSignal("flip_code", 0);
@@ -1204,6 +1262,10 @@ CMP_NE
   ////////////////////////////////////////
   EqualizeHist::EqualizeHist(const std::string name) :
       ImageNode(name)
+  {
+  }
+
+  void EqualizeHist::init()
   {
     cv::Mat tmp;
     setImage("in", tmp);
@@ -1284,6 +1346,11 @@ CMP_NE
   Normalize::Normalize(const std::string name) :
       ImageNode(name)
   {
+
+  }
+
+  void Normalize::init()
+  {
     cv::Mat tmp;
     setImage("in", tmp);
     setImage("mask", tmp);
@@ -1338,6 +1405,10 @@ CMP_NE
   ////////////////////////////////////////
   Distance::Distance(const std::string name) :
       ImageNode(name)
+  {
+  }
+
+  void Distance::init()
   {
     cv::Mat tmp;
     setImage("in", tmp);
@@ -1411,6 +1482,10 @@ CMP_NE
   /////////////////////////////////////////////////////////
   DistanceFlip::DistanceFlip(const std::string name) :
       ImageNode(name)
+  {
+  }
+
+  void DistanceFlip::init()
   {
     cv::Mat tmp;
     setImage("to_flip", tmp);
@@ -1553,6 +1628,10 @@ CMP_NE
   ////////////////////////////////////////
   FloodFill::FloodFill(const std::string name) :
       ImageNode(name)
+  {
+  }
+
+  void FloodFill::init()
   {
     cv::Mat tmp;
     setImage("in", tmp);

@@ -28,6 +28,7 @@ class VideoCapture : public ImageNode
   
   public:
   VideoCapture(const std::string name);
+  virtual void init();
   //virtual ~VideoCapture();
   //
   
@@ -42,6 +43,7 @@ class Webcam : public VideoCapture
 
   public:
   Webcam(const std::string name);
+  virtual void init();
   virtual ~Webcam();
 
   virtual bool update();
@@ -64,6 +66,7 @@ protected:
 public:
   Video(const std::string name);
   virtual ~Video();
+  virtual void init();
   virtual bool update();
 };
 

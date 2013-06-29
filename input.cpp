@@ -135,7 +135,11 @@ int main( int argc, char* argv[] )
 Mouse::Mouse(const std::string name) : 
   Node(name),
   display(NULL) 
-{ 
+{
+}
+
+void Mouse::init()
+{
   setSignal("0_x", 0);
 
   //event_thread = boost::thread(&Mouse::runThread, this);

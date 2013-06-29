@@ -15,6 +15,7 @@ class Bezier : public ImageNode
 {
   public:
   Bezier(const std::string name);
+  virtual void init();
   virtual bool update();
 };
 
@@ -22,6 +23,7 @@ class Circle : public ImageNode
 {
   public:
   Circle(const std::string name);
+  virtual void init();
   virtual bool update();
 };
 
@@ -30,6 +32,7 @@ class Noise : public ImageNode
 {
   public:
   Noise(const std::string name);
+  virtual void init();
   virtual bool update();
 };
 
@@ -37,6 +40,7 @@ class SimplexNoise : public ImageNode
 {
   public:
   SimplexNoise(const std::string name);
+  virtual void init();
   virtual bool update();
 };
 

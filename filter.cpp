@@ -39,6 +39,11 @@ FilterFIR::FilterFIR(const std::string name) : Buffer(name)
 
 }
 
+void FilterFIR::init()
+{
+
+}
+
 void FilterFIR::setup(const std::vector<float> new_xi)
 {
   xi = new_xi;
@@ -126,6 +131,10 @@ bool FilterFIR::handleKey(int key)
 
 Sobel::Sobel(const std::string name) : ImageNode(name)
 {
+}
+
+void Sobel::init()
+{
   cv::Mat tmp;
   setImage("in", tmp);
   setSignal("xorder",1);
@@ -186,6 +195,10 @@ bool Sobel::update()
 
 Laplacian::Laplacian(const std::string name) : ImageNode(name)
 {
+}
+
+void Laplacian::init()
+{
   cv::Mat tmp;
   setImage("in", tmp);
   // TBD Signals should allo min max parameters to be set
@@ -230,6 +243,10 @@ bool Laplacian::update()
 ////////////////////////////////////////
   GaussianBlur::GaussianBlur(const std::string name) : ImageNode(name) 
   {
+  }
+
+  void GaussianBlur::init()
+  {
     cv::Mat tmp;
     setImage("in", tmp);
     setSignal("k_width",2);
@@ -265,6 +282,10 @@ bool Laplacian::update()
 ////////////////////////////////////////
   MedianBlur::MedianBlur(const std::string name) : ImageNode(name) 
   {
+  }
+
+  void MedianBlur::init()
+  {
     cv::Mat tmp;
     setImage("in", tmp);
     setSignal("k_size", 2, false, SATURATE, 1, 10);
@@ -296,6 +317,10 @@ bool Laplacian::update()
   }
 
   BilateralFilter::BilateralFilter(const std::string name) : ImageNode(name) 
+  {
+  }
+
+  void BilateralFilter::init()
   {
     cv::Mat tmp;
     setImage("in", tmp);
@@ -397,6 +422,10 @@ InPaint::InPaint(const std::string name) : ImageNode(name)
 ///////////////////////////////////////////////////////////////////////////// 
 MorphologyEx::MorphologyEx(const std::string name) : ImageNode(name)
 {
+}
+
+void MorphologyEx::init()
+{
   cv::Mat in;
   setImage("in", in);
   setSignal("element", 0, false, ROLL, 0, 2);
@@ -472,6 +501,10 @@ bool MorphologyEx::update()
 
   ///////////////////////////////////////////////////////////////////////////// 
   OpticalFlow::OpticalFlow(const std::string name) : Remap(name)
+  {
+  }
+
+  void OpticalFlow::init()
   {
     cv::Mat tmp, tmp2, tmp3, tmp4;
     //setImage("prev", tmp);

@@ -96,6 +96,8 @@ class CamThing : public Output
       boost::shared_ptr<nodeType> node = 
           boost::shared_ptr<nodeType>(new nodeType(name));//name, loc, graph_ui);
       
+      node->init();
+
       VLOG(1) << CLVAL << all_nodes.size()  << CLTX2 
           << " new node " << CLNRM << " " << getId(node) << " "  
           << name << " " << loc.x << ", " << loc.y << " " << node;
@@ -1847,7 +1849,8 @@ int main( int argc, char* argv[] )
   }
   struct input_event ev;
   #else 
-  bm::CamThing* cam_thing = new bm::CamThing("camthing");
+  boost::shared_ptr<bm::CamThing> cam_thing(new bm::CamThing("camthing"));
+  cam_thing->init();
   #endif
 
 

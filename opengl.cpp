@@ -36,7 +36,11 @@ namespace bm {
   OpenGL::OpenGL(const std::string name) :
     ImageNode(name),
     has_setup(false)
-  { 
+  {
+  }
+
+  void OpenGL::init()
+  {
     cv::Mat out; setImage("in",out);
 
     setSignal("x1", -1.0);

@@ -22,6 +22,7 @@ class MiscSignal : public Signal
   int state;
   public:
   MiscSignal(const std::string name); 
+  virtual void init();
   virtual bool update();
   virtual bool handleKey(int key);
 };
@@ -37,6 +38,7 @@ class SigBuffer : public ImageNode
 
   public:
   SigBuffer(const std::string name);
+  virtual void init();
   virtual bool update();
   virtual bool draw(cv::Point2f ui_offset);
   
@@ -50,6 +52,7 @@ class SigBufferXY : public SigBuffer
 {
   public:
   SigBufferXY(const std::string name);
+  virtual void init();
   virtual bool update();
 };
 
@@ -57,6 +60,7 @@ class Trig : public Node
 {
   public:
   Trig(const std::string name); 
+  virtual void init();
   virtual bool update();
   //virtual bool handleKey(int key);
 };
@@ -66,6 +70,7 @@ class SigAdd : public Node
 {
   public:
   SigAdd(const std::string name); // : Signal()
+  virtual void init();
   virtual bool update();
   virtual bool handleKey(int key);
 };
@@ -74,6 +79,7 @@ class SigGreater : public Signal
 {
   public:
   SigGreater(const std::string name); 
+  virtual void init();
   virtual bool update();
 };
 
@@ -81,6 +87,7 @@ class Mean : public Signal
 {
   public:
   Mean(const std::string name); 
+  virtual void init();
   virtual bool update();
 };
 
@@ -93,6 +100,7 @@ class SigFile : public SigBuffer
 {
   public:
   SigFile(const std::string name) {}
+  virtual void init();
   std::string file;
   bool loadBuffer();
   virtual bool load(cv::FileNodeIterator nd);
@@ -104,6 +112,7 @@ class SigTap : public Signal
 {
   public:
   SigTap(const std::string name);// : Signal()
+  virtual void init();
   virtual bool update();
   virtual bool draw(cv::Point2f ui_offset);
 };
@@ -112,6 +121,7 @@ class SigTapInd : public Tap
 {
   public:
   SigTapInd(const std::string name) {}// : Signal()
+  virtual void init();
   virtual bool update();
   virtual bool draw(cv::Point2f ui_offset);
 };
@@ -121,6 +131,7 @@ class SigMultiply : public Signal
 {
   public:
   Multiply(const std::string name); 
+  virtual void init();
   virtual bool update();
 };
 
@@ -129,6 +140,7 @@ class SigAbsDiff : public Signal
 {
   public:
   SigAbsDiff(const std::string name); 
+  virtual void init();
   virtual bool update();
 };
 
@@ -137,6 +149,7 @@ class SigFlip : public Signal
 {
   public:
   SigFlip(const std::string name);
+  virtual void init();
   virtual bool update();
 };
 #endif
