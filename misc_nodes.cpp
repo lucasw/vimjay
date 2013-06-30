@@ -427,7 +427,8 @@ namespace bm {
         LOG(INFO) << "parent dir is not valid (could be at root), not using " 
             << parent_dir;
       }
-      } catch (boost::filesystem3::filesystem_error& ex) {
+      } catch (boost::filesystem::filesystem_error& ex) {
+      //} catch (boost::filesystem3::filesystem_error& ex) {
         LOG(ERROR) << "bad dir " << parent_dir << " "
             << boost::diagnostic_information(ex);
       }

@@ -65,6 +65,9 @@ boost_filesystem
 boost_system
 glut
 GLEW
+GL
+Xi
+X11
 )
 
 
