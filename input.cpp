@@ -20,6 +20,9 @@
 
 #include "input.h"
 
+#include <sys/ioctl.h>
+#include <fcntl.h>
+
 #include <iostream>
 #include <sstream>
 #include <stdio.h>
@@ -31,6 +34,7 @@
 #include <deque>
 //#include <pair>
 
+#include <boost/lexical_cast.hpp>
 
 #include "opencv2/highgui/highgui.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
@@ -160,6 +164,8 @@ bool Mouse::update()
 }
 #endif
 
+// mouse input takes place in draw thread instead of update
+// because the draw thread 'owns' the display/window
 bool Mouse::draw(cv::Point2f ui_offset)
 {
   Node::draw(ui_offset);
@@ -212,7 +218,110 @@ bool MouseSignal::draw( )
   return true;
 }
 #endif
+  
+GamePad::GamePad(const std::string name) : 
+  ImageNode(name)
+{
+}
 
+void GamePad::init()
+{
+  ImageNode::init();
+  
+  is_initted = false;
+  //setSignal("0_x", 0);
+
+  //event_thread = boost::thread(&Mouse::runThread, this);
+
+  // TBD allow changing of joystick input- could allow numeric input
+  // to append to js, 
+
+ int fd;
+  unsigned char axes = 2;
+  unsigned char buttons = 2;
+  int version = 0x000800;
+  const int NAME_LENGTH = 128;
+  char name[NAME_LENGTH] = "Unknown";
+
+  if ((fd = open("/dev/input/js0", O_RDONLY)) < 0) {
+    perror("controlrecorder");
+    setString("name", "NO GAMEPAD");
+    return;
+  }
+
+  ioctl(fd, JSIOCGVERSION, &version);
+  ioctl(fd, JSIOCGAXES, &axes);
+  ioctl(fd, JSIOCGBUTTONS, &buttons);
+  ioctl(fd, JSIOCGNAME(NAME_LENGTH), name);
+
+  fcntl(fd, F_SETFL, O_NONBLOCK);
+
+  axis.resize(axes);
+  button.resize(buttons);
+
+
+  const bool internally_set = true;
+  setString("name", name);
+  setSignal("version_0", (version >> 16) & 0xff, internally_set); 
+  setSignal("version_1", (version >> 8)  & 0xff, internally_set); 
+  setSignal("version_2", version & 0xff, internally_set); 
+  setSignal("axes", axes, internally_set);
+  setSignal("buttons", buttons, internally_set);
+
+  for (size_t i = 0; i < axis.size(); i++) {
+    setSignal("axis_" + boost::lexical_cast<string>(i), axis[i], 
+        internally_set);
+  }
+  for (size_t i = 0; i < button.size(); i++) {
+    setSignal("button_" + boost::lexical_cast<string>(i), button[i],
+        internally_set);
+  }
+
+  is_initted = true;
+}
+
+GamePad::~GamePad()
+{
+  //run_thread = false;
+  //event_thread.join();
+}
+
+bool GamePad::update()
+{
+  if (!Node::update()) return false;
+
+  if (fd <= 0) return true;
+ 
+  // TBD put int thread
+  int i = 0;
+  while (
+      read(fd, &js, sizeof(struct js_event)) == sizeof(struct js_event) &&
+      (i < 25)) {
+
+    i++;
+    switch(js.type & ~JS_EVENT_INIT) {
+      case JS_EVENT_BUTTON:
+        if (js.number < button.size())
+        button[js.number] = js.value;
+        setSignal("button_" + boost::lexical_cast<string>(js.number), js.value);
+        break;
+      case JS_EVENT_AXIS:
+        if (js.number < axis.size())
+        axis[js.number] = js.value;
+        setSignal("axis_" + boost::lexical_cast<string>(js.number), js.value);
+        break;
+    }
+
+  }
+
+  return true;
+}
+
+bool GamePad::draw(cv::Point2f ui_offset)
+{
+
+
+}
 
 } //  bm
 

@@ -245,6 +245,8 @@ class CamThing : public Output
         node = getNode<Trig>(name, loc);
       } else if (type_id.compare("bm::SigADSR") == 0) {
         node = getNode<SigADSR>(name, loc);
+      } else if (type_id.compare("bm::GamePad") == 0) {
+        node = getNode<GamePad>(name, loc);
       } else if (type_id.compare("bm::Mouse") == 0) {
         node = getNode<Mouse>(name, loc);
         
@@ -529,6 +531,7 @@ class CamThing : public Output
     node_types.push_back("bm::OpenGL");
     
     node_types.push_back("bm::SigADSR");
+    node_types.push_back("bm::GamePad");
     node_types.push_back("bm::Mouse");
     //node_types.push_back("bm::Output"); // TBD if can spawn this
 

@@ -16,6 +16,8 @@
 #include <map>
 #include <boost/thread.hpp>
 
+#include <linux/joystick.h>
+
 #include "nodes.h"
 
 namespace bm {
@@ -58,8 +60,28 @@ class MouseSignal : public SigBuffer
 };
 #endif
 
-// Joystick
-// https://github.com/Grumbel/jstest-gtk/blob/master/src/joystick.cpp
+class GamePad : public ImageNode
+{
+  private:
+
+  int fd;
+  struct js_event js;
+
+  std::vector<int> axis;
+  std::vector<int> button;
+
+  bool is_initted;
+
+  public:
+
+  GamePad(const std::string name);
+  ~GamePad();
+  virtual void init();
+  virtual bool update();
+  virtual bool draw(cv::Point2f ui_offset);
+
+};
+
 
 // Future -- wiimote?
 
