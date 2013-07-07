@@ -95,6 +95,8 @@ namespace bm {
           LOG(INFO) << name << " opening new video source " 
             << CLTXT << file << CLNRM;
           video.open(file);
+          // TBD temp kinect test
+          //video.open(cv::CAP_OPENNI);
 
           boost::mutex::scoped_lock l(frames_mutex);
           frames.clear();
