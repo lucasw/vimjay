@@ -324,7 +324,7 @@ class CamThing : public Output
   
 
   /// save the graph to an output yaml file
-  bool saveGraph(std::string graph_file="graph.yml") 
+  bool saveGraph(const std::string graph_file="graph.yml") 
   {
     boost::mutex::scoped_lock l(update_mutex);
 
@@ -1385,7 +1385,7 @@ class CamThing : public Output
       // TBD define path to data somewhere to be reused by all
       file_name << base_dir << t1 << "_" << name << ".yml";
       saveGraph(file_name.str());
-      saveGraph(FLAGS_graph);
+      saveGraph("../temp_graph.yml");
       setString("graph_out", file_name.str());
     }
     //else if (key == 'a') {
