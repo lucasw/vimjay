@@ -319,7 +319,7 @@ bool GamePad::update()
 
 bool GamePad::draw(cv::Point2f ui_offset)
 {
-
+  return ImageNode::draw(ui_offset);
 
 }
 
