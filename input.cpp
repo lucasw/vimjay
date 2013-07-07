@@ -236,7 +236,6 @@ void GamePad::init()
   // TBD allow changing of joystick input- could allow numeric input
   // to append to js, 
 
- int fd;
   unsigned char axes = 2;
   unsigned char buttons = 2;
   int version = 0x000800;
@@ -278,6 +277,8 @@ void GamePad::init()
   }
 
   is_initted = true;
+
+  joy_thread = boost::thread(&GamePad::runThread, this);
 }
 
 GamePad::~GamePad()
@@ -286,33 +287,67 @@ GamePad::~GamePad()
   //event_thread.join();
 }
 
+void GamePad::runThread()
+{
+  LOG(INFO) << "Starting gamepad thread";
+
+  run_thread = true;
+
+  while (run_thread) {
+    //LOG_FIRST_N(INFO, 10) << "game pad run loop " << fd;
+    if (fd > 0) {
+      //LOG_FIRST_N(INFO, 10) << "game pad fd " << fd;
+      // TBD put int thread
+      while (
+          read(fd, &js, sizeof(struct js_event)) == sizeof(struct js_event)) {
+       
+        const int js_num = int(js.number);
+        //LOG_FIRST_N(INFO, 10) << "game pad fd";
+
+        switch(js.type & ~JS_EVENT_INIT) {
+          case JS_EVENT_BUTTON:
+          {
+            if (js.number < button.size())
+              button[js.number] = js.value;
+
+            const std::string button_name = 
+                "button_" + boost::lexical_cast<string>(js_num);
+            setSignal(button_name, js.value);
+            VLOG(1) << "button " << button_name << " " << js_num << " " << js.value;
+
+            break;
+          }
+
+          case JS_EVENT_AXIS:
+          {
+            if (js.number < axis.size())
+              axis[js.number] = js.value;
+
+            const std::string axis_name = 
+                "axis_" + boost::lexical_cast<string>(js_num);
+            // TBD scale automatically for now
+            setSignal(axis_name, 10.0 * js.value / 32768.0);
+            VLOG(1) << "axis " << axis_name << " " << js_num << " " << js.value;
+            break;
+          }
+        }
+      }
+      
+      usleep(1000);
+
+    } else {
+      LOG_FIRST_N(WARNING, 5) << "no joystick connectect yet";
+      sleep(1);
+    }
+
+
+  } // run_thread
+
+} // runThread
+
 bool GamePad::update()
 {
   if (!Node::update()) return false;
-
-  if (fd <= 0) return true;
- 
-  // TBD put int thread
-  int i = 0;
-  while (
-      read(fd, &js, sizeof(struct js_event)) == sizeof(struct js_event) &&
-      (i < 25)) {
-
-    i++;
-    switch(js.type & ~JS_EVENT_INIT) {
-      case JS_EVENT_BUTTON:
-        if (js.number < button.size())
-        button[js.number] = js.value;
-        setSignal("button_" + boost::lexical_cast<string>(js.number), js.value);
-        break;
-      case JS_EVENT_AXIS:
-        if (js.number < axis.size())
-        axis[js.number] = js.value;
-        setSignal("axis_" + boost::lexical_cast<string>(js.number), js.value);
-        break;
-    }
-
-  }
 
   return true;
 }

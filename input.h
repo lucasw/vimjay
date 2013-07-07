@@ -71,6 +71,10 @@ class GamePad : public ImageNode
   std::vector<int> button;
 
   bool is_initted;
+  bool run_thread;
+  boost::thread joy_thread;
+
+  void runThread();
 
   public:
 
