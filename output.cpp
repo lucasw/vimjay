@@ -53,6 +53,7 @@ namespace bm {
     setSignal("y", 0, false, SATURATE, 0, 1e6);
     setSignal("w", Config::inst()->out_width,  false, SATURATE, 1, 1e6);
     setSignal("h", Config::inst()->out_height, false, SATURATE, 1, 1e6);
+    
   }
 
   bool Output::setup(const int width, const int height)
@@ -65,6 +66,13 @@ namespace bm {
     
     LOG(INFO) << name << " created window " << CLVAL << display << " " 
         << ximage <<CLNRM;
+    
+    if (!get_toplevel_parent(display, win, toplevel_parent)) {
+      LOG(ERROR) << name << " couldn't get toplevel parent";
+      return false;
+    }
+
+    return true;
   }
 
   bool Output::update()
@@ -79,10 +87,14 @@ namespace bm {
   bool Output::draw(cv::Point2f ui_offset)
   {
     boost::timer t1;
-
-    bool window_decorations_on = getSignal("decor");
-    setSignal("decor", window_decorations_on);
-    bm::setWindowDecorations(display, win, window_decorations_on);
+    
+    bool is_valid = false;
+    bool is_dirty = false;
+    const bool window_decorations_on = getSignal("decor", is_valid, is_dirty);
+    if (is_dirty) {
+      setSignal("decor", window_decorations_on);
+      bm::setWindowDecorations(display, win, window_decorations_on);
+    }
 
     VLOG(4) << "decor draw time" << t1.elapsed(); 
     /*
@@ -97,14 +109,43 @@ namespace bm {
  
     XWindowAttributes xwAttr, xwAttr2;
     // these don't seem to be updating x and y
-    Window toplevel_parent = get_toplevel_parent(display, win);
     //Status ret = XGetWindowAttributes( display, win, &xwAttr );
 
-    // this has the real x and y position
+    /*
+     Occasionally getting this error if decorate/undecorate multiple times.
+     I could set own XSetErrorHandler(), and there are suggestions to XSync
+     or 
+       X Error of failed request:  BadWindow (invalid Window parameter)
+       Major opcode of failed request:  3 (X_GetWindowAttributes)
+       Resource id in failed request:  0x14030e7
+       Serial number of failed request:  3334
+       Current serial number in output stream:  3335
+       [Thread 0x7ffff7f9b7c0 (LWP 4483) exited]
+       [Inferior 1 (process 4483) exited with code 01]
+
+     * */
+
+    // this has the real x and y position,
+    // but does turning off decorations cause this to change?
+    VLOG(2) << name << " 1 top " << toplevel_parent;
     Status ret = XGetWindowAttributes( display, toplevel_parent, &xwAttr );
-    // this holds the 'true' width and height (the inner window not including
-    // gnome decor?) the x and y are relative to the toplevel_parent
-    Status ret2 = XGetWindowAttributes( display, win, &xwAttr2 );
+    if (ret == 0) {
+      LOG(ERROR) << "bad xgetwindowattributes";
+      return false;
+    }
+
+    if (win == toplevel_parent) {
+      xwAttr2 = xwAttr;
+    } else {
+      // this holds the 'true' width and height (the inner window not including
+      // gnome decor?) the x and y are relative to the toplevel_parent
+      VLOG(2) << name << " 2 win " << win;
+      Status ret2 = XGetWindowAttributes( display, win, &xwAttr2 );
+      if (ret2 == 0) {
+        LOG(ERROR) << "bad xgetwindowattributes";
+        return false;
+      }
+    }
       
     VLOG(6) << name  
         << " top  " << xwAttr.x << " " << xwAttr.y << ", " 
@@ -132,7 +173,7 @@ namespace bm {
       y = wm_y;
       w = xwAttr2.width;
       h = xwAttr2.height;
-      VLOG(6) << name << " wm changed display " 
+      VLOG(2) << name << " wm changed display " 
         << x << " " << y << ", " << w << " " << h;
 
       setSignal("x", x);
@@ -155,7 +196,7 @@ namespace bm {
         (h != new_h) 
         )
       {
-        VLOG(6) << name << " vimjay changed display "
+        VLOG(2) << name << " vimjay changed display "
             << CLVAL << new_x << " " << new_y << ", " << new_w << " " << new_h << CLNRM
             << ", old " 
             << CLVAL << x << " " << y << ", " << w << " " << h << CLNRM;

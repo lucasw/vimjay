@@ -252,29 +252,41 @@ namespace bm {
 
    From http://stackoverflow.com/questions/3909713/xlib-xgetwindowattributes-always-returns-1x1
    */
-Window get_toplevel_parent(Display * display, Window window)
+bool get_toplevel_parent(
+    Display* display, 
+    Window window,
+    Window& cur_window
+    )
 {
   Window parent;
   Window root;
   Window * children;
   unsigned int num_children;
 
+  cur_window = window;
+
+  int i = 0;
   while (1) {
-    if (0 == XQueryTree(display, window, &root,
+    VLOG(2) << "x query tree " << i++ << " "
+        << display << " " 
+        << cur_window << " "; 
+    if (0 == XQueryTree(display, cur_window, &root,
           &parent, &children, &num_children)) {
-      fprintf(stderr, "XQueryTree error\n");
-      abort(); //change to whatever error handling you prefer
+      LOG(ERROR) << "XQueryTree error";
+      return false;
+      //abort(); //change to whatever error handling you prefer
     }
     if (children) { //must test for null
       XFree(children);
     }
-    if (window == root || parent == root) {
-      return window;
+    if (cur_window == root || parent == root) {
+      return true;
     }
     else {
-      window = parent;
+      cur_window = parent;
     }
   }
+  return false;
 }
 
 bool setupX(Display*& display, Window& win, const int width, const int height, int& opcode) 
@@ -356,7 +368,8 @@ bool setupX(Display*& display, Window& win, const int width, const int height, i
 
 bool setWindowDecorations(Display* display, Window& win, bool decorations_on) 
 {
-    //code to remove decoration
+  VLOG(2) << "setting window decorations " << decorations_on << " " << win;
+  //code to remove decoration
   Hints hints;
   Atom property;
   hints.flags = 2;

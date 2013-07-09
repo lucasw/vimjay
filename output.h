@@ -14,6 +14,7 @@ class Output : public ImageNode
   XImage* ximage;
   
   int x,y,w,h;
+  Window toplevel_parent; 
 
   public:
 
