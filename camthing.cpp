@@ -549,30 +549,30 @@ class CamThing : public Output
     
     // camthing always exists, put it in first
     loc = cv::Point2f(400,400);
-    
-    boost::shared_ptr<Node> node =
+
+    {
+      boost::shared_ptr<Node> node =
         dynamic_pointer_cast<Node>(shared_from_this());
-    // TBD these shouldn't be necessary
-    
-    all_nodes.push_back(node);
+      // TBD these shouldn't be necessary
+
+      all_nodes.push_back(node);
+    }
 
     //// make default output nodes
     {
-    boost::shared_ptr<Node> node1 = getNode<Output>("output", loc);
-    {
+      boost::shared_ptr<Node> node1 = getNode<Output>("output", loc);
       output_node = dynamic_pointer_cast<Output>(node1);
       output_node->setup(Config::inst()->out_width, Config::inst()->out_height);
       // force output node to move window
-      output_node->draw(ui_offset);
-      output_node->setSignal("x", Config::inst()->ui_width + 28);
-      output_node->draw(ui_offset);
+      //output_node->draw(ui_offset);
+      //output_node->setSignal("x", Config::inst()->ui_width + 28);
+      //output_node->draw(ui_offset);
     }
     
-    boost::shared_ptr<Node> node2 = getNode<Output>("preview", loc);
     {
+      boost::shared_ptr<Node> node2 = getNode<Output>("preview", loc);
       preview_node = dynamic_pointer_cast<Output>(node2);
       preview_node->setup(Config::inst()->out_width, Config::inst()->out_height);
-    }
     }
   
     if ((FLAGS_graph == "") || (!loadGraph(FLAGS_graph))) { 
