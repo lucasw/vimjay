@@ -94,6 +94,7 @@ namespace bm {
     if (is_dirty) {
       setSignal("decor", window_decorations_on);
       bm::setWindowDecorations(display, win, window_decorations_on);
+      //bm::setWindowDecorations(display, toplevel_parent, window_decorations_on);
     }
 
     VLOG(4) << "decor draw time" << t1.elapsed(); 

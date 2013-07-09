@@ -279,7 +279,9 @@ bool get_toplevel_parent(
     if (children) { //must test for null
       XFree(children);
     }
-    if (cur_window == root || parent == root) {
+    if (cur_window == root) { // || parent == root) {
+      LOG(INFO) << window << " " << CLVAL << cur_window << CLNRM 
+          << " " << root;
       return true;
     }
     else {
