@@ -722,7 +722,7 @@ namespace bm {
   {
     bool valid_key = true;
 
-    VLOG(2) << selected_type << " \"" << selected_port << "\"";
+    VLOG(3) << selected_type << " \"" << selected_port << "\"";
     if ((selected_type == SIGNAL) && (selected_port != "")) { 
       float value = getSignal(selected_port);
   
@@ -755,7 +755,7 @@ namespace bm {
       }
 
       if (valid_key) {
-        VLOG(2) << value;
+        VLOG(3) << value;
         setSignal(selected_port, value);
         setDirty();
       }
