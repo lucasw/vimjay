@@ -734,20 +734,20 @@ namespace bm {
       // Also could have more of a floaty feel, where the value has
       // a velocity and friction and the user accelerates it.
       // Certainly need a way to type in a number
-      if (key == '.') {
+      if (key == Config::inst()->key("VAL_DOWN")) {
         value *= 0.9;   
       }
-      else if (key == '/') {
+      else if (key == Config::inst()->key("VAL_UP")) {
         value *= 1.1;
       }
-      else if (key == ',') {
+      else if (key == Config::inst()->key("VAL_UP2")) {
         // TBD maybe this '1' should be itself a signal value to be manipulated
         value += 1;   
       }
-      else if (key == 'm') {
+      else if (key == Config::inst()->key("VAL_DOWN2")) {
         value -= 1;
       }
-      else if (key == 'n') {
+      else if (key == Config::inst()->key("VAL_ZERO")) {
         value = 0;
       }
       else {

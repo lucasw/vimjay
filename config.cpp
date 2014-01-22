@@ -76,6 +76,14 @@ namespace bm {
     LOG(INFO) << "UI " << ui_width << " " << ui_height;
     LOG(INFO) << "thumb " << thumb_width << " " << thumb_height;
     LOG(INFO) << "output " << im_width << " " << im_height;
+
+    // key assignment, TBD put into yaml
+    // also check for duplicates?  Make node name specific?
+    key_map["VAL_DOWN"] = '.';
+    key_map["VAL_UP"] = '/';
+    key_map["VAL_UP2"] = ',';
+    key_map["VAL_DOWN2"] = 'm';
+    key_map["VAL_ZERO"] = 'n';
   }
 
 

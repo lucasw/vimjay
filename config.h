@@ -2,6 +2,7 @@
 #define __CONFIG_H__
 
 
+#include <map>
 #include <iostream>
 #include <sstream>
 #include <stdio.h>
@@ -19,9 +20,16 @@ namespace bm {
       Config& operator=(Config const&) {};
 
       static Config* instance;
+
+    // assignment of keys to function
+    std::map<const std::string, int> key_map;
       
     public:
       static Config* inst();
+
+      int key(const std::string key_key) {
+        return key_map[key_key];
+      }
 
       int ui_width;
       int ui_height;
