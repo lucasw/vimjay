@@ -29,10 +29,10 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/timer.hpp>
 
+#include <ros/console.h>
+
 #include "opencv2/highgui/highgui.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
-
-#include <glog/logging.h>
 
 #include <deque>
 
@@ -69,12 +69,12 @@ namespace bm {
 
     boost::timer t1;
     std::string dir = getString("dir");
-    LOG(INFO) << name << " loading " << dir;
+    ROS_INFO_STREAM(name << " loading " << dir);
    
     // TBD use getImageNamesAndSubdirs from utility.cpp
     boost::filesystem::path image_path(dir);
     if (!is_directory(image_path)) {
-      LOG(ERROR) << name << CLWRN << " not a directory " << CLNRM << dir; 
+      ROS_ERROR_STREAM(name << CLWRN << " not a directory " << CLNRM << dir); 
       return false;
     }
 
@@ -106,7 +106,7 @@ namespace bm {
       cv::Mat new_out = cv::imread( next_im );
    
       if (new_out.data == NULL) { //.empty()) {
-        LOG(WARNING) << name << " not an image? " << next_im;
+        ROS_WARN_STREAM(name << " not an image? " << next_im);
         continue;
       }
    
@@ -117,7 +117,7 @@ namespace bm {
         mixChannels(&new_out, 1, &tmp0, 1, ch, 3 );
 
         
-      VLOG(1) << name << " " << i << " loaded image " << next_im;
+      ROS_DEBUG_STREAM_COND(log_level > 1, name << " " << i << " loaded image " << next_im);
 
       frames_orig.push_back(tmp0);
       all_files.push_back(next_im);
@@ -125,11 +125,11 @@ namespace bm {
     
     /// TBD or has sized increased since beginning of function?
     if (frames_orig.size() == 0) {
-      LOG(ERROR) << name << CLERR << " no images loaded" << CLNRM << " " << dir;
+      ROS_ERROR_STREAM(name << CLERR << " no images loaded" << CLNRM << " " << dir);
       return false;
     }
     
-    LOG(INFO) << name << " " << frames_orig.size() << " image loaded " << t1.elapsed();
+    ROS_INFO_STREAM(name << " " << frames_orig.size() << " image loaded " << t1.elapsed());
     setSignal("ind", getSignal("ind"), false, ROLL, 0, frames_orig.size()-1);
     //max_size = frames.size() + 1;
     setDirty();
@@ -140,7 +140,7 @@ namespace bm {
   bool ImageDir::resizeImages()
   {
     const int mode = getModeType();
-    //LOG(INFO) << "resize mode " << mode;
+    //ROS_INFO_STREAM("resize mode " << mode);
 
     boost::mutex::scoped_lock l(frames_mutex);
     frames.clear();
@@ -288,7 +288,7 @@ namespace bm {
 
         } else {
           // bad dir
-          LOG(INFO) << "restoring old dir " << getString("old_dir");
+          ROS_INFO_STREAM("restoring old dir " << getString("old_dir"));
           setString("dir", getString("old_dir"));
         }
 
@@ -319,14 +319,14 @@ namespace bm {
     // index into directories
     if ((sub_dirs.size() > 0) && (ind < sub_dirs.size())) {
       const string cur_dir = sub_dirs[ind];
-      //VLOG(1) << name << " dir " << cur_dir;
+      //ROS_DEBUG_STREAM_COND(log_level > 1, name << " dir " << cur_dir);
       setString("cur_sel", cur_dir);
       highlight_dir_not_file = true;
     // index into files
     } else if ((file_names.size() > 0) && (file_ind >= 0) && 
         (file_ind < file_names.size())) {
       const string cur_file = file_names[file_ind];
-      //VLOG(1) << name << " file " << cur_file;
+      //ROS_DEBUG_STREAM_COND(log_level > 1, name << " file " << cur_file);
       setString("cur_sel", cur_file);
       highlight_dir_not_file = false;
     }
@@ -419,18 +419,18 @@ namespace bm {
       const boost::filesystem::path image_path(parent_dir);
       // validate before setting
       if (is_directory(image_path)) {
-        LOG(INFO) << "parent dir " << cur_dir << " -> " << parent_dir;
+        ROS_INFO_STREAM("parent dir " << cur_dir << " -> " << parent_dir);
         // or provide way to reset value to default
         setString("old_dir", getString("dir"));
         setString("dir", parent_dir);
       } else {
-        LOG(INFO) << "parent dir is not valid (could be at root), not using " 
-            << parent_dir;
+        ROS_INFO_STREAM("parent dir is not valid (could be at root), not using " 
+            << parent_dir);
       }
       } catch (boost::filesystem::filesystem_error& ex) {
       //} catch (boost::filesystem3::filesystem_error& ex) {
-        LOG(ERROR) << "bad dir " << parent_dir << " "
-            << boost::diagnostic_information(ex);
+        ROS_ERROR_STREAM("bad dir " << parent_dir << " "
+            << boost::diagnostic_information(ex));
       }
     } else if (key == 13) { // enter key
       // confirm the selection

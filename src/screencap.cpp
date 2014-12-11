@@ -22,7 +22,7 @@
 #include "screencap.h"
 #include "config.h"
 
-#include <glog/logging.h>
+#include <ros/console.h>
 
 #include "utility.h"
 
@@ -43,20 +43,20 @@ void ScreenCap::init()
   ImageNode::init();
   display = XOpenDisplay(NULL); // Open first (-best) display
   if (display == NULL) {
-    LOG(ERROR) << name << " bad display";
+    ROS_ERROR_STREAM(name << " bad display");
     return;
   }
 
   screen = DefaultScreenOfDisplay(display);
   if (screen == NULL) {
-    LOG(ERROR) << name << " bad screen";
+    ROS_ERROR_STREAM(name << " bad screen");
     return;
   }
 
   Window wid = DefaultRootWindow( display );
   if ( 0 > wid ) {
-    LOG(ERROR) << "Failed to obtain the root windows Id "
-        "of the default screen of given display.\n";
+    ROS_ERROR_STREAM("Failed to obtain the root windows Id "
+        "of the default screen of given display.\n");
     return;
   }
 
@@ -65,7 +65,7 @@ void ScreenCap::init()
   screen_w = xwAttr.width;
   screen_h = xwAttr.height;
 
-  LOG(INFO) << name << " screen w h " << CLVAL << screen_w << " " << screen_h << CLNRM;
+  ROS_INFO_STREAM(name << " screen w h " << CLVAL << screen_w << " " << screen_h << CLNRM);
   // The starting pixels / offset (x,y) to take the screenshot from
   int startX = 0;
   int startY = 0;
@@ -130,7 +130,7 @@ bool ScreenCap::update()
   
   // Check for bad null pointers
   if (xImageSample == NULL) { 
-    LOG(ERROR) << "Error taking screenshot!";
+    ROS_ERROR_STREAM("Error taking screenshot!");
     return false;
   }
 

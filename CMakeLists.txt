@@ -17,6 +17,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++0x")
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
+  
 
 
 ## Uncomment this if the package has a setup.py. This macro ensures
@@ -87,8 +88,8 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++0x")
 catkin_package(
   INCLUDE_DIRS include
 #  LIBRARIES vimjay
-  CATKIN_DEPENDS roscpp rospy std_msgs
-#  DEPENDS system_lib
+  CATKIN_DEPENDS roscpp rospy std_msgs 
+#  DEPENDS glog gflags
 )
 
 ###########
@@ -130,14 +131,13 @@ src/screencap.cpp
 src/utility.cpp
 src/output.cpp
 src/input.cpp
-src/opengl.cpp
 src/video.cpp
 other/simplexnoise.cpp
 other/simplextextures.cpp
 )
 
-# input.cpp
-# utility.cpp
+#src/opengl.cpp
+
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
@@ -146,18 +146,17 @@ other/simplextextures.cpp
 ## Specify libraries to link a library or executable target against
 target_link_libraries(vimjay
    ${catkin_LIBRARIES}
-glog
-gflags
 boost_thread
 boost_filesystem
 boost_system
-glut
-GLEW
-GL
 Xi
 X11
 
 )
+
+#glut
+#GLEW
+#GL
 
 #############
 ## Install ##

@@ -25,7 +25,7 @@
 #include "opengl.h"
 
 #include <boost/timer.hpp>
-#include <glog/logging.h>
+#include <ros/console.h>
 
 
 #include "config.h"
@@ -91,7 +91,7 @@ namespace bm {
     glewInit();
     
     if(!glGenFramebuffers) {
-      LOG(ERROR) << "can't use glGenFramebuffers";
+      ROS_ERROR_STREAM("can't use glGenFramebuffers");
       return false;
     }
     // create a framebuffer object
@@ -127,7 +127,7 @@ namespace bm {
     bool fboUsed = true;
 
     if(status != GL_FRAMEBUFFER_COMPLETE) {
-      LOG(ERROR)<< "fbo incomplete";
+      ROS_ERROR_STREAM("fbo incomplete");
       fboUsed = false;
     }
 

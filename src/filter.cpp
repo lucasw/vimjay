@@ -24,7 +24,8 @@
 #include <boost/lexical_cast.hpp>
 #include <opencv2/video/tracking.hpp>
 
-#include <glog/logging.h>
+#include <ros/console.h>
+#include "config.h"
 
 #if 0
 // TDB need CV_MAJOR_VERSION to establish this is available
@@ -106,7 +107,7 @@ bool FilterFIR::handleKey(int key)
       const std::string port = ports[i]->name;
 
       if (port.substr(0,2) != "xi") {
-        VLOG(1) << name << " : " << port.substr(0,2) << " " << port;
+        ROS_DEBUG_STREAM_COND(log_level > 1, name << " : " << port.substr(0,2) << " " << port);
         continue;
       }
       add_num++;
@@ -153,7 +154,7 @@ bool Sobel::update()
 
   cv::Mat in = getImage("in");
   if (in.empty()) {
-    VLOG(2) << name << " in is empty";
+    ROS_DEBUG_STREAM_COND(log_level > 2, name << " in is empty");
     return false;
   }
 
@@ -217,7 +218,7 @@ bool Laplacian::update()
   if (!rv) return false;
 
   if (!isDirty(this, 5)) { 
-    VLOG(1) << name << " not dirty ";
+    ROS_DEBUG_STREAM_COND(log_level > 1, name << " not dirty ");
     return true; 
   }
 
@@ -263,7 +264,7 @@ bool Laplacian::update()
     if (!Node::update()) return false;
 
     if (!isDirty(this, 5)) { 
-      VLOG(1) << name << " not dirty ";
+      ROS_DEBUG_STREAM_COND(log_level > 1, name << " not dirty ");
       return true; 
     }
     
@@ -302,7 +303,7 @@ bool Laplacian::update()
     if (!Node::update()) return false;
 
     if (!isDirty(this, 5)) { 
-      VLOG(1) << name << " not dirty ";
+      ROS_DEBUG_STREAM_COND(log_level > 1, name << " not dirty ");
       return true; 
     }
     
@@ -342,7 +343,7 @@ bool Laplacian::update()
     if (!Node::update()) return false;
 
     if (!isDirty(this, 5)) { 
-      VLOG(1) << name << " not dirty ";
+      ROS_DEBUG_STREAM_COND(log_level > 1, name << " not dirty ");
       return true; 
     }
     
@@ -385,7 +386,7 @@ InPaint::InPaint(const std::string name) : ImageNode(name)
     if (!Node::update()) return false;
 
     if (!isDirty(this, 5)) { 
-      VLOG(1) << name << " not dirty ";
+      ROS_DEBUG_STREAM_COND(log_level > 1, name << " not dirty ");
       return true; 
     }
     
@@ -450,7 +451,7 @@ bool MorphologyEx::update()
   if (!Node::update()) return false;
 
   if (!isDirty(this, 5)) { 
-    VLOG(4) << name << " not dirty ";
+    ROS_DEBUG_STREAM_COND(log_level > 4, name << " not dirty ");
     return true; 
   }
 
@@ -539,7 +540,7 @@ bool MorphologyEx::update()
     if (!Node::update()) return false;
 
     if (!isDirty(this, 5)) { 
-      VLOG(5) << name << " not dirty ";
+      ROS_DEBUG_STREAM_COND(log_level > 5, name << " not dirty ");
       return true; 
     }
  

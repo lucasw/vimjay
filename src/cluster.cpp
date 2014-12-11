@@ -23,8 +23,8 @@
 
 #include <boost/timer.hpp>
 #include <stdio.h>
-#include <glog/logging.h>
 #include <boost/lexical_cast.hpp>
+#include <ros/console.h>
 
 #include "cluster.h"
 
@@ -32,7 +32,8 @@ namespace bm {
 
 /**
 TBD is most of same functionality perhaps with higher performance provided by
-pyrMeanShiftFiltering?  It seems different in parameters but the result might end up looking very similar.
+pyrMeanShiftFiltering?  It seems different in parameters but the result might 
+end up looking very similar.
 
 My manual method still may be useful for exposing some internal data for use elsewhere in the graph.
 */
@@ -65,9 +66,13 @@ void initCluster(cluster_center& cc, int wd, int ht, bool do_rand = false)
   int b = rand()%255;
   cc.rgb = cv::Vec4b(r,g,b,0);
 
-  LOG(INFO) << cc.x << " " << cc.y << " " 
-    << r << " " << g << " " << b << " "
-    <<(int) cc.rgb.val[0] << " " << (int)cc.rgb.val[1] << " " << (int)cc.rgb.val[2];
+    ROS_INFO_STREAM(cc.x << " " << cc.y << " " 
+        << r << " " << g << " " << b << " "
+        <<(int) cc.rgb.val[0] << " " 
+        << (int)cc.rgb.val[1] << " " 
+        << (int)cc.rgb.val[2]
+        );
+
     cc.max_x = wd;
     cc.max_y = ht;
     cc.min_x = 0;
@@ -170,7 +175,7 @@ bool Cluster::update()
 
     if (k >= old_size) {
       initCluster(clusters[k], in.cols, in.rows, true); 
-      LOG(INFO) << k << " " << old_size << " " << nc.size() << ", " << clusters[k].x;
+      ROS_INFO_STREAM(k << " " << old_size << " " << nc.size() << ", " << clusters[k].x);
     }
   }
 

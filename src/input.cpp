@@ -36,12 +36,12 @@
 
 #include <boost/lexical_cast.hpp>
 
+#include <ros/console.h>
+
 #include "opencv2/highgui/highgui.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
 
-#include <glog/logging.h>
-#include <gflags/gflags.h>
-
+#include "config.h"
 #include "input.h"
 #include "nodes.h" 
 #include "misc_nodes.h" 
@@ -79,7 +79,7 @@ int main( int argc, char* argv[] )
   // - TBD how to find just the mouses?
   // TBD can't get touchpad to work, don't even see it when catting /dev/input/mouseN
   if ((fd = open(FLAGS_mouse.c_str(), O_RDONLY)) < 0) {
-    LOG(ERROR) << "couldn't open mouse " << fd;
+    ROS_ERROR_STREAM("couldn't open mouse " << fd);
     exit(0);
   }
   struct input_event ev;
@@ -88,23 +88,23 @@ int main( int argc, char* argv[] )
   while(rv) {
 
     read(fd, &ev, sizeof(struct input_event));
-    VLOG(1) << "value 0x" << std::hex << ev.value 
+    ROS_DEBUG_STREAM_COND(log_level > 1, "value 0x" << std::hex << ev.value 
       << ", type 0x" << std::hex << ev.type 
-      << ", code 0x" << std::hex << ev.code;
+      << ", code 0x" << std::hex << ev.code);
     if (ev.type == EV_REL) {
       if (ev.value != 0) {
         // mouse move left
-        if (ev.code == ABS_X) LOG(INFO)<< "dx " << ev.value;
+        if (ev.code == ABS_X) ROS_INFO_STREAM("dx " << ev.value);
         // mouse move right
-        if (ev.code == ABS_Y)  LOG(INFO)<< "dy " << ev.value;
+        if (ev.code == ABS_Y)  ROS_INFO_STREAM("dy " << ev.value);
         // wheel
-        if (ev.code == REL_WHEEL) LOG(INFO)<< "wheel " << ev.value;
+        if (ev.code == REL_WHEEL) ROS_INFO_STREAM("wheel " << ev.value);
       }
     }
     if (ev.type == EV_MSC) {
       // 0x90001 - 3
-      LOG(INFO) << "Button value 0x" << std::hex << ev.value 
-      << ", code " << ev.code;
+      ROS_INFO_STREAM("Button value 0x" << std::hex << ev.value 
+      << ", code " << ev.code);
 
     }
   }
@@ -187,7 +187,7 @@ bool Mouse::draw(cv::Point2f ui_offset)
   }
   
   for (size_t i = 0; i < keys.size(); i++) {
-    LOG(INFO) << keys[i].first;
+    ROS_INFO_STREAM(keys[i].first);
     stringstream ss;
     ss << keys[i].first;
     setSignal("key_" + ss.str(), keys[i].second);
@@ -289,20 +289,20 @@ GamePad::~GamePad()
 
 void GamePad::runThread()
 {
-  LOG(INFO) << "Starting gamepad thread";
+  ROS_INFO_STREAM("Starting gamepad thread");
 
   run_thread = true;
 
   while (run_thread) {
-    //LOG_FIRST_N(INFO, 10) << "game pad run loop " << fd;
+    //ROS_INFO_ONCE("game pad run loop " << fd);
     if (fd > 0) {
-      //LOG_FIRST_N(INFO, 10) << "game pad fd " << fd;
+      //ROS_INFO_ONCE("game pad fd " << fd);
       // TBD put int thread
       while (
           read(fd, &js, sizeof(struct js_event)) == sizeof(struct js_event)) {
        
         const int js_num = int(js.number);
-        //LOG_FIRST_N(INFO, 10) << "game pad fd";
+        //ROS_INFO_ONCE("game pad fd");
 
         switch(js.type & ~JS_EVENT_INIT) {
           case JS_EVENT_BUTTON:
@@ -313,7 +313,7 @@ void GamePad::runThread()
             const std::string button_name = 
                 "button_" + boost::lexical_cast<string>(js_num);
             setSignal(button_name, js.value);
-            VLOG(1) << "button " << button_name << " " << js_num << " " << js.value;
+            ROS_DEBUG_STREAM_COND(log_level > 1, "button " << button_name << " " << js_num << " " << js.value);
 
             break;
           }
@@ -327,7 +327,7 @@ void GamePad::runThread()
                 "axis_" + boost::lexical_cast<string>(js_num);
             // TBD scale automatically for now
             setSignal(axis_name, 10.0 * js.value / 32768.0);
-            VLOG(1) << "axis " << axis_name << " " << js_num << " " << js.value;
+            ROS_DEBUG_STREAM_COND(log_level > 1, "axis " << axis_name << " " << js_num << " " << js.value);
             break;
           }
         }
@@ -336,7 +336,7 @@ void GamePad::runThread()
       usleep(1000);
 
     } else {
-      LOG_FIRST_N(WARNING, 5) << "no joystick connectect yet";
+      ROS_WARN_ONCE("no joystick connectect yet");
       sleep(1);
     }
 

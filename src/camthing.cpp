@@ -20,6 +20,11 @@
 
 #include "camthing.h"
 
+/*
+#include <linux/input.h>
+#include <fcntl.h>
+*/
+
 #include <iostream>
 #include <sstream>
 #include <stdio.h>
@@ -30,11 +35,10 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/timer.hpp>
 
+#include <ros/console.h>
+
 #include "opencv2/highgui/highgui.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
-
-#include <glog/logging.h>
-#include <gflags/gflags.h>
 
 #include "config.h"
 #include "nodes.h" 
@@ -48,13 +52,14 @@
 #include "output.h"
 #include "input.h"
 #include "structure.h"
-#include "opengl.h"
+//#include "opengl.h"
 #include "video.h"
 
 using namespace cv;
 using namespace std;
 
-DEFINE_string(graph, "../temp_graph.yml", "yaml file to load with graph in it");
+//DEFINE_string(graph, "../temp_graph.yml", "yaml file to load with graph in it");
+
 
 //DEFINE_bool(
 namespace bm {
@@ -98,9 +103,9 @@ class CamThing : public Output
       
       node->init();
 
-      VLOG(1) << CLVAL << all_nodes.size()  << CLTX2 
+      ROS_DEBUG_STREAM_COND(log_level > 1, CLVAL << all_nodes.size()  << CLTX2 
           << " new node " << CLNRM << " " << getId(node) << " "  
-          << name << " " << loc.x << ", " << loc.y << " " << node;
+          << name << " " << loc.x << ", " << loc.y << " " << node);
 
       node->name = name;
       node->loc = loc;
@@ -122,11 +127,11 @@ class CamThing : public Output
       boost::shared_ptr<Node> node = boost::shared_ptr<Node>();
 
       if (type_id.compare("bm::CamThing") == 0) {
-        LOG(INFO) << "already have cam thing";
+        ROS_INFO_STREAM("already have cam thing");
         /*
         // TBD  don't allow duplicate camthings
-        VLOG(1) << CLVAL << all_nodes.size()  << CLTX2 
-          << " new node " << CLNRM << name << " " << loc.x << ", " << loc.y;
+        ROS_DEBUG_STREAM_COND(log_level > 1, CLVAL << all_nodes.size()  << CLTX2 
+          << " new node " << CLNRM << name << " " << loc.x << ", " << loc.y);
         // the node already exists
         //node = getNode<ScreenCap>(name, loc);
         node = dynamic_pointer_cast<Node>(shared_from_this());
@@ -157,8 +162,8 @@ class CamThing : public Output
         node = getNode<BilateralFilter>(name, loc);
       //} else if (type_id.compare("bm::InPaint") == 0) {
       //  node = getNode<InPaint>(name, loc);
-      } else if (type_id.compare("bm::OpenGL") == 0) {
-        node = getNode<OpenGL>(name, loc);
+      //} else if (type_id.compare("bm::OpenGL") == 0) {
+      //  node = getNode<OpenGL>(name, loc);
       } else if (type_id.compare("bm::OpticalFlow") == 0) {
         node = getNode<OpticalFlow>(name, loc);
       } else if (type_id.compare("bm::Buffer") == 0) {
@@ -251,7 +256,7 @@ class CamThing : public Output
         node = getNode<Mouse>(name, loc);
         
         if (input_node) {
-          LOG(WARNING) << "TBD multiple mouse nodes";
+          ROS_WARN_STREAM("TBD multiple mouse nodes");
         }
 
         input_node = dynamic_pointer_cast<Mouse>(node);
@@ -261,15 +266,15 @@ class CamThing : public Output
           input_node->win = output_node->win;
           input_node->opcode = output_node->opcode;
         } else {
-          LOG(ERROR) << "output_node should always exist by this point";
+          ROS_ERROR_STREAM("output_node should always exist by this point");
         }
       } else if (type_id.compare("bm::Output") == 0) {
-        LOG(INFO) << "already created output and preview nodes, ignoring " 
-            << CLTXT << name << CLNRM;
+        ROS_INFO_STREAM("already created output and preview nodes, ignoring " 
+            << CLTXT << name << CLNRM);
         //node = getNode<Output>(name, loc);
 
       } else {
-        LOG(WARNING) << "unknown node type " << type_id << ", assuming imageNode";
+        ROS_WARN_STREAM("unknown node type " << type_id << ", assuming imageNode");
         node = getNode<ImageNode>(name, loc);
       }
 
@@ -280,7 +285,7 @@ class CamThing : public Output
   // delete all the nodes
   bool clearNodes()
   {
-    LOG(INFO) << CLTX2 << "clearing nodes" << CLNRM;
+    ROS_INFO_STREAM(CLTX2 << "clearing nodes" << CLNRM);
     update_nodes = false;
     node_thread.join();
     //for (int i = 0; i < all_nodes.size(); i++) {
@@ -313,7 +318,7 @@ class CamThing : public Output
     
     for (int i = 0; i < all_nodes.size(); i++) {
       if (all_nodes[i] == node) {
-        VLOG(3) << node->name << " " << i; 
+        ROS_DEBUG_STREAM_COND(log_level > 3, node->name << " " << i); 
         return i; 
       }
     }
@@ -328,7 +333,7 @@ class CamThing : public Output
   {
     boost::mutex::scoped_lock l(update_mutex);
 
-    LOG(INFO) << "saving graph " << graph_file;
+    ROS_INFO_STREAM("saving graph " << graph_file);
     cv::FileStorage fs(graph_file, cv::FileStorage::WRITE);
 
     // TBD save date and time
@@ -347,7 +352,7 @@ class CamThing : public Output
       // save inputs
       fs << "inputs" << "[";
       // TBD put in Node::save method
-      VLOG(2) << all_nodes[i]->name << " saving " << all_nodes[i]->ports.size() << " inputs";
+      ROS_DEBUG_STREAM_COND(log_level > 2, all_nodes[i]->name << " saving " << all_nodes[i]->ports.size() << " inputs");
       for (int j = 0; j < all_nodes[i]->ports.size(); j++) {
           
           boost::shared_ptr<Connector> con = all_nodes[i]->ports[j];
@@ -395,7 +400,7 @@ class CamThing : public Output
     
     const float tht = Config::inst()->thumb_height;
     
-    LOG(INFO) << "making " << all_nodes.size() << " graph items into grid";
+    ROS_INFO_STREAM("making " << all_nodes.size() << " graph items into grid");
 
     int x = 40;
     int y = 20;
@@ -411,10 +416,10 @@ class CamThing : public Output
       }
       cv::Point loc = cv::Point2f( x, y );
       
-      VLOG(1) << i << " " << getId(all_nodes[i]) << " "
+      ROS_DEBUG_STREAM_COND(log_level > 1, i << " " << getId(all_nodes[i]) << " "
           <<  all_nodes[i]->name << " " 
           << all_nodes[i]->loc.x << " " << all_nodes[i]->loc.y 
-          << " -> " << loc.x << " " << loc.y << ", " <<all_nodes[i]->ports.size();
+          << " -> " << loc.x << " " << loc.y << ", " <<all_nodes[i]->ports.size());
       
       all_nodes[i]->loc = loc;
 
@@ -528,7 +533,7 @@ class CamThing : public Output
     node_types.push_back("bm::Noise");
     node_types.push_back("bm::SimplexNoise");
 
-    node_types.push_back("bm::OpenGL");
+    //node_types.push_back("bm::OpenGL");
     
     node_types.push_back("bm::SigADSR");
     node_types.push_back("bm::GamePad");
@@ -575,9 +580,10 @@ class CamThing : public Output
       preview_node->setup(Config::inst()->out_width, Config::inst()->out_height);
     }
   
-    if ((FLAGS_graph == "") || (!loadGraph(FLAGS_graph))) { 
+    // TBD
+    //if ((FLAGS_graph == "") || (!loadGraph(FLAGS_graph))) { 
       defaultGraph();
-    } 
+    //} 
     output_node->setSignal("force_update", 1.0);
     preview_node->setSignal("force_update", 1.0);
 
@@ -615,19 +621,19 @@ class CamThing : public Output
   bool loadGraph(const std::string graph_file)
   {
     boost::mutex::scoped_lock l(update_mutex);
-    LOG(INFO) << "loading graph " << CLTXT << graph_file << CLNRM;
+    ROS_INFO_STREAM("loading graph " << CLTXT << graph_file << CLNRM);
     
     FileStorage fs; 
     fs.open(graph_file, FileStorage::READ);
     
     if (!fs.isOpened()) {
-      LOG(ERROR) << "couldn't open " << graph_file;
-      return false;
+      ROS_ERROR_STREAM("couldn't open " << graph_file;
+      return false);
     }
   
     FileNode nd = fs["nodes"]; 
     if (nd.type() != FileNode::SEQ) {
-      LOG(ERROR) << "no nodes";
+      ROS_ERROR_STREAM("no nodes");
 
       return false;
     }
@@ -645,7 +651,7 @@ class CamThing : public Output
       boost::shared_ptr<Node> node = getNodeByName(type_id, name, loc);
       
       if (node == NULL) { 
-        LOG(ERROR) << "couldn't get node made " << type_id << " " << name;
+        ROS_ERROR_STREAM("couldn't get node made " << type_id << " " << name);
         continue;
       }
 
@@ -666,12 +672,12 @@ class CamThing : public Output
       }
       */
 
-      VLOG(1) << type_id << " " << CLTXT << name << CLVAL << " " 
-          << node  << " " << loc << " " << enable << CLNRM;
+      ROS_DEBUG_STREAM_COND(log_level > 1, type_id << " " << CLTXT << name << CLVAL << " " 
+          << node  << " " << loc << " " << enable << CLNRM);
       
       int ind;
       (*it)["ind"] >> ind;
-      VLOG(1) << CLTXT << "first pass inputs " << CLVAL << ind << CLNRM << " " << node->name;
+      ROS_DEBUG_STREAM_COND(log_level > 1, CLTXT << "first pass inputs " << CLVAL << ind << CLNRM << " " << node->name);
 
       for (int i = 0; i < (*it)["inputs"].size(); i++) {
         int type;
@@ -680,8 +686,8 @@ class CamThing : public Output
         (*it)["inputs"][i]["type"] >> type;
         (*it)["inputs"][i]["name"] >> port;
       
-        VLOG(1) << "input " << ind << " \"" << node->name
-            << "\", type " << type << " " << port;
+        ROS_DEBUG_STREAM_COND(log_level > 1, "input " << ind << " \"" << node->name
+            << "\", type " << type << " " << port);
         
         // TBD make function for this
         /*
@@ -698,13 +704,13 @@ class CamThing : public Output
 
     // second pass for inputs (the first pass was necessary to create them 
     // all in right order
-    VLOG(1) << " ";
-    LOG(INFO) << "second pass inputs";
-    VLOG(1) << " ";
+    ROS_DEBUG_STREAM_COND(log_level > 1, " ");
+    ROS_INFO_STREAM("second pass inputs");
+    ROS_DEBUG_STREAM_COND(log_level > 1, " ");
     for (FileNodeIterator it = nd.begin(); it != nd.end(); ++it) {
       int ind;
       (*it)["ind"] >> ind;
-      VLOG(2) << "second pass inputs " << ind << " " << CLTXT << all_nodes[ind]->name << CLNRM;
+      ROS_DEBUG_STREAM_COND(log_level > 2, "second pass inputs " << ind << " " << CLTXT << all_nodes[ind]->name << CLNRM);
       for (int i = 0; i < (*it)["inputs"].size(); i++) {
         int input_ind;
         int type;
@@ -719,9 +725,9 @@ class CamThing : public Output
         (*it)["inputs"][i]["value"] >> value;
         
         if (input_ind >= 0) {
-        VLOG(2) << "input " 
+        ROS_DEBUG_STREAM_COND(log_level > 2, "input " 
             << " " << input_ind << ", type " << type << " " << port << " " << input_ind
-            << " " << src_port;
+            << " " << src_port);
       
           all_nodes[ind]->setInputPort((conType)type, port, all_nodes[input_ind], src_port);
         } // input_ind > 0
@@ -735,15 +741,15 @@ class CamThing : public Output
     } // second input pass
 
     if (output_node == NULL) {
-      LOG(WARNING) << CLWRN << "No output node found, setting it to " 
-          << all_nodes[all_nodes.size() - 1]->name << CLNRM;
+      ROS_WARN_STREAM(CLWRN << "No output node found, setting it to " 
+            << all_nodes[all_nodes.size() - 1]->name << CLNRM);
       // TBD could make sure that this node is an output node
       
       output_node = dynamic_pointer_cast<Output>( 
           all_nodes[all_nodes.size() - 1]);
     }
 
-    LOG(INFO) << all_nodes.size() << " nodes total";
+    ROS_INFO_STREAM(all_nodes.size() << " nodes total");
     //output_node->loc = cv::Point2f(graph.cols - (test_im.cols/2+100), 20);
    
     setString("graph_file", graph_file);
@@ -757,7 +763,7 @@ class CamThing : public Output
     {
     boost::mutex::scoped_lock l(update_mutex);
 
-    LOG(INFO) << "creating default graph";
+    ROS_INFO_STREAM("creating default graph");
     
     // create a bunch of nodes of every type (TBD make sure new ones get added)
     // but don't connect them, user will do that
@@ -951,14 +957,14 @@ class CamThing : public Output
       //source_port = selected_node->selected_port;
       //source_type = selected_node->selected_type;
 
-      VLOG(1) << "selected source node " << source_node->selected_type << " " << source_node->selected_port; 
+      ROS_DEBUG_STREAM_COND(log_level > 1, "selected source node " << source_node->selected_type << " " << source_node->selected_port); 
     } else {
       // select no source port, allows cycling through all inputs
       source_ind = 0;
       source_node = boost::shared_ptr<Node>();
       //source_type = NONE;
       //source_port = "";
-      VLOG(1) << "cleared source node";
+      ROS_DEBUG_STREAM_COND(log_level > 1, "cleared source node");
     }
   }
 
@@ -986,7 +992,6 @@ class CamThing : public Output
           selected_node->setInputPort(source_node->selected_type, selected_node->selected_port, source_node, source_node->selected_port);
         }
 
-      //VLOG(1) << 
       return true;
     }  // legit source_node
     
@@ -1001,7 +1006,7 @@ class CamThing : public Output
     boost::shared_ptr<ImageNode> im_src = 
         boost::dynamic_pointer_cast<ImageNode> (selected_node);
     if (!im_src) {
-      VLOG(1) << "no images to preview";
+      ROS_DEBUG_STREAM_COND(log_level > 1, "no images to preview");
       return false;
     }
 
@@ -1035,7 +1040,8 @@ class CamThing : public Output
 
     selectPort(0);
 
-    VLOG(1) << "selected node " << selected_node->name << " " << selected_ind;
+    ROS_DEBUG_STREAM_COND(log_level > 1, "selected node " 
+        << selected_node->name << " " << selected_ind);
   }
 
   void selectPrevNode()
@@ -1048,12 +1054,13 @@ class CamThing : public Output
 
     selectPort(0);
     
-    VLOG(1) << "selected node " << selected_node->name << " " << selected_ind;
+    ROS_DEBUG_STREAM_COND(log_level > 1, "selected node " 
+        << selected_node->name << " " << selected_ind);
   }
 
   bool selectPortSource() 
   {
-    VLOG(1) << "selecting port source";
+    ROS_DEBUG_STREAM_COND(log_level > 1, "selecting port source");
     // jump to the node and port inputting into this port
     if (!selected_node) return false;
     if (selected_node->selected_port_ind < 0) return false;
@@ -1073,13 +1080,13 @@ class CamThing : public Output
     // keep a copy of the selected port local (TBD)
     selectPort(0);
     
-    VLOG(2) << "selecting port source success";
+    ROS_DEBUG_STREAM_COND(log_level > 2, "selecting port source success");
     return true;
   }
 
   bool selectPortDestination() 
   {
-    VLOG(1) << "selecting port destination";
+    ROS_DEBUG_STREAM_COND(log_level > 1, "selecting port destination");
     // jump to the node and port inputting into this port
     if (!selected_node) return false;
     if (selected_node->selected_port_ind < 0) return false;
@@ -1101,7 +1108,8 @@ class CamThing : public Output
     selectPort(0);
 
     const string dst = selected_node->name;
-    VLOG(2) << "selecting port destination success: " << src << " to " << dst;
+    ROS_DEBUG_STREAM_COND(log_level > 2, "selecting port destination success: " 
+        << src << " to " << dst);
     return true;
   }
 
@@ -1114,7 +1122,7 @@ class CamThing : public Output
   bool selectPort(int next_port = 1)
   {
     if (!selected_node) {
-      VLOG(1) << "selectPort: no selected_node";
+      ROS_DEBUG_STREAM_COND(log_level > 1, "selectPort: no selected_node");
       return false;
     }
     
@@ -1245,10 +1253,9 @@ class CamThing : public Output
       ui_offset += ui_vel;
       ui_vel *= 0.8;
 
-      VLOG(5)
-        << selected_node->loc.x << " " << selected_node->loc.y << ", "
+      ROS_DEBUG_STREAM_COND(log_level > 5, selected_node->loc.x << " " << selected_node->loc.y << ", "
         << graph_ui.cols << " " << graph_ui.rows << ", "
-        << ui_offset.x << " " << ui_offset.y;
+        << ui_offset.x << " " << ui_offset.y);
     }
     return true;
   } 
@@ -1264,29 +1271,30 @@ class CamThing : public Output
           XGetEventData(display, &ev.xcookie))
       //if (XCheckWindowEvent(display, win, PointerMotionMask | ButtonPressMask | ButtonReleaseMask, &ev))
       {
-        VLOG(4) <<" event found"; 
+        ROS_DEBUG_STREAM_COND(log_level > 4, " event found"); 
         XIDeviceEvent* evData = (XIDeviceEvent*)(ev.xcookie.data);
         int deviceid = evData->deviceid;
 
         switch(ev.xcookie.evtype)
         {
           case XI_Motion:
-            //LOG(INFO) <<  "motion";
+            //ROS_INFO_STREAM( "motion");
             setSignal(boost::lexical_cast<string>(deviceid) + "_x", evData->event_x);
             setSignal(boost::lexical_cast<string>(deviceid) + "_y", evData->event_y);
-            VLOG(4) << deviceid << " " << evData->event_x << " " << evData->event_y;
+            ROS_DEBUG_STREAM_COND(log_level > 4, deviceid << " " 
+                << evData->event_x << " " << evData->event_y);
 
             break;
 
           case XI_ButtonPress:
-            VLOG(3) << deviceid << " button: " << evData->detail;
+            ROS_DEBUG_STREAM_COND(log_level > 3, deviceid << " button: " << evData->detail);
             setSignal(boost::lexical_cast<string>(deviceid) + "_" + 
                 boost::lexical_cast<string>(evData->detail), 1);
 
             break;
 
           case XI_ButtonRelease:
-            VLOG(2) << deviceid << " unclick " << evData->detail;
+            ROS_DEBUG_STREAM_COND(log_level > 2, deviceid << " unclick " << evData->detail);
             setSignal(boost::lexical_cast<string>(deviceid) + "_" + 
                 boost::lexical_cast<string>(evData->detail), 0);
             break;
@@ -1315,12 +1323,13 @@ class CamThing : public Output
             if (1 == XLookupString(((XKeyEvent*) (&key_data)), &asciiChar, 1, NULL, NULL)) {
               // Mapped: Assign it.
               key = (int) asciiChar;
-              VLOG(2) << deviceid << "key down" << key << " " << (char) key;
+              ROS_DEBUG_STREAM_COND(log_level > 2, deviceid << "key down" 
+                  << key << " " << (char) key);
             }
             break;
 
           case XI_KeyRelease:
-            VLOG(2) << deviceid << "key up" << evData->detail;
+            ROS_DEBUG_STREAM_COND(log_level > 2, deviceid << "key up" << evData->detail);
             break;
         } // switch 
       } // correct event
@@ -1366,7 +1375,7 @@ class CamThing : public Output
     else if( key == 'e' ) {
       // TBD follow with file name
       // TBD load the graph in a temp object, then copy it over only if successful
-      LOG(INFO) << "reloading graph file";
+      ROS_INFO_STREAM("reloading graph file");
       clearNodes();
       if (!loadGraph(getString("graph_file"))) defaultGraph();
       
@@ -1408,10 +1417,10 @@ class CamThing : public Output
       // duplicate selected_node node
       // TBD make it possible to deselect all nodes, so the node specific keys can be reused?
       if (selected_node.get() == this) {
-        LOG(WARNING) << "can't duplicate camthing";
+        ROS_WARN_STREAM("can't duplicate camthing");
       }
       else if (selected_node) {
-        LOG(INFO) << " duplicating selected_node";
+        ROS_INFO_STREAM(" duplicating selected_node");
         getNodeByName(getId(selected_node), selected_node->name + "_2", selected_node->loc + cv::Point2f(100,10));
         
       }
@@ -1460,7 +1469,7 @@ class CamThing : public Output
           }
           str << "matching " << source_type << " \"" << source_port << "\" with ";
         } else {
-          str <<"selecting";
+          str << "selecting";
         }
 
         str 
@@ -1468,7 +1477,7 @@ class CamThing : public Output
           << CLTXT 
           << selected_ind << " " << selected_node->selected_port_ind << " " 
           << CLNRM;
-        VLOG(2) << str.str();
+        ROS_DEBUG_STREAM_COND(log_level > 2, str.str());
       }
     } 
     else if (key == 'r') {
@@ -1493,16 +1502,16 @@ class CamThing : public Output
      
     } else if (key == 'i') {  // ui UP
       ui_offset -= cv::Point2f(0,15);
-      VLOG(3) << "ui_offset " << ui_offset;
+      ROS_DEBUG_STREAM_COND(log_level > 3, "ui_offset " << ui_offset);
     } else if (key == 'u') {  // ui DOWN
       ui_offset += cv::Point2f(0,15); 
-      VLOG(3) << "ui_offset " << ui_offset;
+      ROS_DEBUG_STREAM_COND(log_level > 3, "ui_offset " << ui_offset);
     } else if (key == 'y') {  // ui LEFT
       ui_offset -= cv::Point2f(15,0); 
-      VLOG(3) << "ui_offset " << ui_offset;
+      ROS_DEBUG_STREAM_COND(log_level > 3, "ui_offset " << ui_offset);
     } else if (key == 'o') {  // ui RIGHT
       ui_offset += cv::Point2f(15,0); 
-      VLOG(3) << "ui_offset " << ui_offset;
+      ROS_DEBUG_STREAM_COND(log_level > 3, "ui_offset " << ui_offset);
     
     //else if (key == 'c') {
       // swap selected node input with source node input- TBD this doesn't work since  
@@ -1575,9 +1584,9 @@ class CamThing : public Output
       //tmp.resize(1);
       //tmp[0] = key;
       command_text.append(tmp.str());
-      VLOG(4) << tmp.str() << " " << command_text;
+      ROS_DEBUG_STREAM_COND(log_level > 4, tmp.str() << " " << command_text);
     } else if (key >= 0) {
-      LOG(INFO) << "unused keypress:" << key << " " << (char)key;
+      ROS_INFO_STREAM("unused keypress:" << key << " " << (char)key);
     }
 
     int max_count = 24;
@@ -1597,7 +1606,7 @@ class CamThing : public Output
     while (command_text.size() > wd/12)
       command_text = command_text.erase(0,1);
 
-    VLOG(5) << wd << " " << command_text.size();
+    ROS_DEBUG_STREAM_COND(log_level > 5, wd << " " << command_text.size());
 
     return true;
   }
@@ -1607,7 +1616,8 @@ class CamThing : public Output
 
   bool nodeUpdate()
   {
-    VLOG(3) << CLTXT << "=====================================" << CLNRM;
+    ROS_DEBUG_STREAM_COND(log_level > 3, CLTXT 
+        << "=====================================" << CLNRM);
     boost::mutex::scoped_lock l(update_mutex);
 
     // TBD will behaviour change depending on the arrangement of nodes-
@@ -1630,12 +1640,12 @@ class CamThing : public Output
 
   bool updateThread() 
   {
-    LOG(INFO) << "starting node update thread";
+    ROS_INFO_STREAM("starting node update thread");
     while (update_nodes) {
 
-      VLOG(4) << "";
+      ROS_DEBUG_STREAM_COND(log_level > 4, "");
       if (!output_node) {
-        LOG_FIRST_N(ERROR,3) <<"no output_node";
+        ROS_ERROR_ONCE("no output_node");
         usleep(20000);
       }
 
@@ -1646,7 +1656,7 @@ class CamThing : public Output
       }
       usleep(1000);
     }
-    LOG(INFO) << "ending node update thread";
+    ROS_INFO_STREAM("ending node update thread");
     return true;
   }
 
@@ -1669,7 +1679,7 @@ class CamThing : public Output
       // TBD the node_ind signal may not have been updated here
       if (is_dirty) {
         setString("node", node_types[ind]);
-        VLOG(9) << "node_ind " << ind << " " << node_types[ind] << " " << getString("node"); //node_types[ind];
+        ROS_DEBUG_STREAM_COND(log_level > 9, "node_ind " << ind << " " << node_types[ind] << " " << getString("node")); //node_types[ind]);
       }
     }
 
@@ -1682,7 +1692,7 @@ class CamThing : public Output
     boost::timer t1;
     
     if (graph_ui.empty()) {
-      LOG(ERROR) << "graph_ui empty";
+      ROS_ERROR_STREAM("graph_ui empty");
       return false;
     }
 
@@ -1696,7 +1706,7 @@ class CamThing : public Output
     else
       graph_ui = cv::Scalar(0,0,0);
     
-    VLOG(4) << "bg draw time" << t1.elapsed(); 
+    ROS_DEBUG_STREAM_COND(log_level > 4, "bg draw time" << t1.elapsed()); 
 
     if (draw_nodes) {
       
@@ -1728,7 +1738,7 @@ class CamThing : public Output
       cv::putText(graph_ui, command_text, cv::Point2f(10, graph_ui.rows-40), 1, 1, 
           cv::Scalar(200,205,195), 1);
       if (command_text.size() > 0) { 
-        VLOG(5) << "command_text " << command_text;
+        ROS_DEBUG_STREAM_COND(log_level > 5, "command_text " << command_text);
       }
 
       
@@ -1736,7 +1746,7 @@ class CamThing : public Output
         cv::circle(graph_ui, source_node->loc + ui_offset, 23, cv::Scalar(29,51,11), -1);
         cv::circle(graph_ui, source_node->loc + ui_offset, 22, cv::Scalar(229,151,51), -1);
       }
-      VLOG(4) << "cv draw time" << t1.elapsed(); 
+      ROS_DEBUG_STREAM_COND(log_level > 4, "cv draw time" << t1.elapsed()); 
 
       // draw input and outputs
       /*
@@ -1746,7 +1756,7 @@ class CamThing : public Output
          if (out.data) {
       //imshow("out", out);
       } else {
-      LOG(ERROR) << "out no data";
+      ROS_ERROR_STREAM("out no data");
       }*/
       
       // move nodes away from each other
@@ -1754,7 +1764,7 @@ class CamThing : public Output
       
       if (!ImageNode::draw(ui_offset)) {
         //if (!Node::draw(ui_offset)) {
-        LOG(ERROR) << "something wrong with node drawing";
+        ROS_ERROR_STREAM("something wrong with node drawing");
         return false;
       }
 
@@ -1765,16 +1775,16 @@ class CamThing : public Output
         }
       }
 
-      VLOG(4) << "node draw time " << t1.elapsed();
+      ROS_DEBUG_STREAM_COND(log_level > 4, "node draw time " << t1.elapsed());
     }
 
     // commenting this out breaks the drawing, not sure why
     setImage("in", graph_ui );
-    VLOG(4) << "ui draw time" << t1.elapsed(); 
+    ROS_DEBUG_STREAM_COND(log_level > 4, "ui draw time" << t1.elapsed()); 
     
     Output::draw(ui_offset);
 
-    VLOG(4) << "full draw time" << t1.elapsed(); 
+    ROS_DEBUG_STREAM_COND(log_level > 4, "full draw time" << t1.elapsed()); 
   } // CamThing::draw
 
   // cause all the nodes to repel each other so the display isn't too 
@@ -1784,8 +1794,8 @@ class CamThing : public Output
       for (int i = 0; i < all_nodes.size(); i++) {
         for (int j = i+1; j < all_nodes.size(); j++) {
           if (all_nodes[i] == all_nodes[j]) {
-            LOG(ERROR) << "duplicate nodes in all_nodes " <<
-                all_nodes[i]->name << " " << all_nodes[j]->name;
+            ROS_ERROR_STREAM("duplicate nodes in all_nodes " <<
+                all_nodes[i]->name << " " << all_nodes[j]->name);
           }
           //if (i == j) continue;
           
@@ -1813,12 +1823,12 @@ class CamThing : public Output
           if (dist < max_dist1) {
             // avoid singularities
             if (dist == 0) { 
-              LOG(WARNING) << all_nodes[i]->name << " " << i << ", " 
-                  << all_nodes[j]->name << " " << j << " " << dist; 
+              ROS_WARN_STREAM(all_nodes[i]->name << " " << i << ", " 
+                  << all_nodes[j]->name << " " << j << " " << dist); 
               all_nodes[i]->acc += cv::Point2f(i/100.0,j/100.0); 
               continue;
             }
-            VLOG(3) << i << " " << j << " " << dist; 
+            ROS_DEBUG_STREAM_COND(log_level > 3, i << " " << j << " " << dist); 
             if (dist < min_dist) dist = min_dist;
 
             all_nodes[i]->acc += dxy * (acc/dist);
@@ -1834,15 +1844,15 @@ class CamThing : public Output
     bool valid_key = Node::handleKey(key);
     if (valid_key) return true;
 
-    LOG(INFO) << " camthing handlekey";
+    ROS_INFO_STREAM(" camthing handlekey");
     if (key == '[') {
       int ind = getSignal("node_ind");
 
-      LOG(INFO) << "node_ind " << ind;
+      ROS_INFO_STREAM("node_ind " << ind);
 
       setString("node", node_types[ind]);
 
-      LOG(INFO) << "creating node " << node_types[ind];
+      ROS_INFO_STREAM("creating node " << node_types[ind]);
       getNodeByName(node_types[ind], 
               node_types[ind], 
               loc + cv::Point2f(150,10));
@@ -1858,8 +1868,6 @@ class CamThing : public Output
 
 }
 
-#include <linux/input.h>
-#include <fcntl.h>
 
 /*
  * To work with Kinect the user must install OpenNI library and PrimeSensorModule for OpenNI and
@@ -1870,11 +1878,8 @@ TBD have a mode that takes a webcam, uses brightness as depth, and thresholds it
  */
 int main( int argc, char* argv[] )
 {
- // google::ParseCommandLineFlags(&argc, &argv, true);
-  google::InitGoogleLogging(argv[0]);
-  google::LogToStderr();
-  google::ParseCommandLineFlags(&argc, &argv, false);
- 
+
+
 // TEMP mouse test
   #ifdef MOUSE_TEST
   int fd;
@@ -1882,7 +1887,7 @@ int main( int argc, char* argv[] )
   // - TBD how to find just the mouses?
   // TBD can't get touchpad to work, don't even see it when catting /dev/input/mouseN
   if ((fd = open("/dev/input/event4", O_RDONLY)) < 0) {
-    LOG(ERROR) << "couldn't open mouse " << fd;
+    ROS_ERROR_STREAM("couldn't open mouse " << fd);
     exit(0);
   }
   struct input_event ev;
@@ -1897,23 +1902,23 @@ int main( int argc, char* argv[] )
 
     #ifdef MOUSE_TEST
     read(fd, &ev, sizeof(struct input_event));
-    VLOG(1) << "value 0x" << std::hex << ev.value 
-      << ", type 0x" << std::hex << ev.type 
-      << ", code 0x" << std::hex << ev.code;
+    ROS_DEBUG_STREAM_COND(log_level > 1, "value 0x" << std::hex << ev.value 
+        << ", type 0x" << std::hex << ev.type 
+        << ", code 0x" << std::hex << ev.code);
     if (ev.type == EV_REL) {
       if (ev.value != 0) {
         // mouse move left
-        if (ev.code == ABS_X) LOG(INFO)<< "dx " << ev.value;
+        if (ev.code == ABS_X) ROS_INFO_STREAM("dx " << ev.value);
         // mouse move right
-        if (ev.code == ABS_Y)  LOG(INFO)<< "dy " << ev.value;
+        if (ev.code == ABS_Y)  ROS_INFO_STREAM("dy " << ev.value);
         // wheel
-        if (ev.code == REL_WHEEL) LOG(INFO)<< "wheel " << ev.value;
+        if (ev.code == REL_WHEEL) ROS_INFO_STREAM("wheel " << ev.value);
       }
     }
     if (ev.type == EV_MSC) {
       // 0x90001 - 3
-      LOG(INFO) << "Button value 0x" << std::hex << ev.value 
-      << ", code " << ev.code;
+      ROS_INFO_STREAM("Button value 0x" << std::hex << ev.value 
+      << ", code " << ev.code);
 
     }
     #else

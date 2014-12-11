@@ -21,7 +21,7 @@
 #include "output.h"
 
 #include <boost/timer.hpp>
-#include <glog/logging.h>
+#include <ros/console.h>
 
 #include "config.h"
 #include "utility.h"
@@ -64,11 +64,11 @@ namespace bm {
     screen = DefaultScreenOfDisplay(display);
     XStoreName(display, win, name.c_str());
     
-    LOG(INFO) << name << " created window " << CLVAL << display << " " 
-        << ximage <<CLNRM;
+    ROS_INFO_STREAM(name << " created window " << CLVAL << display << " " 
+        << ximage <<CLNRM);
     
     if (!get_toplevel_parent(display, win, toplevel_parent)) {
-      LOG(ERROR) << name << " couldn't get toplevel parent";
+      ROS_ERROR_STREAM(name << " couldn't get toplevel parent");
       return false;
     }
 
@@ -97,7 +97,7 @@ namespace bm {
       //bm::setWindowDecorations(display, toplevel_parent, window_decorations_on);
     }
 
-    VLOG(4) << "decor draw time" << t1.elapsed(); 
+    ROS_DEBUG_STREAM_COND(log_level > 4, "decor draw time" << t1.elapsed()); 
     /*
     XWindowAttributes xwAttr;
     Status ret = XGetWindowAttributes( display, win, &xwAttr );
@@ -128,10 +128,10 @@ namespace bm {
 
     // this has the real x and y position,
     // but does turning off decorations cause this to change?
-    VLOG(2) << name << " 1 top " << toplevel_parent;
+    ROS_DEBUG_STREAM_COND(log_level > 2, name << " 1 top " << toplevel_parent);
     Status ret = XGetWindowAttributes( display, toplevel_parent, &xwAttr );
     if (ret == 0) {
-      LOG(ERROR) << "bad xgetwindowattributes";
+      ROS_ERROR_STREAM("bad xgetwindowattributes");
       return false;
     }
 
@@ -140,19 +140,19 @@ namespace bm {
     } else {
       // this holds the 'true' width and height (the inner window not including
       // gnome decor?) the x and y are relative to the toplevel_parent
-      VLOG(2) << name << " 2 win " << win;
+      ROS_DEBUG_STREAM_COND(log_level > 2, name << " 2 win " << win);
       Status ret2 = XGetWindowAttributes( display, win, &xwAttr2 );
       if (ret2 == 0) {
-        LOG(ERROR) << "bad xgetwindowattributes";
+        ROS_ERROR_STREAM("bad xgetwindowattributes");
         return false;
       }
     }
       
-    VLOG(6) << name  
+    ROS_DEBUG_STREAM_COND(log_level > 6, name  
         << " top  " << xwAttr.x << " " << xwAttr.y << ", " 
         << xwAttr.width << " " << xwAttr.height
         << " win " << xwAttr2.x << " " << xwAttr2.y << ", " 
-        << xwAttr2.width << " " << xwAttr2.height;
+        << xwAttr2.width << " " << xwAttr2.height);
 
     // TBD the user ought to be able to force x,y,w,h changes
     // the logic would be that if the window attributes disagree with the last
@@ -174,8 +174,8 @@ namespace bm {
       y = wm_y;
       w = xwAttr2.width;
       h = xwAttr2.height;
-      VLOG(2) << name << " wm changed display " 
-        << x << " " << y << ", " << w << " " << h;
+      ROS_DEBUG_STREAM_COND(log_level > 2, name << " wm changed display " 
+        << x << " " << y << ", " << w << " " << h);
 
       setSignal("x", x);
       setSignal("y", y);
@@ -197,10 +197,10 @@ namespace bm {
         (h != new_h) 
         )
       {
-        VLOG(2) << name << " vimjay changed display "
+        ROS_DEBUG_STREAM_COND(log_level > 2, name << " vimjay changed display "
             << CLVAL << new_x << " " << new_y << ", " << new_w << " " << new_h << CLNRM
             << ", old " 
-            << CLVAL << x << " " << y << ", " << w << " " << h << CLNRM;
+            << CLVAL << x << " " << y << ", " << w << " " << h << CLNRM);
         //int dx = new_x - x;
         //int dy = new_y - y;
         x = new_x;
@@ -218,7 +218,7 @@ namespace bm {
         values.width = w;
         values.height = h;
         
-        VLOG(6) << values.x << " " << values.y;
+        ROS_DEBUG_STREAM_COND(log_level > 6, values.x << " " << values.y);
         // TBD test if different
         {
           value_mask = CWWidth | CWHeight;
@@ -258,7 +258,7 @@ namespace bm {
     setSignal("im_w", Config::inst()->im_width);
     setSignal("im_h", Config::inst()->im_height);
     
-    VLOG(5) << "attr time" << t1.elapsed(); 
+    ROS_DEBUG_STREAM_COND(log_level > 5, "attr time" << t1.elapsed()); 
 
     // TBD is this necessary or does X do it for me if the window is resized?
     const cv::Size sz = cv::Size(w, h);
@@ -268,18 +268,18 @@ namespace bm {
     else
       cv::resize(in, scaled, sz, 0, 0, getModeType() );
    
-    VLOG(6) << "resize time" << t1.elapsed();
+    ROS_DEBUG_STREAM_COND(log_level > 6, "resize time" << t1.elapsed());
 
     XDestroyImage(ximage);
     ximage = XGetImage(display, DefaultRootWindow(display), 0, 0, w, h, AllPlanes, ZPixmap);
     
-    VLOG(5) << "get im time" << t1.elapsed();
+    ROS_DEBUG_STREAM_COND(log_level > 5, "get im time" << t1.elapsed());
     // this is slow
     bm::matToXImage(scaled, ximage, win, *display, *screen);
-    VLOG(5) << "matToXImage time" << t1.elapsed();
+    ROS_DEBUG_STREAM_COND(log_level > 5, "matToXImage time" << t1.elapsed());
     
     XPutImage(display, win,  gc, ximage, 0, 0, 0, 0, ximage->width, ximage->height);
-    VLOG(4) << "put image time" << t1.elapsed();
+    ROS_DEBUG_STREAM_COND(log_level > 4, "put image time" << t1.elapsed());
     } // ximage and input image is valid
 
     return ImageNode::draw(ui_offset);

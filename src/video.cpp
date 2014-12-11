@@ -32,7 +32,7 @@
 #include "opencv2/highgui/highgui.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
 
-#include <glog/logging.h>
+#include <ros/console.h>
 
 #include <deque>
 
@@ -49,7 +49,7 @@ namespace bm {
       error_count(0)
   {
 
-    LOG(INFO) << name << " video capture";
+    ROS_INFO_STREAM(name << " video capture");
   }
 
   void VideoCapture::init() 
@@ -73,7 +73,7 @@ namespace bm {
     //setString("file", "../data/test.mp4");
     setString("file", "../data/test.webm");
     
-    LOG(INFO) << name << " video";
+    ROS_INFO_STREAM(name << " video");
     cam_thread = boost::thread(&Video::runThread, this);
   }
   
@@ -92,8 +92,8 @@ namespace bm {
         bool is_valid, is_dirty;
         std::string file = getString("file", is_valid, is_dirty, 1);
         if (is_valid && is_dirty) {
-          LOG(INFO) << name << " opening new video source " 
-            << CLTXT << file << CLNRM;
+          ROS_INFO_STREAM(name << " opening new video source " 
+            << CLTXT << file << CLNRM);
           video.open(file);
           // TBD temp kinect test
           //video.open(cv::CAP_OPENNI);
@@ -134,7 +134,7 @@ namespace bm {
         bool is_valid, is_dirty;
         float set_avi_ratio = getSignal("set_avi_ratio", is_valid, is_dirty, 1);
         if (is_valid && is_dirty) {
-          LOG(INFO) << set_avi_ratio;
+          ROS_INFO_STREAM(set_avi_ratio);
           video.set(CV_CAP_PROP_POS_AVI_RATIO, set_avi_ratio); 
         }
       }
@@ -182,11 +182,11 @@ namespace bm {
   
   Webcam::~Webcam()
   {
-    LOG(INFO) << name << " stopping camera capture thread";
+    ROS_INFO_STREAM(name << " stopping camera capture thread");
     run_thread = false;
     cam_thread.join();
 
-    LOG(INFO) << name << " releasing the camera";
+    ROS_INFO_STREAM(name << " releasing the camera");
     video.release();
   }
 

@@ -11,6 +11,9 @@
 #include "opencv2/highgui/highgui.hpp"
 
 namespace bm {
+  
+  // need to be able to set this from command line, or config file
+  static int log_level = 2;
 
   class Config
   {

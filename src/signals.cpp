@@ -31,7 +31,7 @@
 #include "opencv2/highgui/highgui.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
 
-#include <glog/logging.h>
+#include <ros/console.h>
 
 #include <deque>
 
@@ -89,7 +89,7 @@ namespace bm {
     int new_state = step;
     // TBD step changes a lot, this may not be that ideal
     if (new_state != state) {
-      LOG(INFO) << name << " " << state << " " << step << " new state " << 0xFFFFFFF - (int)state; 
+      ROS_INFO_STREAM(name << " " << state << " " << step << " new state " << 0xFFFFFFF - (int)state); 
       state = step; // 0xFFFFFFF - (int)step;
       rng = cv::RNG(0xFFFFFFF - (int)state);
     }
@@ -181,7 +181,7 @@ namespace bm {
 
     setDirty();
 
-    VLOG(3) << "Signal " << name << " " << value;
+    ROS_DEBUG_STREAM_COND(log_level > 3, "Signal " << name << " " << value);
     return true;
   }
 
@@ -236,7 +236,7 @@ namespace bm {
     ImageNode::init();
     setSignal("in", 0);
     
-    VLOG(1) <<" setting out image";
+    ROS_DEBUG_STREAM_COND(log_level > 1, " setting out image");
     cv::Mat tmp;
     cv::Size sz = Config::inst()->getImSize();
     tmp = cv::Mat(sz, MAT_FORMAT_C3, cv::Scalar(0));
@@ -311,7 +311,7 @@ namespace bm {
   {
     cv::Mat vis = getImage("out");
     if (vis.empty()) {
-      LOG(WARNING) << "out is empty";
+      ROS_WARN_STREAM("out is empty");
       cv::Size sz = Config::inst()->getImSize();
       vis = cv::Mat(sz, MAT_FORMAT_C3, cv::Scalar(0));
     }
@@ -350,8 +350,8 @@ namespace bm {
       int inc = 1;
       if (div > 1.0) inc = (int) div;
       
-      VLOG(5) << sigs.size() << ":" << div << " " << inc << " " 
-          << scale << " " << middle;
+      ROS_DEBUG_STREAM_COND(log_level > 5, sigs.size() << ":" << div << " " << inc << " " 
+          << scale << " " << middle);
 
       // TBD should we always redraw?  Should we
       { 
@@ -421,14 +421,14 @@ namespace bm {
   {
     boost::mutex::scoped_lock l(sigs_mutex);
     if (sigs.size() < 1) {
-      VLOG(1) << "no sigs returning 0";
+      ROS_DEBUG_STREAM_COND(log_level > 1, "no sigs returning 0");
       return 0;
     }
     //if (ind > sigs.size() - 1) ind = sigs.size() - 1;
     //if (ind < 0) ind = 0;
     ind %= sigs.size();
   
-    VLOG(2) << name << " ind " << ind;
+    ROS_DEBUG_STREAM_COND(log_level > 2, name << " ind " << ind);
 
     //VLOG_EVERY_N(1,10) 
     //LOG_EVERY_N(INFO, 10) << ind << " " << sigs.size();
@@ -493,7 +493,7 @@ bool SigAdd::update()
   if (!Node::update()) return false;
 
   if (!isDirty(this, 35)) {
-    VLOG(1) << name << " not dirty ";
+    ROS_DEBUG_STREAM_COND(log_level > 1, name << " not dirty ");
     return true;
   }
 
@@ -504,7 +504,7 @@ bool SigAdd::update()
     const string port_a = ports[i]->name;
 
     if (port_a.substr(0,4) != "mula") {
-      VLOG(2) << name << " : " << port_a.substr(0,4) << " " << port_a;
+      ROS_DEBUG_STREAM_COND(log_level > 2, name << " : " << port_a.substr(0,4) << " " << port_a);
       continue;
     }
   
@@ -513,12 +513,12 @@ bool SigAdd::update()
     const float a = getSignal(port_a);
     const float b = getSignal(port_b);
 
-    VLOG(2) << name <<  " " << CLTXT << port_a << " " << port_b << " " 
-        << CLVAL << sum << " + " << a << " * " << b << CLNRM;
+    ROS_DEBUG_STREAM_COND(log_level > 2, name <<  " " << CLTXT << port_a << " " << port_b << " " 
+        << CLVAL << sum << " + " << a << " * " << b << CLNRM);
     sum += getSignal(port_a) * getSignal(port_b);  
     
   }
-  VLOG(2) << name << " " << sum;
+  ROS_DEBUG_STREAM_COND(log_level > 2, name << " " << sum);
 
   setSignal("out", sum);
 
@@ -545,7 +545,7 @@ bool SigAdd::handleKey(int key)
       const string port = ports[i]->name;
 
       if (port.substr(0,4) != "mula") {
-        VLOG(1) << name << " : " << port.substr(0,4) << " " << port;
+        ROS_DEBUG_STREAM_COND(log_level > 1, name << " : " << port.substr(0,4) << " " << port);
         continue;
       }
       add_num++;
@@ -590,7 +590,7 @@ bool SigGreater::update()
   if (!Node::update()) return false;
 
   if (!isDirty(this, 35)) {
-    VLOG(1) << name << " not dirty ";
+    ROS_DEBUG_STREAM_COND(log_level > 1, name << " not dirty ");
     return true;
   }
 
@@ -632,7 +632,7 @@ bool Mean::update()
   if (!Node::update()) return false;
 
   if (!isDirty(this, 35)) {
-    VLOG(1) << name << " not dirty ";
+    ROS_DEBUG_STREAM_COND(log_level > 1, name << " not dirty ");
     return true;
   }
 
@@ -707,7 +707,7 @@ bool SigADSR::update()
   // it, and it will have the same type when the
   // base class update gets the type name.
   if (!isDirty(this, 35) ) {
-    VLOG(1) << name << " not dirty ";
+    ROS_DEBUG_STREAM_COND(log_level > 1, name << " not dirty ");
     return true;
   }
 
@@ -818,7 +818,7 @@ bool getMatchingPorts(
     if (ports[i]->type != port_type) continue; 
     const string port = ports[i]->name;
     if (port.substr(0,2) != pattern) {
-      VLOG(5) << /*name <<*/ " : " << port.substr(0,3) << " " << port;
+      ROS_DEBUG_STREAM_COND(log_level > 5, /*name <<*/ " : " << port.substr(0,3) << " " << port);
       continue;
     }
     
@@ -846,7 +846,7 @@ bool SigToInd::update()
     float val = getSignal(matched_ports[i]->name, b1, is_dirty);
     if ((val > 0) && is_dirty) {
       setSignal("out", i);
-      LOG(INFO) << name << " " << matched_ports[i]->name << " " << val;
+      ROS_INFO_STREAM(name << " " << matched_ports[i]->name << " " << val);
       break;
     }
   }

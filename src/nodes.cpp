@@ -31,7 +31,7 @@
 #include "opencv2/highgui/highgui.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
 
-#include <glog/logging.h>
+#include <ros/console.h>
 
 #include <deque>
 //#include <pair>
@@ -67,8 +67,8 @@ namespace bm {
     int g = (val2 & 0x00ff00) >> 8;
     int b = (val2 & 0x0000ff) >> 0;
    
-    VLOG(6) << "hash color 0x" << std::hex << val << " 0x" << std::hex << val2 
-      << " : 0x" << std::hex <<  r << " 0x" << std::hex << g << " 0x" << std::hex << b;
+    ROS_DEBUG_STREAM_COND(log_level > 6, "hash color 0x" << std::hex << val << " 0x" << std::hex << val2 
+      << " : 0x" << std::hex <<  r << " 0x" << std::hex << g << " 0x" << std::hex << b);
     return cv::Scalar(r,g,b);
   }
 
@@ -84,18 +84,18 @@ namespace bm {
     highlight2(false),
     do_update(false)
   {
-    VLOG(1) << name << " constructor";
+    ROS_DEBUG_STREAM_COND(log_level > 1, name << " constructor");
   }
   
   Elem::~Elem()
   {
-    VLOG(1) << name << " destructor";
+    ROS_DEBUG_STREAM_COND(log_level > 1, name << " destructor");
   }
 
   bool Elem::isDirty(const void* caller, const int ind, const bool clear) 
   {
-    VLOG(4) << name << " " << this << " isDirty " << caller 
-        << " " << ind << " " << clear;
+    ROS_DEBUG_STREAM_COND(log_level > 4, name << " " << this << " isDirty " << caller 
+        << " " << ind << " " << clear);
 
     // first stage
     map<const void*, map<int, bool> >::iterator caller_map;  
@@ -135,7 +135,7 @@ namespace bm {
   {
     if (!do_update) return false;
 
-    VLOG(3) << name << " update";
+    ROS_DEBUG_STREAM_COND(log_level > 3, name << " update");
 
     do_update = false;
 
@@ -163,7 +163,7 @@ namespace bm {
     // This will frequently already have been run
     if (parent.lock()) {
 
-      VLOG(3) << parent.lock()->name << " : " << name << " update";
+      ROS_DEBUG_STREAM_COND(log_level > 3, parent.lock()->name << " : " << name << " update");
       parent.lock()->update();
     }
 
@@ -182,7 +182,7 @@ namespace bm {
          //||  (src.lock()->parent == parent)  // TBD special loop detection, TBD not sure why this is necessary
         ) { 
 
-        VLOG(3) << "src " << src.lock()->name << " : " << name << " update";
+        ROS_DEBUG_STREAM_COND(log_level > 3, "src " << src.lock()->name << " : " << name << " update");
         
         // the reason we can't forward propagate is that dst isn't a vector 
         // of every dst, there is a one to many possible mapping
@@ -257,7 +257,7 @@ namespace bm {
 
     if (this->value == val) return true;
     
-    VLOG(5) << name << " " << val << " " << val_min << " " << val_max;
+    ROS_DEBUG_STREAM_COND(log_level > 5, name << " " << val << " " << val_min << " " << val_max);
 
     this->value = val;
     setDirty();
@@ -267,12 +267,12 @@ namespace bm {
 
   bool Connector::setString(const std::string new_str)
   {
-    VLOG(1) << "setString " << CLTXT << name << " " << CLVAL << new_str << CLNRM;
+    ROS_DEBUG_STREAM_COND(log_level > 1, "setString " << CLTXT << name << " " << CLVAL << new_str << CLNRM);
     //if (str.compare(new_str) == 0) return true;
     if (str == new_str) return true;
     str = new_str;
     setDirty();
-    VLOG(1) << new_str;
+    ROS_DEBUG_STREAM_COND(log_level > 1, new_str);
     return true;
   }
 
@@ -359,7 +359,7 @@ namespace bm {
   {
    
     cv::Scalar hash_col = hashStringColor(/*parent.lock()->name +*/ typeToString(type) + name);
-    VLOG(6) << name << " " << hash_col[0] << " " << hash_col[1] << " " << hash_col[2];
+    ROS_DEBUG_STREAM_COND(log_level > 6, name << " " << hash_col[0] << " " << hash_col[1] << " " << hash_col[2]);
 
     bool is_dirty = isDirty(this, 1);
 
@@ -521,7 +521,7 @@ namespace bm {
       #if 0
       if (!ports[i]->internally_set) {
         const bool is_dirty = ports[i]->isDirty(this, 2);
-        VLOG(2) << name << " " << CLTXT << ports[i]->name << " " << CLNRM << is_dirty;
+        ROS_DEBUG_STREAM_COND(log_level > 2, name << " " << CLTXT << ports[i]->name << " " << CLNRM << is_dirty);
         if (is_dirty) {
           inputs_dirty = true;
         }
@@ -540,7 +540,7 @@ namespace bm {
     // TBD loop through ports and run getImage on each
     // or could that be combined with looping through the getInputVector above?
     
-    VLOG(3) << name << " in sz " << ports.size() << " inputs dirty " << inputs_dirty;
+    ROS_DEBUG_STREAM_COND(log_level > 3, name << " in sz " << ports.size() << " inputs dirty " << inputs_dirty);
 
     return true;
   }
@@ -581,7 +581,7 @@ namespace bm {
     posUpdate();
 
     if (graph_ui.empty()) {  
-      LOG(ERROR) << "graph empty";
+      ROS_ERROR_STREAM("graph empty");
       return false;
     }
 
@@ -608,7 +608,7 @@ namespace bm {
     //posUpdate();
   
     if (graph_ui.empty()) {  
-      LOG(ERROR) << "graph empty";
+      ROS_ERROR_STREAM("graph empty");
       return false;
     }
     
@@ -681,7 +681,7 @@ namespace bm {
     // blanket loading of all svals
     FileNode nd_in = (*nd)["inputs"]; 
     if (nd_in.type() != FileNode::SEQ) {
-      //LOG(ERROR) << "no nodes";
+      //ROS_ERROR_STREAM("no nodes");
       //return false;
     }
 
@@ -690,7 +690,7 @@ namespace bm {
       const string sval_name = (*it)["name"];
       (*it)["value"] >> val;
       setSignal( sval_name, val);
-      LOG(INFO) << name << " : " << sval_name << " = " << val;
+      ROS_INFO_STREAM(name << " : " << sval_name << " = " << val);
       
       /* this doesn't work, name returns blank
        * though there are a matching number of entries to sval items 
@@ -699,7 +699,7 @@ namespace bm {
       const string sval_name = (*it).name();
       (*it)[sval_name] >> val;
       setSignal( sval_name, val);
-      LOG(INFO) << name << " " << (*it) << " " << sval_name << " " << val;
+      ROS_INFO_STREAM(name << " " << (*it) << " " << sval_name << " " << val);
       */
     }
     #endif
@@ -722,7 +722,7 @@ namespace bm {
   {
     bool valid_key = true;
 
-    VLOG(3) << selected_type << " \"" << selected_port << "\"";
+    ROS_DEBUG_STREAM_COND(log_level > 3, selected_type << " \"" << selected_port << "\"");
     if ((selected_type == SIGNAL) && (selected_port != "")) { 
       float value = getSignal(selected_port);
   
@@ -755,7 +755,7 @@ namespace bm {
       }
 
       if (valid_key) {
-        VLOG(3) << value;
+        ROS_DEBUG_STREAM_COND(log_level > 3, value);
         setSignal(selected_port, value);
         setDirty();
       }
@@ -768,7 +768,7 @@ namespace bm {
       
       if (key == '8') {  // UP
         acc.y -= acc_step;
-        // LOG(INFO) << "acc.y " << acc.y;
+        // ROS_INFO_STREAM("acc.y " << acc.y);
       } else if (key == '2') {  // DOWN
         acc.y += acc_step;
       } else if (key == '4') {  // LEFT
@@ -793,7 +793,7 @@ namespace bm {
     boost::mutex::scoped_lock l(port_mutex);
     for (int i = 0; i < ports.size(); i++) {
       if (con == ports[i]) {
-        VLOG(3) << con->name << " " << i; 
+        ROS_DEBUG_STREAM_COND(log_level > 3, con->name << " " << i); 
         return i; 
       }
     }
@@ -821,8 +821,8 @@ namespace bm {
     for (int i = ports.size()-1; i >= 0; i--) {
       int ind = (i + selected_port_ind) % ports.size();
       
-      VLOG(3) << ind << " : " << type << " " << ports[ind]->type << ", " 
-          << ports[ind]->name;
+      ROS_DEBUG_STREAM_COND(log_level > 3, ind << " : " << type << " " << ports[ind]->type << ", " 
+          << ports[ind]->name);
 
       if ((type == NONE) || (type == ports[ind]->type)) {
         selected_port_ind = ind;
@@ -841,8 +841,8 @@ namespace bm {
     for (int i = 0; i < ports.size(); i++) {
       int ind = (i + 1 + selected_port_ind) % ports.size();
       
-      VLOG(3) << ind << " : " << type << " " << ports[ind]->type << ", " 
-          << ports[ind]->name;
+      ROS_DEBUG_STREAM_COND(log_level > 3, ind << " : " << type << " " << ports[ind]->type << ", " 
+          << ports[ind]->name);
 
       if ((type == NONE) || (type == ports[ind]->type)) {
         selected_port_ind = ind;
@@ -872,7 +872,7 @@ namespace bm {
 
     for (int i = 0; i < ports.size(); i++) {
 
-      VLOG(6) << i << " " << ports[i]->type << " " << ports[i]->name << ", " << type << " " << port;
+      ROS_DEBUG_STREAM_COND(log_level > 6, i << " " << ports[i]->type << " " << ports[i]->name << ", " << type << " " << port);
       
       if ((ports[i]->type == type) && (ports[i]->name == port)) {
         con = ports[i];
@@ -929,9 +929,9 @@ namespace bm {
 
       ports.push_back(con);
 
-      VLOG(2) << "\"" << con->parent.lock()->name << "\"" 
+      ROS_DEBUG_STREAM_COND(log_level > 2, "\"" << con->parent.lock()->name << "\"" 
           << CLTX2 << " new connector " << CLNRM 
-          << type << " \"" << con->name << "\"";
+          << type << " \"" << con->name << "\"");
     }
       
     // blank out existing dst connection if it exists, it will be overwritten next
@@ -952,20 +952,20 @@ namespace bm {
         src_con->loc = cv::Point2f(0, src_node->ports.size()*10);
         
         src_node->ports.push_back(src_con);
-        VLOG(2) << con->parent.lock()->name << " new src Connector " << type << " " << src_con->name; 
+        ROS_DEBUG_STREAM_COND(log_level > 2, con->parent.lock()->name << " new src Connector " << type << " " << src_con->name); 
 
       }
       
       //if (src_con->dst != con) con->setDirty();
       //src_con->setDirty();
       src_con->dst = con;
-      VLOG(1) << "\"" << name << "\" setInputPort: " << type << " " 
+      ROS_DEBUG_STREAM_COND(log_level > 1, "\"" << name << "\" setInputPort: " << type << " " 
         << CLTXT << "\"" << port << "\"" << CLNRM << " from "
         << CLTXT /*<< inputs[type][port].first->name << " "*/  // not necessarily non-NULL
-        << "\"" << src_port << "\"" << CLNRM; 
+        << "\"" << src_port << "\"" << CLNRM); 
     } else {
 
-      VLOG(1) << "\"" << name << "\" setInputPort: " << type << " " << port;
+      ROS_DEBUG_STREAM_COND(log_level > 1, "\"" << name << "\" setInputPort: " << type << " " << port);
     }
 
     con->src = src_con;
@@ -987,14 +987,14 @@ namespace bm {
       setInputPort(IMAGE, port); //, NULL, "");
       // now get it again TBD actually check rv
       if (!getInputPort(IMAGE, port, con, src_port)) {
-        LOG(ERROR) << "still can't get port";
+        ROS_ERROR_STREAM("still can't get port");
         return false;
       }
       con->internally_set = internally_set;
     }
      
     if (!con) {
-      LOG(ERROR) << "no connector";
+      ROS_ERROR_STREAM("no connector");
       return false;
     }
 
@@ -1024,7 +1024,7 @@ namespace bm {
       setInputPort(SIGNAL, port);
       
       if (!getInputPort(SIGNAL, port, con, src_port)) {
-        LOG(ERROR) << name << " still can't get connector " << CLTXT << port << CLNRM; 
+        ROS_ERROR_STREAM(name << " still can't get connector " << CLTXT << port << CLNRM); 
         return false;
       }
     
@@ -1037,8 +1037,8 @@ namespace bm {
 
 
     if (saturate > 0) {
-      VLOG(1) << name << " - " << port << ((saturate == 1) ? " - saturating " : " - rolling over ") 
-          << min << " " << max;
+      ROS_DEBUG_STREAM_COND(log_level > 1, name << " - " << port << ((saturate == 1) ? " - saturating " : " - rolling over ") 
+          << min << " " << max);
       con->saturate = saturate;
       con->val_min = min;
       con->val_max = max;
@@ -1071,7 +1071,7 @@ namespace bm {
 
     if (!getInputPort(IMAGE, port, con, src_port)) {
       // create it if it doesn't exist
-      VLOG(1) << name << " creating IMAGE " << CLTXT <<  name << " " << port << CLNRM;
+      ROS_DEBUG_STREAM_COND(log_level > 1, name << " creating IMAGE " << CLTXT <<  name << " " << port << CLNRM);
       setInputPort(IMAGE, port); //, NULL, "");
       return im;
     }
@@ -1083,7 +1083,7 @@ namespace bm {
     }
     valid = true;
     
-    VLOG(4) << name << " " << port << " " << " " << src_port << " ";
+    ROS_DEBUG_STREAM_COND(log_level > 4, name << " " << port << " " << " " << src_port << " ");
 
     return im;
   }
@@ -1113,13 +1113,13 @@ namespace bm {
     // then look at input nodes
     if (!getInputPort(SIGNAL, port, con, src_port)) {
       // create it if it doesn't exist
-      VLOG(1) << name << " creating SIGNAL " << CLTXT <<  name << " " << port << CLNRM;
+      ROS_DEBUG_STREAM_COND(log_level > 1, name << " creating SIGNAL " << CLTXT <<  name << " " << port << CLNRM);
       setInputPort(SIGNAL, port); //, NULL, "");
       return 0;
     }
 
     if (!con) return 0;
-    //VLOG(1) << name << " " << src_port << " " << valid << " " << new_val << " " << val;
+    //ROS_DEBUG_STREAM_COND(log_level > 1, name << " " << src_port << " " << valid << " " << new_val << " " << val);
     //if (!valid) return val;
     float val = con->value;
     
@@ -1157,7 +1157,7 @@ namespace bm {
         dynamic_pointer_cast<Buffer>(tmp_src->parent.lock());
 
     if (!im_in) {
-      LOG(ERROR) << name  << " " << port << " improper Buffer connected";
+      ROS_ERROR_STREAM(name  << " " << port << " improper Buffer connected");
       return tmp;
     }
 
@@ -1195,7 +1195,7 @@ namespace bm {
         dynamic_pointer_cast<Buffer>(tmp_src->parent.lock());
 
     if (!im_in) {
-      LOG(ERROR) << name  << " " << port << " improper Buffer connected";
+      ROS_ERROR_STREAM(name  << " " << port << " improper Buffer connected");
       return tmp;
     }
 
@@ -1226,7 +1226,7 @@ namespace bm {
       setInputPort(BUFFER, port); //, NULL, "");
       // now get it again TBD actually check rv
       if (!getInputPort(BUFFER, port, con, src_port)) {
-        LOG(ERROR) << "still can't get connector";
+        ROS_ERROR_STREAM("still can't get connector");
         return false;
       }
       con->internally_set = internally_set;
@@ -1251,7 +1251,7 @@ namespace bm {
       setInputPort(SIGBUF, port); //, NULL, "");
       // now get it again TBD actually check rv
       if (!getInputPort(SIGBUF, port, con, src_port)) {
-        LOG(ERROR) << "still can't get connector";
+        ROS_ERROR_STREAM("still can't get connector");
         return false;
       }
       con->internally_set = internally_set;
@@ -1275,7 +1275,7 @@ namespace bm {
       setInputPort(STRING, port);
       
       if (!getInputPort(STRING, port, con, src_port)) {
-        LOG(ERROR) << name << " still can't get connector " << CLTXT << port << CLNRM; 
+        ROS_ERROR_STREAM(name << " still can't get connector " << CLTXT << port << CLNRM); 
         return false;
       }
     
@@ -1287,7 +1287,7 @@ namespace bm {
     if (con->src.lock()) return false;
 
     con->setString(new_str);
-    VLOG(9) << name << " " << con->name << " " << con->getString() << " " << con << " " << this;
+    ROS_DEBUG_STREAM_COND(log_level > 9, name << " " << con->name << " " << con->getString() << " " << con << " " << this);
   
     return true;
   }
@@ -1307,16 +1307,16 @@ namespace bm {
     // then look at input nodes
     if (!getInputPort(STRING, port, con, src_port)) {
       // create it if it doesn't exist
-      VLOG(0) << name << " creating STRING " << CLTXT <<  name << " " << port << CLNRM;
+      ROS_DEBUG_STREAM_COND(log_level > 0, name << " creating STRING " << CLTXT <<  name << " " << port << CLNRM);
       setInputPort(STRING, port); //, NULL, "");
       return "";
     }
 
     if (!con) {
-      LOG(ERROR) << "no connector " << port;
+      ROS_ERROR_STREAM("no connector " << port);
       return "";
     }
-    VLOG(9) << name << " " << con->name << " " << src_port << " " << valid << " " << con->getString() << " " << con << " " << this;
+    ROS_DEBUG_STREAM_COND(log_level > 9, name << " " << con->name << " " << src_port << " " << valid << " " << con->getString() << " " << con << " " << this);
     //if (!valid) return val;
     
     is_dirty = con->isDirty(this, is_dirty_ind);
@@ -1366,7 +1366,7 @@ namespace bm {
     
       setImage("out", in);
     }
-    //VLOG(4) << name << " update: " <<  out.refcount << " " << out_old.refcount;
+    //ROS_DEBUG_STREAM_COND(log_level > 4, name << " update: " <<  out.refcount << " " << out_old.refcount);
   
     return true;
   }
@@ -1374,7 +1374,7 @@ namespace bm {
   bool ImageNode::draw(cv::Point2f ui_offset) 
   {
     if (graph_ui.empty()) { 
-      LOG(ERROR) << "graph_ui is empty";
+      ROS_ERROR_STREAM("graph_ui is empty");
       return false;
     }
 
@@ -1425,14 +1425,14 @@ namespace bm {
 
   bool ImageNode::writeImage()
   {
-    LOG(INFO) << name << " writing ImageNode image to disk";
+    ROS_INFO_STREAM(name << " writing ImageNode image to disk");
 
     if (dir_name.str() == "") {
       time_t t1 = time(NULL);
 
       // TBD define path to data somewhere to be reused by all
       dir_name << "../data/record/" << t1 << "_" << name;
-      LOG(INFO) << name << " creating directory" << dir_name.str();
+      ROS_INFO_STREAM(name << " creating directory" << dir_name.str());
     }
     
     boost::filesystem::create_directories(dir_name.str());
@@ -1453,7 +1453,7 @@ namespace bm {
     write_count++;
     setSignal("write_count", write_count);
 
-    LOG(INFO) << name << " wrote " << CLTXT << file_name.str() << CLNRM;
+    ROS_INFO_STREAM(name << " wrote " << CLTXT << file_name.str() << CLNRM);
     // TBD register that these frames have been saved somewhere so it is easy to load
     // them up again?
   }
@@ -1486,7 +1486,7 @@ namespace bm {
     getInputPort(SIGNAL, port, con, src_port);
 
     if (!con) {
-      LOG(ERROR) << "no mode connector";
+      ROS_ERROR_STREAM("no mode connector");
       // TBD put a getSignal() instead which will create the connector
       return cv::INTER_NEAREST;
     }
@@ -1510,7 +1510,7 @@ namespace bm {
       mode_type = cv::INTER_LANCZOS4;
       con->description = "LANCZOS4";
     }
-    VLOG(3) << mode << " " << con->description;
+    ROS_DEBUG_STREAM_COND(log_level > 3, mode << " " << con->description);
     return mode_type;
   }
 
@@ -1573,7 +1573,7 @@ namespace bm {
     setSignal("value", offset);
     setSignal("step", new_step);
 
-    LOG(INFO) << "Signal " << offset << " " << new_step;
+    ROS_INFO_STREAM("Signal " << offset << " " << new_step);
   }
   
   bool Signal::handleKey(int key)
@@ -1602,7 +1602,7 @@ namespace bm {
     }
     
     if (valid_key) {
-      VLOG(2) << value;
+      ROS_DEBUG_STREAM_COND(log_level > 2, value);
       setSignal("value", value);
       setDirty();
     }
@@ -1614,7 +1614,7 @@ namespace bm {
   {
     if (!Node::update()) return false;
 
-    //VLOG(4) << "Signal " << name << " " << value;
+    //ROS_DEBUG_STREAM_COND(log_level > 4, "Signal " << name << " " << value);
 
     return true;
   }
@@ -1665,7 +1665,7 @@ namespace bm {
   {
     ImageNode::init();
     //this->max_size = max_size;
-    //LOG(INFO) << "new buffer max_size " << this->max_size;
+    //ROS_INFO_STREAM("new buffer max_size " << this->max_size);
     vcol = cv::Scalar(200, 30, 200);
 
     cv::Mat tmp;
@@ -1709,7 +1709,7 @@ namespace bm {
 
   bool Buffer::update()
   {
-    //VLOG(1) << name << " buffer update";
+    //ROS_DEBUG_STREAM_COND(log_level > 1, name << " buffer update");
     bool rv = Node::update(); // ImageNode::update();
     if (!rv) return false;
   
@@ -1747,7 +1747,7 @@ namespace bm {
       cv::Mat frame = frames[ind].clone(); // seems to be a segfault related to this
 
       if (frame.empty()) { 
-        VLOG(2) << name << " frames " << i << CLERR << " is empty" << CLNRM;  continue; 
+        ROS_DEBUG_STREAM_COND(log_level > 2, name << " frames " << i << CLERR << " is empty" << CLNRM;  continue); 
       }
 
       // TBD make this optional
@@ -1797,8 +1797,9 @@ namespace bm {
     if ((frames.size() > 0) && 
         (new_frame.refcount == frames[frames.size()-1].refcount)) {
       new_frame = new_frame.clone();
-      LOG_FIRST_N(INFO,15) << name << " cloning identical frame " 
-          << new_frame.refcount << " " << frames[frames.size()-1].refcount;
+      ROS_INFO_STREAM_ONCE(name << " cloning identical frame "
+          << new_frame.refcount << " " << frames[frames.size()-1].refcount
+          );
       //return false;
     }
 
@@ -1812,14 +1813,14 @@ namespace bm {
     setSignal("cur_size", cur_size, true);
     if (cur_size <= 0) return false;
 
-    VLOG(4) << name << " sz " << cur_size;
+    ROS_DEBUG_STREAM_COND(log_level > 4, name << " sz " << cur_size);
     return true;
   }
 
   bool Buffer::add(cv::Mat& new_frame, bool restrict_size)
   {
     if (new_frame.empty()) {
-      LOG(ERROR) << name << CLERR << " new_frame is empty" << CLNRM;
+      ROS_ERROR_STREAM(name << CLERR << " new_frame is empty" << CLNRM);
       return false;// TBD LOG(ERROR)
     }
    
@@ -1855,7 +1856,7 @@ namespace bm {
   {
     const int ind = (int)(fr * (float)frames.size());
     actual_ind = ind;
-    VLOG(6) << ind << " " << fr << " " << frames.size();
+    ROS_DEBUG_STREAM_COND(log_level > 6, ind << " " << fr << " " << frames.size());
     //if (fr < 0) {
     //  ind = frames.size() - ind;
     //}
@@ -1867,7 +1868,7 @@ namespace bm {
   {
     boost::mutex::scoped_lock l(frames_mutex);
     if (frames.size() < 1) {
-      VLOG(1) << "no frames returning gray";
+      ROS_DEBUG_STREAM_COND(log_level > 1, "no frames returning gray");
       cv::Mat tmp = cv::Mat( 
         Config::inst()->thumb_width, Config::inst()->thumb_height, CV_8UC4);
       tmp = cv::Scalar(128);
@@ -1878,7 +1879,7 @@ namespace bm {
     ind %= frames.size();
     actual_ind = ind;
   
-    VLOG(2) << name << " ind " << ind;
+    ROS_DEBUG_STREAM_COND(log_level > 2, name << " ind " << ind);
 
     //VLOG_EVERY_N(1,10) 
     //LOG_EVERY_N(INFO, 10) << ind << " " << frames.size();
@@ -1902,15 +1903,15 @@ namespace bm {
     if (frames.size() == 0) return false;
 
     boost::filesystem::create_directories(dir_name.str());
-    LOG(INFO) << name << " writing " << frames.size() 
-        << " Buffer images to disk " << CLTXT << dir_name.str() << CLNRM;
+    ROS_INFO_STREAM(name << " writing " << frames.size() 
+        << " Buffer images to disk " << CLTXT << dir_name.str() << CLNRM);
 
     // TBD move to another thread
     for (int i = 0; i < frames.size(); i++) {
       stringstream file_name;
       file_name << dir_name.str() << "/buffer_" << (i + 1000000) << ".jpg";
       cv::imwrite(file_name.str(), frames[i]);
-      VLOG(1) << file_name.str();  
+      ROS_DEBUG_STREAM_COND(log_level > 1, file_name.str());  
       int write_count = getSignal("write_count");
       write_count++;
       setSignal("write_count", write_count);
@@ -1941,7 +1942,7 @@ namespace bm {
   {
     Buffer::init();
     //this->max_size = max_size;
-    //LOG(INFO) << "new buffer max_size " << this->max_size;
+    //ROS_INFO_STREAM("new buffer max_size " << this->max_size);
     vcol = cv::Scalar(200, 30, 200);
 
     // not really an input, but using inputs since outputs aren't distinct
@@ -1976,7 +1977,7 @@ namespace bm {
       if (ports[i]->type != IMAGE) continue;
       const string port = ports[i]->name;
       if (port.substr(0,3) != "inp") {
-        VLOG(5) << name << " : " << port.substr(0,3) << " " << port;
+        ROS_DEBUG_STREAM_COND(log_level > 5, name << " : " << port.substr(0,3) << " " << port);
         continue;
       }
       cur_size++;
@@ -1993,11 +1994,11 @@ namespace bm {
       if (ports[i]->type != IMAGE) continue;
       const string port = ports[i]->name;
       if (port.substr(0,3) != "inp") {
-        VLOG(5) << name << " : " << port.substr(0,3) << " " << port;
+        ROS_DEBUG_STREAM_COND(log_level > 5, name << " : " << port.substr(0,3) << " " << port);
         continue;
       }
       
-      VLOG(4) << "port " << ind << " " << port;
+      ROS_DEBUG_STREAM_COND(log_level > 4, "port " << ind << " " << port);
       frames[ind] = getImage(port);
       ind++;
     }
@@ -2023,7 +2024,7 @@ namespace bm {
         const string port = ports[i]->name;
         
         if (port.substr(0,3) != "inp") {
-          VLOG(1) << name << " : " << port.substr(0,2) << " " << port;
+          ROS_DEBUG_STREAM_COND(log_level > 1, name << " : " << port.substr(0,2) << " " << port);
           continue;
         }
         add_num++;
@@ -2071,7 +2072,7 @@ namespace bm {
 
   bool MuxBuffer::update()
   {
-    //VLOG(1) << name << "mux buffer update";
+    //ROS_DEBUG_STREAM_COND(log_level > 1, name << "mux buffer update");
     bool rv = Node::update(); // ImageNode::update();
     if (!rv) return false;
   
@@ -2087,7 +2088,7 @@ namespace bm {
       if (ports[i]->type != BUFFER) continue;
       const string port = ports[i]->name;
       if (port.substr(0,3) != "inp") {
-        VLOG(5) << name << " : " << port.substr(0,3) << " " << port;
+        ROS_DEBUG_STREAM_COND(log_level > 5, name << " : " << port.substr(0,3) << " " << port);
         continue;
       }
       if (cur_size == ind) {
@@ -2109,7 +2110,7 @@ namespace bm {
       if (ports[i]->type != BUFFER) continue;
       const string port = ports[i]->name;
       if (port.substr(0,3) != "inp") {
-        VLOG(5) << name << " : " << port.substr(0,3) << " " << port;
+        ROS_DEBUG_STREAM_COND(log_level > 5, name << " : " << port.substr(0,3) << " " << port);
         continue;
       }
 
@@ -2154,7 +2155,7 @@ namespace bm {
         const string port = ports[i]->name;
         
         if (port.substr(0,3) != "inp") {
-          VLOG(1) << name << " : " << port.substr(0,2) << " " << port;
+          ROS_DEBUG_STREAM_COND(log_level > 1, name << " : " << port.substr(0,2) << " " << port);
           continue;
         }
         add_num++;

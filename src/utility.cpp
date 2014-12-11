@@ -28,7 +28,7 @@
 #include "config.h"
 
 #include <boost/timer.hpp>
-#include <glog/logging.h>
+#include <ros/console.h>
 
 #include <typeinfo>
 #include <cxxabi.h> // non portable
@@ -48,11 +48,11 @@ namespace bm {
     image_names.clear();
     sub_dirs.clear();
 
-    VLOG(1) << "get image names " << dir;
+    ROS_DEBUG_STREAM_COND(log_level > 1, "get image names " << dir);
 
     boost::filesystem::path image_path(dir);
     if (!is_directory(image_path)) {
-      LOG(ERROR) << CLERR << " not a directory " << CLNRM << dir;
+      ROS_ERROR_STREAM(CLERR << " not a directory " << CLNRM << dir);
       return false;
     }
 
@@ -67,7 +67,7 @@ namespace bm {
     //catch (boost::exception const& ex)
     catch (const boost::filesystem::filesystem_error& ex)
     {
-      LOG(ERROR) << dir << ": " << boost::diagnostic_information(ex);
+      ROS_ERROR_STREAM(dir << ": " << boost::diagnostic_information(ex));
       return false;
     }
 
@@ -86,17 +86,17 @@ namespace bm {
 
       if ( is_directory( *itr ) ) {
         sub_dirs.push_back( str );
-        VLOG(1) << dir << " sub dir " << str;
+        ROS_DEBUG_STREAM_COND(log_level > 1, dir << " sub dir " << str);
       } else {
         if (!((str.substr(str.size()-3,3) != "jpg") ||
               (str.substr(str.size()-3,3) != "png"))
            ) {
-          VLOG(1) << "not expected image type: " << str;
+          ROS_DEBUG_STREAM_COND(log_level > 1, "not expected image type: " << str);
           continue;
         }
 
         image_names.push_back(str);
-        VLOG(1) << dir << " image " << str; 
+        ROS_DEBUG_STREAM_COND(log_level > 1, dir << " image " << str); 
       }
       
       ++itr;
@@ -145,7 +145,7 @@ namespace bm {
       )
   {
     if (control_points.size() != 4) {
-      LOG(ERROR) << control_points.size() << " != 4"; 
+      ROS_ERROR_STREAM(control_points.size() << " != 4"); 
       return false;
     }
 
@@ -206,8 +206,8 @@ namespace bm {
       control.at<double>(i, 1) = control_points[i].y;
     }
 
-    VLOG(5) << CLTXT << "coeff " << CLNRM << std::endl << logMat(coeff); 
-    VLOG(5) << CLTXT <<"control " << CLNRM << std::endl << logMat(control); 
+    ROS_DEBUG_STREAM_COND(log_level > 5, CLTXT << "coeff " << CLNRM << std::endl << logMat(coeff)); 
+    ROS_DEBUG_STREAM_COND(log_level > 5, CLTXT << "control " << CLNRM << std::endl << logMat(control)); 
 
     cv::Point2f old_pt;
 
@@ -231,10 +231,10 @@ namespace bm {
 
       output_points.push_back(new_pt);
 
-      VLOG(5) << "pos " << t << " "
+      ROS_DEBUG_STREAM_COND(log_level > 5, "pos " << t << " "
         << new_pt.x << " " << new_pt.y 
         << std::endl << logMat(tee) 
-        << std::endl << logMat(pos); 
+        << std::endl << logMat(pos)); 
     }
 
     return true;
@@ -267,12 +267,12 @@ bool get_toplevel_parent(
 
   int i = 0;
   while (1) {
-    VLOG(2) << "x query tree " << i++ << " "
+    ROS_DEBUG_STREAM_COND(log_level > 2, "x query tree " << i++ << " "
         << display << " " 
-        << cur_window << " "; 
+        << cur_window << " "); 
     if (0 == XQueryTree(display, cur_window, &root,
           &parent, &children, &num_children)) {
-      LOG(ERROR) << "XQueryTree error";
+      ROS_ERROR_STREAM("XQueryTree error");
       return false;
       //abort(); //change to whatever error handling you prefer
     }
@@ -280,8 +280,8 @@ bool get_toplevel_parent(
       XFree(children);
     }
     if (cur_window == root) { // || parent == root) {
-      LOG(INFO) << window << " " << CLVAL << cur_window << CLNRM 
-          << " " << root;
+      ROS_INFO_STREAM(window << " " << CLVAL << cur_window << CLNRM 
+          << " " << root);
       return true;
     }
     else {
@@ -304,7 +304,7 @@ bool setupX(Display*& display, Window& win, const int width, const int height, i
 		printf("X Input extension not available.\n");
 		return false;
 	}
-  LOG(INFO) <<"XInputExtension available";
+  ROS_INFO_STREAM("XInputExtension available");
 
 	/* Check for XI2 support */
 	int major = 2, minor = 0;
@@ -312,7 +312,7 @@ bool setupX(Display*& display, Window& win, const int width, const int height, i
 		printf("XI2 not available. Server supports %d.%d\n", major, minor);
 		return false;
 	}
-  LOG(INFO) <<"XI2 available";
+  ROS_INFO_STREAM("XI2 available");
 
 	/* Set up MPX events */
 	XIEventMask eventmask;
@@ -355,11 +355,11 @@ bool setupX(Display*& display, Window& win, const int width, const int height, i
     int screen_w = xwAttr.width;
     int screen_h = xwAttr.height;
 
-    LOG(INFO) << " screen w h " << CLVAL << screen_w << " " << screen_h << CLNRM;
+    ROS_INFO_STREAM(" screen w h " << CLVAL << screen_w << " " << screen_h << CLNRM);
     // This is the same as the attributes above
-    LOG(INFO) << XDisplayWidth(display, 0) << " " << XDisplayHeight(display, 0);
+    ROS_INFO_STREAM(XDisplayWidth(display, 0) << " " << XDisplayHeight(display, 0));
     // this is junk
-    LOG(INFO) << XDisplayWidth(display, 1) << " " << XDisplayHeight(display, 1);
+    ROS_INFO_STREAM(XDisplayWidth(display, 1) << " " << XDisplayHeight(display, 1));
 
     // TBD how to get resolution of particular monitor?
 
@@ -370,7 +370,7 @@ bool setupX(Display*& display, Window& win, const int width, const int height, i
 
 bool setWindowDecorations(Display* display, Window& win, bool decorations_on) 
 {
-  VLOG(2) << "setting window decorations " << decorations_on << " " << win;
+  ROS_DEBUG_STREAM_COND(log_level > 2, "setting window decorations " << decorations_on << " " << win);
   //code to remove decoration
   Hints hints;
   Atom property;
@@ -513,28 +513,29 @@ bool matToXImage(cv::Mat& im, XImage* ximage, Window& win, Display& display, Scr
 {
   if (im.empty()) return false;
 
-    LOG_FIRST_N(INFO,1) 
-      << ", width " << ximage->width 
-      << ", height " << ximage->width 
-      << ", offset " << ximage->xoffset 
-      << ", format " << ximage->format
-      << ", byte_order " << ximage->byte_order
-      << ", bitmap_unit " << ximage->bitmap_unit
-      << ", bitmap_pad " << ximage->bitmap_pad
-      << ", depth " << ximage->depth
-      << ", bytes_per_line " << ximage->depth
-      << ", bits_per_pixel " << ximage->bits_per_pixel
-      ;
+    ROS_INFO_STREAM_ONCE("mat to ximage " 
+        << ", width " << ximage->width 
+        << ", height " << ximage->width 
+        << ", offset " << ximage->xoffset 
+        << ", format " << ximage->format
+        << ", byte_order " << ximage->byte_order
+        << ", bitmap_unit " << ximage->bitmap_unit
+        << ", bitmap_pad " << ximage->bitmap_pad
+        << ", depth " << ximage->depth
+        << ", bytes_per_line " << ximage->depth
+        << ", bits_per_pixel " << ximage->bits_per_pixel
+        );
 
     boost::timer t1;
     
     XColor color;
     
-    LOG_FIRST_N(INFO,1) << im.cols << " " << im.rows << ", " << ximage->width << " " << ximage->height;
+    ROS_INFO_STREAM_ONCE("image size " << im.cols << " " << im.rows << ", " 
+        << ximage->width << " " << ximage->height);
     //cv::Mat tmp = cv::Mat(cv::Size(ximage.width, ximage.height), CV_8UC4);
 
     if (screen.depths->depth == 24) {
-      LOG_FIRST_N(INFO,1) << "24-bit depth";
+      ROS_INFO_ONCE("24-bit depth");
         // Some of the following code is borrowed from http://www.roard.com/docs/cookbook/cbsu19.html ("Screen grab with X11" - by Marko Riedel, with an idea by Alexander Malmberg)
         unsigned long rmask = screen.root_visual->red_mask,
                 gmask = screen.root_visual->green_mask,
@@ -587,12 +588,13 @@ bool matToXImage(cv::Mat& im, XImage* ximage, Window& win, Display& display, Scr
             bbits = 8;
         }
 
-        LOG_FIRST_N(INFO,1) 
+        ROS_INFO_STREAM_ONCE("im " 
             << "bshift " << bshift << " bbits " << bbits 
             << ", gshift " << gshift << " gbits " << gbits 
-            << ", rshift " << rshift << " rbits " << rbits;
+            << ", rshift " << rshift << " rbits " << rbits
+            );
 
-        VLOG(4) << "matToXImage setup time " << t1.elapsed();
+        ROS_DEBUG_STREAM_COND(log_level > 4, "matToXImage setup time " << t1.elapsed());
     
         //boost::timer t2;
         const int wd = ximage->width;
@@ -633,10 +635,10 @@ bool matToXImage(cv::Mat& im, XImage* ximage, Window& win, Display& display, Scr
          // ximage->data = (char*) im.data;
          memcpy(ximage->data, im.data, wd*ht*4); 
         #endif
-        VLOG(4) << "matToXImage put pixel time " << t1.elapsed();
-        LOG_FIRST_N(INFO,1) << "done copying mat";
+        ROS_DEBUG_STREAM_COND(log_level > 4, "matToXImage put pixel time " << t1.elapsed());
+        ROS_INFO_ONCE("done copying mat");
     } else { // Extremly slow alternative for non 24bit-depth
-        LOG_FIRST_N(INFO,1) <<" slow route TBD";
+        ROS_INFO_ONCE(" slow route TBD");
         Colormap colmap = DefaultColormap(&display, DefaultScreen(&display));
         for (unsigned int x = 0; x < ximage->width; x++) {
             for (unsigned int y = 0; y < ximage->height; y++) {
@@ -666,8 +668,8 @@ bool getEv(
   switch(ev.xcookie.evtype)
   {
         case XI_Motion:
-          VLOG(1) << "motion " << deviceid << " " << evData->event_x 
-              << " " << evData->event_y;
+          ROS_DEBUG_STREAM_COND(log_level > 1, "motion " << deviceid << " " << evData->event_x 
+              << " " << evData->event_y);
           sig_name.push_back(boost::lexical_cast<std::string>(deviceid) + "_x");
           sig_val.push_back(evData->event_x);
           sig_name.push_back(boost::lexical_cast<std::string>(deviceid) + "_y");
@@ -675,14 +677,14 @@ bool getEv(
           break;
 
         case XI_ButtonPress:
-          VLOG(1) << deviceid << " button: " << evData->detail;
+          ROS_DEBUG_STREAM_COND(log_level > 1, deviceid << " button: " << evData->detail);
           sig_name.push_back(boost::lexical_cast<std::string>(deviceid) + "_" + 
               boost::lexical_cast<std::string>(evData->detail));
           sig_val.push_back(1);
           break;
 
         case XI_ButtonRelease:
-          VLOG(1) << deviceid << " unclick";
+          ROS_DEBUG_STREAM_COND(log_level > 1, deviceid << " unclick");
           sig_name.push_back(boost::lexical_cast<std::string>(deviceid) + "_" + 
               boost::lexical_cast<std::string>(evData->detail));
           sig_val.push_back(0);
@@ -690,7 +692,7 @@ bool getEv(
         
         case XI_KeyPress:
         case XI_KeyRelease:
-          //LOG(INFO) << "key down";
+          //ROS_INFO_STREAM("key down");
          
           // Assign info from our XIDeviceEvent to a standard XKeyPressedEvent which
           // XLookupString() can actually understand:
@@ -717,9 +719,9 @@ bool getEv(
             const bool key_down = (ev.xcookie.evtype == XI_KeyPress);
            
             keys.push_back(std::pair<char, bool>(asciiChar, key_down));
-            VLOG(2) << deviceid << "key " << (int)asciiChar << " " 
+            ROS_DEBUG_STREAM_COND(log_level > 2, deviceid << "key " << (int)asciiChar << " " 
                 << asciiChar << " " 
-                << key_down;
+                << key_down);
           }
 
           break;
@@ -744,10 +746,10 @@ bool getMouse(
     )
 {
   if (!display) {
-    LOG(ERROR) << "no display";
+    ROS_ERROR_STREAM("no display");
     return false;
   }
-  //VLOG(1) << "mouse";
+  //ROS_DEBUG_STREAM_COND(log_level > 1, "mouse");
 
   XEvent ev;
   /* Get next event; blocks until an event occurs */
@@ -758,7 +760,7 @@ bool getMouse(
         XGetEventData(display, &ev.xcookie))
       //if (XCheckWindowEvent(display, win, PointerMotionMask | ButtonPressMask | ButtonReleaseMask, &ev))
     {
-      VLOG(1) <<" event found"; 
+      ROS_DEBUG_STREAM_COND(log_level > 1, " event found"); 
       getEv(display, ev, sig_name, sig_val, keys);
     } // correct event
 
@@ -799,10 +801,10 @@ bool getMouse(
           off_x = (sz.width - tmp_sz.width)/2;
         }
        
-        VLOG(2) << "fix aspect " << aspect_0 << " " << aspect_1 << ", " 
+        ROS_DEBUG_STREAM_COND(log_level > 2, "fix aspect " << aspect_0 << " " << aspect_1 << ", " 
             << off_x << " " << off_y << ", " 
             << tmp_sz.width << " " << tmp_sz.height << ", " 
-            << sz.width << " " << sz.height;
+            << sz.width << " " << sz.height);
         
         // the source image with the right aspect ratio and size
         // to fit within the dest image
@@ -846,11 +848,11 @@ bool getMouse(
           off_y = (tmp_sz.height - sz.height)/2;
         }
        
-        VLOG(2) << "fix aspect fill "  
+        ROS_DEBUG_STREAM_COND(log_level > 2, "fix aspect fill "  
             << "src " << src_sz.width << " " << src_sz.height << ", "
             << "tmp " << off_x << " " << off_y << " " 
             << tmp_sz.width << " " << tmp_sz.height << ", " 
-            << "dst " << sz.width << " " << sz.height;
+            << "dst " << sz.width << " " << sz.height);
         
         // resize the source image so that it is equal to the dest
         // image in at least one dimension,
@@ -876,7 +878,7 @@ bool getVideoFrame(
         if( !video.grab() )
         {
           // TBD this is only an error with a live webcam
-          //LOG(ERROR) << name << " Can not grab images." << endl;
+          //ROS_ERROR_STREAM(name << " Can not grab images." << endl);
           //error_count++;
           return false;
         } 
@@ -885,7 +887,7 @@ bool getVideoFrame(
         video.retrieve(new_out);
 
         if (new_out.empty()) {
-          LOG(ERROR) << name << " new image empty";
+          ROS_ERROR_STREAM(name << " new image empty");
           //error_count++;
           return false;
         }

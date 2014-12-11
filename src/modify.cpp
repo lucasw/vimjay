@@ -32,7 +32,7 @@
 #include "opencv2/highgui/highgui.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
 
-#include <glog/logging.h>
+#include <ros/console.h>
 
 #include <deque>
 
@@ -149,7 +149,7 @@ namespace bm {
       off_y *= ht/(10.0);
       off_z *= ht/(10.0);
     }
-        //VLOG(1) << name << " " << is_dirty << " " << im_in->name << " " << im_in->is_dirty;
+        //ROS_DEBUG_STREAM_COND(log_level > 1, name << " " << is_dirty << " " << im_in->name << " " << im_in->is_dirty);
 
 
     cv::Mat in_p = (cv::Mat_<float>(3,4) << 
@@ -666,7 +666,7 @@ namespace bm {
     if (isDirty(this,4)) {
       float value = getSignal("value");     
       
-      VLOG(5) << name << " update " << value;
+      ROS_DEBUG_STREAM_COND(log_level > 5, name << " update " << value);
       cv::Mat out; // = getImage("out");
       int actual_ind;
       out = getBuffer("buffer", value, actual_ind); //, tmp)) return false;
@@ -700,7 +700,7 @@ namespace bm {
       float value =  getSignal("value");     
       int ind = value;
 
-      VLOG(2) << name << " update " << ind;
+      ROS_DEBUG_STREAM_COND(log_level > 2, name << " update " << ind);
       cv::Mat out; //= getImage("out");
       int actual_ind;
       out = getBuffer("buffer", ind, actual_ind);
@@ -740,7 +740,7 @@ namespace bm {
       ) 
   {
     if (np.size() != nf.size()) {
-      LOG(ERROR) << CLWRN << "mismatched inputs and coefficients" << CLNRM;
+      ROS_ERROR_STREAM(CLWRN << "mismatched inputs and coefficients" << CLNRM);
       //return; 
     }
    
@@ -756,9 +756,9 @@ namespace bm {
   {
     if (!Node::update()) return false;
 
-    //VLOG(1) << "name " << is_dirty << " " << p1->name << " " << p1->is_dirty << ", " << p2->name << " " << p2->is_dirty ;
+    //ROS_DEBUG_STREAM_COND(log_level > 1, "name " << is_dirty << " " << p1->name << " " << p1->is_dirty << ", " << p2->name << " " << p2->is_dirty );
     if (!isDirty(this, 5)) { 
-      VLOG(1) << name << " not dirty ";
+      ROS_DEBUG_STREAM_COND(log_level > 1, name << " not dirty ");
       return true; 
     }
       // TBD accomodate bad mats somewhere
@@ -780,7 +780,7 @@ namespace bm {
         const string port = ports[i]->name;
         
         if (port.substr(0,3) != "add") {
-          VLOG(5) << name << " : " << port.substr(0,3) << " " << port;
+          ROS_DEBUG_STREAM_COND(log_level > 5, name << " : " << port.substr(0,3) << " " << port);
           continue;
         }
         
@@ -789,7 +789,7 @@ namespace bm {
         //const string port = "add" + boost::lexical_cast<string>(i);
         tmp_in = getImage(port);
         if (tmp_in.empty()) {
-          VLOG(2) << name << " : " << port << " image is empty"; 
+          ROS_DEBUG_STREAM_COND(log_level > 2, name << " : " << port << " image is empty"); 
           continue;
         }
 
@@ -804,8 +804,8 @@ namespace bm {
         } else { 
 
           if (sz != tmp_in.size()) {
-            LOG(ERROR) << name << " size mismatch " << sz.width << " " << sz.height 
-                << " != " << tmp_in.size().width << " " << tmp_in.size().height ;
+            ROS_ERROR_STREAM(name << " size mismatch " << sz.width << " " << sz.height 
+                << " != " << tmp_in.size().width << " " << tmp_in.size().height );
             continue;
           }
          
@@ -817,7 +817,7 @@ namespace bm {
         }
       } // nf loop
     
-    //VLOG(1) << name << " " << "update";
+    //ROS_DEBUG_STREAM_COND(log_level > 1, name << " " << "update");
     setImage("out", out);
 
     return true;
@@ -839,7 +839,7 @@ namespace bm {
         const string port = ports[i]->name;
         
         if (port.substr(0,3) != "add") {
-          VLOG(1) << name << " : " << port.substr(0,3) << " " << port;
+          ROS_DEBUG_STREAM_COND(log_level > 1, name << " : " << port.substr(0,3) << " " << port);
           continue;
         }
         add_num++;
@@ -884,9 +884,9 @@ namespace bm {
   {
     if (!Node::update()) return false;
 
-    //VLOG(1) << "name " << is_dirty << " " << p1->name << " " << p1->is_dirty << ", " << p2->name << " " << p2->is_dirty ;
+    //ROS_DEBUG_STREAM_COND(log_level > 1, "name " << is_dirty << " " << p1->name << " " << p1->is_dirty << ", " << p2->name << " " << p2->is_dirty );
     if (!isDirty(this, 5)) { 
-      VLOG(4) << name << " not dirty ";
+      ROS_DEBUG_STREAM_COND(log_level > 4, name << " not dirty ");
       return true; 
     }
 
@@ -938,7 +938,7 @@ namespace bm {
     if (!Node::update()) return false;
 
     if (!isDirty(this, 5)) { 
-      VLOG(1) << name << " not dirty ";
+      ROS_DEBUG_STREAM_COND(log_level > 1, name << " not dirty ");
       return true; 
     }
       
@@ -954,7 +954,7 @@ namespace bm {
       const string port = ports[i]->name;
 
       if (port.substr(0,3) != "mul") {
-        VLOG(1) << name << " : " << port.substr(0,3) << " " << port;
+        ROS_DEBUG_STREAM_COND(log_level > 1, name << " : " << port.substr(0,3) << " " << port);
         continue;
       }
 
@@ -978,8 +978,8 @@ namespace bm {
       } else { 
 
         if (sz != tmp_in.size()) {
-          LOG(ERROR) << name << " size mismatch " << sz.width << " " << sz.height 
-            << " != " << tmp_in.size().width << " " << tmp_in.size().height ;
+          ROS_ERROR_STREAM(name << " size mismatch " << sz.width << " " << sz.height 
+            << " != " << tmp_in.size().width << " " << tmp_in.size().height );
           continue;
         }
 
@@ -1011,7 +1011,7 @@ namespace bm {
     if (!Node::update()) return false;
 
     if (!isDirty(this, 5)) { 
-      VLOG(1) << name << " not dirty ";
+      ROS_DEBUG_STREAM_COND(log_level > 1, name << " not dirty ");
       return true; 
     }
       
@@ -1025,7 +1025,7 @@ namespace bm {
     } else if (!diff0.empty() && !diff1.empty()) {
       out = diff0;
     } else if (diff0.size() != diff1.size()) {
-      LOG(ERROR) << name << " size mismatch";
+      ROS_ERROR_STREAM(name << " size mismatch");
       return false;
     }
 
@@ -1054,7 +1054,7 @@ namespace bm {
     if (!Node::update()) return false;
 
     if (!isDirty(this, 5)) { 
-      VLOG(1) << name << " not dirty ";
+      ROS_DEBUG_STREAM_COND(log_level > 1, name << " not dirty ");
       return true; 
     }
     
@@ -1072,7 +1072,7 @@ namespace bm {
       } else if (!in0.empty() && in1.empty()) {
         out = in0;
       } else if (in0.size() != in1.size()) {
-        LOG(ERROR) << name << " size mismatch";
+        ROS_ERROR_STREAM(name << " size mismatch");
         return false;
       } else if (in0.type() != in1.type()) {
         return false;
@@ -1108,7 +1108,7 @@ namespace bm {
     if (!Node::update()) return false;
 
     if (!isDirty(this, 5)) { 
-      VLOG(1) << name << " not dirty ";
+      ROS_DEBUG_STREAM_COND(log_level > 1, name << " not dirty ");
       return true; 
     }
       
@@ -1126,7 +1126,7 @@ namespace bm {
     } else if (!diff0.empty() && diff1.empty()) {
       out = diff0;
     } else if (diff0.size() != diff1.size()) {
-      LOG(ERROR) << name << " size mismatch";
+      ROS_ERROR_STREAM(name << " size mismatch");
       return false;
     } else if (diff0.type() != diff1.type()) {
       return false;
@@ -1173,13 +1173,13 @@ CMP_NE
   if (!Node::update()) return false;
  
   if (!isDirty(this, 5)) { 
-      VLOG(2) << name << " not dirty ";
+      ROS_DEBUG_STREAM_COND(log_level > 2, name << " not dirty ");
       return true; 
   }
   cv::Mat in = getImage("in");
 
   if (in.empty()) {
-    VLOG(2) << name << " in is empty";
+    ROS_DEBUG_STREAM_COND(log_level > 2, name << " in is empty");
     return false;
   }
   
@@ -1214,9 +1214,9 @@ CMP_NE
   // scale it back up to standard size
   cv::resize(tmp, out, sz, 0, 0, mode_type);
   setImage("out", out);
-  VLOG(1) << fx << " " << fy << " " 
+  ROS_DEBUG_STREAM_COND(log_level > 1, fx << " " << fy << " " 
       << tmp.size().width << " " << tmp.size().height
-      << " " << out.size().width << " " << out.size().height;
+      << " " << out.size().width << " " << out.size().height);
   return true;
   }
 
@@ -1240,14 +1240,14 @@ CMP_NE
 
     // TBD make sure keyboard changed parameters make this dirty 
     if (!isDirty(this, 5)) { 
-      VLOG(4) << name << " not dirty ";
+      ROS_DEBUG_STREAM_COND(log_level > 4, name << " not dirty ");
       return true; 
     }
 
     cv::Mat in = getImage("in");
 
     if (in.empty()) {
-      VLOG(2) << name << " in is empty";
+      ROS_DEBUG_STREAM_COND(log_level > 2, name << " in is empty");
       return false;
     }
 
@@ -1294,14 +1294,14 @@ CMP_NE
 
     // TBD make sure keyboard changed parameters make this dirty 
     if (!isDirty(this, 5)) { 
-      VLOG(4) << name << " not dirty ";
+      ROS_DEBUG_STREAM_COND(log_level > 4, name << " not dirty ");
       return true; 
     }
 
     cv::Mat in = getImage("in");
 
     if (in.empty()) {
-      VLOG(2) << name << " in is empty";
+      ROS_DEBUG_STREAM_COND(log_level > 2, name << " in is empty");
       return false;
     }
     
@@ -1381,14 +1381,14 @@ CMP_NE
 
     // TBD make sure keyboard changed parameters make this dirty 
     if (!isDirty(this, 5)) { 
-      VLOG(4) << name << " not dirty ";
+      ROS_DEBUG_STREAM_COND(log_level > 4, name << " not dirty ");
       return true; 
     }
 
     cv::Mat in = getImage("in");
 
     if (in.empty()) {
-      VLOG(2) << name << " in is empty";
+      ROS_DEBUG_STREAM_COND(log_level > 2, name << " in is empty");
       return false;
     }
     
@@ -1445,14 +1445,14 @@ CMP_NE
 
     // TBD make sure keyboard changed parameters make this dirty 
     if (!isDirty(this, 5)) { 
-      VLOG(4) << name << " not dirty ";
+      ROS_DEBUG_STREAM_COND(log_level > 4, name << " not dirty ");
       return true; 
     }
 
     cv::Mat in = getImage("in");
 
     if (in.empty()) {
-      VLOG(2) << name << " in is empty";
+      ROS_DEBUG_STREAM_COND(log_level > 2, name << " in is empty");
       return false;
     }
     
@@ -1524,21 +1524,21 @@ CMP_NE
 
     // TBD make sure keyboard changed parameters make this dirty 
     if (!isDirty(this, 5)) { 
-      VLOG(4) << name << " not dirty ";
+      ROS_DEBUG_STREAM_COND(log_level > 4, name << " not dirty ");
       return true; 
     }
 
     cv::Mat to_flip = getImage("to_flip");
 
     if (to_flip.empty()) {
-      VLOG(2) << name << " in is empty";
+      ROS_DEBUG_STREAM_COND(log_level > 2, name << " in is empty");
       return false;
     }
 
     cv::Mat to_threshold = getImage("to_threshold");
 
     if (to_threshold.empty()) {
-      VLOG(2) << name << " in is empty";
+      ROS_DEBUG_STREAM_COND(log_level > 2, name << " in is empty");
       return false;
     }
   
@@ -1611,7 +1611,7 @@ CMP_NE
       label_it = label_map.find(label);
       if (label_it == label_map.end()) {
         // TBD use current pixel
-        //LOG(ERROR) << label << " not in map " << x << " " << y;
+        //ROS_ERROR_STREAM(label << " not in map " << x << " " << y);
         continue;
       }
 
@@ -1622,11 +1622,16 @@ CMP_NE
       const int src_y = ((y + (int) ( 2 * (pos.y - y) ) ) + ht) % ht;
     
       //if (VLOG_IS_ON(1) ) {
-      LOG_FIRST_N(INFO, wd*2) 
+
+      // TBD use ros console 
+      /*
+      ROS_INFO_ONCE( 
           << y     << " " << x     << " " << ind << ",\t" 
           << pos.y    << " " << pos.x    << " " << label << ",\t" 
           << src_y << " " << src_x << ",\t" 
-          << ind%255;
+          << ind%255
+          );
+          */
       //}
              
       flipped.at<cv::Vec4b>(y, x) = to_flip.at<cv::Vec4b>(src_y, src_x);
@@ -1675,14 +1680,14 @@ CMP_NE
 
     // TBD make sure keyboard changed parameters make this dirty 
     if (!isDirty(this, 5)) { 
-      VLOG(4) << name << " not dirty ";
+      ROS_DEBUG_STREAM_COND(log_level > 4, name << " not dirty ");
       return true; 
     }
 
     cv::Mat in = getImage("in");
 
     if (in.empty()) {
-      VLOG(2) << name << " in is empty";
+      ROS_DEBUG_STREAM_COND(log_level > 2, name << " in is empty");
       return false;
     }
   

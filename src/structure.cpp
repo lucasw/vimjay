@@ -23,7 +23,7 @@
 
 #include <boost/lexical_cast.hpp>
 
-#include <glog/logging.h>
+#include <ros/console.h>
 
 #include "config.h"
 
@@ -51,7 +51,7 @@ bool Contour::update()
 
   cv::Mat in = getImage("in");
   if (in.empty()) {
-    VLOG(2) << name << " in is empty";
+    ROS_DEBUG_STREAM_COND(log_level > 2, name << " in is empty");
     return false;
   }
  
@@ -129,13 +129,15 @@ float minimum_distance(cv::Point2f v, cv::Point2f w, cv::Point2f p, cv::Point2f&
   closest = v + t * (w - v);  // Projection falls on the segment
  
   const float dist = cv::norm(p - closest);
-  if (VLOG_IS_ON(3)) {
-    LOG_FIRST_N(INFO, 10) << v.x << " " << v.y << ", " 
+  if (log_level > 3) {
+    /*
+    ROS_INFO_ONCE( v.x << " " << v.y << ", " 
       << w.x << " " << w.y << ", " 
       << p.x << " " << p.y << ", "
       << closest.x << " " << closest.y << ", "
       << l2 << " " << t << " " <<  dist
-      ;
+      );
+      */
   }
 
   return dist;
@@ -152,7 +154,7 @@ bool ContourFlip::update()
 
   cv::Mat to_flip = getImage("to_flip");
   if (to_flip.empty()) {
-    VLOG(2) << name << " in is empty";
+    ROS_DEBUG_STREAM_COND(log_level > 2, name << " in is empty");
     return false;
   }
   
@@ -165,7 +167,7 @@ bool ContourFlip::update()
   if (is_dirty) 
   {
   
-  LOG(INFO) << "contour flip updating " << is_dirty;
+  ROS_INFO_STREAM("contour flip updating " << is_dirty);
   cv::Mat dist = cv::Mat(to_flip.size(), to_flip.type());
 
   const int wd = dist.cols;
@@ -212,7 +214,7 @@ bool ContourFlip::update()
   //flipped.at<cv::Vec4b>(y, x) = to_flip.at<cv::Vec4b>(src_y, src_x);
   off_x.at<float>(y, x) = src_x - x;
   off_y.at<float>(y, x) = src_y - y;
-  //LOG_FIRST_N(INFO,20) << src_x << " " << x << ", " << src_y << " " << y;
+  //ROS_INFO_ONCE(src_x << " " << x << ", " << src_y << " " << y);
   dist.at<cv::Vec4b>(y, x) = cv::Scalar::all(min_dist); // % 255);
   }}
 
