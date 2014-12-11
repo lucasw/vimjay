@@ -30,9 +30,17 @@ namespace bm {
 
   Output::Output(const std::string name) :
     ImageNode(name),
-    ximage(NULL),
+    seq_(0),
+    it_(Config::inst()->nh_),
+    camera_info_manager_(new camera_info_manager::CameraInfoManager(Config::inst()->nh_)),
+    //ximage(NULL),
     display(NULL)
   {
+    // this is for keyboard input, may want to put it in keyboard node
+    display = XOpenDisplay(NULL);
+
+    pub_ = it_.advertiseCamera(name, 1);
+    camera_info_manager_->setCameraName(name);
   }
   
   Output::~Output()
@@ -58,6 +66,24 @@ namespace bm {
 
   bool Output::setup(const int width, const int height)
   {
+    /* Check if the XInput Extension is available */
+    int event, error;
+    if (!XQueryExtension(display, "XInputExtension", &opcode, &event, &error)) {
+      printf("X Input extension not available.\n");
+      return false;
+    }
+    ROS_INFO_STREAM("XInputExtension available");
+
+    /* Check for XI2 support */
+    int major = 2, minor = 0;
+    if (XIQueryVersion(display, &major, &minor) == BadRequest) {
+      printf("XI2 not available. Server supports %d.%d\n", major, minor);
+      return false;
+    }
+    ROS_INFO_STREAM("XI2 available");
+
+
+    /*
     bm::setupX(display, win, width, height, opcode);
     gc = XCreateGC(display, win, 0, NULL);
     ximage = XGetImage(display, DefaultRootWindow(display), 0, 0, width, height, AllPlanes, ZPixmap);
@@ -71,6 +97,7 @@ namespace bm {
       ROS_ERROR_STREAM(name << " couldn't get toplevel parent");
       return false;
     }
+    */
 
     return true;
   }
@@ -93,9 +120,24 @@ namespace bm {
     const bool window_decorations_on = getSignal("decor", is_valid, is_dirty);
     if (is_dirty) {
       setSignal("decor", window_decorations_on);
-      bm::setWindowDecorations(display, win, window_decorations_on);
-      //bm::setWindowDecorations(display, toplevel_parent, window_decorations_on);
+      //bm::setWindowDecorations(display, win, window_decorations_on);
+      ////bm::setWindowDecorations(display, toplevel_parent, window_decorations_on);
     }
+
+    cv_bridge::CvImage cv_image;
+    cv_image.header.stamp = ros::Time::now();
+    cv_image.image = getImage("in"); 
+    cv_image.encoding = "rgb8"; 
+    sensor_msgs::ImagePtr msg = cv_image.toImageMsg();
+
+    sensor_msgs::CameraInfoPtr
+        camera_info(new sensor_msgs::CameraInfo(camera_info_manager_->getCameraInfo()));
+    
+    camera_info->height = cv_image.image.cols;
+    camera_info->width = cv_image.image.rows;
+    camera_info->header.stamp = cv_image.header.stamp;
+    camera_info->header.seq = seq_++;
+    pub_.publish(msg, camera_info);
 
     ROS_DEBUG_STREAM_COND(log_level > 4, "decor draw time" << t1.elapsed()); 
     /*
@@ -107,7 +149,8 @@ namespace bm {
 
     if (ximage) XPutImage(display, win,  gc, ximage, 0, 0, 0, 0, screen_w, screen_h);
     */
- 
+    
+    #if 0
     XWindowAttributes xwAttr, xwAttr2;
     // these don't seem to be updating x and y
     //Status ret = XGetWindowAttributes( display, win, &xwAttr );
@@ -281,6 +324,7 @@ namespace bm {
     XPutImage(display, win,  gc, ximage, 0, 0, 0, 0, ximage->width, ximage->height);
     ROS_DEBUG_STREAM_COND(log_level > 4, "put image time" << t1.elapsed());
     } // ximage and input image is valid
+    #endif
 
     return ImageNode::draw(ui_offset);
   }

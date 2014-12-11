@@ -6,6 +6,8 @@ project(vimjay)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
   cv_bridge
+  camera_info_manager
+  image_transport
   roscpp
   rospy
   std_msgs

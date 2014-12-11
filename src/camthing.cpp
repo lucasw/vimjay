@@ -263,7 +263,7 @@ class CamThing : public Output
         // TBD need better way to share X11 info- Config probably
         if (output_node) {
           input_node->display = output_node->display;
-          input_node->win = output_node->win;
+          //input_node->win = output_node->win;
           input_node->opcode = output_node->opcode;
         } else {
           ROS_ERROR_STREAM("output_node should always exist by this point");
@@ -609,7 +609,8 @@ class CamThing : public Output
       XISetMask(mask, XI_KeyPress);
 
       /* select on the window */
-      XISelectEvents(display, win, &eventmask, 1);
+      XISelectEvents(display, DefaultRootWindow(display), &eventmask, 1);
+      //XISelectEvents(display, win, &eventmask, 1);
     }
 
     update_nodes = true;
@@ -1261,6 +1262,8 @@ class CamThing : public Output
   } 
  
   int getKey() {
+    // TBD look at teleop node for keyboard control
+
     int key = -1;
       XKeyPressedEvent key_data;
       XEvent ev;
@@ -1878,7 +1881,7 @@ TBD have a mode that takes a webcam, uses brightness as depth, and thresholds it
  */
 int main( int argc, char* argv[] )
 {
-
+  ros::init(argc, argv, "vimjay");
 
 // TEMP mouse test
   #ifdef MOUSE_TEST
@@ -1896,6 +1899,7 @@ int main( int argc, char* argv[] )
   cam_thing->init();
   #endif
 
+  ros::Rate rate(30);
 
   bool rv = true;
   while(rv) {
@@ -1926,7 +1930,9 @@ int main( int argc, char* argv[] )
     // input is handled in the same thread as drawing because of Xlib- TBD
     rv = cam_thing->handleInput();
     cam_thing->draw(cam_thing->ui_offset);
+    
     #endif
+    rate.sleep();
   }
 
   return 0;
