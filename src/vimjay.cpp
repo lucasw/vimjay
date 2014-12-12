@@ -26,6 +26,7 @@
 */
 
 #include <iostream>
+#include <memory>
 #include <sstream>
 #include <stdio.h>
 #include <time.h>

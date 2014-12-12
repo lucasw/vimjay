@@ -15,6 +15,8 @@ find_package(catkin REQUIRED COMPONENTS
 
 # this may be a bad idea given linkage of ROS stuff
 # http://answers.ros.org/question/152276/is-there-a-way-to-enable-c11-support-for-catkin-packages/
+# if this is eliminated get  error: ‘dynamic_pointer_cast’ was not declared in this scope
+
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++0x")
 
 ## System dependencies are found with CMake's conventions
@@ -113,7 +115,7 @@ include_directories(
 # )
 
 ## Declare a cpp executable
-add_executable(vimjay 
+add_executable(vimjay_node 
 other/DSOnoises/cellular.c
 other/DSOnoises/noise1234.c
 other/DSOnoises/sdnoise1234.c
@@ -149,7 +151,7 @@ other/simplextextures.cpp
 # add_dependencies(vimjay_node vimjay_generate_messages_cpp)
 
 ## Specify libraries to link a library or executable target against
-target_link_libraries(vimjay
+target_link_libraries(vimjay_node
    ${catkin_LIBRARIES}
 boost_thread
 boost_filesystem
@@ -178,7 +180,7 @@ boost_system
 # )
 
 ## Mark executables and/or libraries for installation
-install(TARGETS vimjay vimjay
+install(TARGETS vimjay_node
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
