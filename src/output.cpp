@@ -32,12 +32,12 @@ namespace bm {
     ImageNode(name),
     seq_(0),
     it_(Config::inst()->nh_),
-    camera_info_manager_(new camera_info_manager::CameraInfoManager(Config::inst()->nh_)),
+    camera_info_manager_(new camera_info_manager::CameraInfoManager(Config::inst()->nh_))
     //ximage(NULL),
-    display(NULL)
+    //display(NULL)
   {
     // this is for keyboard input, may want to put it in keyboard node
-    display = XOpenDisplay(NULL);
+    //display = XOpenDisplay(NULL);
 
     pub_ = it_.advertiseCamera(name, 1);
     camera_info_manager_->setCameraName(name);
@@ -66,6 +66,7 @@ namespace bm {
 
   bool Output::setup(const int width, const int height)
   {
+    #if 0
     /* Check if the XInput Extension is available */
     int event, error;
     if (!XQueryExtension(display, "XInputExtension", &opcode, &event, &error)) {
@@ -81,7 +82,7 @@ namespace bm {
       return false;
     }
     ROS_INFO_STREAM("XI2 available");
-
+    #endif
 
     /*
     bm::setupX(display, win, width, height, opcode);

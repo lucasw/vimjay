@@ -26,9 +26,9 @@ class Output : public ImageNode
 
   public:
 
+  /*
 	Display *display;
   int opcode;
-  /*
   Window win;
   */
 

@@ -243,7 +243,7 @@ namespace bm {
 
 ///////////////////////////////////////////////////////////////////////////////
 // XWindows
-
+#if 0
 
 /*
    Returns the parent window of "window" (i.e. the ancestor of window
@@ -771,6 +771,7 @@ bool getMouse(
   return true;
 } // getMouse
 
+#endif
 
   /// resize the source tmp0 mat to fit inside tmp1 with borders
   /// tmp0 and tmp1 have to be initialized already
@@ -927,4 +928,4 @@ bool getVideoFrame(
   }
 
 
-}//bm
+} // bm

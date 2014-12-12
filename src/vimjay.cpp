@@ -36,6 +36,7 @@
 #include <boost/timer.hpp>
 
 #include <ros/console.h>
+#include <std_msgs/String.h>
 
 #include "opencv2/highgui/highgui.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
@@ -48,9 +49,9 @@
 #include "filter.h"
 #include "cluster.h"
 #include "generate.h"
-#include "screencap.h"
+//#include "screencap.h"
 #include "output.h"
-#include "input.h"
+//#include "input.h"
 #include "structure.h"
 //#include "opengl.h"
 #include "video.h"
@@ -71,6 +72,9 @@ namespace bm {
 
 class CamThing : public Output
 {
+  // This probably isn't super low latency, but going to try it out
+  ros::Subscriber key_sub;
+  std::deque<int> keys;
   // TBD informal timer for the system
   
   // make sure all Nodes are stored here
@@ -82,7 +86,7 @@ class CamThing : public Output
   boost::shared_ptr<Output> preview_node;
 
   // TBD temp- currently need to connect output Xlib parameters to Mouse
-  boost::shared_ptr<Mouse> input_node;
+  //boost::shared_ptr<Mouse> input_node;
 
   // where the ui pointer is (currently controlled by keyboard
   cv::Point cursor;
@@ -94,6 +98,7 @@ class CamThing : public Output
   // where the upper left coordinate of the window into the ui is
   cv::Point2f ui_offset;
 
+  /////////////////////////////////////////////////////////////////////////////
   // conveniently create and store node
   template <class nodeType>
     boost::shared_ptr<nodeType> getNode(string name = "", cv::Point2f loc=cv::Point2f(0.0, 0.0))
@@ -117,7 +122,7 @@ class CamThing : public Output
       return node;
     }
 
-  
+    /////////////////////////////////////////////////////////////////////////// 
     boost::shared_ptr<Node> getNodeByName(
         string type_id, 
         string name = "", 
@@ -139,9 +144,9 @@ class CamThing : public Output
         node->name = name;
         all_nodes.push_back(node);
         */
-      } else if (type_id.compare("bm::ScreenCap") == 0) {
-        node = getNode<ScreenCap>(name, loc);
-        node->update();
+      //} else if (type_id.compare("bm::ScreenCap") == 0) {
+      //  node = getNode<ScreenCap>(name, loc);
+      //  node->update();
       } else if (type_id.compare("bm::Webcam") == 0) {
         node = getNode<Webcam>(name, loc);
       } else if (type_id.compare("bm::Video") == 0) {
@@ -250,6 +255,8 @@ class CamThing : public Output
         node = getNode<Trig>(name, loc);
       } else if (type_id.compare("bm::SigADSR") == 0) {
         node = getNode<SigADSR>(name, loc);
+      #if 0
+      // TBD need to make this node just subscribe to joy
       } else if (type_id.compare("bm::GamePad") == 0) {
         node = getNode<GamePad>(name, loc);
       } else if (type_id.compare("bm::Mouse") == 0) {
@@ -262,12 +269,13 @@ class CamThing : public Output
         input_node = dynamic_pointer_cast<Mouse>(node);
         // TBD need better way to share X11 info- Config probably
         if (output_node) {
-          input_node->display = output_node->display;
+          //input_node->display = output_node->display;
           //input_node->win = output_node->win;
-          input_node->opcode = output_node->opcode;
+          //input_node->opcode = output_node->opcode;
         } else {
           ROS_ERROR_STREAM("output_node should always exist by this point");
         }
+      #endif
       } else if (type_id.compare("bm::Output") == 0) {
         ROS_INFO_STREAM("already created output and preview nodes, ignoring " 
             << CLTXT << name << CLNRM);
@@ -282,6 +290,7 @@ class CamThing : public Output
     }
 
 
+    /////////////////////////////////////////////////////////////////////////// 
   // delete all the nodes
   bool clearNodes()
   {
@@ -299,7 +308,7 @@ class CamThing : public Output
     all_nodes.resize(3);
        
     // dangling reference to input_node
-    input_node   = boost::shared_ptr<Mouse>();
+    //input_node   = boost::shared_ptr<Mouse>();
   }
 
   void clearAllNodeUpdates() 
@@ -455,6 +464,7 @@ class CamThing : public Output
 
   vector<string> node_types;
 
+  /////////////////////////////////////////////////////////////////////////// 
   CamThing(const std::string name) :
       Output(name),
       selected_ind(0), 
@@ -466,6 +476,15 @@ class CamThing : public Output
       //paused(true)
       paused(true) // TBD control from config file?
   {
+    key_sub = Config::inst()->nh_.subscribe<std_msgs::String>("key", 1,
+      &CamThing::keyCallback, this);
+  }
+
+  void keyCallback(const std_msgs::StringConstPtr& msg) 
+  {
+    for (size_t i = 0; i < msg->data.size(); ++i) {
+      keys.push_back(msg->data[i]);
+    }
   }
 
   virtual void init()
@@ -481,7 +500,7 @@ class CamThing : public Output
     node_types.push_back("bm::BrowseDir");
     node_types.push_back("bm::Webcam");
     node_types.push_back("bm::Video");
-    node_types.push_back("bm::ScreenCap");
+    //node_types.push_back("bm::ScreenCap");
     node_types.push_back("bm::Rot2D");
     node_types.push_back("bm::SigToInd");
     node_types.push_back("bm::Buffer");
@@ -536,8 +555,8 @@ class CamThing : public Output
     //node_types.push_back("bm::OpenGL");
     
     node_types.push_back("bm::SigADSR");
-    node_types.push_back("bm::GamePad");
-    node_types.push_back("bm::Mouse");
+    //node_types.push_back("bm::GamePad");
+    //node_types.push_back("bm::Mouse");
     //node_types.push_back("bm::Output"); // TBD if can spawn this
 
 
@@ -595,6 +614,7 @@ class CamThing : public Output
     {
       setup(graph_ui.size().width, graph_ui.size().height);
 
+#if 0
       // Try to get keyboard input working
       XIEventMask eventmask;
       unsigned char mask[1] = { 0 }; /* the actual mask */
@@ -611,6 +631,7 @@ class CamThing : public Output
       /* select on the window */
       XISelectEvents(display, DefaultRootWindow(display), &eventmask, 1);
       //XISelectEvents(display, win, &eventmask, 1);
+#endif    
     }
 
     update_nodes = true;
@@ -1152,8 +1173,6 @@ class CamThing : public Output
     return rv;
   } // selectPort()
 
-  int key;
-  bool valid_key;
   string command_text;
   bool draw_nodes;
   bool paused;
@@ -1260,112 +1279,17 @@ class CamThing : public Output
     }
     return true;
   } 
- 
-  int getKey() {
-    // TBD look at teleop node for keyboard control
-
-    int key = -1;
-      XKeyPressedEvent key_data;
-      XEvent ev;
-      /* Get next event; blocks until an event occurs */
-      XNextEvent(display, &ev);
-      if (ev.xcookie.type == GenericEvent &&
-          ev.xcookie.extension == opcode &&
-          XGetEventData(display, &ev.xcookie))
-      //if (XCheckWindowEvent(display, win, PointerMotionMask | ButtonPressMask | ButtonReleaseMask, &ev))
-      {
-        ROS_DEBUG_STREAM_COND(log_level > 4, " event found"); 
-        XIDeviceEvent* evData = (XIDeviceEvent*)(ev.xcookie.data);
-        int deviceid = evData->deviceid;
-
-        switch(ev.xcookie.evtype)
-        {
-          case XI_Motion:
-            //ROS_INFO_STREAM( "motion");
-            setSignal(boost::lexical_cast<string>(deviceid) + "_x", evData->event_x);
-            setSignal(boost::lexical_cast<string>(deviceid) + "_y", evData->event_y);
-            ROS_DEBUG_STREAM_COND(log_level > 4, deviceid << " " 
-                << evData->event_x << " " << evData->event_y);
-
-            break;
-
-          case XI_ButtonPress:
-            ROS_DEBUG_STREAM_COND(log_level > 3, deviceid << " button: " << evData->detail);
-            setSignal(boost::lexical_cast<string>(deviceid) + "_" + 
-                boost::lexical_cast<string>(evData->detail), 1);
-
-            break;
-
-          case XI_ButtonRelease:
-            ROS_DEBUG_STREAM_COND(log_level > 2, deviceid << " unclick " << evData->detail);
-            setSignal(boost::lexical_cast<string>(deviceid) + "_" + 
-                boost::lexical_cast<string>(evData->detail), 0);
-            break;
-          
-          case XI_KeyPress:
-            // Assign info from our XIDeviceEvent to a standard XKeyPressedEvent which
-            // XLookupString() can actually understand:
-            key_data.type         = KeyPress;
-            key_data.root         = evData->root;
-            key_data.window       = evData->event;
-            key_data.subwindow    = evData->child;
-            key_data.time         = evData->time;
-            key_data.x            = evData->event_x;
-            key_data.y            = evData->event_y;
-            key_data.x_root       = evData->root_x;
-            key_data.y_root       = evData->root_y;
-            key_data.same_screen  = True;        
-            key_data.send_event   = False;
-            key_data.serial       = evData->serial;
-            key_data.display      = display;
-
-            key_data.keycode      = evData->detail;
-            key_data.state        = evData->mods.effective;   
-           
-            char asciiChar;
-            if (1 == XLookupString(((XKeyEvent*) (&key_data)), &asciiChar, 1, NULL, NULL)) {
-              // Mapped: Assign it.
-              key = (int) asciiChar;
-              ROS_DEBUG_STREAM_COND(log_level > 2, deviceid << "key down" 
-                  << key << " " << (char) key);
-            }
-            break;
-
-          case XI_KeyRelease:
-            ROS_DEBUG_STREAM_COND(log_level > 2, deviceid << "key up" << evData->detail);
-            break;
-        } // switch 
-      } // correct event
-
-      XFreeEventData(display, &ev.xcookie);
-    return key;
-  }
 
   bool handleInput() 
   {
-    // TBD call from update instead, and make sure update is called?
-    autoScroll();
-
     count++;
+    
+    if (keys.empty()) return true;
+    int key = keys.front();
+    keys.pop_front();
+    
+    bool valid_key = true;
 
-    int key = -1;
-    if (!display) return false;
-
-      while (XPending(display)) {
-        key = getKey();
-      } 
-      //usleep(1000); 
-
-    /*
-    if (VLOG_IS_ON(10) || paused) 
-      key = waitKey(0);
-    else 
-      key = waitKey(30);
-      */
-
-    if (key < 0) return true;
-
-    valid_key = true;
     if( key == 'q' ) {
       update_nodes = false;
       node_thread.join();
@@ -1424,8 +1348,8 @@ class CamThing : public Output
       }
       else if (selected_node) {
         ROS_INFO_STREAM(" duplicating selected_node");
-        getNodeByName(getId(selected_node), selected_node->name + "_2", selected_node->loc + cv::Point2f(100,10));
-        
+        getNodeByName(getId(selected_node), selected_node->name + "_2", 
+            selected_node->loc + cv::Point2f(100,10));
       }
     }
     
@@ -1612,7 +1536,7 @@ class CamThing : public Output
     ROS_DEBUG_STREAM_COND(log_level > 5, wd << " " << command_text.size());
 
     return true;
-  }
+  } // handleInput
 
   bool update_nodes;
   boost::mutex update_mutex;
@@ -1693,6 +1617,8 @@ class CamThing : public Output
   virtual bool draw(cv::Point2f ui_offset) 
   {
     boost::timer t1;
+    
+    autoScroll();
     
     if (graph_ui.empty()) {
       ROS_ERROR_STREAM("graph_ui empty");
@@ -1882,56 +1808,20 @@ TBD have a mode that takes a webcam, uses brightness as depth, and thresholds it
 int main( int argc, char* argv[] )
 {
   ros::init(argc, argv, "vimjay");
-
-// TEMP mouse test
-  #ifdef MOUSE_TEST
-  int fd;
-  // cat /proc/bus/input/devices - TBD how to find just the mouses?
-  // - TBD how to find just the mouses?
-  // TBD can't get touchpad to work, don't even see it when catting /dev/input/mouseN
-  if ((fd = open("/dev/input/event4", O_RDONLY)) < 0) {
-    ROS_ERROR_STREAM("couldn't open mouse " << fd);
-    exit(0);
-  }
-  struct input_event ev;
-  #else 
+ 
   boost::shared_ptr<bm::CamThing> cam_thing(new bm::CamThing("cam_thing"));
   cam_thing->init();
-  #endif
 
   ros::Rate rate(30);
 
   bool rv = true;
-  while(rv) {
+  while (rv && ros::ok()) {
 
-    #ifdef MOUSE_TEST
-    read(fd, &ev, sizeof(struct input_event));
-    ROS_DEBUG_STREAM_COND(log_level > 1, "value 0x" << std::hex << ev.value 
-        << ", type 0x" << std::hex << ev.type 
-        << ", code 0x" << std::hex << ev.code);
-    if (ev.type == EV_REL) {
-      if (ev.value != 0) {
-        // mouse move left
-        if (ev.code == ABS_X) ROS_INFO_STREAM("dx " << ev.value);
-        // mouse move right
-        if (ev.code == ABS_Y)  ROS_INFO_STREAM("dy " << ev.value);
-        // wheel
-        if (ev.code == REL_WHEEL) ROS_INFO_STREAM("wheel " << ev.value);
-      }
-    }
-    if (ev.type == EV_MSC) {
-      // 0x90001 - 3
-      ROS_INFO_STREAM("Button value 0x" << std::hex << ev.value 
-      << ", code " << ev.code);
-
-    }
-    #else
     // have to do this before update to avoid some crashes
     // input is handled in the same thread as drawing because of Xlib- TBD
     rv = cam_thing->handleInput();
     cam_thing->draw(cam_thing->ui_offset);
     
-    #endif
     rate.sleep();
   }
 

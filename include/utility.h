@@ -1,10 +1,12 @@
 #ifndef __UTILITY_H__
 #define __UTILITY_H__
 
+#if 0
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <X11/Intrinsic.h>
 #include <X11/extensions/XInput2.h>
+#endif
 
 #include "opencv2/imgproc/imgproc.hpp"
 
@@ -43,7 +45,8 @@ bool getBezier(
       std::vector<cv::Point2f>& output_points,
       const int num // numbe of intermediate points to generate 
       );
- 
+
+#if 0
 bool get_toplevel_parent(
     Display* display, 
     Window window,
@@ -84,7 +87,8 @@ bool getMouse(
     std::vector<float>& sig_val,
     std::vector< std::pair<char, bool> >& keys
     );
- 
+#endif
+
 bool fixAspect(cv::Mat& tmp0, cv::Mat& tmp1, const int mode);
 bool fixAspectFill(cv::Mat& tmp0, cv::Mat& tmp1, const int mode);
 

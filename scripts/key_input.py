@@ -58,16 +58,23 @@ if __name__=="__main__":
     rospy.init_node('key_input')
 
     # could send Char, but then keycodes wouldn't work (if they are working now?)
-    pub = rospy.Publisher('~key', String, queue_size=1)
+    pub = rospy.Publisher('key', String, queue_size=1)
 
     try:
         while not rospy.is_shutdown():
             key = getKey()
             if key:
+                #print ord(key)
+                # Not sure if this is universal
+                if ord(key) == 3:
+                    rospy.loginfo("exiting key input")
+                    sys.exit(0)
+
                 pub.publish(String(key))
                 sys.stdout.write(key)
 
     except:
+        rospy.loginfo( "exception")
         pass
 
     termios.tcsetattr(sys.stdin, termios.TCSADRAIN, settings)

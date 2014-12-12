@@ -120,7 +120,7 @@ other/DSOnoises/sdnoise1234.c
 other/DSOnoises/simplexnoise1234.c
 other/DSOnoises/srdnoise23.c
 src/config.cpp
-src/camthing.cpp
+src/vimjay.cpp
 src/nodes.cpp
 src/misc_nodes.cpp
 src/modify.cpp
@@ -129,14 +129,17 @@ src/filter.cpp
 src/cluster.cpp
 src/generate.cpp
 src/structure.cpp
-src/screencap.cpp
 src/utility.cpp
 src/output.cpp
-src/input.cpp
 src/video.cpp
 other/simplexnoise.cpp
 other/simplextextures.cpp
 )
+
+# This is handled by external screencap node
+#src/screencap.cpp
+# TBD update to use ros joystick node, and TBD mouse input node
+#src/input.cpp
 
 #src/opengl.cpp
 
@@ -151,11 +154,11 @@ target_link_libraries(vimjay
 boost_thread
 boost_filesystem
 boost_system
-Xi
-X11
 
 )
 
+#Xi
+#X11
 #glut
 #GLEW
 #GL
@@ -175,11 +178,11 @@ X11
 # )
 
 ## Mark executables and/or libraries for installation
-# install(TARGETS vimjay vimjay_node
-#   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-#   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-#   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-# )
+install(TARGETS vimjay vimjay
+  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
 
 ## Mark cpp header files for installation
 # install(DIRECTORY include/${PROJECT_NAME}/
