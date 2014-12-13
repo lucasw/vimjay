@@ -708,7 +708,7 @@ namespace bm {
 
   bool Node::save(cv::FileStorage& fs)
   {
-    const string type = getId(dynamic_pointer_cast<Node>(shared_from_this()));
+    const string type = getId( boost::dynamic_pointer_cast<Node>(shared_from_this()));
 
     fs << "typeid" << type;
     //fs << "typeid_mangled" << typeid(*all_nodes[i]).name();
@@ -914,11 +914,11 @@ namespace bm {
       // okay.  Could shared_ptr get confused by circular references?
       // 
       con->parent = boost::weak_ptr<Node>(
-          dynamic_pointer_cast<Node>(shared_from_this()));
+          boost::dynamic_pointer_cast<Node>(shared_from_this()));
      
       /* doesn't work
       con->parent = 
-          dynamic_pointer_cast<Node>(
+          boost::dynamic_pointer_cast<Node>(
               boost::weak_ptr<Elem>(
                   shared_from_this()
           ));*/
@@ -1155,7 +1155,7 @@ namespace bm {
 
     //Buffer* im_in = con->getBuffer(); // dynamic_cast<Buffer*> (tmp_src->parent);
     boost::shared_ptr<Buffer> im_in = 
-        dynamic_pointer_cast<Buffer>(tmp_src->parent.lock());
+        boost::dynamic_pointer_cast<Buffer>(tmp_src->parent.lock());
 
     if (!im_in) {
       ROS_ERROR_STREAM(name  << " " << port << " improper Buffer connected");
@@ -1193,7 +1193,7 @@ namespace bm {
     if ((!tmp_src) || (!tmp_src->parent.lock())) return tmp;
 
     boost::shared_ptr<Buffer> im_in = 
-        dynamic_pointer_cast<Buffer>(tmp_src->parent.lock());
+        boost::dynamic_pointer_cast<Buffer>(tmp_src->parent.lock());
 
     if (!im_in) {
       ROS_ERROR_STREAM(name  << " " << port << " improper Buffer connected");
@@ -2095,7 +2095,7 @@ namespace bm {
       if (cur_size == ind) {
         boost::shared_ptr<Connector> tmp_src = ports[i]->src.lock();
         if ((tmp_src) && (tmp_src->parent.lock())) {
-          selected_buffer = dynamic_pointer_cast<Buffer>(tmp_src->parent.lock());
+          selected_buffer = boost::dynamic_pointer_cast<Buffer>(tmp_src->parent.lock());
         }
       }
       cur_size++;

@@ -58,7 +58,7 @@
 #include "video.h"
 
 using namespace cv;
-using namespace std;
+//using namespace std;
 
 //DEFINE_string(graph, "../temp_graph.yml", "yaml file to load with graph in it");
 
@@ -79,7 +79,7 @@ class CamThing : public Output
   // TBD informal timer for the system
   
   // make sure all Nodes are stored here
-  deque<boost::shared_ptr<Node> > all_nodes;
+  std::deque<boost::shared_ptr<Node> > all_nodes;
 
   // the final output 
   // TBD make this a special node type
@@ -125,8 +125,8 @@ class CamThing : public Output
 
     /////////////////////////////////////////////////////////////////////////// 
     boost::shared_ptr<Node> getNodeByName(
-        string type_id, 
-        string name = "", 
+        std::string type_id, 
+        std::string name = "", 
         cv::Point2f loc = cv::Point2f(0.0, 0.0)
         )
     {
@@ -140,7 +140,7 @@ class CamThing : public Output
           << " new node " << CLNRM << name << " " << loc.x << ", " << loc.y);
         // the node already exists
         //node = getNode<ScreenCap>(name, loc);
-        node = dynamic_pointer_cast<Node>(shared_from_this());
+        node = boost::dynamic_pointer_cast<Node>(shared_from_this());
         node->loc = loc;
         node->name = name;
         all_nodes.push_back(node);
@@ -267,7 +267,7 @@ class CamThing : public Output
           ROS_WARN_STREAM("TBD multiple mouse nodes");
         }
 
-        input_node = dynamic_pointer_cast<Mouse>(node);
+        input_node = boost::dynamic_pointer_cast<Mouse>(node);
         // TBD need better way to share X11 info- Config probably
         if (output_node) {
           //input_node->display = output_node->display;
@@ -376,7 +376,7 @@ class CamThing : public Output
             fs << "value" << con->value;
           }
 
-          string src_port = "";
+          std::string src_port = "";
           int src_ind = -1;
           if (con->src.lock()) {
             src_port = con->src.lock()->name;
@@ -416,11 +416,11 @@ class CamThing : public Output
     int y = 20;
     for (int i = 0; i < all_nodes.size(); i++) {
       
-      if ( dynamic_pointer_cast<ImageNode> (all_nodes[i])) y += tht;
+      if ( boost::dynamic_pointer_cast<ImageNode> (all_nodes[i])) y += tht;
 
       if (y + all_nodes[i]->ports.size()*10 > graph_ui.rows) {
         y = 20;
-        if ( dynamic_pointer_cast<ImageNode> (all_nodes[i])) y += tht;
+        if ( boost::dynamic_pointer_cast<ImageNode> (all_nodes[i])) y += tht;
 
         x += 180;
       }
@@ -463,7 +463,7 @@ class CamThing : public Output
   
   boost::thread node_thread;
 
-  vector<string> node_types;
+  std::vector<string> node_types;
 
   /////////////////////////////////////////////////////////////////////////// 
   CamThing(const std::string name) :
@@ -577,7 +577,7 @@ class CamThing : public Output
 
     {
       boost::shared_ptr<Node> node =
-        dynamic_pointer_cast<Node>(shared_from_this());
+        boost::dynamic_pointer_cast<Node>(shared_from_this());
       // TBD these shouldn't be necessary
 
       all_nodes.push_back(node);
@@ -586,7 +586,7 @@ class CamThing : public Output
     //// make default output nodes
     {
       boost::shared_ptr<Node> node1 = getNode<Output>("output", loc);
-      output_node = dynamic_pointer_cast<Output>(node1);
+      output_node = boost::dynamic_pointer_cast<Output>(node1);
       output_node->setup(Config::inst()->out_width, Config::inst()->out_height);
       // force output node to move window
       //output_node->draw(ui_offset);
@@ -596,7 +596,7 @@ class CamThing : public Output
     
     {
       boost::shared_ptr<Node> node2 = getNode<Output>("preview", loc);
-      preview_node = dynamic_pointer_cast<Output>(node2);
+      preview_node = boost::dynamic_pointer_cast<Output>(node2);
       preview_node->setup(Config::inst()->out_width, Config::inst()->out_height);
     }
   
@@ -662,8 +662,8 @@ class CamThing : public Output
     }
 
     for (FileNodeIterator it = nd.begin(); it != nd.end(); ++it) {
-      string type_id = (*it)["typeid"];
-      string name;
+      std::string type_id = (*it)["typeid"];
+      std::string name;
       (*it)["name"] >> name;
       cv::Point loc;
       loc.x = (*it)["loc"][0];
@@ -678,20 +678,20 @@ class CamThing : public Output
         continue;
       }
 
-      if (dynamic_pointer_cast<ImageNode>(node)) {
-        (dynamic_pointer_cast<ImageNode> (node))->setImage("out", test_im);
+      if ( boost::dynamic_pointer_cast<ImageNode>(node)) {
+        ( boost::dynamic_pointer_cast<ImageNode> (node))->setImage("out", test_im);
       }
       node->load(it);
       
       // TBD do nothing special for these
       /*
       if (name == "output") {
-        output_node = dynamic_pointer_cast<Output>(node);
+        output_node = boost::dynamic_pointer_cast<Output>(node);
         cv::Mat tmp;
         node->setImage("in", tmp); 
       }
       if (name == "preview") {
-        preview_node = dynamic_pointer_cast<Output>(node);
+        preview_node = boost::dynamic_pointer_cast<Output>(node);
       }
       */
 
@@ -704,7 +704,7 @@ class CamThing : public Output
 
       for (int i = 0; i < (*it)["inputs"].size(); i++) {
         int type;
-        string port;
+        std::string port;
 
         (*it)["inputs"][i]["type"] >> type;
         (*it)["inputs"][i]["name"] >> port;
@@ -737,8 +737,8 @@ class CamThing : public Output
       for (int i = 0; i < (*it)["inputs"].size(); i++) {
         int input_ind;
         int type;
-        string port;
-        string src_port;
+        std::string port;
+        std::string src_port;
         float value;
 
         (*it)["inputs"][i]["type"] >> type;
@@ -768,7 +768,7 @@ class CamThing : public Output
             << all_nodes[all_nodes.size() - 1]->name << CLNRM);
       // TBD could make sure that this node is an output node
       
-      output_node = dynamic_pointer_cast<Output>( 
+      output_node = boost::dynamic_pointer_cast<Output>( 
           all_nodes[all_nodes.size() - 1]);
     }
 
@@ -898,7 +898,7 @@ class CamThing : public Output
           +0.0000000000,
         };*/
 
-      vector<float> vec (arr, arr + sizeof(arr) / sizeof(arr[0]) );
+      std::vector<float> vec (arr, arr + sizeof(arr) / sizeof(arr[0]) );
 
       fir->setup(vec);
       fir->setInputPort(IMAGE,"in", passthrough, "out");
@@ -911,16 +911,16 @@ class CamThing : public Output
                 0.2780599176, // * y[n- 3])
                 }; 
 
-      vector<float> vec2 (arr2, arr2 + sizeof(arr2) / sizeof(arr2[0]) );
+      std::vector<float> vec2 (arr2, arr2 + sizeof(arr2) / sizeof(arr2[0]) );
       denom->setup(vec2);
       denom->setInputPort(IMAGE,"in",fir, "out");
        
       Add* add_iir = getNode<Add>("add_iir", cv::Point2f(400,100) );
       add_iir->out = test_im;
-      vector<boost::shared_ptr<ImageNode>> add_in;
+      std::vector<boost::shared_ptr<ImageNode>> add_in;
       add_in.push_back(fir);
       add_in.push_back(denom);
-      vector<float> nf;
+      std::vector<float> nf;
       nf.push_back(1.0);
       nf.push_back(1.0);
       add_iir->setup(add_in, nf);
@@ -1118,7 +1118,7 @@ class CamThing : public Output
     boost::shared_ptr<Connector> con = selected_node->ports[selected_node->selected_port_ind];
     if (!con->dst) return false;
     
-    const string src = con->parent.lock()->name;
+    const std::string src = con->parent.lock()->name;
 
     selected_node = con->dst->parent.lock();
     selected_ind = getIndFromPointer(selected_node); 
@@ -1130,7 +1130,7 @@ class CamThing : public Output
     // keep a copy of the selected port local (TBD)
     selectPort(0);
 
-    const string dst = selected_node->name;
+    const std::string dst = selected_node->name;
     ROS_DEBUG_STREAM_COND(log_level > 2, "selecting port destination success: " 
         << src << " to " << dst);
     return true;
@@ -1174,7 +1174,7 @@ class CamThing : public Output
     return rv;
   } // selectPort()
 
-  string command_text;
+  std::string command_text;
   bool draw_nodes;
   bool paused;
 
@@ -1318,7 +1318,7 @@ class CamThing : public Output
       std::string base_dir = "../graphs/";
       
       time_t t1 = time(NULL);
-      stringstream file_name;
+      std::stringstream file_name;
       // TBD define path to data somewhere to be reused by all
       file_name << base_dir << t1 << "_" << name << ".yml";
       saveGraph(file_name.str());
@@ -1386,11 +1386,11 @@ class CamThing : public Output
       // TBD the node should catch this itself
       const bool rv = selectPort(1);
       if (rv) { 
-        stringstream str;
+        std::stringstream str;
         if (selected_node) {
           str << selected_node->name << " : ";
           conType source_type = NONE;
-          string source_port = "";
+          std::string source_port = "";
           if (source_node) {
             source_type = source_node->selected_type;
             source_port = source_node->selected_port;
@@ -1472,7 +1472,7 @@ class CamThing : public Output
           (selected_node->selected_port == "graph_file") ||
           (selected_node->selected_port == "file") 
           ) {
-        const string dir_or_file = selected_node->selected_port;
+        const std::string dir_or_file = selected_node->selected_port;
 
         // if the port is named dir or TBD other directory/file names create
         // a BrowseDir
@@ -1481,7 +1481,7 @@ class CamThing : public Output
                 dir_or_file + selected_node->name, 
                 selected_node->loc + cv::Point2f(-150,10));
    
-        const string val = selected_node->getString(selected_node->selected_port);
+        const std::string val = selected_node->getString(selected_node->selected_port);
         node->setString(dir_or_file, val);
 
         selected_node->setInputPort(
@@ -1507,7 +1507,7 @@ class CamThing : public Output
     }
 
     if (valid_key) {
-      stringstream tmp;
+      std::stringstream tmp;
       tmp << (char) key;
       //tmp.resize(1);
       //tmp[0] = key;
