@@ -31,22 +31,16 @@ namespace bm {
   Output::Output(const std::string name) :
     ImageNode(name),
     seq_(0),
-    it_(Config::inst()->nh_),
-    camera_info_manager_(new camera_info_manager::CameraInfoManager(Config::inst()->nh_))
-    //ximage(NULL),
-    //display(NULL)
+    it_(Config::inst()->nh_)
+    //camera_info_manager_(new camera_info_manager::CameraInfoManager(Config::inst()->nh_))
   {
-    // this is for keyboard input, may want to put it in keyboard node
-    //display = XOpenDisplay(NULL);
-
-    pub_ = it_.advertiseCamera(name, 1);
-    camera_info_manager_->setCameraName(name);
+    pub_ = it_.advertise(name, 1);
+    //pub_ = it_.advertiseCamera(name, 1);
+    //camera_info_manager_->setCameraName(name);
   }
   
   Output::~Output()
   {
-    // TBD is this object the owner?
-    //if (display) XCloseDisplay(display);
   }
 
   void Output::init()
@@ -121,16 +115,15 @@ namespace bm {
     const bool window_decorations_on = getSignal("decor", is_valid, is_dirty);
     if (is_dirty) {
       setSignal("decor", window_decorations_on);
-      //bm::setWindowDecorations(display, win, window_decorations_on);
-      ////bm::setWindowDecorations(display, toplevel_parent, window_decorations_on);
     }
 
     cv_bridge::CvImage cv_image;
     cv_image.header.stamp = ros::Time::now();
     cv_image.image = getImage("in"); 
-    cv_image.encoding = "rgb8"; 
+    cv_image.encoding = "rgba8"; 
     sensor_msgs::ImagePtr msg = cv_image.toImageMsg();
 
+    /*
     sensor_msgs::CameraInfoPtr
         camera_info(new sensor_msgs::CameraInfo(camera_info_manager_->getCameraInfo()));
     
@@ -138,18 +131,10 @@ namespace bm {
     camera_info->width = cv_image.image.rows;
     camera_info->header.stamp = cv_image.header.stamp;
     camera_info->header.seq = seq_++;
-    pub_.publish(msg, camera_info);
+    */
+    pub_.publish(msg);  //, camera_info);
 
     ROS_DEBUG_STREAM_COND(log_level > 4, "decor draw time" << t1.elapsed()); 
-    /*
-    XWindowAttributes xwAttr;
-    Status ret = XGetWindowAttributes( display, win, &xwAttr );
-    int screen_w = xwAttr.width;
-    int screen_h = xwAttr.height;
-
-
-    if (ximage) XPutImage(display, win,  gc, ximage, 0, 0, 0, 0, screen_w, screen_h);
-    */
     
     #if 0
     XWindowAttributes xwAttr, xwAttr2;

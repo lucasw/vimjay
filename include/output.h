@@ -12,25 +12,14 @@ namespace bm {
 // TBD allow multiple?
 class Output : public ImageNode
 {
-  /*
-  GC gc;
-  Screen* screen;
-  XImage* ximage;
-  Window toplevel_parent; 
-  */  
   int x,y,w,h;
   int seq_;
   image_transport::ImageTransport it_;
-  image_transport::CameraPublisher pub_;
-  boost::shared_ptr<camera_info_manager::CameraInfoManager> camera_info_manager_;
+  image_transport::Publisher pub_;
+  //image_transport::CameraPublisher pub_;
+  //boost::shared_ptr<camera_info_manager::CameraInfoManager> camera_info_manager_;
 
   public:
-
-  /*
-	Display *display;
-  int opcode;
-  Window win;
-  */
 
   Output(const std::string name);
   ~Output();

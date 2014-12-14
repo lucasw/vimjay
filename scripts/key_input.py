@@ -39,11 +39,13 @@ import sys, select, termios, tty
 
 """
 CTRL-C to quit
+
+There is an sdl key input node on the web, may want to try that
 """
 
 def getKey():
     tty.setraw(sys.stdin.fileno())
-    rlist, _, _ = select.select([sys.stdin], [], [], 0.1)
+    rlist, _, _ = select.select([sys.stdin], [], []) #, 0.1)
     if rlist:
         key = sys.stdin.read(1)
     else:
