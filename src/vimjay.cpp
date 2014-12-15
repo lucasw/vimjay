@@ -446,7 +446,6 @@ class VimJay : public Output
   int count;
 
   cv::Mat test_im;
-
   cv::Mat cam_image;
 
   // TBD make struct for these two
@@ -465,6 +464,8 @@ class VimJay : public Output
 
   std::vector<string> node_types;
 
+  std::string load_graph_file_;
+
   /////////////////////////////////////////////////////////////////////////// 
   VimJay(const std::string name) :
       Output(name),
@@ -475,10 +476,15 @@ class VimJay : public Output
       //source_port_ind(0),
       draw_nodes(true),
       //paused(true)
+      load_graph_file_(""),
       paused(true) // TBD control from config file?
   {
     key_sub = Config::inst()->nh_.subscribe<std_msgs::String>("key", 5,
       &VimJay::keyCallback, this);
+
+    // TBD call init from constructor
+    Config::inst()->nh_.getParam("graph_file", load_graph_file_);
+    ROS_INFO_STREAM("graph file " << load_graph_file_);
   }
 
   void keyCallback(const std_msgs::StringConstPtr& msg) 
@@ -602,9 +608,9 @@ class VimJay : public Output
     }
   
     // TBD
-    //if ((FLAGS_graph == "") || (!loadGraph(FLAGS_graph))) { 
+    if ((load_graph_file_ == "") || (!loadGraph(load_graph_file_))) { 
       defaultGraph();
-    //} 
+    } 
     output_node->setSignal("force_update", 1.0);
     preview_node->setSignal("force_update", 1.0);
 
@@ -1797,7 +1803,7 @@ class VimJay : public Output
     return valid_key;
   } // handleKey
 
-  };
+  }; // vimjay
 
 }
 
@@ -1813,8 +1819,8 @@ int main( int argc, char* argv[] )
 {
   ros::init(argc, argv, "vimjay");
  
-  boost::shared_ptr<bm::VimJay> cam_thing(new bm::VimJay("graph"));
-  cam_thing->init();
+  boost::shared_ptr<bm::VimJay> vimjay(new bm::VimJay("graph"));
+  vimjay->init();
   
   float hz = 30;
   ros::param::get("draw_rate", hz);
@@ -1826,8 +1832,8 @@ int main( int argc, char* argv[] )
 
     // have to do this before update to avoid some crashes
     // input is handled in the same thread as drawing because of Xlib- TBD
-    rv = cam_thing->handleInput();
-    cam_thing->draw(cam_thing->ui_offset);
+    rv = vimjay->handleInput();
+    vimjay->draw(vimjay->ui_offset);
     
     ros::spinOnce();
     rate.sleep();

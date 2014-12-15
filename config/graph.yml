@@ -3,7 +3,7 @@ date: "Thu Nov  8 21:58:52 2012\n"
 nodes:
    -
       ind: 0
-      typeid: "bm::CamThing"
+      typeid: "bm::VimJay"
       name: cam_thing
       loc: [ 49., 30. ]
       inputs:

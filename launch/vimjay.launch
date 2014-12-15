@@ -2,6 +2,7 @@
 <launch>
   
   <group ns="vimjay" >
+    <param name="graph_file" value="$(find vimjay)/config/default_graph.yml" />
     <node name="vimjay1" pkg="vimjay" type="vimjay_node" 
         respawn="false" output="screen" >
     </node>
