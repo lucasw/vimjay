@@ -71,7 +71,7 @@ namespace bm {
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-class CamThing : public Output
+class VimJay : public Output
 {
   // This probably isn't super low latency, but going to try it out
   ros::Subscriber key_sub;
@@ -132,7 +132,7 @@ class CamThing : public Output
     {
       boost::shared_ptr<Node> node = boost::shared_ptr<Node>();
 
-      if (type_id.compare("bm::CamThing") == 0) {
+      if (type_id.compare("bm::VimJay") == 0) {
         ROS_INFO_STREAM("already have cam thing");
         /*
         // TBD  don't allow duplicate camthings
@@ -466,7 +466,7 @@ class CamThing : public Output
   std::vector<string> node_types;
 
   /////////////////////////////////////////////////////////////////////////// 
-  CamThing(const std::string name) :
+  VimJay(const std::string name) :
       Output(name),
       selected_ind(0), 
       source_ind(0),
@@ -477,12 +477,13 @@ class CamThing : public Output
       //paused(true)
       paused(true) // TBD control from config file?
   {
-    key_sub = Config::inst()->nh_.subscribe<std_msgs::String>("key", 1,
-      &CamThing::keyCallback, this);
+    key_sub = Config::inst()->nh_.subscribe<std_msgs::String>("key", 5,
+      &VimJay::keyCallback, this);
   }
 
   void keyCallback(const std_msgs::StringConstPtr& msg) 
-  {
+  { 
+    //ROS_INFO_STREAM("keys " << msg->data);
     for (size_t i = 0; i < msg->data.size(); ++i) {
       keys.push_back(msg->data[i]);
     }
@@ -496,7 +497,7 @@ class CamThing : public Output
 
     count = 0;
 
-    //node_types.push_back("bm::CamThing"); // TBD can't spawn a new one of these
+    //node_types.push_back("bm::VimJay"); // TBD can't spawn a new one of these
     node_types.push_back("bm::ImageDir");
     node_types.push_back("bm::BrowseDir");
     node_types.push_back("bm::Webcam");
@@ -636,7 +637,7 @@ class CamThing : public Output
     }
 
     update_nodes = true;
-    node_thread = boost::thread(&CamThing::updateThread, this);
+    node_thread = boost::thread(&VimJay::updateThread, this);
 
   }
 
@@ -1288,6 +1289,8 @@ class CamThing : public Output
     if (keys.empty()) return true;
     int key = keys.front();
     keys.pop_front();
+   
+    std::cout << key << " key " << std::endl;
     
     bool valid_key = true;
 
@@ -1311,7 +1314,7 @@ class CamThing : public Output
       // at least?  Duplicates with init(), but we don't want to
       // call init here
       update_nodes = true;
-      node_thread = boost::thread(&CamThing::updateThread, this);
+      node_thread = boost::thread(&VimJay::updateThread, this);
     }
     else if( key == 'w' ) {
       // TBD increment a count so old saves aren't overwritten?
@@ -1715,7 +1718,7 @@ class CamThing : public Output
     Output::draw(ui_offset);
 
     ROS_DEBUG_STREAM_COND(log_level > 4, "full draw time" << t1.elapsed()); 
-  } // CamThing::draw
+  } // VimJay::draw
 
   // cause all the nodes to repel each other so the display isn't too 
   // jumbled
@@ -1810,10 +1813,13 @@ int main( int argc, char* argv[] )
 {
   ros::init(argc, argv, "vimjay");
  
-  boost::shared_ptr<bm::CamThing> cam_thing(new bm::CamThing("cam_thing"));
+  boost::shared_ptr<bm::VimJay> cam_thing(new bm::VimJay("graph"));
   cam_thing->init();
-
-  ros::Rate rate(30);
+  
+  float hz = 30;
+  ros::param::get("draw_rate", hz);
+  ROS_INFO_STREAM("update rate " << hz);
+  ros::Rate rate(rate);
 
   bool rv = true;
   while (rv && ros::ok()) {
@@ -1823,6 +1829,7 @@ int main( int argc, char* argv[] )
     rv = cam_thing->handleInput();
     cam_thing->draw(cam_thing->ui_offset);
     
+    ros::spinOnce();
     rate.sleep();
   }
 

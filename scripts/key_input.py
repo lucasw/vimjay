@@ -73,7 +73,7 @@ if __name__=="__main__":
                     sys.exit(0)
 
                 pub.publish(String(key))
-                sys.stdout.write(key)
+                #sys.stdout.write(key)
 
     except:
         rospy.loginfo( "exception")
