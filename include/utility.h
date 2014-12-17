@@ -12,7 +12,8 @@
 
 #include "nodes.h"
 
-// bash color codes
+#if 0
+// bash color codes, screw up ros console output
 #define CLNRM "\e[0m"
 #define CLWRN "\e[0;43m"
 #define CLERR "\e[1;41m"
@@ -20,6 +21,15 @@
 #define CLTXT "\e[1;35m"
 // BOLD black text with blue background
 #define CLTX2 "\e[1;44m"  
+#else
+#define CLNRM ""
+#define CLWRN ""
+#define CLERR ""
+#define CLVAL ""
+#define CLTXT ""
+// BOLD black text with blue background
+#define CLTX2 ""  
+#endif
 
 #define MAT_FORMAT_C3 CV_8UC4
 #define MAT_FORMAT CV_8U

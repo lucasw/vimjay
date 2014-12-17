@@ -53,7 +53,11 @@ namespace bm {
     Buffer::init();
     setSignal("mode", 0, false, ROLL, 0, 4);
     setSignal("keep_aspect", 1, false, ROLL, 0, 2);
-    setString("dir", "../data"); //"temp");
+
+    std::string dir = "data";
+    //ros::param::get
+    Config::inst()->nh_.getParam("image_dir", dir);
+    setString("dir", dir); 
     setString("name","");
     //setSignal("ind", 0, false, ROLL, 0, 0);
   }

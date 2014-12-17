@@ -482,10 +482,6 @@ class VimJay : public Output
   {
     key_sub = Config::inst()->nh_.subscribe<std_msgs::String>("key", 5,
       &VimJay::keyCallback, this);
-
-    // TBD call init from constructor
-    Config::inst()->nh_.getParam("graph_file", load_graph_file_);
-    ROS_INFO_STREAM("graph file " << load_graph_file_);
   }
 
   void keyCallback(const std_msgs::StringConstPtr& msg) 
@@ -501,7 +497,12 @@ class VimJay : public Output
     // TBD use a different methodology that doesn't require
     // calling the base function?
     Output::init();
+    
+    Config::inst()->nh_.getParam("paused", paused);
 
+    Config::inst()->nh_.getParam("graph_file", load_graph_file_);
+    ROS_INFO_STREAM("graph file " << load_graph_file_);
+    
     count = 0;
 
     //node_types.push_back("bm::VimJay"); // TBD can't spawn a new one of these
@@ -799,8 +800,7 @@ class VimJay : public Output
     // create a bunch of nodes of every type (TBD make sure new ones get added)
     // but don't connect them, user will do that
    
-
-
+    getNode<ImageDir>("image_dir"); //, loc);
 
     // Images
     // inputs
@@ -1806,7 +1806,7 @@ class VimJay : public Output
 
   }; // vimjay
 
-}
+} // bm
 
 
 /*
@@ -1819,7 +1819,9 @@ TBD have a mode that takes a webcam, uses brightness as depth, and thresholds it
 int main( int argc, char* argv[] )
 {
   ros::init(argc, argv, "vimjay");
- 
+
+  bm::Config::inst()->nh_.getParam("log_level", bm::log_level);
+
   boost::shared_ptr<bm::VimJay> vimjay(new bm::VimJay("graph"));
   vimjay->init();
   
