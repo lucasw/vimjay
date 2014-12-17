@@ -1,12 +1,15 @@
 <?xml version="1.0"?>
 <launch>
-  <arg name="graph_file" default="$(find vimjay)/config/default_graph.yml" />
+  <!--arg name="graph_file" default="none" /--> <!--$(find vimjay)/config/default_graph.yml" /-->
+  <arg name="graph_file" default="$(find vimjay)/config/temp_graph.yml" />
   <arg name="log_level" default="1" />
+  <arg name="paused" default="false" />
 
   <group ns="vimjay" >
     <param name="graph_file" value="$(arg graph_file)" />
     <param name="image_dir" value="$(find vimjay)/data" />
     <param name="log_level" value="$(arg log_level)" />
+    <param name="paused" value="$(arg paused)" />
 
     <node name="vimjay1" pkg="vimjay" type="vimjay_node" 
         respawn="false" output="screen" >

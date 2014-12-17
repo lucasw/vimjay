@@ -1325,14 +1325,15 @@ class VimJay : public Output
     }
     else if( key == 'w' ) {
       // TBD increment a count so old saves aren't overwritten?
-      std::string base_dir = "../graphs/";
+      std::string base_dir = "graphs/";
       
       time_t t1 = time(NULL);
       std::stringstream file_name;
       // TBD define path to data somewhere to be reused by all
       file_name << base_dir << t1 << "_" << name << ".yml";
       saveGraph(file_name.str());
-      saveGraph("../temp_graph.yml");
+      // TBD add a save directory ros param
+      saveGraph("temp_graph.yml");
       setString("graph_out", file_name.str());
     }
     //else if (key == 'a') {
