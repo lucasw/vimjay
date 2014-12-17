@@ -43,6 +43,7 @@
 #include "opencv2/imgproc/imgproc.hpp"
 
 #include "config.h"
+#include "image_dir.h"
 #include "nodes.h" 
 #include "modify.h" 
 #include "misc_nodes.h" 

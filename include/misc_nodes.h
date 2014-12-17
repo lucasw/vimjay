@@ -1,5 +1,5 @@
-#ifndef __MISC_NODES_H__
-#define __MISC_NODES_H__
+#ifndef __IMAGE_DIR_H__
+#define __IMAGE_DIR_H__
 
 #include <iostream>
 #include <stdio.h>
@@ -16,26 +16,6 @@
 #include "nodes.h"
 
 namespace bm {
-
-
-/////////////////////////////////
-class ImageDir : public Buffer
-{
-  std::deque<cv::Mat> frames_orig;
-  std::vector<std::string> all_files;
-  bool resizeImages();
-
-  public:
-
-  ImageDir(const std::string name);
-  virtual void init();
-
-  bool loadImages();
-
-  virtual bool update();
-  virtual bool load(cv::FileNodeIterator nd);
-  virtual bool save(cv::FileStorage& fs);
-};
 
 /////////////////////////////////
 class BrowseDir : public ImageNode
@@ -64,4 +44,4 @@ class BrowseDir : public ImageNode
 
 
 } // bm
-#endif // MISC_NODES
+#endif // IMAGE_DIR

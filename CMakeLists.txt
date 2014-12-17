@@ -125,6 +125,7 @@ src/config.cpp
 src/vimjay.cpp
 src/nodes.cpp
 src/misc_nodes.cpp
+src/image_dir.cpp
 src/modify.cpp
 src/signals.cpp
 src/filter.cpp
