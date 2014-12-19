@@ -22,13 +22,15 @@ class RoundWindow(QtGui.QLabel):
         self.ht = rospy.get_param("~height", 240)
         self.x = rospy.get_param("~x", 0)
         self.y = rospy.get_param("~y", 0)
+        self.roi = None
+        self.new_roi = False
         self.keep_aspect = rospy.get_param("~keep_aspect", True)
 
         self.initUI()
         self.update_im = False
         self.image_sub = rospy.Subscriber('image', Image, self.imageCallback,
                 queue_size=1)
-        self.roi_sub = rospy.Subscriber('test', RegionOfInterest, self.roiCallback, 
+        self.roi_sub = rospy.Subscriber('roi', RegionOfInterest, self.roiCallback, 
                 queue_size=1) 
         
         self.timer = QTimer()
@@ -60,9 +62,8 @@ class RoundWindow(QtGui.QLabel):
         quit()
 
     def roiCallback(self, msg):
-        if msg.width != 0 and msg.height != 0:
-            self.resize(msg.width, msg.height)
-        self.move(msg.x_offset, msg.y_offset)
+        self.roi = msg
+        self.new_roi = True
 
     def initUI(self):
         self.setWindowFlags(Qt.FramelessWindowHint)
@@ -77,7 +78,17 @@ class RoundWindow(QtGui.QLabel):
     def update(self):
         if self.qimage is not None and self.update_im:
             self.setPixmap(QtGui.QPixmap.fromImage(self.qimage))
-        self.update_im = False
+            self.update_im = False
+        
+        if self.new_roi:
+            if self.roi.width != 0 and self.roi.height != 0:
+                self.wd = self.roi.width
+                self.ht = self.roi.height
+                self.resize(self.roi.width, self.roi.height)
+            self.x = self.roi.x_offset
+            self.y = self.roi.y_offset
+            self.move(self.x, self.y)
+            self.new_roi = False
 
     def sizeHint(self):
         return QSize(self.wd, self.ht)
