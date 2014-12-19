@@ -48,7 +48,31 @@ class RoundWindow(QtGui.QLabel):
         #cv2.waitKey(0)
        
         # don't keep aspect
-        image = cv2.resize(image_pre, (self.wd, self.ht), interpolation = cv2.INTER_NEAREST)
+        aspect_1 = float(self.wd) / float(self.ht)
+        aspect_2 = float(msg.width) / float(msg.height)
+        if not self.keep_aspect and aspect_1 != aspect_2:
+            image = cv2.resize(image_pre, (self.wd, self.ht), 
+                    interpolation = cv2.INTER_NEAREST)
+        else:
+            image = np.zeros((self.ht, self.wd, 3), np.uint8)
+            # the destination is wider than the source
+            sx = 0
+            ex = self.wd
+            sy = 0
+            ey = self.ht
+            if aspect_1 > aspect_2:
+                sc = float(self.ht) / float(msg.height)
+                nx = sc * msg.width
+                sx = int((self.wd - nx)/2)
+                ex = int(sx + nx)
+            else:
+                sc = float(self.wd) / float(msg.width)
+                ny = sc * msg.height
+                sy = int((self.ht - ny)/2)
+                ey = int(sy + ny)
+            image_sc = cv2.resize(image_pre, (int(ex - sx), int(ey - sy)),
+                    interpolation = cv2.INTER_NEAREST)
+            image[sy:ey, sx:ex, :] = image_sc 
 
         # TBD need to keep aspect ratio correct if desired
         self.qimage = QImage.rgbSwapped(QImage(image.tostring(), self.wd, self.ht, 
