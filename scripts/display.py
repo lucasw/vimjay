@@ -3,7 +3,7 @@
 
 # http://stackoverflow.com/questions/14347163/pyqt-irregularly-shaped-windows-e-g-a-circular-without-a-border-decorations
 
-#import cv2
+import cv2
 import numpy as np
 import rospy
 import signal
@@ -17,6 +17,13 @@ class RoundWindow(QtGui.QLabel):
     def __init__(self):
         super(RoundWindow, self).__init__()
         signal.signal(signal.SIGINT, self.sigintHandler)
+         
+        self.wd  = rospy.get_param("~width", 360)
+        self.ht = rospy.get_param("~height", 240)
+        self.x = rospy.get_param("~x", 0)
+        self.y = rospy.get_param("~y", 0)
+        self.keep_aspect = rospy.get_param("~keep_aspect", True)
+
         self.initUI()
         self.update_im = False
         self.image_sub = rospy.Subscriber('image', Image, self.imageCallback,
@@ -33,13 +40,16 @@ class RoundWindow(QtGui.QLabel):
     def imageCallback(self, msg):
         np_arr = np.fromstring(msg.data, np.uint8)
         sz = (msg.height, msg.width, msg.step / msg.width)
-        #image = np.reshape(np_arr, sz)
+        image_pre = np.reshape(np_arr, sz)
         #print image.shape
         #cv2.imshow("test", image)
         #cv2.waitKey(0)
+       
+        # don't keep aspect
+        image = cv2.resize(image_pre, (self.wd, self.ht), interpolation = cv2.INTER_NEAREST)
 
         # TBD need to keep aspect ratio correct if desired
-        self.qimage = QImage.rgbSwapped(QImage(msg.data, msg.width, msg.height, 
+        self.qimage = QImage.rgbSwapped(QImage(image.tostring(), self.wd, self.ht, 
                 QImage.Format_RGB888))
         self.update_im = True 
         #self.resize(msg.width
@@ -56,10 +66,11 @@ class RoundWindow(QtGui.QLabel):
 
     def initUI(self):
         self.setWindowFlags(Qt.FramelessWindowHint)
-        self.qimage = QImage(300, 300, QImage.Format_RGB32)
-        for i in range(255):
-            for j in range(255):
-                self.qimage.setPixel(j, i, QtGui.qRgb(i,j,128))
+        self.qimage = QImage(self.wd, self.ht, QImage.Format_RGB32)
+        # generate a test image
+        for i in range(self.ht):
+            for j in range(self.wd):
+                self.qimage.setPixel(j, i, QtGui.qRgb(i%255,j%255,128))
         self.setPixmap(QtGui.QPixmap.fromImage(self.qimage))
         self.show()
     
@@ -69,7 +80,7 @@ class RoundWindow(QtGui.QLabel):
         self.update_im = False
 
     def sizeHint(self):
-        return QSize(300,300)
+        return QSize(self.wd, self.ht)
 
 if __name__ == '__main__':
     rospy.init_node('image_undecorated')
