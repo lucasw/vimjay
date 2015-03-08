@@ -33,6 +33,18 @@
 namespace nngen 
 {
 
+// http://stackoverflow.com/questions/23216247/how-to-convert-a-component-from-hsv-to-rgb-and-viceversa
+cv::Vec3b convertColor( cv::Vec3b src, const int code, const int dstCn = 0 )
+{
+    cv::Mat srcMat(1, 1, CV_8UC3 );
+    *srcMat.ptr< cv::Vec3b >( 0 ) = src;
+
+    cv::Mat resMat;
+    cv::cvtColor( srcMat, resMat, code, dstCn );
+
+    return *resMat.ptr< cv::Vec3b >( 0 );
+}
+
 /* 
 This will be an acyclic directed graph unlike the vimjay core stuff,
 though introducing cyclic aspects would be interesting (but pollute the core
@@ -98,9 +110,12 @@ void Node::draw(cv::Mat& vis)
   for (size_t i = 0; i < inputs_.size(); ++i)
   {
     const float cf = coefficients_[i];
-    const cv::Scalar col = cv::Scalar(cf * 80 + 128, cf * 10 + 128, 128);
+    cv::Vec3b col = convertColor( cv::Vec3b( int(cf*64) + 128, 128, 128), CV_HSV2BGR );
     cv::line(vis, pos_, inputs_[i]->pos_, col, 1); 
   }
+    
+  cv::Vec3b col = convertColor( cv::Vec3b( int(getOutput()*64) + 128, 128, 128), CV_HSV2BGR );
+  cv::circle(vis, pos_, inputs_[i]->pos_, col, 1); 
 }
 
 bool Node::update()
@@ -208,20 +223,6 @@ std::string Net::print()
 }
 
 
-// http://stackoverflow.com/questions/23216247/how-to-convert-a-component-from-hsv-to-rgb-and-viceversa
-/*
-cv::Vec3b ConvertColor( cv::Vec3b src, int code, int dstCn )
-{
-    cv::Mat srcMat(1, 1, CV_8UC3 );
-    *srcMat.ptr< cv::Vec3b >( 0 ) = src;
-
-    cv::Mat resMat;
-    cv::cvtColor( srcMat, resMat, code, dstCn );
-
-    return *resMat.ptr< cv::Vec3b >( 0 );
-}
-*/
-
 
 // visualize the network
 bool Net::draw()
@@ -230,7 +231,7 @@ bool Net::draw()
   
   const cv::Point offset = cv::Point(20,20);
 
-  // draw connections
+  // draw nodes and connections
   for (size_t i = 1; i < layers_.size(); ++i)
   {
     for (size_t j = 0; j < layers_[i].size(); ++j)
@@ -238,23 +239,7 @@ bool Net::draw()
       layers_[i][j]->draw(vis_);
     }
   }
-
-  // draw nodes
-  for (size_t i = 0; i < layers_.size(); ++i)
-  {
-    for (size_t j = 0; j < layers_[i].size(); ++j)
-    {
-      const float val = layers_[i][j]->getOutput();
-      const cv::Scalar col = cv::Scalar( (10 * i) % 255, 
-          (int(val * 10) + 128) % 255, 128 + i + j);
-      cv::circle(vis_, 
-          layers_[i][j]->pos_, 
-          10, cv::Scalar(0,0,0), -1);
-      cv::circle(vis_, 
-          layers_[i][j]->pos_, 
-          10, col, 3);
-    }
-  } 
+  
   cv::imshow("vis", vis_);
   return true;
 }
