@@ -215,7 +215,7 @@ Net::Net(std::vector<int> layer_sizes)
       // random for now
       for (size_t k = 0; k < last_layer.size(); ++k)
       {
-        coefficients.push_back(rng_.gaussian(1.0));
+        coefficients.push_back(rng_.gaussian(0.45));
       }
 
       Node* node = new Node(coefficients, last_layer);
@@ -382,17 +382,24 @@ void ImageNet::draw()
       cur_x = 0;
       cur_y += base.rows;
     }
+    
+    const float sc = 32;
+    cv::Rect roi = cv::Rect(cur_x, cur_y, base.cols * sc, base.rows * sc);
+    
+    const int mode = cv::INTER_CUBIC;
+    cv::Mat base_resized;
+    cv::resize(base, base_resized, cv::Size(roi.width, roi.height), 0, 0, mode);
 
-    cv::Rect roi = cv::Rect(cur_x, cur_y, base.cols, base.rows);
     cv::Mat dst_roi = output_(roi);
-    cv::Mat scaled_base = base * out_vals[i];
+    cv::Mat scaled_base = base_resized * std::abs(out_vals[i]);
     //scaled_base.copyTo(dst_roi);
-    dst_roi += scaled_base;
-  
-    cur_x += base.cols;
+    if (out_vals[i] > 0)
+      dst_roi += scaled_base;
+    else
+      dst_roi -= scaled_base;
+    //cur_x += base.cols;
     
     //std::cout << roi << std::endl;
-    cv::imshow("test", dst_roi);
   }
 
   cv::imshow("output", output_);
@@ -405,9 +412,10 @@ void ImageNet::draw()
 int main(int argn, char** argv)
 {
   std::vector<int> layer_sizes;
-  layer_sizes.push_back(2);
   layer_sizes.push_back(4);
   layer_sizes.push_back(8);
+  layer_sizes.push_back(16);
+  layer_sizes.push_back(32);
   //layer_sizes.push_back(12);
   //layer_sizes.push_back(16);
   cv::namedWindow("vis");
