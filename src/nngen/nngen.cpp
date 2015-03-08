@@ -77,7 +77,11 @@ public:
 
   // TBD make private later
   std::vector<Node*> inputs_;  
-
+ 
+  bool using_trackbar_;
+  int slider_val_;
+  void updateFromTrackbar();
+  void setupTrackbar(const std::string name);
 private:
   // these shouldn't change after setup?
   // make these a pair?
@@ -90,10 +94,23 @@ Node::Node(std::vector<float> coefficients,
     std::vector<Node*> inputs) :
   coefficients_(coefficients),
   inputs_(inputs),
-  output_(0.0)
+  output_(0.0),
+  using_trackbar_(false),
+  slider_val_(0)
 {
 
+}
 
+
+void Node::setupTrackbar(const std::string name)
+{
+  using_trackbar_ = true;
+  cv::createTrackbar(name, "vis", &slider_val_, 1024, NULL);
+}
+  
+void Node::updateFromTrackbar()
+{
+  output_ = (double) (slider_val_ - 512) / 1024.0;
 }
 
 int Node::getLayer()
@@ -140,6 +157,9 @@ void Node::draw(cv::Mat& vis)
 
 bool Node::update()
 {
+  if (using_trackbar_) {
+    updateFromTrackbar();
+  }
   // keep current output_
   if (coefficients_.size() == 0) return true;
 
@@ -196,6 +216,13 @@ Net::Net(std::vector<int> layer_sizes)
 
       Node* node = new Node(coefficients, last_layer);
 
+      
+      if (j == 0) 
+      {
+        std::stringstream ss;
+        ss << "track" << i;
+        node->setupTrackbar(ss.str());
+      }
       node->pos_ = cv::Point(30, 30) + cv::Point(80 * j, 50 * i);
       //std::cout << "layer " << j << " " << node->getLayer() << std::endl;
       cur_layer.push_back(node);
@@ -296,6 +323,8 @@ void ImageNet::draw()
 
 } // nngen
 
+
+
 int main(int argn, char** argv)
 {
   std::vector<int> layer_sizes;
@@ -304,6 +333,7 @@ int main(int argn, char** argv)
   layer_sizes.push_back(8);
   //layer_sizes.push_back(12);
   //layer_sizes.push_back(16);
+  cv::namedWindow("vis");
   nngen::Net* net = new nngen::Net(layer_sizes);
 
   cv::RNG rng;
@@ -315,9 +345,13 @@ int main(int argn, char** argv)
   }
   std::cout << std::endl;
   net->setInputs(in_vals);
-  
   net->update();
   std::cout << " output " << net->print() << std::endl;
-  net->draw();
-  cv::waitKey(0);
+  
+  while (true)
+  {
+    net->update();
+    net->draw();
+    if (cv::waitKey(30) == 'q') break;
+  }
 }
