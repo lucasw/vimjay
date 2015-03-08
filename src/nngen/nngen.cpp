@@ -115,23 +115,21 @@ public:
   
   bool setInputs(std::vector<float> in_vals);
   std::string print();
-
+  
 private:
-
+  
+  cv::Mat vis_;
   cv::RNG rng_;
   // will insert in order so updating can just go start to end
-  std::vector<nngen::Node*> all_nodes_;
-  std::vector<nngen::Node*> inputs_;
-  // all the nodes inbetween are hidden
-  std::vector<nngen::Node*> outputs_;
+  std::vector<std::vector<nngen::Node*> > layers_;
 
 };
 
 Net::Net(std::vector<int> layer_sizes)
 {
-
   std::vector<Node*> last_layer;
-  
+
+  vis_ = cv::Mat(cv::Size(600, 600), CV_8UC1, cv::Scalar::all(0));
   for (size_t j = 0; j < layer_sizes.size(); ++j)
   {
     std::vector<Node*> cur_layer;
@@ -147,44 +145,56 @@ Net::Net(std::vector<int> layer_sizes)
 
       Node* node = new Node(coefficients, last_layer);
       //std::cout << "layer " << j << " " << node->getLayer() << std::endl;
-      if (j == 0) 
-        inputs_.push_back(node);
-      all_nodes_.push_back(node);
       cur_layer.push_back(node);
-      if (j == layer_sizes.size() - 1) 
-        outputs_.push_back(node);
     }
   
+    layers_.push_back(cur_layer);
     last_layer = cur_layer;
   }
 }
 
 bool Net::setInputs(std::vector<float> in_vals)
 {
-  std::cout << "set input " << in_vals.size() << " " << inputs_.size() << std::endl;
-  for (size_t i = 0; (i < in_vals.size()) && (i < inputs_.size()); ++i)
+  if (layers_.size() == 0) return false;
+
+  std::cout << "set input " << in_vals.size() << " " << layers_[0].size() << std::endl;
+  for (size_t i = 0; (i < in_vals.size()) && (i < layers_[0].size()); ++i)
   {
-    inputs_[i]->setOutput(in_vals[i]);
+    layers_[0][i]->setOutput(in_vals[i]);
   }
+  return true;
 }
 
 bool Net::update()
 {
-  for (size_t i = 0; i < all_nodes_.size(); ++i)
+  for (size_t i = 0; i < layers_.size(); ++i)
   {
-    all_nodes_[i]->update();
+    for (size_t j = 0; j < layers_[i].size(); ++j)
+    {
+      layers_[i][j]->update();
+    }
   }
   return true;
 }
 
 std::string Net::print()
 {
+  if (layers_.size() == 0) return "no layers";
   std::stringstream ss;
-  for (size_t i = 0; i < outputs_.size(); ++i)
+  const size_t ind = layers_.size() - 1;
+  for (size_t i = 0; i < layers_[ind].size(); ++i)
   {
-    ss << outputs_[i]->getOutput() << " ";
+    ss << layers_[ind][i]->getOutput() << " ";
   }
   return ss.str();
+}
+
+// visualize the network
+bool Net::draw()
+{
+  
+  cv::imshow("vis", vis_);
+  return true;
 }
 
 ///////////////////////////////////////
@@ -219,10 +229,8 @@ void ImageNet::draw()
 
 } // nngen
 
-
 int main(int argn, char** argv)
 {
-
   std::vector<int> layer_sizes;
   layer_sizes.push_back(2);
   layer_sizes.push_back(4);
