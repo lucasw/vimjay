@@ -188,6 +188,7 @@ public:
   bool draw();
   
   bool setInputs(std::vector<float> in_vals);
+  bool getOutputs(std::vector<float>& out_vals);
   std::string print();
   
 private:
@@ -234,6 +235,18 @@ Net::Net(std::vector<int> layer_sizes)
     layers_.push_back(cur_layer);
     last_layer = cur_layer;
   }
+}
+
+bool Net::getOutputs(std::vector<float>& out_vals)
+{
+  if (layers_.size() == 0) return false;
+  const int ind = layers_.size() - 1;
+  out_vals.resize(layers_[ind].size());
+  for (size_t i = 0; i < out_vals.size(); ++i)
+  {
+    out_vals[i] = layers_[ind][i]->getOutput();
+  }
+  return true;
 }
 
 bool Net::setInputs(std::vector<float> in_vals)
@@ -305,15 +318,43 @@ class ImageNet
 
   Net* net_;
   cv::Mat output_;
-  std::vector<cv::Mat> bases;
+  std::vector<cv::Mat> bases_;
 };
 
 ImageNet::ImageNet(std::vector<int> layer_sizes)
 {
-  output_ = cv::Mat(cv::Size(512,512), CV_8UC1, cv::Scalar::all(0));
+  output_ = cv::Mat(cv::Size(512,512), CV_8UC3, cv::Scalar::all(0));
   net_ = new Net(layer_sizes);
   net_->update();
   std::cout << " output " << net_->print() << std::endl;
+
+  std::string prefix = "../../data/bases/";
+  
+  std::vector<std::string> base_files; 
+  base_files.push_back("chess1.png");
+  base_files.push_back("corner1.png");
+  base_files.push_back("corner2.png");
+  base_files.push_back("corner3.png");
+  base_files.push_back("corner4.png");
+  base_files.push_back("diag1.png");
+  base_files.push_back("diag2.png");
+  base_files.push_back("diag3.png");
+  base_files.push_back("dood1.png");
+  base_files.push_back("dood2.png");
+  base_files.push_back("dood3.png");
+  base_files.push_back("dot1.png");
+  base_files.push_back("horiz1.png");
+  base_files.push_back("noise1.png");
+  base_files.push_back("slash1.png");
+  base_files.push_back("slash2.png");
+  base_files.push_back("slash3.png");
+  base_files.push_back("slash4.png");
+  base_files.push_back("vert1.png");
+
+  for (size_t i = 0; i < base_files.size(); ++i)
+  {
+    bases_.push_back(cv::imread(prefix + base_files[i], CV_LOAD_IMAGE_COLOR));
+  }
 }
 
 bool ImageNet::update()
@@ -324,6 +365,36 @@ bool ImageNet::update()
 void ImageNet::draw()
 {
   net_->draw();
+
+  output_ = cv::Scalar::all(128);
+
+  std::vector<float> out_vals;
+  net_->getOutputs(out_vals);
+
+  int cur_x = 0;
+  int cur_y = 0;
+  for (size_t i = 0; i < out_vals.size(); ++i)
+  {
+    const int base_ind = i % bases_.size();
+    cv::Mat base = bases_[base_ind];
+    if (cur_x + base.cols >= output_.cols) 
+    {
+      cur_x = 0;
+      cur_y += base.rows;
+    }
+
+    cv::Rect roi = cv::Rect(cur_x, cur_y, base.cols, base.rows);
+    cv::Mat dst_roi = output_(roi);
+    cv::Mat scaled_base = base * out_vals[i];
+    //scaled_base.copyTo(dst_roi);
+    dst_roi += scaled_base;
+  
+    cur_x += base.cols;
+    
+    //std::cout << roi << std::endl;
+    cv::imshow("test", dst_roi);
+  }
+
   cv::imshow("output", output_);
 }
 
