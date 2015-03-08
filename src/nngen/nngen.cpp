@@ -48,6 +48,7 @@ public:
   bool update();
   void setOutput(const float val)
   {
+    std::cout << this << " setting output to " << val << std::endl;
     output_ = val;
   }
   float getOutput()
@@ -88,13 +89,18 @@ int Node::getLayer()
 
 bool Node::update()
 {
+  // keep current output_
+  if (coefficients_.size() == 0) return true;
+
   output_ = 0;
+  //std::cout << this << " ";
   for (size_t i = 0; i < coefficients_.size() && i < inputs_.size(); ++i)
   {
     output_ += coefficients_[i] * inputs_[i]->getOutput();
+    //std::cout << coefficients_[i] << " * " << inputs_[i]->getOutput() << " + ";
   }
+  //std::cout << getLayer() << " output : " << output_ << std::endl;
   
-  std::cout << getLayer() << " : " << output_ << std::endl;
   return true;
 }
 
@@ -130,20 +136,21 @@ Net::Net(std::vector<int> layer_sizes)
   {
     std::vector<Node*> cur_layer;
 
-    std::vector<float> coefficients;
-    // random for now
-    for (size_t k = 0; k < last_layer.size(); ++k)
-    {
-      coefficients.push_back(rng_.gaussian(1.0));
-    }
-
     for (size_t i = 0; i < layer_sizes[j]; ++i)
     {
+      std::vector<float> coefficients;
+      // random for now
+      for (size_t k = 0; k < last_layer.size(); ++k)
+      {
+        coefficients.push_back(rng_.gaussian(1.0));
+      }
+
       Node* node = new Node(coefficients, last_layer);
+      //std::cout << "layer " << j << " " << node->getLayer() << std::endl;
       if (j == 0) 
         inputs_.push_back(node);
       all_nodes_.push_back(node);
-      last_layer.push_back(node);
+      cur_layer.push_back(node);
       if (j == layer_sizes.size() - 1) 
         outputs_.push_back(node);
     }
@@ -154,7 +161,8 @@ Net::Net(std::vector<int> layer_sizes)
 
 bool Net::setInputs(std::vector<float> in_vals)
 {
-  for (size_t i = 0; i < in_vals.size() && i < inputs_.size(); ++i)
+  std::cout << "set input " << in_vals.size() << " " << inputs_.size() << std::endl;
+  for (size_t i = 0; (i < in_vals.size()) && (i < inputs_.size()); ++i)
   {
     inputs_[i]->setOutput(in_vals[i]);
   }
@@ -216,10 +224,11 @@ int main(int argn, char** argv)
 {
 
   std::vector<int> layer_sizes;
+  layer_sizes.push_back(2);
   layer_sizes.push_back(4);
   layer_sizes.push_back(8);
-  layer_sizes.push_back(12);
-  layer_sizes.push_back(16);
+  //layer_sizes.push_back(12);
+  //layer_sizes.push_back(16);
   nngen::Net* net = new nngen::Net(layer_sizes);
 
   cv::RNG rng;
@@ -230,6 +239,7 @@ int main(int argn, char** argv)
     std::cout << in_vals[i] << " ";
   }
   std::cout << std::endl;
+  net->setInputs(in_vals);
   
   net->update();
   std::cout << " output " << net->print() << std::endl;
