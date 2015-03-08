@@ -312,6 +312,8 @@ ImageNet::ImageNet(std::vector<int> layer_sizes)
 {
   output_ = cv::Mat(cv::Size(512,512), CV_8UC1, cv::Scalar::all(0));
   net_ = new Net(layer_sizes);
+  net_->update();
+  std::cout << " output " << net_->print() << std::endl;
 }
 
 bool ImageNet::update()
@@ -321,6 +323,7 @@ bool ImageNet::update()
 
 void ImageNet::draw()
 {
+  net_->draw();
   cv::imshow("output", output_);
 }
 
@@ -337,24 +340,14 @@ int main(int argn, char** argv)
   //layer_sizes.push_back(12);
   //layer_sizes.push_back(16);
   cv::namedWindow("vis");
-  nngen::Net* net = new nngen::Net(layer_sizes);
+  nngen::ImageNet* imnet = new nngen::ImageNet(layer_sizes);
 
-  cv::RNG rng;
-  std::vector<float> in_vals;
-  for (size_t i = 0; i < layer_sizes[0]; ++i) 
-  {
-    in_vals.push_back( rng.gaussian(1.0) + 1.0 );
-    std::cout << in_vals[i] << " ";
-  }
-  std::cout << std::endl;
-  net->setInputs(in_vals);
-  net->update();
-  std::cout << " output " << net->print() << std::endl;
+  imnet->update();
   
   while (true)
   {
-    net->update();
-    net->draw();
+    imnet->update();
+    imnet->draw();
     if (cv::waitKey(30) == 'q') break;
   }
 }
