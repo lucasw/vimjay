@@ -21,11 +21,14 @@
  Generate an image with a set of basis low resolution images and a neural network
  like set of layers than turn inputs (which could be mapped to gui sliders, or 
  keyboard keys, gamepad analog sticks) into images.
- 
+
+  g++ nngen.cpp -lopencv_highgui -lopencv_core -g && ./a.out 
+
  */
 
+#include <iostream>
+#include <opencv2/highgui/highgui.hpp>
 #include <vector>
-#include <opencv/highgui.hpp>
 
 namespace nngen 
 {
@@ -42,7 +45,7 @@ public:
   Node(std::vector<float> coefficients, std::vector<Node*> inputs);
 
  
-  void update();
+  bool update();
   void setOutput(const float val)
   {
     output_ = val;
@@ -72,11 +75,13 @@ Node::Node(std::vector<float> coefficients,
 
 bool Node::update()
 {
-  output = 0;
+  output_ = 0;
   for (size_t i = 0; i < coefficients_.size() && i < inputs_.size(); ++i)
   {
-    output += coefficients_[i] * inputs_[i]->getOutput();
+    output_ += coefficients_[i] * inputs_[i]->getOutput();
   }
+
+  return true;
 }
 
 /////////////////////////////////////////////////////
@@ -133,11 +138,11 @@ Net::Net(std::vector<int> layer_sizes)
   }
 }
 
-bool setInputs(std::vector<float> in_vals)
+bool Net::setInputs(std::vector<float> in_vals)
 {
   for (size_t i = 0; i < in_vals.size() && i < inputs_.size(); ++i)
   {
-    inputs_[i]->setOutput(in_val[i]);
+    inputs_[i]->setOutput(in_vals[i]);
   }
 }
 
@@ -164,9 +169,9 @@ std::string Net::print()
 class ImageNet
 {
   public:
-  ImageNet();
+  ImageNet(std::vector<int> layer_sizes);
   bool update();
-
+  void draw();
   private:
 
   Net* net_;
@@ -174,10 +179,10 @@ class ImageNet
   std::vector<cv::Mat> bases;
 };
 
-ImageNet::ImageNet()
+ImageNet::ImageNet(std::vector<int> layer_sizes)
 {
-  output_ = cv::Mat((512,512), CV_8UC1, cv::Scalar::all(0));
-  net_ = new Net();
+  output_ = cv::Mat(cv::Size(512,512), CV_8UC1, cv::Scalar::all(0));
+  net_ = new Net(layer_sizes);
 }
 
 bool ImageNet::update()
@@ -185,7 +190,7 @@ bool ImageNet::update()
   return net_->update();
 }
 
-bool ImageNet::draw()
+void ImageNet::draw()
 {
   cv::imshow("output", output_);
 }
@@ -201,14 +206,14 @@ int main(int argn, char** argv)
   layer_sizes.push_back(8);
   layer_sizes.push_back(12);
   layer_sizes.push_back(16);
-  Net* net = new Net(layer_sizes);
+  nngen::Net* net = new nngen::Net(layer_sizes);
 
   cv::RNG rng;
   std::vector<float> in_vals;
   for (size_t i = 0; i < layer_sizes[0]; ++i) 
   {
-    in_vals[i] = rng.gaussian(1.0) + 1.0;
-    std::cout << in_vals[i];
+    in_vals.push_back( rng.gaussian(1.0) + 1.0 );
+    std::cout << in_vals[i] << " ";
   }
   std::cout << std::endl;
   
