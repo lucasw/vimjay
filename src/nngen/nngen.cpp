@@ -71,7 +71,7 @@ public:
   }
   int getLayer();
   
-  cv::Point2d pos_;
+  cv::Point2f pos_;
   
   void draw(cv::Mat& vis);
 
@@ -124,7 +124,18 @@ void Node::draw(cv::Mat& vis)
   if (val >= 255) val = 255;
   cv::Scalar col = convertColor( cv::Scalar(val, 228, 208), CV_HSV2BGR );
   //cv::Scalar col2 = 
-  cv::circle(vis, pos_, 10, col, 1); 
+  cv::circle(vis, pos_, 10, col, 1);
+
+  std::stringstream txt;
+  txt << getOutput();
+  const int line_type = 8;
+  const int font_face = cv::FONT_HERSHEY_SIMPLEX;
+  const double font_scale = 0.3;
+  //cv::putText(vis, txt.str(), pos_ + cv::Point2f(13, 4), font_face, font_scale,
+  //    cv::Scalar(0,0,0), 2, line_type); 
+  const cv::Scalar col2 = cv::Scalar(255, 230, 240);
+  cv::putText(vis, txt.str(), pos_ + cv::Point2f(13, 4), font_face, font_scale,
+      col2, 1, line_type); 
 }
 
 bool Node::update()
