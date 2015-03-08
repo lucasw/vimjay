@@ -104,12 +104,12 @@ Node::Node(std::vector<float> coefficients,
 void Node::setupTrackbar(const std::string name)
 {
   using_trackbar_ = true;
-  cv::createTrackbar(name, "vis", &slider_val_, 1024, NULL);
+  cv::createTrackbar(name, "vis", &slider_val_, 512, NULL);
 }
   
 void Node::updateFromTrackbar()
 {
-  output_ = (double) (slider_val_ - 512) / 1024.0;
+  output_ = (double) (slider_val_ - 256) / 512.0;
 }
 
 int Node::getLayer()
@@ -132,7 +132,7 @@ void Node::draw(cv::Mat& vis)
     if (val < 0) val = 0;
     if (val >= 255) val = 255;
     cv::Scalar col = convertColor( cv::Scalar(val, 228, 205), CV_HSV2BGR );
-    cv::line(vis, pos_, inputs_[i]->pos_, col, 1); 
+    //cv::line(vis, pos_, inputs_[i]->pos_, col, 1); 
   }
     
   int val = getOutput() * 64 + 128;
@@ -204,7 +204,7 @@ Net::Net(std::vector<int> layer_sizes)
 {
   std::vector<Node*> last_layer;
 
-  vis_ = cv::Mat(cv::Size(600, 600), CV_8UC3, cv::Scalar::all(0));
+  vis_ = cv::Mat(cv::Size(700, 700), CV_8UC3, cv::Scalar::all(0));
   for (size_t j = 0; j < layer_sizes.size(); ++j)
   {
     std::vector<Node*> cur_layer;
@@ -215,7 +215,7 @@ Net::Net(std::vector<int> layer_sizes)
       // random for now
       for (size_t k = 0; k < last_layer.size(); ++k)
       {
-        coefficients.push_back(rng_.gaussian(0.45));
+        coefficients.push_back(rng_.gaussian(0.3));
       }
 
       Node* node = new Node(coefficients, last_layer);
@@ -227,7 +227,7 @@ Net::Net(std::vector<int> layer_sizes)
         ss << "track" << i;
         node->setupTrackbar(ss.str());
       }
-      node->pos_ = cv::Point(30, 30) + cv::Point(80 * j, 50 * i);
+      node->pos_ = cv::Point(30, 30) + cv::Point(120 * j, 30 * i);
       //std::cout << "layer " << j << " " << node->getLayer() << std::endl;
       cur_layer.push_back(node);
     }
@@ -316,14 +316,16 @@ class ImageNet
   void draw();
   private:
 
+  static const float sc_ = 64;
   Net* net_;
   cv::Mat output_;
   std::vector<cv::Mat> bases_;
+  std::vector<cv::Mat> bases_big_;
 };
 
 ImageNet::ImageNet(std::vector<int> layer_sizes)
 {
-  output_ = cv::Mat(cv::Size(512,512), CV_8UC3, cv::Scalar::all(0));
+  output_ = cv::Mat(cv::Size(768, 768), CV_8UC3, cv::Scalar::all(0));
   net_ = new Net(layer_sizes);
   net_->update();
   std::cout << " output " << net_->print() << std::endl;
@@ -345,6 +347,8 @@ ImageNet::ImageNet(std::vector<int> layer_sizes)
   base_files.push_back("dot1.png");
   base_files.push_back("horiz1.png");
   base_files.push_back("noise1.png");
+  base_files.push_back("noise2.png");
+  base_files.push_back("noise3.png");
   base_files.push_back("slash1.png");
   base_files.push_back("slash2.png");
   base_files.push_back("slash3.png");
@@ -353,7 +357,12 @@ ImageNet::ImageNet(std::vector<int> layer_sizes)
 
   for (size_t i = 0; i < base_files.size(); ++i)
   {
-    bases_.push_back(cv::imread(prefix + base_files[i], CV_LOAD_IMAGE_COLOR));
+    cv::Mat base = cv::imread(prefix + base_files[i], CV_LOAD_IMAGE_COLOR);
+    bases_.push_back(base);
+    cv::Mat base_resized;
+    const int mode = cv::INTER_CUBIC;
+    cv::resize(base, base_resized, cv::Size(output_.cols, output_.rows), 0, 0, mode);
+    bases_big_.push_back(base_resized);
   }
 }
 
@@ -383,12 +392,8 @@ void ImageNet::draw()
       cur_y += base.rows;
     }
     
-    const float sc = 32;
-    cv::Rect roi = cv::Rect(cur_x, cur_y, base.cols * sc, base.rows * sc);
-    
-    const int mode = cv::INTER_CUBIC;
-    cv::Mat base_resized;
-    cv::resize(base, base_resized, cv::Size(roi.width, roi.height), 0, 0, mode);
+    cv::Mat base_resized = bases_big_[base_ind];
+    cv::Rect roi = cv::Rect(cur_x, cur_y, base_resized.cols, base_resized.rows);
 
     cv::Mat dst_roi = output_(roi);
     cv::Mat scaled_base = base_resized * std::abs(out_vals[i]);
@@ -427,6 +432,6 @@ int main(int argn, char** argv)
   {
     imnet->update();
     imnet->draw();
-    if (cv::waitKey(30) == 'q') break;
+    if (cv::waitKey(50) == 'q') break;
   }
 }
