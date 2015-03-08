@@ -227,7 +227,7 @@ Net::Net(std::vector<int> layer_sizes)
         ss << "track" << i;
         node->setupTrackbar(ss.str());
       }
-      node->pos_ = cv::Point(30, 30) + cv::Point(120 * j, 30 * i);
+      node->pos_ = cv::Point(30, 30) + cv::Point(120 * j, 23 * i);
       //std::cout << "layer " << j << " " << node->getLayer() << std::endl;
       cur_layer.push_back(node);
     }
@@ -325,7 +325,7 @@ class ImageNet
 
 ImageNet::ImageNet(std::vector<int> layer_sizes)
 {
-  output_ = cv::Mat(cv::Size(768, 768), CV_8UC3, cv::Scalar::all(0));
+  output_ = cv::Mat(cv::Size(1536, 1536), CV_8UC3, cv::Scalar::all(0));
   net_ = new Net(layer_sizes);
   net_->update();
   std::cout << " output " << net_->print() << std::endl;
@@ -361,7 +361,7 @@ ImageNet::ImageNet(std::vector<int> layer_sizes)
     bases_.push_back(base);
     cv::Mat base_resized;
     const int mode = cv::INTER_CUBIC;
-    cv::resize(base, base_resized, cv::Size(output_.cols, output_.rows), 0, 0, mode);
+    cv::resize(base, base_resized, cv::Size(output_.cols/3, output_.rows/3), 0, 0, mode);
     bases_big_.push_back(base_resized);
   }
 }
@@ -380,8 +380,8 @@ void ImageNet::draw()
   std::vector<float> out_vals;
   net_->getOutputs(out_vals);
 
-  int cur_x = 0;
-  int cur_y = 0;
+  int cur_x = output_.cols/3;
+  int cur_y = output_.rows/3;
   for (size_t i = 0; i < out_vals.size(); ++i)
   {
     const int base_ind = i % bases_.size();
@@ -407,7 +407,8 @@ void ImageNet::draw()
     //std::cout << roi << std::endl;
   }
 
-  cv::imshow("output", output_);
+  cv::Rect roi = cv::Rect(output_.cols/3, output_.rows/3, 512, 512);
+  cv::imshow("output", output_(roi));
 }
 
 } // nngen
