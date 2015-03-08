@@ -43,7 +43,6 @@ class Node
 {
 public:
   Node(std::vector<float> coefficients, std::vector<Node*> inputs);
-
  
   bool update();
   void setOutput(const float val)
@@ -56,11 +55,18 @@ public:
     return output_;
   }
   int getLayer();
+  
+  cv::Point2d pos_;
+  
+  void draw(cv::Mat& vis);
+
+  // TBD make private later
+  std::vector<Node*> inputs_;  
+
 private:
   // these shouldn't change after setup?
   // make these a pair?
   std::vector<float> coefficients_;   
-  std::vector<Node*> inputs_;  
 
   float output_;
 };
@@ -85,6 +91,16 @@ int Node::getLayer()
     count += 1;
   }
   return count;
+}
+
+void Node::draw(cv::Mat& vis)
+{
+  for (size_t i = 0; i < inputs_.size(); ++i)
+  {
+    const float cf = coefficients_[i];
+    const cv::Scalar col = cv::Scalar(cf * 80 + 128, cf * 10 + 128, 128);
+    cv::line(vis, pos_, inputs_[i]->pos_, col, 1); 
+  }
 }
 
 bool Node::update()
@@ -129,7 +145,7 @@ Net::Net(std::vector<int> layer_sizes)
 {
   std::vector<Node*> last_layer;
 
-  vis_ = cv::Mat(cv::Size(600, 600), CV_8UC1, cv::Scalar::all(0));
+  vis_ = cv::Mat(cv::Size(600, 600), CV_8UC3, cv::Scalar::all(0));
   for (size_t j = 0; j < layer_sizes.size(); ++j)
   {
     std::vector<Node*> cur_layer;
@@ -144,6 +160,8 @@ Net::Net(std::vector<int> layer_sizes)
       }
 
       Node* node = new Node(coefficients, last_layer);
+
+      node->pos_ = cv::Point(30, 30) + cv::Point(80 * j, 50 * i);
       //std::cout << "layer " << j << " " << node->getLayer() << std::endl;
       cur_layer.push_back(node);
     }
@@ -189,10 +207,54 @@ std::string Net::print()
   return ss.str();
 }
 
+
+// http://stackoverflow.com/questions/23216247/how-to-convert-a-component-from-hsv-to-rgb-and-viceversa
+/*
+cv::Vec3b ConvertColor( cv::Vec3b src, int code, int dstCn )
+{
+    cv::Mat srcMat(1, 1, CV_8UC3 );
+    *srcMat.ptr< cv::Vec3b >( 0 ) = src;
+
+    cv::Mat resMat;
+    cv::cvtColor( srcMat, resMat, code, dstCn );
+
+    return *resMat.ptr< cv::Vec3b >( 0 );
+}
+*/
+
+
 // visualize the network
 bool Net::draw()
 {
+  vis_ = cv::Scalar::all(0);
   
+  const cv::Point offset = cv::Point(20,20);
+
+  // draw connections
+  for (size_t i = 1; i < layers_.size(); ++i)
+  {
+    for (size_t j = 0; j < layers_[i].size(); ++j)
+    { 
+      layers_[i][j]->draw(vis_);
+    }
+  }
+
+  // draw nodes
+  for (size_t i = 0; i < layers_.size(); ++i)
+  {
+    for (size_t j = 0; j < layers_[i].size(); ++j)
+    {
+      const float val = layers_[i][j]->getOutput();
+      const cv::Scalar col = cv::Scalar( (10 * i) % 255, 
+          (int(val * 10) + 128) % 255, 128 + i + j);
+      cv::circle(vis_, 
+          layers_[i][j]->pos_, 
+          10, cv::Scalar(0,0,0), -1);
+      cv::circle(vis_, 
+          layers_[i][j]->pos_, 
+          10, col, 3);
+    }
+  } 
   cv::imshow("vis", vis_);
   return true;
 }
@@ -251,6 +313,6 @@ int main(int argn, char** argv)
   
   net->update();
   std::cout << " output " << net->print() << std::endl;
-  //net->draw();
-  //cv::waitKey(0);
+  net->draw();
+  cv::waitKey(0);
 }
