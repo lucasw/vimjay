@@ -22,27 +22,30 @@
  like set of layers than turn inputs (which could be mapped to gui sliders, or 
  keyboard keys, gamepad analog sticks) into images.
 
-  g++ nngen.cpp -lopencv_highgui -lopencv_core -g && ./a.out 
+  g++ nngen.cpp -lopencv_imgproc -lopencv_highgui -lopencv_core -g && ./a.out 
 
  */
 
 #include <iostream>
 #include <opencv2/highgui/highgui.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
 #include <vector>
 
 namespace nngen 
 {
 
 // http://stackoverflow.com/questions/23216247/how-to-convert-a-component-from-hsv-to-rgb-and-viceversa
-cv::Vec3b convertColor( cv::Vec3b src, const int code, const int dstCn = 0 )
+cv::Scalar convertColor( cv::Scalar srcs, const int code, const int dstCn = 0 )
 {
-    cv::Mat srcMat(1, 1, CV_8UC3 );
-    *srcMat.ptr< cv::Vec3b >( 0 ) = src;
+  cv::Vec3b src = cv::Vec3b(srcs[0], srcs[1], srcs[2]);
+  cv::Mat srcMat(1, 1, CV_8UC3 );
+  *srcMat.ptr< cv::Vec3b >( 0 ) = src;
 
-    cv::Mat resMat;
-    cv::cvtColor( srcMat, resMat, code, dstCn );
+  cv::Mat resMat;
+  cv::cvtColor( srcMat, resMat, code, dstCn );
 
-    return *resMat.ptr< cv::Vec3b >( 0 );
+  cv::Vec3b res = *resMat.ptr< cv::Vec3b >( 0 );
+  return cv::Scalar(res[0], res[1], res[2]);
 }
 
 /* 
@@ -109,13 +112,19 @@ void Node::draw(cv::Mat& vis)
 {
   for (size_t i = 0; i < inputs_.size(); ++i)
   {
-    const float cf = coefficients_[i];
-    cv::Vec3b col = convertColor( cv::Vec3b( int(cf*64) + 128, 128, 128), CV_HSV2BGR );
+    int val = coefficients_[i] * inputs_[i]->getOutput() * 64 + 128;
+    if (val < 0) val = 0;
+    if (val >= 255) val = 255;
+    cv::Scalar col = convertColor( cv::Scalar(val, 228, 205), CV_HSV2BGR );
     cv::line(vis, pos_, inputs_[i]->pos_, col, 1); 
   }
     
-  cv::Vec3b col = convertColor( cv::Vec3b( int(getOutput()*64) + 128, 128, 128), CV_HSV2BGR );
-  cv::circle(vis, pos_, inputs_[i]->pos_, col, 1); 
+  int val = getOutput() * 64 + 128;
+  if (val < 0) val = 0;
+  if (val >= 255) val = 255;
+  cv::Scalar col = convertColor( cv::Scalar(val, 228, 208), CV_HSV2BGR );
+  //cv::Scalar col2 = 
+  cv::circle(vis, pos_, 10, col, 1); 
 }
 
 bool Node::update()
@@ -232,7 +241,7 @@ bool Net::draw()
   const cv::Point offset = cv::Point(20,20);
 
   // draw nodes and connections
-  for (size_t i = 1; i < layers_.size(); ++i)
+  for (size_t i = 0; i < layers_.size(); ++i)
   {
     for (size_t j = 0; j < layers_[i].size(); ++j)
     { 
