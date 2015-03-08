@@ -62,7 +62,7 @@ public:
   bool update();
   void setOutput(const float val)
   {
-    std::cout << this << " setting output to " << val << std::endl;
+    //std::cout << this << " setting output to " << val << std::endl;
     output_ = val;
   }
   float getOutput()
@@ -78,10 +78,6 @@ public:
   // TBD make private later
   std::vector<Node*> inputs_;  
  
-  bool using_trackbar_;
-  int slider_val_;
-  void updateFromTrackbar();
-  void setupTrackbar(const std::string name);
 private:
   // these shouldn't change after setup?
   // make these a pair?
@@ -94,22 +90,9 @@ Node::Node(std::vector<float> coefficients,
     std::vector<Node*> inputs) :
   coefficients_(coefficients),
   inputs_(inputs),
-  output_(0.0),
-  using_trackbar_(false),
-  slider_val_(0)
+  output_(0.0)
 {
 
-}
-
-void Node::setupTrackbar(const std::string name)
-{
-  using_trackbar_ = true;
-  cv::createTrackbar(name, "vis", &slider_val_, 512, NULL);
-}
-  
-void Node::updateFromTrackbar()
-{
-  output_ = (double) (slider_val_ - 256) / 512.0;
 }
 
 int Node::getLayer()
@@ -160,9 +143,6 @@ void Node::draw(cv::Mat& vis)
 
 bool Node::update()
 {
-  if (using_trackbar_) {
-    updateFromTrackbar();
-  }
   // keep current output_
   if (coefficients_.size() == 0) return true;
 
@@ -220,13 +200,6 @@ Net::Net(std::vector<int> layer_sizes)
 
       Node* node = new Node(coefficients, last_layer);
 
-      
-      if (j == 0) 
-      {
-        std::stringstream ss;
-        ss << "track" << i;
-        node->setupTrackbar(ss.str());
-      }
       node->pos_ = cv::Point(30, 30) + cv::Point(120 * j, 23 * i);
       //std::cout << "layer " << j << " " << node->getLayer() << std::endl;
       cur_layer.push_back(node);
@@ -253,7 +226,7 @@ bool Net::setInputs(std::vector<float> in_vals)
 {
   if (layers_.size() == 0) return false;
 
-  std::cout << "set input " << in_vals.size() << " " << layers_[0].size() << std::endl;
+  //std::cout << "set input " << in_vals.size() << " " << layers_[0].size() << std::endl;
   for (size_t i = 0; (i < in_vals.size()) && (i < layers_[0].size()); ++i)
   {
     layers_[0][i]->setOutput(in_vals[i]);
@@ -316,19 +289,36 @@ class ImageNet
   void draw();
   private:
 
+  std::vector<int> slider_vals_;
+  void updateFromTrackbar();
+  
   static const float sc_ = 64;
   Net* net_;
+  Net* net_sc_;
   cv::Mat output_;
   std::vector<cv::Mat> bases_;
   std::vector<cv::Mat> bases_big_;
 };
+
+  
+
 
 ImageNet::ImageNet(std::vector<int> layer_sizes)
 {
   output_ = cv::Mat(cv::Size(1536, 1536), CV_8UC3, cv::Scalar::all(0));
   net_ = new Net(layer_sizes);
   net_->update();
+  net_sc_ = new Net(layer_sizes);
+  net_sc_->update();
   std::cout << " output " << net_->print() << std::endl;
+ 
+  slider_vals_.resize(layer_sizes[0]);
+  for (size_t i = 0; i < layer_sizes[0]; ++i)
+  {
+    std::stringstream ss;
+    ss << "input " << i;
+    cv::createTrackbar(ss.str(), "vis", &slider_vals_[i], 512, NULL);
+  }
 
   std::string prefix = "../../data/bases/";
   
@@ -368,6 +358,14 @@ ImageNet::ImageNet(std::vector<int> layer_sizes)
 
 bool ImageNet::update()
 {
+  std::vector<float> in_vals;
+
+  for (size_t i = 0; i < slider_vals_.size(); ++i)
+    in_vals.push_back( (double) (slider_vals_[i] - 256) / 512.0 );
+
+  net_->setInputs(in_vals);
+  net_sc_->setInputs(in_vals);
+
   return net_->update();
 }
 
@@ -379,6 +377,9 @@ void ImageNet::draw()
 
   std::vector<float> out_vals;
   net_->getOutputs(out_vals);
+  
+  std::vector<float> out_vals_sc;
+  net_sc_->getOutputs(out_vals_sc);
 
   int cur_x = output_.cols/3;
   int cur_y = output_.rows/3;
@@ -392,7 +393,11 @@ void ImageNet::draw()
       cur_y += base.rows;
     }
     
-    cv::Mat base_resized = bases_big_[base_ind];
+    const float sc2 = 1.0 + 4.0 * std::abs(out_vals_sc[i]);
+    cv::Mat base_resized;
+    cv::resize(bases_[base_ind], base_resized, cv::Size(0,0), 
+        sc2, sc2, 
+        cv::INTER_LINEAR ); 
     cv::Rect roi = cv::Rect(cur_x, cur_y, base_resized.cols, base_resized.rows);
 
     cv::Mat dst_roi = output_(roi);
