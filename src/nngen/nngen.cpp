@@ -101,7 +101,6 @@ Node::Node(std::vector<float> coefficients,
 
 }
 
-
 void Node::setupTrackbar(const std::string name)
 {
   using_trackbar_ = true;
@@ -153,6 +152,10 @@ void Node::draw(cv::Mat& vis)
   const cv::Scalar col2 = cv::Scalar(255, 230, 240);
   cv::putText(vis, txt.str(), pos_ + cv::Point2f(13, 4), font_face, font_scale,
       col2, 1, line_type); 
+    
+  
+  const cv::Point2f offset = cv::Point2f(50, 8);
+  cv::line(vis, pos_ + offset, pos_ + offset + cv::Point2f(getOutput() * 50, 0), col2, 2); 
 }
 
 bool Node::update()
