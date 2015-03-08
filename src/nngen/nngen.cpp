@@ -54,6 +54,7 @@ public:
   {
     return output_;
   }
+  int getLayer();
 private:
   // these shouldn't change after setup?
   // make these a pair?
@@ -73,6 +74,18 @@ Node::Node(std::vector<float> coefficients,
 
 }
 
+int Node::getLayer()
+{
+  int count = 0;
+  Node* node = this;
+  while (node->inputs_.size() > 0) 
+  {
+    node = node->inputs_[0];
+    count += 1;
+  }
+  return count;
+}
+
 bool Node::update()
 {
   output_ = 0;
@@ -80,7 +93,8 @@ bool Node::update()
   {
     output_ += coefficients_[i] * inputs_[i]->getOutput();
   }
-
+  
+  std::cout << getLayer() << " : " << output_ << std::endl;
   return true;
 }
 
