@@ -196,7 +196,7 @@ Net::Net(std::vector<int> layer_sizes, const int seed) :
       // random for now
       for (size_t k = 0; k < last_layer.size(); ++k)
       {
-        coefficients.push_back(rng_.gaussian(0.2));
+        coefficients.push_back(rng_.gaussian(0.13));
       }
 
       Node* node = new Node(coefficients, last_layer);
@@ -404,8 +404,9 @@ void ImageNet::draw()
   {
     const int base_ind = i % bases_.size();
     cv::Mat base = bases_[base_ind];
-    
-    float sc2 = 1.0 + 92.0 * std::abs(out_vals_sc[i]);
+   
+    const float fr = std::abs(out_vals_sc[i]);
+    float sc2 = (1.0 + fr) * (1.0 + fr) * 9.0;
     if (sc2 * bases_[base_ind].rows > output_.rows/3)
       sc2 = float(output_.rows/3) / float(bases_[base_ind].rows);
     
@@ -413,9 +414,10 @@ void ImageNet::draw()
     cv::resize(bases_[base_ind], base2, cv::Size(0,0), 
         sc2, sc2, 
         cv::INTER_LINEAR ); 
+        //cv::INTER_NEAREST ); 
 
-    int off_x = out_vals_x[i] * output_.cols/2;
-    int off_y = out_vals_y[i] * output_.rows/2;
+    int off_x = out_vals_x[i] * output_.cols * 0.7;
+    int off_y = out_vals_y[i] * output_.rows * 0.7;
     //std::cout << out_vals_sc[i] << " " << out_vals_x[i] << " " << out_vals_y[i] << std::endl;
     int cur_x = output_.cols/2 + off_x - base2.cols/2;
     int cur_y = output_.rows/2 + off_y - base2.rows/2;
@@ -455,8 +457,8 @@ int main(int argn, char** argv)
   std::vector<int> layer_sizes;
   layer_sizes.push_back(4);
   layer_sizes.push_back(16);
-  layer_sizes.push_back(32);
-  layer_sizes.push_back(128);
+  layer_sizes.push_back(64);
+  layer_sizes.push_back(256);
   //layer_sizes.push_back(12);
   //layer_sizes.push_back(16);
   cv::namedWindow("vis");
