@@ -162,7 +162,7 @@ bool Node::update()
 class Net
 {
 public:
-  Net(std::vector<int> layer_sizes);
+  Net(std::vector<int> layer_sizes, const int seed);
 
   bool update();
   bool draw();
@@ -180,7 +180,8 @@ private:
 
 };
 
-Net::Net(std::vector<int> layer_sizes)
+Net::Net(std::vector<int> layer_sizes, const int seed) :
+    rng_(seed)
 {
   std::vector<Node*> last_layer;
 
@@ -195,7 +196,7 @@ Net::Net(std::vector<int> layer_sizes)
       // random for now
       for (size_t k = 0; k < last_layer.size(); ++k)
       {
-        coefficients.push_back(rng_.gaussian(0.3));
+        coefficients.push_back(rng_.gaussian(0.2));
       }
 
       Node* node = new Node(coefficients, last_layer);
@@ -295,6 +296,8 @@ class ImageNet
   static const float sc_ = 64;
   Net* net_;
   Net* net_sc_;
+  Net* net_x_;
+  Net* net_y_;
   cv::Mat output_;
   std::vector<cv::Mat> bases_;
   //std::vector<cv::Mat> bases_big_;
@@ -306,10 +309,14 @@ class ImageNet
 ImageNet::ImageNet(std::vector<int> layer_sizes)
 {
   output_ = cv::Mat(cv::Size(1536, 1536), CV_8UC3, cv::Scalar::all(0));
-  net_ = new Net(layer_sizes);
+  net_ = new Net(layer_sizes, 1);
   net_->update();
-  net_sc_ = new Net(layer_sizes);
+  net_sc_ = new Net(layer_sizes, 2);
   net_sc_->update();
+  net_x_ = new Net(layer_sizes, 3);
+  net_x_->update();
+  net_y_ = new Net(layer_sizes, 4);
+  net_y_->update();
   std::cout << " output " << net_->print() << std::endl;
  
   slider_vals_.resize(layer_sizes[0]);
@@ -365,16 +372,20 @@ bool ImageNet::update()
 
   net_->setInputs(in_vals);
   net_sc_->setInputs(in_vals);
+  net_x_->setInputs(in_vals);
+  net_y_->setInputs(in_vals);
 
   const bool rv1 = net_->update();
   const bool rv2 = net_sc_->update();
+  const bool rv3 = net_x_->update();
+  const bool rv4 = net_y_->update();
 
-  return rv1 && rv2;
+  return rv1 && rv2 && rv3 && rv4;
 }
 
 void ImageNet::draw()
 {
-  net_->draw();
+  //net_->draw();
 
   output_ = cv::Scalar::all(128);
 
@@ -383,32 +394,44 @@ void ImageNet::draw()
   
   std::vector<float> out_vals_sc;
   net_sc_->getOutputs(out_vals_sc);
+  
+  std::vector<float> out_vals_x;
+  net_x_->getOutputs(out_vals_x);
+  std::vector<float> out_vals_y;
+  net_y_->getOutputs(out_vals_y);
 
-  int cur_x = output_.cols/3;
-  int cur_y = output_.rows/3;
   for (size_t i = 0; i < out_vals.size(); ++i)
   {
     const int base_ind = i % bases_.size();
     cv::Mat base = bases_[base_ind];
-    if (cur_x + base.cols >= output_.cols) 
-    {
-      cur_x = 0;
-      cur_y += base.rows;
-    }
     
-    float sc2 = 1.0 + 32.0 * std::abs(out_vals_sc[i]);
+    float sc2 = 1.0 + 92.0 * std::abs(out_vals_sc[i]);
     if (sc2 * bases_[base_ind].rows > output_.rows/3)
       sc2 = float(output_.rows/3) / float(bases_[base_ind].rows);
     
-    cv::Mat base_resized;
-    cv::resize(bases_[base_ind], base_resized, cv::Size(0,0), 
+    cv::Mat base2;
+    cv::resize(bases_[base_ind], base2, cv::Size(0,0), 
         sc2, sc2, 
         cv::INTER_LINEAR ); 
-    //std::cout << base_ind << " " << sc2 << " " << base_resized.size() << std::endl;
-    cv::Rect roi = cv::Rect(cur_x, cur_y, base_resized.cols, base_resized.rows);
+
+    int off_x = out_vals_x[i] * output_.cols/2;
+    int off_y = out_vals_y[i] * output_.rows/2;
+    //std::cout << out_vals_sc[i] << " " << out_vals_x[i] << " " << out_vals_y[i] << std::endl;
+    int cur_x = output_.cols/2 + off_x - base2.cols/2;
+    int cur_y = output_.rows/2 + off_y - base2.rows/2;
+    
+    if (cur_x < 0) cur_x = 0;
+    if (cur_y < 0) cur_y = 0;
+    if (cur_x + base2.cols >= output_.cols)
+      cur_x = output_.cols - base2.cols - 1;
+    if (cur_y + base2.rows >= output_.rows)
+      cur_y = output_.rows - base2.rows - 1;
+
+    //std::cout << base_ind << " " << sc2 << " " << base2.size() << std::endl;
+    cv::Rect roi = cv::Rect(cur_x, cur_y, base2.cols, base2.rows);
 
     cv::Mat dst_roi = output_(roi);
-    cv::Mat scaled_base = base_resized * std::abs(out_vals[i]);
+    cv::Mat scaled_base = base2 * std::abs(out_vals[i]);
     //scaled_base.copyTo(dst_roi);
     if (out_vals[i] > 0)
       dst_roi += scaled_base;
@@ -431,9 +454,9 @@ int main(int argn, char** argv)
 {
   std::vector<int> layer_sizes;
   layer_sizes.push_back(4);
-  layer_sizes.push_back(8);
   layer_sizes.push_back(16);
   layer_sizes.push_back(32);
+  layer_sizes.push_back(128);
   //layer_sizes.push_back(12);
   //layer_sizes.push_back(16);
   cv::namedWindow("vis");
