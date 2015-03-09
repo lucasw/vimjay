@@ -297,7 +297,7 @@ class ImageNet
   Net* net_sc_;
   cv::Mat output_;
   std::vector<cv::Mat> bases_;
-  std::vector<cv::Mat> bases_big_;
+  //std::vector<cv::Mat> bases_big_;
 };
 
   
@@ -349,10 +349,10 @@ ImageNet::ImageNet(std::vector<int> layer_sizes)
   {
     cv::Mat base = cv::imread(prefix + base_files[i], CV_LOAD_IMAGE_COLOR);
     bases_.push_back(base);
-    cv::Mat base_resized;
-    const int mode = cv::INTER_CUBIC;
-    cv::resize(base, base_resized, cv::Size(output_.cols/3, output_.rows/3), 0, 0, mode);
-    bases_big_.push_back(base_resized);
+    //cv::Mat base_resized;
+    //const int mode = cv::INTER_CUBIC;
+    //cv::resize(base, base_resized, cv::Size(output_.cols/3, output_.rows/3), 0, 0, mode);
+    //bases_big_.push_back(base_resized);
   }
 }
 
@@ -366,7 +366,10 @@ bool ImageNet::update()
   net_->setInputs(in_vals);
   net_sc_->setInputs(in_vals);
 
-  return net_->update();
+  const bool rv1 = net_->update();
+  const bool rv2 = net_sc_->update();
+
+  return rv1 && rv2;
 }
 
 void ImageNet::draw()
@@ -393,11 +396,15 @@ void ImageNet::draw()
       cur_y += base.rows;
     }
     
-    const float sc2 = 1.0 + 4.0 * std::abs(out_vals_sc[i]);
+    float sc2 = 1.0 + 32.0 * std::abs(out_vals_sc[i]);
+    if (sc2 * bases_[base_ind].rows > output_.rows/3)
+      sc2 = float(output_.rows/3) / float(bases_[base_ind].rows);
+    
     cv::Mat base_resized;
     cv::resize(bases_[base_ind], base_resized, cv::Size(0,0), 
         sc2, sc2, 
         cv::INTER_LINEAR ); 
+    //std::cout << base_ind << " " << sc2 << " " << base_resized.size() << std::endl;
     cv::Rect roi = cv::Rect(cur_x, cur_y, base_resized.cols, base_resized.rows);
 
     cv::Mat dst_roi = output_(roi);
