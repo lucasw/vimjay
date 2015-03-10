@@ -146,15 +146,18 @@ bool Node::update()
   // keep current output_
   if (coefficients_.size() == 0) return true;
 
-  output_ = 0;
+  float val = 0;
   //std::cout << this << " ";
   for (size_t i = 0; i < coefficients_.size() && i < inputs_.size(); ++i)
   {
-    output_ += coefficients_[i] * inputs_[i]->getOutput();
+    val += coefficients_[i] * inputs_[i]->getOutput();
     //std::cout << coefficients_[i] << " * " << inputs_[i]->getOutput() << " + ";
   }
   //std::cout << getLayer() << " output : " << output_ << std::endl;
-  
+
+  // make this nonlinear
+  output_ = tanh(val); 
+
   return true;
 }
 
@@ -162,7 +165,7 @@ bool Node::update()
 class Net
 {
 public:
-  Net(std::vector<int> layer_sizes, const int seed);
+  Net(std::vector<int> layer_sizes, const int seed, const float sigma);
 
   bool update();
   bool draw();
@@ -180,7 +183,7 @@ private:
 
 };
 
-Net::Net(std::vector<int> layer_sizes, const int seed) :
+Net::Net(std::vector<int> layer_sizes, const int seed, const float sigma) :
     rng_(seed)
 {
   std::vector<Node*> last_layer;
@@ -196,7 +199,7 @@ Net::Net(std::vector<int> layer_sizes, const int seed) :
       // random for now
       for (size_t k = 0; k < last_layer.size(); ++k)
       {
-        coefficients.push_back(rng_.gaussian(0.13));
+        coefficients.push_back(rng_.gaussian(sigma));
       }
 
       Node* node = new Node(coefficients, last_layer);
@@ -290,7 +293,8 @@ class ImageNet
   void draw();
   private:
 
-  std::vector<int> slider_vals_;
+  int count_;
+  std::vector<float> slider_vals_;
   void updateFromTrackbar();
   
   static const float sc_ = 64;
@@ -308,14 +312,14 @@ class ImageNet
 
 ImageNet::ImageNet(std::vector<int> layer_sizes)
 {
-  output_ = cv::Mat(cv::Size(1536, 1536), CV_8UC3, cv::Scalar::all(0));
-  net_ = new Net(layer_sizes, 1);
+  output_ = cv::Mat(cv::Size(480*3, 256*3), CV_8UC3, cv::Scalar::all(0));
+  net_ = new Net(layer_sizes, 1, 0.8);
   net_->update();
-  net_sc_ = new Net(layer_sizes, 2);
+  net_sc_ = new Net(layer_sizes, 2, 0.8);
   net_sc_->update();
-  net_x_ = new Net(layer_sizes, 3);
+  net_x_ = new Net(layer_sizes, 3, 0.25);
   net_x_->update();
-  net_y_ = new Net(layer_sizes, 4);
+  net_y_ = new Net(layer_sizes, 4, 0.25);
   net_y_->update();
   std::cout << " output " << net_->print() << std::endl;
  
@@ -324,7 +328,8 @@ ImageNet::ImageNet(std::vector<int> layer_sizes)
   {
     std::stringstream ss;
     ss << "input " << i;
-    cv::createTrackbar(ss.str(), "vis", &slider_vals_[i], 512, NULL);
+    slider_vals_[i] = 0;
+    //cv::createTrackbar(ss.str(), "vis", &slider_vals_[i], 512, NULL);
   }
 
   std::string prefix = "../../data/bases/";
@@ -365,10 +370,22 @@ ImageNet::ImageNet(std::vector<int> layer_sizes)
 
 bool ImageNet::update()
 {
+  /*for (size_t i = 0; i < slider_vals_[0]; i++
+  slider_vals_[0] = 256.0 + 256.0 * sin(float(count_)/45.1); 
+  slider_vals_[1] = 256.0 + 256.0 * sin(float(count_)/193.1 + 0.1); 
+  slider_vals_[2] = 256.0 + 256.0 * sin(float(count_)/321.523 + 0.2); 
+  slider_vals_[3] = 256.0 + 256.0 * sin(float(count_)/551.12312 + 0.3); 
+   */
   std::vector<float> in_vals;
-
   for (size_t i = 0; i < slider_vals_.size(); ++i)
-    in_vals.push_back( (double) (slider_vals_[i] - 256) / 512.0 );
+  {
+    //std::cout << i << " " << slider_vals_[i] << std::endl;
+    
+    float freq = 1.0/(i * i * 201.1 + 115.1);
+    float phase = i * 0.111;
+    float val = sin(float(count_) * freq + phase);
+    in_vals.push_back( val ); //(double) (slider_vals_[i] - 256) / 512.0 );
+  }
 
   net_->setInputs(in_vals);
   net_sc_->setInputs(in_vals);
@@ -379,6 +396,8 @@ bool ImageNet::update()
   const bool rv2 = net_sc_->update();
   const bool rv3 = net_x_->update();
   const bool rv4 = net_y_->update();
+  
+  count_ += 1;
 
   return rv1 && rv2 && rv3 && rv4;
 }
@@ -391,7 +410,11 @@ void ImageNet::draw()
 
   std::vector<float> out_vals;
   net_->getOutputs(out_vals);
-  
+ 
+  const float scale_fr = 0.2;
+  const float xy_fr = 0.65;
+  const float weight_fr = 0.95;
+
   std::vector<float> out_vals_sc;
   net_sc_->getOutputs(out_vals_sc);
   
@@ -406,18 +429,19 @@ void ImageNet::draw()
     cv::Mat base = bases_[base_ind];
    
     const float fr = std::abs(out_vals_sc[i]);
-    float sc2 = (1.0 + fr) * (1.0 + fr) * 9.0;
+    float sc2 = (0.05 + fr * scale_fr) * output_.rows/bases_[base_ind].rows;
     if (sc2 * bases_[base_ind].rows > output_.rows/3)
       sc2 = float(output_.rows/3) / float(bases_[base_ind].rows);
     
     cv::Mat base2;
     cv::resize(bases_[base_ind], base2, cv::Size(0,0), 
         sc2, sc2, 
+        //cv::INTER_CUBIC ); 
         cv::INTER_LINEAR ); 
-        //cv::INTER_NEAREST ); 
+        ///cv::INTER_NEAREST ); 
 
-    int off_x = out_vals_x[i] * output_.cols * 0.7;
-    int off_y = out_vals_y[i] * output_.rows * 0.7;
+    int off_x = out_vals_x[i] * output_.cols/2.0 * xy_fr;
+    int off_y = out_vals_y[i] * output_.rows/2.0 * xy_fr;
     //std::cout << out_vals_sc[i] << " " << out_vals_x[i] << " " << out_vals_y[i] << std::endl;
     int cur_x = output_.cols/2 + off_x - base2.cols/2;
     int cur_y = output_.rows/2 + off_y - base2.rows/2;
@@ -433,7 +457,7 @@ void ImageNet::draw()
     cv::Rect roi = cv::Rect(cur_x, cur_y, base2.cols, base2.rows);
 
     cv::Mat dst_roi = output_(roi);
-    cv::Mat scaled_base = base2 * std::abs(out_vals[i]);
+    cv::Mat scaled_base = base2 * std::abs(out_vals[i]) * weight_fr;
     //scaled_base.copyTo(dst_roi);
     if (out_vals[i] > 0)
       dst_roi += scaled_base;
@@ -444,8 +468,20 @@ void ImageNet::draw()
     //std::cout << roi << std::endl;
   }
 
-  cv::Rect roi = cv::Rect(output_.cols/3, output_.rows/3, 512, 512);
-  cv::imshow("output", output_(roi));
+  const int wd = output_.cols/3;
+  const int ht = output_.rows/3;
+  cv::Rect roi = cv::Rect(wd, ht, wd, ht);
+  
+  //cv::imshow("output", output_(roi));
+  cv::imshow("output", output_); //(roi));
+
+  if (false) {
+    static int count = 100000;
+    std::stringstream ss;
+    ss << "imagenn_" << count << ".jpg";
+    cv::imwrite(ss.str(), output_(roi));
+    count += 1;
+  }
 }
 
 } // nngen
@@ -455,10 +491,15 @@ void ImageNet::draw()
 int main(int argn, char** argv)
 {
   std::vector<int> layer_sizes;
-  layer_sizes.push_back(4);
+  //layer_sizes.push_back(4);
   layer_sizes.push_back(16);
+  layer_sizes.push_back(16);
+  layer_sizes.push_back(32);
+  layer_sizes.push_back(32);
   layer_sizes.push_back(64);
+  layer_sizes.push_back(128);
   layer_sizes.push_back(256);
+  //layer_sizes.push_back(64);
   //layer_sizes.push_back(12);
   //layer_sizes.push_back(16);
   cv::namedWindow("vis");
@@ -470,6 +511,6 @@ int main(int argn, char** argv)
   {
     imnet->update();
     imnet->draw();
-    if (cv::waitKey(50) == 'q') break;
+    if (cv::waitKey(5) == 'q') break;
   }
 }
