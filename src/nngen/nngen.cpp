@@ -22,7 +22,7 @@
  like set of layers than turn inputs (which could be mapped to gui sliders, or 
  keyboard keys, gamepad analog sticks) into images.
 
-  g++ nngen.cpp -lopencv_imgproc -lopencv_highgui -lopencv_core -g && ./a.out 
+  g++ nngen.cpp -lopencv_imgproc -lopencv_highgui -lopencv_core && ./a.out 
 
  */
 
@@ -58,7 +58,8 @@ class Node
 {
 public:
   Node(std::vector<float> coefficients, std::vector<Node*> inputs);
- 
+  
+  void setInputNodes(std::vector<Node*> inputs);
   bool update();
   void setOutput(const float val)
   {
@@ -93,6 +94,11 @@ Node::Node(std::vector<float> coefficients,
   output_(0.0)
 {
 
+}
+
+void Node::setInputNodes(std::vector<Node*> inputs)
+{
+  inputs_ = inputs;
 }
 
 int Node::getLayer()
@@ -165,7 +171,8 @@ bool Node::update()
 class Net
 {
 public:
-  Net(std::vector<int> layer_sizes, const int seed, const float sigma);
+  Net(std::vector<int> layer_sizes, const int seed, const float sigma, 
+      const int num_inputs);
 
   bool update();
   bool draw();
@@ -178,13 +185,16 @@ private:
   
   cv::Mat vis_;
   cv::RNG rng_;
+  const int num_inputs_;
   // will insert in order so updating can just go start to end
   std::vector<std::vector<nngen::Node*> > layers_;
 
 };
 
-Net::Net(std::vector<int> layer_sizes, const int seed, const float sigma) :
-    rng_(seed)
+Net::Net(std::vector<int> layer_sizes, const int seed, const float sigma, 
+  const int num_inputs) :
+    rng_(seed),
+    num_inputs_(num_inputs)
 {
   std::vector<Node*> last_layer;
 
@@ -211,6 +221,12 @@ Net::Net(std::vector<int> layer_sizes, const int seed, const float sigma) :
   
     layers_.push_back(cur_layer);
     last_layer = cur_layer;
+  }
+  
+  // recurrence (feedback output to input
+  for (size_t i = num_inputs_; i < layers_[0].size(); ++i)
+  {
+    layers_[0][i]->setInputNodes(layers_[layers_.size() - 1]);
   }
 }
 
@@ -288,13 +304,14 @@ bool Net::draw()
 class ImageNet
 {
   public:
-  ImageNet(std::vector<int> layer_sizes);
+  ImageNet(std::vector<int> layer_sizes, const int num_inputs);
   bool update();
   void draw();
   private:
 
   int count_;
-  std::vector<float> slider_vals_;
+  int num_inputs_;
+
   void updateFromTrackbar();
   
   static const float sc_ = 64;
@@ -307,30 +324,20 @@ class ImageNet
   //std::vector<cv::Mat> bases_big_;
 };
 
-  
-
-
-ImageNet::ImageNet(std::vector<int> layer_sizes)
+ImageNet::ImageNet(std::vector<int> layer_sizes, const int num_inputs) :
+  count_(0),
+  num_inputs_(num_inputs)
 {
   output_ = cv::Mat(cv::Size(480*3, 256*3), CV_8UC3, cv::Scalar::all(0));
-  net_ = new Net(layer_sizes, 1, 0.8);
+  net_ = new Net(layer_sizes, 1, 0.14, num_inputs_);
   net_->update();
-  net_sc_ = new Net(layer_sizes, 2, 0.8);
+  net_sc_ = new Net(layer_sizes, 2, 0.8, num_inputs_);
   net_sc_->update();
-  net_x_ = new Net(layer_sizes, 3, 0.25);
+  net_x_ = new Net(layer_sizes, 3, 0.20, num_inputs_);
   net_x_->update();
-  net_y_ = new Net(layer_sizes, 4, 0.25);
+  net_y_ = new Net(layer_sizes, 4, 0.20, num_inputs_);
   net_y_->update();
   std::cout << " output " << net_->print() << std::endl;
- 
-  slider_vals_.resize(layer_sizes[0]);
-  for (size_t i = 0; i < layer_sizes[0]; ++i)
-  {
-    std::stringstream ss;
-    ss << "input " << i;
-    slider_vals_[i] = 0;
-    //cv::createTrackbar(ss.str(), "vis", &slider_vals_[i], 512, NULL);
-  }
 
   std::string prefix = "../../data/bases/";
   
@@ -377,7 +384,7 @@ bool ImageNet::update()
   slider_vals_[3] = 256.0 + 256.0 * sin(float(count_)/551.12312 + 0.3); 
    */
   std::vector<float> in_vals;
-  for (size_t i = 0; i < slider_vals_.size(); ++i)
+  for (size_t i = 0; i < num_inputs_; ++i)
   {
     //std::cout << i << " " << slider_vals_[i] << std::endl;
     
@@ -398,7 +405,7 @@ bool ImageNet::update()
   const bool rv4 = net_y_->update();
   
   count_ += 1;
-
+  //std::cout << count_ << std::endl;
   return rv1 && rv2 && rv3 && rv4;
 }
 
@@ -492,7 +499,7 @@ int main(int argn, char** argv)
 {
   std::vector<int> layer_sizes;
   //layer_sizes.push_back(4);
-  layer_sizes.push_back(16);
+  layer_sizes.push_back(32);
   layer_sizes.push_back(16);
   layer_sizes.push_back(32);
   layer_sizes.push_back(32);
@@ -503,7 +510,7 @@ int main(int argn, char** argv)
   //layer_sizes.push_back(12);
   //layer_sizes.push_back(16);
   cv::namedWindow("vis");
-  nngen::ImageNet* imnet = new nngen::ImageNet(layer_sizes);
+  nngen::ImageNet* imnet = new nngen::ImageNet(layer_sizes, layer_sizes[0]/4);
 
   imnet->update();
   
