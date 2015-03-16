@@ -41,10 +41,37 @@ Weight::Weight() :
 Node::Node() :
     Base()
 {
-
+}
+Node2d::Node2d() :
+    Base()
+{
+}
+Node3d::Node3d() :
+    Base()
+{
 }
 
 void Node::update()
+{
+  if (inputs_.size() == 0) return;
+
+  val_ = 0;
+
+  // first layer
+  for (size_t y = 0; y < inputs_.size(); ++y)
+  {
+      if (inputs_[y] == NULL) continue;
+      //std::cout << y << " " << x  << " " << inputs_[y].size() << " " 
+      //    << weights_[y].size() <<   std::endl;
+      //std::cout << inputs_[y][x] << std::endl;
+      //std::cout << weights_[y][x] << std::endl;
+      val_ += inputs_[y]->val_ * weights_[y]->val_; 
+  }
+
+  // TBD apply sigmoid or tanh
+}
+
+void Node2d::update()
 {
   if (inputs_.size() == 0) return;
   if (inputs_[0].size() == 0) return;
@@ -68,19 +95,47 @@ void Node::update()
   // TBD apply sigmoid or tanh
 }
 
+void Node3d::update()
+{
+  if (inputs_.size() == 0) return;
+  if (inputs_[0].size() == 0) return;
+  if (inputs_[0][0].size() == 0) return;
+
+  val_ = 0;
+
+  // first layer
+  for (size_t y = 0; y < inputs_.size(); ++y)
+  {
+    for (size_t x = 0; x < inputs_[y].size(); ++x)
+    {
+      for (size_t z = 0; z < inputs_[y][x].size(); ++z)
+      {
+        if (inputs_[y][x][z] == NULL) continue;
+        //std::cout << y << " " << x  << " " << inputs_[y].size() << " " 
+        //    << weights_[y].size() <<   std::endl;
+        //std::cout << inputs_[y][x] << std::endl;
+        //std::cout << weights_[y][x] << std::endl;
+        val_ += inputs_[y][x][z]->val_ * weights_[y][x][z]->val_; 
+      }
+    }
+  }
+
+  // TBD apply sigmoid or tanh
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 Net::Net(cv::Mat& im)
 {
-  inputs_.resize(im.rows);
   const float sigma = 0.5;
 
   // layer 1, just a copy of all the image pixels with no inputs
+  inputs_.resize(im.rows);
   for (size_t y = 0; y < im.rows; ++y)
   {
     inputs_[y].resize(im.rows);
     for (size_t x = 0; x < im.cols; ++x)
     {
-      Node* node = new Node();
+      Node2d* node = new Node2d();
       node->val_ = float(im.at<uchar>(y,x))/256.0;
       inputs_[y][x] = node;
       nodes_.push_back(node);
@@ -121,9 +176,8 @@ Net::Net(cv::Mat& im)
       layer2_[i][y].resize(layer2_width);
       for (size_t x = 0; x < layer2_width; ++x)
       {
-        
-      //
-        Node* node = new Node();
+        //
+        Node2d* node = new Node2d();
         node->inputs_.resize(bases_[i].size());
         node->weights_.resize(bases_[i].size());
 
@@ -135,7 +189,7 @@ Net::Net(cv::Mat& im)
           for (int l = 0; l < bases_[i][k].size(); ++l)
           {
             int y2 = y * div + k - bases_[i].size()/2; 
-            int x2 = x * div + k - bases_[i][k].size()/2; 
+            int x2 = x * div + l - bases_[i][k].size()/2; 
             
             if ((y2 > 0) && (y2 < im.rows) &&
                 (x2 > 0) && (x2 < im.cols))
@@ -149,11 +203,56 @@ Net::Net(cv::Mat& im)
        
         layer2_[i][y][x] = node;
         nodes_.push_back(node); 
+        //
       }
-      //
 
     }
   }
+
+  // layer 3 decode the image
+  // create all the nodes, but not their inputs yet
+  layer3_.resize(im.rows);
+  for (size_t y = 0; y < im.rows; ++y)
+  {
+    layer3_[y].resize(im.rows);
+    for (size_t x = 0; x < im.cols; ++y)
+    {
+      Node3d* node = new Node3d();
+      layer3_[y][x] = node;
+      nodes_.push_back(node);
+    }
+  }
+
+  // this is ridiculous
+  for (size_t i = 0; i < bases_.size(); ++i)
+  {
+    for (size_t y = 0; y < layer2_height; ++y)
+    {
+      for (size_t x = 0; x < layer2_width; ++x)
+      {
+        for (int k = 0; k < bases_[i].size(); ++k)
+        {
+          for (int l = 0; l < bases_[i][k].size(); ++l)
+          {
+            const int y2 = y * div + k - bases_[i].size()/2; 
+            const int x2 = x * div + l - bases_[i][k].size()/2; 
+            
+            if ((y2 > 0) && (y2 < im.rows) &&
+                (x2 > 0) && (x2 < im.cols))
+            {
+              Node3d* node = dynamic_cast<Node3d*>(layer3_[i][y2][x2]);
+              if (node == NULL) continue;
+              // we know each node of output pixel has bases_.size()
+              // amount of inputs into it times the number of layer 2
+              // bases that overlap
+              // at the current y2 x2 location
+            }
+          } 
+        }
+      }
+    }
+  }  
+  // end ridiculous for loops
 }
 
 void Net::update()
@@ -201,6 +300,7 @@ void Net::draw()
   }
 }
 
+///////////////////////////////////////////////////////////////////////////////
 int main(int argn, char** argv)
 {
   cv::Mat im = cv::imread("beach_128.png");
