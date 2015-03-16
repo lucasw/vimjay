@@ -149,7 +149,7 @@ Net::Net(cv::Mat& im)
 
   cv::RNG rng;
   // create a basis image set of weights
-  bases_.resize(4);
+  bases_.resize(1);
   for (size_t i = 0; i < bases_.size(); ++i)
   {
     bases_[i].resize(16);
@@ -171,7 +171,7 @@ Net::Net(cv::Mat& im)
 
   // Layer 2
   // now create a reduced size node with 16x16 inputs
-  const int div = 2;
+  const int div = 16;
   const size_t layer2_width = im.cols/div;
   const size_t layer2_height = im.rows/div;
   
@@ -196,8 +196,8 @@ Net::Net(cv::Mat& im)
           
           for (int l = 0; l < bases_[i][k].size(); ++l)
           {
-            int y2 = y * div + k - bases_[i].size()/2; 
-            int x2 = x * div + l - bases_[i][k].size()/2; 
+            int y2 = y * div + k; //- bases_[i].size()/2; 
+            int x2 = x * div + l; // - bases_[i][k].size()/2; 
             
             if ((y2 > 0) && (y2 < im.rows) &&
                 (x2 > 0) && (x2 < im.cols))
@@ -357,7 +357,8 @@ void Net::draw()
     cv::Mat vis_pre;
     layerToMat(layer2_[i], vis_pre);
     cv::Mat vis;
-    cv::resize(vis_pre, vis, cv::Size(vis_pre.cols * 4, vis_pre.rows * 4), 
+    const int sc = 16;
+    cv::resize(vis_pre, vis, cv::Size(vis_pre.cols * sc, vis_pre.rows * sc), 
         0, 0, cv::INTER_NEAREST);
     
     std::stringstream ss;
@@ -370,7 +371,8 @@ void Net::draw()
     cv::Mat vis_pre;
     layerToMat(bases_[i], vis_pre);
     cv::Mat vis;
-    cv::resize(vis_pre, vis, cv::Size(vis_pre.cols * 8, vis_pre.rows * 8), 
+    const int sc = 8;
+    cv::resize(vis_pre, vis, cv::Size(vis_pre.cols * sc, vis_pre.rows * sc), 
         0, 0, cv::INTER_NEAREST);
     std::stringstream ss;
     ss << "base " << i;
@@ -381,7 +383,8 @@ void Net::draw()
     cv::Mat vis_pre;
     layerToMat(layer3_, vis_pre);
     cv::Mat vis;
-    cv::resize(vis_pre, vis, cv::Size(vis_pre.cols * 4, vis_pre.rows * 4), 
+    const int sc = 6;
+    cv::resize(vis_pre, vis, cv::Size(vis_pre.cols * sc, vis_pre.rows * sc), 
         0, 0, cv::INTER_NEAREST);
     cv::imshow("output", vis);
   }
