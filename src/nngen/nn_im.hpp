@@ -23,13 +23,16 @@ public:
 
 class Node: public Base
 {
+public:
   Node(int x, int y, int z);
 
   int x_;
   int y_; 
   int z_;
 
+  // TODO addOutput() and make these private
   std::vector< Base* > outputs_;
+  std::vector< Base* > output_weights_;
 };
 
 class Node1d : public Node
