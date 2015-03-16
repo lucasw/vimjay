@@ -21,24 +21,34 @@ public:
   Weight();
 };
 
-class Node : public Base
+class Node: public Base
+{
+  Node(int x, int y, int z);
+
+  int x_;
+  int y_; 
+  int z_;
+
+  std::vector< Base* > outputs_;
+};
+
+class Node1d : public Node
 {
 public:
-  Node();
+  Node1d(int x, int y, int z);
   virtual void update();
   // a std vector of Base is not the same as a vector of Node,
   // so have to use the base class
   std::vector< Base* > inputs_;
-  std::vector< Base* > outputs_;
   // TODO maybe this should just be a pointer to a cv::Mat
   std::vector< Base* > weights_;
 };
 
-#if 0
-class Node2d : public Base
+class Node2d : public Node
 {
 public:
-  Node2d();
+  ///Node2d();
+  Node2d(int x, int y, int z);
   virtual void update();
   // a std vector of Base is not the same as a vector of Node,
   // so have to use the base class
@@ -47,10 +57,10 @@ public:
   std::vector<std::vector< Base* > > weights_;
 };
 
-class Node3d : public Base
+class Node3d : public Node
 {
 public:
-  Node3d();
+  Node3d(int x, int y, int z);
   virtual void update();
   // a std vector of Base is not the same as a vector of Node,
   // so have to use the base class
@@ -58,7 +68,6 @@ public:
   // TODO maybe this should just be a pointer to a cv::Mat
   std::vector<std::vector<std::vector< Base* > > > weights_;
 };
-#endif
 
 void layerToMat(std::vector< std::vector< Base* > >& layer, cv::Mat& vis);
 

@@ -38,26 +38,33 @@ Weight::Weight() :
 
 }
 
-Node::Node() :
-    Base()
-{
-}
-Node2d::Node2d() :
-    Base()
-{
-}
-Node3d::Node3d() :
+Node::Node(int x, int y, int z) :
+    x_(x),
+    y_(y),
+    z_(z),
     Base()
 {
 }
 
-void Node::update()
+Node1d::Node1d(int x, int y, int z) :
+    Node(x, y, z)  
+{
+}
+Node2d::Node2d(int x, int y, int z) :
+    Node(x, y, z)  
+{
+}
+Node3d::Node3d(int x, int y, int z) :
+    Node(x, y, z)  
+{
+}
+
+void Node1d::update()
 {
   if (inputs_.size() == 0) return;
 
   val_ = 0;
 
-  // first layer
   for (size_t y = 0; y < inputs_.size(); ++y)
   {
       if (inputs_[y] == NULL) continue;
@@ -78,7 +85,6 @@ void Node2d::update()
 
   val_ = 0;
 
-  // first layer
   for (size_t y = 0; y < inputs_.size(); ++y)
   {
     for (size_t x = 0; x < inputs_[y].size(); ++x)
@@ -103,7 +109,6 @@ void Node3d::update()
 
   val_ = 0;
 
-  // first layer
   for (size_t y = 0; y < inputs_.size(); ++y)
   {
     for (size_t x = 0; x < inputs_[y].size(); ++x)
@@ -135,7 +140,7 @@ Net::Net(cv::Mat& im)
     inputs_[y].resize(im.rows);
     for (size_t x = 0; x < im.cols; ++x)
     {
-      Node2d* node = new Node2d();
+      Node2d* node = new Node2d(x, y, 0);
       node->val_ = float(im.at<uchar>(y,x))/256.0;
       inputs_[y][x] = node;
       nodes_.push_back(node);
@@ -177,7 +182,7 @@ Net::Net(cv::Mat& im)
       for (size_t x = 0; x < layer2_width; ++x)
       {
         //
-        Node2d* node = new Node2d();
+        Node2d* node = new Node2d(x2 * div, y2 * div, i);
         node->inputs_.resize(bases_[i].size());
         node->weights_.resize(bases_[i].size());
 
@@ -197,6 +202,7 @@ Net::Net(cv::Mat& im)
               //std::cout << k << " " << l << 
               node->weights_[k][l] = bases_[i][k][l];
               node->inputs_[k][l] = inputs_[y2][x2];
+              inputs_[y2][x2]->outputs_.push_back(node);
             }
           }
         }
@@ -217,42 +223,30 @@ Net::Net(cv::Mat& im)
     layer3_[y].resize(im.rows);
     for (size_t x = 0; x < im.cols; ++y)
     {
-      Node3d* node = new Node3d();
+      Node1d* node = new Node1d(x, y, 0);
       layer3_[y][x] = node;
       nodes_.push_back(node);
+
+      Node2d* node_enc = dynamic_cast<Node2d*>(inputs_[y][x]);
+      //  now loop through outputs of the encoder node - every
+      // output of the input node needs to be an input to 
+      // this node
+      for (size_t i = 0; i < node_enc->outputs_.size(); ++i)
+      {
+        //basis_ind = node->outputs_[i]->z_;
+        node->inputs_.push_back(node_enc->outputs[i]);
+        // TBD a new weight 1.0? node->weights_.push_back(node_enc->outp);
+      }
     }
   }
 
-  // this is ridiculous
-  for (size_t i = 0; i < bases_.size(); ++i)
-  {
-    for (size_t y = 0; y < layer2_height; ++y)
-    {
-      for (size_t x = 0; x < layer2_width; ++x)
-      {
-        for (int k = 0; k < bases_[i].size(); ++k)
-        {
-          for (int l = 0; l < bases_[i][k].size(); ++l)
-          {
-            const int y2 = y * div + k - bases_[i].size()/2; 
-            const int x2 = x * div + l - bases_[i][k].size()/2; 
-            
-            if ((y2 > 0) && (y2 < im.rows) &&
-                (x2 > 0) && (x2 < im.cols))
-            {
-              Node3d* node = dynamic_cast<Node3d*>(layer3_[i][y2][x2]);
-              if (node == NULL) continue;
+ 
+//              Node3d* node = dynamic_cast<Node3d*>(layer3_[y2][x2]);
+  //            if (node == NULL) continue;
               // we know each node of output pixel has bases_.size()
               // amount of inputs into it times the number of layer 2
               // bases that overlap
               // at the current y2 x2 location
-            }
-          } 
-        }
-      }
-    }
-  }  
-  // end ridiculous for loops
 }
 
 void Net::update()
