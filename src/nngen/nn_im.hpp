@@ -26,12 +26,14 @@ class Node: public Base
 public:
   Node(int x, int y, int z);
 
+  void drawGraph(cv::Mat& vis, const int sc);
+
   int x_;
   int y_; 
   int z_;
 
   // TODO addOutput() and make these private
-  std::vector< Base* > outputs_;
+  std::vector< Node* > outputs_;
   std::vector< Base* > output_weights_;
 };
 
@@ -72,7 +74,7 @@ public:
   std::vector<std::vector<std::vector< Base* > > > weights_;
 };
 
-void layerToMat(std::vector< std::vector< Base* > >& layer, cv::Mat& vis);
+void layerToMat(std::vector< std::vector< Base* > >& layer, cv::Mat& vis, const float sc);
 
 class Net
 {
@@ -87,9 +89,10 @@ public:
   std::vector<std::vector< Base* > > layer3_;
 
   std::vector< std::vector< std::vector < Base* > > > bases_;
-  
+ 
+  cv::Mat im_;
   // all in linear fasion
-  std::vector<Base*> nodes_;
+  std::vector<Node*> nodes_;
   std::vector<Base*> weights_;
 };
 
