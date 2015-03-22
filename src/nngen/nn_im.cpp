@@ -62,10 +62,6 @@ void Node::drawGraph(cv::Mat& vis, const int sc)
   }
 }
 
-Node1d::Node1d(int x, int y, int z) :
-    Node(x, y, z)  
-{
-}
 Node2d::Node2d(int x, int y, int z) :
     Node(x, y, z)  
 {
@@ -75,7 +71,8 @@ Node3d::Node3d(int x, int y, int z) :
 {
 }
 
-void Node1d::update()
+
+void Node::update()
 {
   if (inputs_.size() == 0) return;
 
@@ -94,49 +91,41 @@ void Node1d::update()
   // TBD apply sigmoid (map to 0.0-1.0) or tanh (-1.0 to 1.0)
 }
 
-void Node2d::update()
+void Node2d::setup()
 {
-  if (inputs_.size() == 0) return;
-  if (inputs_[0].size() == 0) return;
+  if (inputs2_.size() == 0) return;
+  if (inputs2_[0].size() == 0) return;
 
   val_ = 0;
 
-  for (size_t y = 0; y < inputs_.size(); ++y)
+  for (size_t y = 0; y < inputs2_.size(); ++y)
   {
-    for (size_t x = 0; x < inputs_[y].size(); ++x)
+    for (size_t x = 0; x < inputs2_[y].size(); ++x)
     {
-      if (inputs_[y][x] == NULL) continue;
-      //std::cout << y << " " << x  << " " << inputs_[y].size() << " " 
-      //    << weights_[y].size() <<   std::endl;
-      //std::cout << inputs_[y][x] << std::endl;
-      //std::cout << weights_[y][x] << std::endl;
-      val_ += inputs_[y][x]->val_ * weights_[y][x]->val_; 
+      inputs_.push_back(inputs2_[y][x]);
+      weights_.push_back(weights2_[y][x]);
     }
   }
 
   // TBD apply sigmoid or tanh
 }
 
-void Node3d::update()
+void Node3d::setup()
 {
-  if (inputs_.size() == 0) return;
-  if (inputs_[0].size() == 0) return;
-  if (inputs_[0][0].size() == 0) return;
+  if (inputs3_.size() == 0) return;
+  if (inputs3_[0].size() == 0) return;
+  if (inputs3_[0][0].size() == 0) return;
 
   val_ = 0;
 
-  for (size_t y = 0; y < inputs_.size(); ++y)
+  for (size_t y = 0; y < inputs3_.size(); ++y)
   {
-    for (size_t x = 0; x < inputs_[y].size(); ++x)
+    for (size_t x = 0; x < inputs3_[y].size(); ++x)
     {
-      for (size_t z = 0; z < inputs_[y][x].size(); ++z)
+      for (size_t z = 0; z < inputs3_[y][x].size(); ++z)
       {
-        if (inputs_[y][x][z] == NULL) continue;
-        //std::cout << y << " " << x  << " " << inputs_[y].size() << " " 
-        //    << weights_[y].size() <<   std::endl;
-        //std::cout << inputs_[y][x] << std::endl;
-        //std::cout << weights_[y][x] << std::endl;
-        val_ += inputs_[y][x][z]->val_ * weights_[y][x][z]->val_; 
+        inputs_.push_back(inputs3_[y][x][z]);
+        weights_.push_back(weights3_[y][x][z]);
       }
     }
   }
@@ -166,7 +155,7 @@ Net::Net(cv::Mat& im) :
 
   cv::RNG rng;
   // create a basis image set of weights
-  bases_.resize(2);
+  bases_.resize(1);
   for (size_t i = 0; i < bases_.size(); ++i)
   {
     bases_[i].resize(16);
@@ -204,13 +193,13 @@ Net::Net(cv::Mat& im) :
       {
         //
         Node2d* node = new Node2d(x * div + div/2, y * div + div/2, i);
-        node->inputs_.resize(bases_[i].size());
-        node->weights_.resize(bases_[i].size());
+        node->inputs2_.resize(bases_[i].size());
+        node->weights2_.resize(bases_[i].size());
 
         for (int k = 0; k < bases_[i].size(); ++k)
         {
-          node->inputs_[k].resize(bases_[i][k].size());
-          node->weights_[k].resize(bases_[i][k].size());
+          node->inputs2_[k].resize(bases_[i][k].size());
+          node->weights2_[k].resize(bases_[i][k].size());
           
           const int x2 = x * div + k; // - bases_[i][k].size()/2; 
           for (int l = 0; l < bases_[i][k].size(); ++l)
@@ -235,8 +224,8 @@ Net::Net(cv::Mat& im) :
                 continue;
               }
 
-              node->weights_[k][l] = input_weight;  
-              node->inputs_[k][l] = input_node;
+              node->weights2_[k][l] = input_weight;  
+              node->inputs2_[k][l] = input_node;
               
               input_node->output_weights_.push_back(input_weight);
               input_node->outputs_.push_back(node);
@@ -260,7 +249,7 @@ Net::Net(cv::Mat& im) :
     layer3_[y].resize(im.cols);
     for (size_t x = 0; x < im.cols; ++x)
     {
-      Node1d* node = new Node1d(x, y, 0);
+      Node* node = new Node(x, y, 0);
       layer3_[y][x] = node;
       nodes_.push_back(node);
 
@@ -300,6 +289,11 @@ Net::Net(cv::Mat& im) :
               // amount of inputs into it times the number of layer 2
               // bases that overlap
               // at the current y2 x2 location
+
+  for (size_t i = 0; i < nodes_.size(); ++i)
+  {
+    nodes_[i]->setup();
+  }
 }
 
 void Net::update()
@@ -312,19 +306,35 @@ void Net::update()
   }
 }
 
-void layerToMat2D(std::vector< std::vector< Base* > >& layer, cv::Mat& vis, 
-    const float sc = 1.0, const float offset = 0.0)
+void layerToMat2D(std::vector< std::vector< Base* > >& layer, cv::Mat& vis) 
 {
-  vis = cv::Mat(cv::Size(layer[0].size(), layer.size()), CV_8UC1);
+  cv::Mat vis_pre = cv::Mat(cv::Size(layer[0].size(), layer.size()), CV_32FC1);
   
-  for (size_t y = 0; y < vis.rows; ++y)
+  for (size_t y = 0; y < vis_pre.rows; ++y)
   {
-    for (size_t x = 0; x < vis.cols; ++x)
+    for (size_t x = 0; x < vis_pre.cols; ++x)
     {
       //std::cout << y << " " << x << " " << layer[y][x]->val_ << std::endl;
-      vis.at<uchar>(y, x) = layer[y][x]->val_ * sc + offset;
+      vis_pre.at<float>(y, x) = layer[y][x]->val_; // * sc + offset;
     }
-  } 
+  }
+
+  // now normalize
+  cv::Scalar mean, std_dev;
+  cv::meanStdDev(vis_pre, mean, std_dev);
+  
+  if (std_dev.val[0] != 0)
+    vis_pre = (vis_pre - mean.val[0]) / std_dev.val[0] + 0.5;
+
+  vis_pre.convertTo(vis, CV_8UC1, 255);
+  
+  cv::Scalar mean2, std_dev2;
+
+  cv::meanStdDev(vis, mean2, std_dev2);
+
+  std::cout << mean.val[0] << " " << std_dev.val[0] << " ";
+  std::cout << mean2.val[0] << " " << std_dev2.val[0] << std::endl;
+
 }
 
 void layerToMat(std::vector< Base* >& layer, cv::Mat& vis, 
@@ -374,9 +384,10 @@ void layerToMat(std::vector< Base* >& layer, cv::Mat& vis,
 
 void Net::draw()
 {
+  std::cout << "output " << std::endl;
   {
     cv::Mat vis_pre;
-    layerToMat2D(layer3_, vis_pre, 0.55, 0); // 128);
+    layerToMat2D(layer3_, vis_pre); // 128);
     cv::Mat vis;
     const int sc = 6;
     cv::resize(vis_pre, vis, cv::Size(vis_pre.cols * sc, vis_pre.rows * sc), 
@@ -384,6 +395,7 @@ void Net::draw()
     cv::imshow("output", vis);
   }
 
+  std::cout << "bases " << std::endl;
   for (size_t i = 0; i < bases_.size(); ++i)
   {
     cv::Mat vis_pre;
@@ -412,10 +424,12 @@ void Net::draw()
     cv::imshow(ss.str(), vis);
   }
   #endif
-  
+ 
+
   {
+    std::cout << "input " << std::endl;
     cv::Mat vis_pre;
-    layerToMat2D(inputs_, vis_pre, 255);
+    layerToMat2D(inputs_, vis_pre);
     cv::Mat vis;
     const int sc = 4;
     cv::resize(vis_pre, vis, cv::Size(vis_pre.cols * sc, vis_pre.rows * sc), 

@@ -31,22 +31,14 @@ public:
   int x_;
   int y_; 
   int z_;
-
+  
+  virtual void setup() {}
+  virtual void update();
+  std::vector< Base* > inputs_;
+  std::vector< Base* > weights_;
   // TODO addOutput() and make these private
   std::vector< Node* > outputs_;
   std::vector< Base* > output_weights_;
-};
-
-class Node1d : public Node
-{
-public:
-  Node1d(int x, int y, int z);
-  virtual void update();
-  // a std vector of Base is not the same as a vector of Node,
-  // so have to use the base class
-  std::vector< Base* > inputs_;
-  // TODO maybe this should just be a pointer to a cv::Mat
-  std::vector< Base* > weights_;
 };
 
 class Node2d : public Node
@@ -54,24 +46,24 @@ class Node2d : public Node
 public:
   ///Node2d();
   Node2d(int x, int y, int z);
-  virtual void update();
+  virtual void setup();
   // a std vector of Base is not the same as a vector of Node,
   // so have to use the base class
-  std::vector<std::vector< Base* > > inputs_;
+  std::vector<std::vector< Base* > > inputs2_;
   // TODO maybe this should just be a pointer to a cv::Mat
-  std::vector<std::vector< Base* > > weights_;
+  std::vector<std::vector< Base* > > weights2_;
 };
 
 class Node3d : public Node
 {
 public:
   Node3d(int x, int y, int z);
-  virtual void update();
+  virtual void setup();
   // a std vector of Base is not the same as a vector of Node,
   // so have to use the base class
-  std::vector<std::vector<std::vector< Base* > > > inputs_;
+  std::vector<std::vector<std::vector< Base* > > > inputs3_;
   // TODO maybe this should just be a pointer to a cv::Mat
-  std::vector<std::vector<std::vector< Base* > > > weights_;
+  std::vector<std::vector<std::vector< Base* > > > weights3_;
 };
 
 void layerToMat(std::vector< std::vector< Base* > >& layer, cv::Mat& vis, const float sc);
