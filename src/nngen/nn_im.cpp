@@ -71,21 +71,41 @@ Node3d::Node3d(int x, int y, int z) :
 {
 }
 
-
 void Node::update()
 {
   if (inputs_.size() == 0) return;
 
   val_ = 0;
 
+  // normalize
+  float sum = 0;
+  float count = 0;
   for (size_t y = 0; y < inputs_.size(); ++y)
   {
-      if (inputs_[y] == NULL) continue;
+    if (inputs_[y] == NULL) continue;
+    sum += inputs_[y]->val_; 
+    count += 1.0;
+  }
+  
+  const float mean = sum / count;
+  sum = 0;
+  for (size_t y = 0; y < inputs_.size(); ++y)
+  {
+    if (inputs_[y] == NULL) continue;
+    const float diff = (inputs_[y]->val_ - mean); 
+    sum += diff * diff;
+  }
+  float var = std::sqrt(sum);
+  if (var == 0.0) var = 1.0;
+
+  for (size_t y = 0; y < inputs_.size(); ++y)
+  {
+    if (inputs_[y] == NULL) continue;
       //std::cout << y << " " << x  << " " << inputs_[y].size() << " " 
       //    << weights_[y].size() <<   std::endl;
       //std::cout << inputs_[y][x] << std::endl;
       //std::cout << weights_[y][x] << std::endl;
-      val_ += inputs_[y]->val_ * weights_[y]->val_; 
+    val_ += (inputs_[y]->val_ - mean) / var * weights_[y]->val_; 
   }
 
   // TBD apply sigmoid (map to 0.0-1.0) or tanh (-1.0 to 1.0)
@@ -165,8 +185,8 @@ Net::Net(cv::Mat& im) :
       for (size_t x = 0; x < bases_[i][y].size(); ++x)
       {
         Weight* weight = new Weight(); 
-        if (i == 0) weight->val_ = float(x) / 16.0; //rng.gaussian(sigma);
-        if (i == 1) weight->val_ = 1.0 - float(x) / 16.0; //rng.gaussian(sigma);
+        if (i == 1) weight->val_ = float(x) / 16.0 - 0.5; //rng.gaussian(sigma);
+        if (i == 0) weight->val_ = 1.0 - float(x) / 16.0 - 0.5; //rng.gaussian(sigma);
         if (i == 2) weight->val_ = float(y) / 16.0; //rng.gaussian(sigma);
         if (i == 3) weight->val_ = 1.0 - float(y) / 16.0; //rng.gaussian(sigma);
         if (i == 4) weight->val_ = 0.5; //rng.gaussian(sigma);
@@ -178,7 +198,7 @@ Net::Net(cv::Mat& im) :
 
   // Layer 2
   // now create a reduced size node with 16x16 inputs
-  const int div = 8;
+  const int div = 16;
   const size_t layer2_width = im.cols/div;
   const size_t layer2_height = im.rows/div;
   
@@ -309,7 +329,7 @@ void Net::update()
 void layerToMat2D(std::vector< std::vector< Base* > >& layer, cv::Mat& vis) 
 {
   cv::Mat vis_pre = cv::Mat(cv::Size(layer[0].size(), layer.size()), CV_32FC1);
-  
+  std::cout << "size " << vis_pre.size() << std::endl; 
   for (size_t y = 0; y < vis_pre.rows; ++y)
   {
     for (size_t x = 0; x < vis_pre.cols; ++x)
@@ -332,13 +352,13 @@ void layerToMat2D(std::vector< std::vector< Base* > >& layer, cv::Mat& vis)
 
   cv::meanStdDev(vis, mean2, std_dev2);
 
-  std::cout << mean.val[0] << " " << std_dev.val[0] << " ";
+  std::cout << "mean, stddev ";
+  std::cout << mean.val[0] << " " << std_dev.val[0] << ", ";
   std::cout << mean2.val[0] << " " << std_dev2.val[0] << std::endl;
 
 }
 
-void layerToMat(std::vector< Base* >& layer, cv::Mat& vis, 
-    const float sc = 1.0, const float offset = 0.0)
+bool layerToMat(std::vector< Base* >& layer, cv::Mat& vis)
 {
   int xmin, xmax, ymin, ymax;
  
@@ -360,9 +380,18 @@ void layerToMat(std::vector< Base* >& layer, cv::Mat& vis,
     if (node->y_ < ymin) ymin = node->y_;
   }
 
-  const int wd = xmax - xmin;
-  const int ht = ymax - ymin;
-  vis = cv::Mat(cv::Size(wd, ht), CV_8UC1);
+  int wd = xmax - xmin;
+  int ht = ymax - ymin;
+  if ((wd == 0) || (ht == 0))
+  {
+    //std::cerr << "bad wd ht " << xmax << " " << xmin << " " << ymax << " " << ymin << std::endl;
+    //return false;
+    wd = std::sqrt(layer.size());
+    std::cout << "bad wd ht " << xmax << " " << xmin << " " << ymax << " " << ymin << std::endl;
+    ht = wd;
+    std::cout << "using " << wd << " " << ht << ", " << layer.size() << std::endl;
+  }
+  cv::Mat vis_pre = cv::Mat(cv::Size(wd, ht), CV_32FC1);
   
   for (size_t i = 0; i < layer.size(); ++i)
   {
@@ -376,9 +405,26 @@ void layerToMat(std::vector< Base* >& layer, cv::Mat& vis,
     //std::cout << y << " " << x << " " << layer[y][x]->val_ << std::endl;
     const int x = node->x_ - xmin;
     const int y = node->y_ - ymin;
-    vis.at<uchar>(y, x) = node->val_ * sc + offset;
+    vis_pre.at<float>(y, x) = node->val_;
   }
 
+  // now normalize
+  cv::Scalar mean, std_dev;
+  cv::meanStdDev(vis_pre, mean, std_dev);
+  
+  if (std_dev.val[0] != 0)
+    vis_pre = (vis_pre - mean.val[0]) / std_dev.val[0] + 0.5;
+
+  vis_pre.convertTo(vis, CV_8UC1, 255);
+  
+  cv::Scalar mean2, std_dev2;
+
+  cv::meanStdDev(vis, mean2, std_dev2);
+
+  std::cout << mean.val[0] << " " << std_dev.val[0] << " ";
+  std::cout << mean2.val[0] << " " << std_dev2.val[0] << std::endl;
+
+  return true;
 }
 
 
@@ -395,7 +441,7 @@ void Net::draw()
     cv::imshow("output", vis);
   }
 
-  std::cout << "bases " << std::endl;
+  std::cout << "layer2 " << std::endl;
   for (size_t i = 0; i < bases_.size(); ++i)
   {
     cv::Mat vis_pre;
@@ -410,11 +456,11 @@ void Net::draw()
     cv::imshow(ss.str(), vis);
   }
   
-  #if 0
+  std::cout << "bases " << std::endl;
   for (size_t i = 0; i < bases_.size(); ++i)
   {
     cv::Mat vis_pre;
-    layerToMat(bases_[i], vis_pre, 255);
+    layerToMat2D(bases_[i], vis_pre);
     cv::Mat vis;
     const int sc = 8;
     cv::resize(vis_pre, vis, cv::Size(vis_pre.cols * sc, vis_pre.rows * sc), 
@@ -423,7 +469,6 @@ void Net::draw()
     ss << "base " << i;
     cv::imshow(ss.str(), vis);
   }
-  #endif
  
 
   {
@@ -471,7 +516,44 @@ int main(int argn, char** argv)
   Net* net = new Net(yuvs[0]);
   net->update();
   net->draw();
-  cv::waitKey(0);
+
+  int x = 0;
+  int y = 0;
+  
+  while (true) 
+  {
+    {
+      y = (y + net->layer3_.size()) % net->layer3_.size();
+      x = (x + net->layer3_[y].size()) % net->layer3_[y].size();
+      std::cout << "output input " << x << " " << y << std::endl;
+      Node* node = dynamic_cast<Node*> (net->layer3_[y][x]);
+
+
+      cv::Mat vis_pre;
+      if (layerToMat( node->inputs_, vis_pre )) 
+      {
+      cv::Mat vis;
+      const int sc = 16;
+      cv::resize(vis_pre, vis, cv::Size(vis_pre.cols * sc, vis_pre.rows * sc), 
+          0, 0, cv::INTER_NEAREST);
+
+      std::stringstream ss;
+      ss << "layer3 input";
+      cv::imshow(ss.str(), vis);
+      }
+    }
+   
+    int key = cv::waitKey(0);
+    if (key == 'q') break;
+
+    if (key == 'j') y += 1;
+    if (key == 'k') y -= 1;
+
+    if (key == 'l') x += 1;
+    if (key == 'h') x -= 1;
+ 
+
+  }
 
   return 0;
 }
