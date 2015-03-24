@@ -600,9 +600,23 @@ int main(int argn, char** argv)
             0, 0, cv::INTER_NEAREST);
 
         std::stringstream ss;
-        ss << "layer3 input";
+        ss << "layer2 output weights";
         cv::imshow(ss.str(), vis);
       }
+      cv::Mat vis_pre2;
+      if (layerToMat( node->outputs_, vis_pre2 )) 
+      {
+        // TODO put this in layerToMat
+        cv::Mat vis;
+        const int sc = 256 / vis_pre2.cols;
+        cv::resize(vis_pre2, vis, cv::Size(vis_pre2.cols * sc, vis_pre2.rows * sc), 
+            0, 0, cv::INTER_NEAREST);
+
+        std::stringstream ss;
+        ss << "layer2 outputs";
+        cv::imshow(ss.str(), vis);
+      }
+
     }
    
     int key = cv::waitKey(0);
