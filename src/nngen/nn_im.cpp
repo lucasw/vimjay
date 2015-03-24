@@ -31,7 +31,6 @@ from the second layer scales the basis image coefficients of the first in other 
 
 #include "nn_im.hpp"
 
-
 Weight::Weight() : 
     Base() 
 {
@@ -52,9 +51,11 @@ void Node::drawGraph(cv::Mat& vis, const int sc)
   
   for (size_t i = 0; i < outputs_.size(); ++i)
   {
+    Node* node = dynamic_cast<Node*>(outputs_[i]);
+    if (!node) continue;
     cv::Point pt2 = cv::Point(
-        outputs_[i]->x_ * sc + rand()%sc/2, 
-        outputs_[i]->y_ * sc + rand()%sc/2);
+        node->x_ * sc + rand()%sc/2, 
+        node->y_ * sc + rand()%sc/2);
     const int weight = output_weights_[i]->val_ * 255;
     const int val = val_ * 255;
     cv::Scalar col = cv::Scalar(255, val, val);
@@ -115,6 +116,8 @@ void Node2d::setup()
 {
   if (inputs2_.size() == 0) return;
   if (inputs2_[0].size() == 0) return;
+  
+  inputs_.resize(0);
 
   val_ = 0;
 
@@ -158,12 +161,37 @@ Net::Net(cv::Mat& im) :
   im_(im)
 {
   const float sigma = 0.5;
-  
+ 
+  cv::RNG rng;
+  const size_t base_sz = 4;
+  // create a basis image set of weights
+  bases_.resize(1);
+  for (size_t i = 0; i < bases_.size(); ++i)
+  {
+    bases_[i].resize(base_sz);
+    for (size_t y = 0; y < bases_[i].size(); ++y)
+    {
+      bases_[i][y].resize(base_sz);
+      for (size_t x = 0; x < bases_[i][y].size(); ++x)
+      {
+        Weight* weight = new Weight(); 
+        if (i == 1) weight->val_ = float(x) / float(base_sz) - 0.5; //rng.gaussian(sigma);
+        if (i == 0) weight->val_ = 1.0 - float(x) / float(base_sz) - 0.5; //rng.gaussian(sigma);
+        if (i == 2) weight->val_ = float(y) / float(base_sz); //rng.gaussian(sigma);
+        if (i == 3) weight->val_ = 1.0 - float(y) / float(base_sz); //rng.gaussian(sigma);
+        if (i == 4) weight->val_ = 0.5; //rng.gaussian(sigma);
+        bases_[i][y][x] = weight;
+        weights_.push_back(weight);
+      }
+    }
+  }
+ 
   // layer 1, just a copy of all the image pixels with no inputs
+  std::cout << "layer1 size " << im.rows << " " << im.cols << std::endl;
   inputs_.resize(im.rows);
   for (size_t y = 0; y < im.rows; ++y)
   {
-    inputs_[y].resize(im.rows);
+    inputs_[y].resize(im.cols);
     for (size_t x = 0; x < im.cols; ++x)
     {
       Node2d* node = new Node2d(x, y, 0);
@@ -173,35 +201,13 @@ Net::Net(cv::Mat& im) :
     }
   }
 
-  cv::RNG rng;
-  // create a basis image set of weights
-  bases_.resize(1);
-  for (size_t i = 0; i < bases_.size(); ++i)
-  {
-    bases_[i].resize(16);
-    for (size_t y = 0; y < bases_[i].size(); ++y)
-    {
-      bases_[i][y].resize(16);
-      for (size_t x = 0; x < bases_[i][y].size(); ++x)
-      {
-        Weight* weight = new Weight(); 
-        if (i == 1) weight->val_ = float(x) / 16.0 - 0.5; //rng.gaussian(sigma);
-        if (i == 0) weight->val_ = 1.0 - float(x) / 16.0 - 0.5; //rng.gaussian(sigma);
-        if (i == 2) weight->val_ = float(y) / 16.0; //rng.gaussian(sigma);
-        if (i == 3) weight->val_ = 1.0 - float(y) / 16.0; //rng.gaussian(sigma);
-        if (i == 4) weight->val_ = 0.5; //rng.gaussian(sigma);
-        bases_[i][y][x] = weight;
-        weights_.push_back(weight);
-      }
-    }
-  }
-
-  // Layer 2
+  // Layer 2 - encoder
   // now create a reduced size node with 16x16 inputs
-  const int div = 16;
+  const int div = 4;
   const size_t layer2_width = im.cols/div;
   const size_t layer2_height = im.rows/div;
-  
+  std::cout << "layer2 size " << layer2_height << " " << layer2_width << std::endl;
+
   layer2_.resize(bases_.size());
   for (size_t i = 0; i < bases_.size(); ++i)
   {
@@ -221,10 +227,10 @@ Net::Net(cv::Mat& im) :
           node->inputs2_[k].resize(bases_[i][k].size());
           node->weights2_[k].resize(bases_[i][k].size());
           
-          const int x2 = x * div + k; // - bases_[i][k].size()/2; 
+          const int x2 = node->x_ + k - div/2; 
           for (int l = 0; l < bases_[i][k].size(); ++l)
           {
-            const int y2 = y * div + l; //- bases_[i].size()/2; 
+            const int y2 = node->y_ + l - div/2; 
             //std::cout << y << " " << x << ", " 
             //    << k << " " << l << ", " 
             //    << y2 << " " << x2 << std::endl;
@@ -232,7 +238,6 @@ Net::Net(cv::Mat& im) :
             if ((y2 >= 0) && (y2 < im.rows) &&
                 (x2 >= 0) && (x2 < im.cols))
             {
-              //std::cout << k << " " << l << 
               Base* input_weight = bases_[i][k][l];
               Node* input_node   = dynamic_cast<Node*>( inputs_[y2][x2] );
               
@@ -249,25 +254,31 @@ Net::Net(cv::Mat& im) :
               
               input_node->output_weights_.push_back(input_weight);
               input_node->outputs_.push_back(node);
-            }
-          }
-        }
+              
+              //std::cout << "layer1 yx " << y2 << " " << x2 << std::endl;
+            } 
+            else
+            { 
+              std::cout << "invalid layer1 yx " << y2 << " " << x2 << std::endl;
+            } // is input pixel valid or not
+          } // loop through bases_ pixels x
+        } // loop through bases_ pixels y
        
         layer2_[i][y][x] = node;
         nodes_.push_back(node); 
         //
-      }
+      } // loop through layer2 x
+    } // loop through layer2 y
+  } // loop through bases
 
-    }
-  }
 
   // layer 3 decode the image
   // don't create any new weights, use same weights as on inputs
-  layer3_.resize(im.rows);
-  for (size_t y = 0; y < im.rows; ++y)
+  layer3_.resize(inputs_.size());
+  for (size_t y = 0; y < layer3_.size(); ++y)
   {
-    layer3_[y].resize(im.cols);
-    for (size_t x = 0; x < im.cols; ++x)
+    layer3_[y].resize(inputs_[y].size());
+    for (size_t x = 0; x < layer3_[y].size(); ++x)
     {
       Node* node = new Node(x, y, 0);
       layer3_[y][x] = node;
@@ -298,8 +309,11 @@ Net::Net(cv::Mat& im) :
 
         input_node->output_weights_.push_back(input_weight);
         input_node->outputs_.push_back(node);
-
       }
+      // Debug look at outputs from layer1     
+      //std::cout << "layer1 " << y << " " << " " << x 
+      //    << ": in " << node_enc->inputs_.size()
+      //    << " out " << node_enc->outputs_.size() << std::endl;
     }
   }
 
@@ -314,6 +328,27 @@ Net::Net(cv::Mat& im) :
   {
     nodes_[i]->setup();
   }
+
+  // Debug look at outputs from layer2  
+  for (size_t i = 0; i < layer2_.size(); ++i)
+  {
+  for (size_t y = 0; y < layer2_[i].size(); ++y)
+  {
+    for (size_t x = 0; x < layer2_[i][y].size(); ++x)
+    {
+      Node* input_node   = dynamic_cast<Node*>( layer2_[i][y][x] );
+      if ((input_node == NULL))
+      {
+        std::cerr << "layer 2 bad node " << i << " " << y << " " << x << " " 
+            << std::endl;
+        continue;
+      }
+      std::cout << "layer2 " << i << " " << y << " " << " " << x 
+          << ": in " << input_node->inputs_.size() 
+          << ", out " << input_node->outputs_.size() 
+          << std::endl;
+  }}}
+
 }
 
 void Net::update()
@@ -360,12 +395,20 @@ void layerToMat2D(std::vector< std::vector< Base* > >& layer, cv::Mat& vis)
 
 bool layerToMat(std::vector< Base* >& layer, cv::Mat& vis)
 {
-  int xmin, xmax, ymin, ymax;
+  int xmin = 0;
+  int xmax = 0;
+  int ymin = 0;
+  int ymax = 0;
  
   // TODO make this a utility function?
   for (size_t i = 0; i < layer.size(); ++i)
   {
     Node* node = dynamic_cast<Node*>( layer[i] );
+    if (node == NULL) 
+    {
+      continue;
+    }
+    
     if (i == 0)
     {
       xmin = node->x_;
@@ -387,9 +430,22 @@ bool layerToMat(std::vector< Base* >& layer, cv::Mat& vis)
     //std::cerr << "bad wd ht " << xmax << " " << xmin << " " << ymax << " " << ymin << std::endl;
     //return false;
     wd = std::sqrt(layer.size());
-    std::cout << "bad wd ht " << xmax << " " << xmin << " " << ymax << " " << ymin << std::endl;
+    std::cout << "can't use xy wd ht " << xmax << " " << xmin << " " << ymax << " " << ymin << std::endl;
     ht = wd;
     std::cout << "using " << wd << " " << ht << ", " << layer.size() << std::endl;
+  } 
+  else
+  {
+    wd += 1;
+    ht += 1;
+    std::cout << "using wd ht from x_ y_ " << wd << " " << ht 
+        << ", " << ymax << " " << ymin << ", " << xmax << " " << xmin << std::endl;
+  }
+
+  if ((wd == 0) || (ht == 0))
+  {
+    std::cerr << "bad wd ht " << layer.size() << std::endl;
+    return false;
   }
   cv::Mat vis_pre = cv::Mat(cv::Size(wd, ht), CV_32FC1);
   
@@ -397,15 +453,19 @@ bool layerToMat(std::vector< Base* >& layer, cv::Mat& vis)
   {
     Node* node = dynamic_cast<Node*>( layer[i] );
 
+    size_t x, y;
     if (node == NULL) 
     {
-      std::cerr << "bad node " << i << std::endl;
-      continue;
+      y = i % wd;
+      x = i - y * wd;
+    } 
+    else
+    {
+      x = node->x_ - xmin;
+      y = node->y_ - ymin;
     }
-    //std::cout << y << " " << x << " " << layer[y][x]->val_ << std::endl;
-    const int x = node->x_ - xmin;
-    const int y = node->y_ - ymin;
-    vis_pre.at<float>(y, x) = node->val_;
+    std::cout << "layer2Mat " << y << " " << x << " " << layer[i]->val_ << std::endl;
+    vis_pre.at<float>(y, x) = layer[i]->val_;
   }
 
   // now normalize
@@ -505,7 +565,7 @@ void Net::draw()
 int main(int argn, char** argv)
 {
   //std::string image_file = "test_pattern.png"; 
-  std::string image_file =  "beach_128.png";
+  std::string image_file =  "beach_16.png";
   cv::Mat im = cv::imread(image_file);
   cv::Mat yuv_im;
 
@@ -515,31 +575,33 @@ int main(int argn, char** argv)
 
   Net* net = new Net(yuvs[0]);
   net->update();
-  net->draw();
+  //net->draw();
 
+  int i = 0;
   int x = 0;
   int y = 0;
   
   while (true) 
   {
+    // TBD need to loop through layer2 , not layer 3
     {
-      y = (y + net->layer3_.size()) % net->layer3_.size();
-      x = (x + net->layer3_[y].size()) % net->layer3_[y].size();
-      std::cout << "output input " << x << " " << y << std::endl;
-      Node* node = dynamic_cast<Node*> (net->layer3_[y][x]);
-
-
+      i = (i + net->layer2_.size()) % net->layer2_.size();
+      y = (y + net->layer2_[i].size()) % net->layer2_[i].size();
+      x = (x + net->layer2_[i][y].size()) % net->layer2_[i][y].size();
+      std::cout << "output input " << i << " " << y << " " << x << std::endl;
+      Node* node = dynamic_cast<Node*> (net->layer2_[i][y][x]);
+      std::cout << "outputs " << node->outputs_.size() << std::endl;
       cv::Mat vis_pre;
-      if (layerToMat( node->inputs_, vis_pre )) 
+      if (layerToMat( node->output_weights_, vis_pre )) 
       {
-      cv::Mat vis;
-      const int sc = 16;
-      cv::resize(vis_pre, vis, cv::Size(vis_pre.cols * sc, vis_pre.rows * sc), 
-          0, 0, cv::INTER_NEAREST);
+        cv::Mat vis;
+        const int sc = 256 / vis_pre.cols;
+        cv::resize(vis_pre, vis, cv::Size(vis_pre.cols * sc, vis_pre.rows * sc), 
+            0, 0, cv::INTER_NEAREST);
 
-      std::stringstream ss;
-      ss << "layer3 input";
-      cv::imshow(ss.str(), vis);
+        std::stringstream ss;
+        ss << "layer3 input";
+        cv::imshow(ss.str(), vis);
       }
     }
    

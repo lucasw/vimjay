@@ -37,7 +37,7 @@ public:
   std::vector< Base* > inputs_;
   std::vector< Base* > weights_;
   // TODO addOutput() and make these private
-  std::vector< Node* > outputs_;
+  std::vector< Base* > outputs_;
   std::vector< Base* > output_weights_;
 };
 
