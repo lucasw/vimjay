@@ -171,10 +171,11 @@ Net::Net(cv::Mat& im) :
 {
  
   const size_t base_sz = 16;
-  const int div = 2;
-  const int num_bases = 4;
-  //cv::RNG rng;
-  //const float sigma = 0.5;
+  const int div = 4;
+  const int num_bases = 5;
+  
+  cv::RNG rng;
+  const float sigma = 0.5;
   // create a basis image set of weights
   bases_.resize(num_bases);
   for (size_t i = 0; i < bases_.size(); ++i)
@@ -187,12 +188,16 @@ Net::Net(cv::Mat& im) :
       {
         std::stringstream ss;
         ss << "base_" << i << "_" << y << "_" << x;
-        Weight* weight = new Weight(ss.str()); 
-        if (i == 1) weight->val_ = float(x) / float(base_sz) - 0.5; //rng.gaussian(sigma);
-        if (i == 0) weight->val_ = 1.0 - float(x) / float(base_sz) - 0.5; //rng.gaussian(sigma);
-        if (i == 2) weight->val_ = float(y) / float(base_sz) - 0.5; //rng.gaussian(sigma);
-        if (i == 3) weight->val_ = 1.0 - float(y) / float(base_sz) - 0.5; //rng.gaussian(sigma);
-        if (i == 4) weight->val_ = 0.5; //rng.gaussian(sigma);
+        Weight* weight = new Weight(ss.str());
+        const float fx = float(x) / float(base_sz);
+        const float fy = float(y) / float(base_sz);
+        const float wn = sin(fx * M_PI) * sin(fy * M_PI);
+        if (i == 0) weight->val_ = fx - 0.5; //rng.gaussian(sigma);
+        if (i == 1) weight->val_ = 1.0 - fx - 0.5; //rng.gaussian(sigma);
+        if (i == 2) weight->val_ = fy - 0.5; //rng.gaussian(sigma);
+        if (i == 3) weight->val_ = 1.0 - fy - 0.5; //rng.gaussian(sigma);
+        if (i == 4) weight->val_ = rng.gaussian(sigma);
+        weight->val_ *= wn;
         bases_[i][y][x] = weight;
         weights_.push_back(weight);
       }
@@ -397,7 +402,7 @@ void layerToMat2D(std::vector< std::vector< Base* > >& layer, cv::Mat& vis)
   cv::meanStdDev(vis_pre, mean, std_dev);
   
   if (std_dev.val[0] != 0)
-    vis_pre = (vis_pre - mean.val[0]) / std_dev.val[0] + 0.5;
+    vis_pre = (vis_pre - mean.val[0]) / std::sqrt(std_dev.val[0]) + 0.5;
 
   vis_pre.convertTo(vis, CV_8UC1, 255);
   
@@ -471,7 +476,7 @@ bool layerToMat(std::vector< Base* >& layer, cv::Mat& vis)
   {
     Node* node = dynamic_cast<Node*>( layer[i] );
 
-    int x, y;
+    size_t x, y;
     if (node == NULL) 
     {
       y = i / wd;
@@ -482,6 +487,8 @@ bool layerToMat(std::vector< Base* >& layer, cv::Mat& vis)
       x = node->x_ - xmin;
       y = node->y_ - ymin;
     }
+    if (y >= vis_pre.cols) continue;
+    if (x >= vis_pre.rows) continue;
     //std::cout << "layer2Mat " << y << " " << x << " " << layer[i]->val_ << std::endl;
     vis_pre.at<float>(y, x) = layer[i]->val_;
   }
@@ -520,7 +527,7 @@ void Net::draw()
   }
 
   std::cout << "layer2 " << std::endl;
-  for (size_t i = 0; i < bases_.size(); ++i)
+  for (size_t i = 0; i < layer2_.size(); ++i)
   {
     cv::Mat vis_pre;
     layerToMat2D(layer2_[i], vis_pre);
@@ -534,7 +541,7 @@ void Net::draw()
     cv::imshow(ss.str(), vis);
   }
  
-  #if 0
+  #if 1
   std::cout << "bases " << std::endl;
   for (size_t i = 0; i < bases_.size(); ++i)
   {
@@ -594,7 +601,7 @@ int main(int argn, char** argv)
 
   Net* net = new Net(yuvs[0]);
   net->update();
-  net->draw();
+  //net->draw();
 
   int i = 0;
   int x = 0;
@@ -612,6 +619,7 @@ int main(int argn, char** argv)
       cv::Mat vis_pre;
       if (layerToMat( node->output_weights_, vis_pre )) 
       {
+        std::cout << vis_pre.size() << std::endl;
         cv::Mat vis;
         const int sc = 256 / vis_pre.cols;
         cv::resize(vis_pre, vis, cv::Size(vis_pre.cols * sc, vis_pre.rows * sc), 
@@ -646,6 +654,8 @@ int main(int argn, char** argv)
     if (key == 'l') x += 1;
     if (key == 'h') x -= 1;
  
+    if (key == 'd') i += 1;
+    if (key == 'f') i -= 1;
 
   }
 
