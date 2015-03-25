@@ -5,12 +5,14 @@
 class Base
 {
 public:
-  Base();
+  Base(std::string name);
+  std::string name_;
   float val_;
   virtual void update() {}
 };
 
-Base::Base()
+Base::Base(std::string name) :
+  name_(name)
 {
 
 }
@@ -18,13 +20,13 @@ Base::Base()
 class Weight : public Base
 {
 public:
-  Weight();
+  Weight(std::string name);
 };
 
 class Node: public Base
 {
 public:
-  Node(int x, int y, int z);
+  Node(std::string name, int x, int y, int z);
 
   void drawGraph(cv::Mat& vis, const int sc);
 
@@ -45,7 +47,7 @@ class Node2d : public Node
 {
 public:
   ///Node2d();
-  Node2d(int x, int y, int z);
+  Node2d(std::string name, int x, int y, int z);
   virtual void setup();
   // a std vector of Base is not the same as a vector of Node,
   // so have to use the base class
@@ -57,7 +59,7 @@ public:
 class Node3d : public Node
 {
 public:
-  Node3d(int x, int y, int z);
+  Node3d(std::string name, int x, int y, int z);
   virtual void setup();
   // a std vector of Base is not the same as a vector of Node,
   // so have to use the base class
