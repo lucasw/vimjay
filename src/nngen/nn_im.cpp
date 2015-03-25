@@ -104,7 +104,7 @@ void Node::update()
     if (var == 0.0) var = 1.0;
   }
 
-  std::cout << name_ << ", mean " << mean << ", var " << var << std::endl;
+  //std::cout << name_ << ", mean " << mean << ", var " << var << std::endl;
   for (size_t y = 0; y < inputs_.size(); ++y)
   {
     if (inputs_[y] == NULL) continue;
@@ -117,7 +117,7 @@ void Node::update()
     val_ += (inputs_[y]->val_ - mean) / var * weights_[y]->val_; 
   }
   
-  std::cout << name_ << " val " <<  val_ << std::endl;
+  //std::cout << name_ << " val " <<  val_ << std::endl;
   // TBD apply sigmoid (map to 0.0-1.0) or tanh (-1.0 to 1.0)
 }
 
@@ -169,12 +169,14 @@ void Node3d::setup()
 Net::Net(cv::Mat& im) :
   im_(im)
 {
-  const float sigma = 0.5;
  
-  cv::RNG rng;
-  const size_t base_sz = 4;
+  const size_t base_sz = 16;
+  const int div = 2;
+  const int num_bases = 4;
+  //cv::RNG rng;
+  //const float sigma = 0.5;
   // create a basis image set of weights
-  bases_.resize(1);
+  bases_.resize(num_bases);
   for (size_t i = 0; i < bases_.size(); ++i)
   {
     bases_[i].resize(base_sz);
@@ -188,8 +190,8 @@ Net::Net(cv::Mat& im) :
         Weight* weight = new Weight(ss.str()); 
         if (i == 1) weight->val_ = float(x) / float(base_sz) - 0.5; //rng.gaussian(sigma);
         if (i == 0) weight->val_ = 1.0 - float(x) / float(base_sz) - 0.5; //rng.gaussian(sigma);
-        if (i == 2) weight->val_ = float(y) / float(base_sz); //rng.gaussian(sigma);
-        if (i == 3) weight->val_ = 1.0 - float(y) / float(base_sz); //rng.gaussian(sigma);
+        if (i == 2) weight->val_ = float(y) / float(base_sz) - 0.5; //rng.gaussian(sigma);
+        if (i == 3) weight->val_ = 1.0 - float(y) / float(base_sz) - 0.5; //rng.gaussian(sigma);
         if (i == 4) weight->val_ = 0.5; //rng.gaussian(sigma);
         bases_[i][y][x] = weight;
         weights_.push_back(weight);
@@ -216,7 +218,6 @@ Net::Net(cv::Mat& im) :
 
   // Layer 2 - encoder
   // now create a reduced size node with 16x16 inputs
-  const int div = 4;
   const size_t layer2_width = im.cols/div;
   const size_t layer2_height = im.rows/div;
   std::cout << "layer2 size " << layer2_height << " " << layer2_width << std::endl;
@@ -274,7 +275,7 @@ Net::Net(cv::Mat& im) :
             } 
             else
             { 
-              std::cout << "invalid layer1 yx " << y2 << " " << x2 << std::endl;
+              //std::cout << "invalid layer1 yx " << y2 << " " << x2 << std::endl;
             } // is input pixel valid or not
           } // loop through bases_ pixels x
         } // loop through bases_ pixels y
@@ -512,7 +513,7 @@ void Net::draw()
     cv::Mat vis_pre;
     layerToMat2D(layer3_, vis_pre); // 128);
     cv::Mat vis;
-    const int sc = 6;
+    const int sc = 512/vis_pre.cols;
     cv::resize(vis_pre, vis, cv::Size(vis_pre.cols * sc, vis_pre.rows * sc), 
         0, 0, cv::INTER_NEAREST);
     cv::imshow("output", vis);
@@ -524,7 +525,7 @@ void Net::draw()
     cv::Mat vis_pre;
     layerToMat2D(layer2_[i], vis_pre);
     cv::Mat vis;
-    const int sc = 32;
+    const int sc = 256/vis_pre.cols;
     cv::resize(vis_pre, vis, cv::Size(vis_pre.cols * sc, vis_pre.rows * sc), 
         0, 0, cv::INTER_NEAREST);
     
@@ -554,7 +555,7 @@ void Net::draw()
     cv::Mat vis_pre;
     layerToMat2D(inputs_, vis_pre);
     cv::Mat vis;
-    const int sc = 16;
+    const int sc = 512/vis_pre.cols;
     cv::resize(vis_pre, vis, cv::Size(vis_pre.cols * sc, vis_pre.rows * sc), 
         0, 0, cv::INTER_NEAREST);
     
@@ -563,7 +564,7 @@ void Net::draw()
     cv::imshow(ss.str(), vis);
   }
 
-  #if 1
+  #if 0
   {
     const int sc = 512/im_.cols;
     cv::Mat vis = cv::Mat(cv::Size(im_.cols * sc, im_.rows * sc), CV_8UC3, 
@@ -583,7 +584,7 @@ void Net::draw()
 int main(int argn, char** argv)
 {
   //std::string image_file = "test_pattern.png"; 
-  std::string image_file =  "beach_16.png";
+  std::string image_file =  "beach_128.png";
   cv::Mat im = cv::imread(image_file);
   cv::Mat yuv_im;
 
