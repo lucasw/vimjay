@@ -81,7 +81,7 @@ void Node::update()
   float var = 1.0;
   float mean = 0;
   // normalize
-  if (inputs_.size() > 1) 
+  if (false) //(inputs_.size() > 1) 
   {
     float sum = 0;
     float count = 0;
@@ -100,7 +100,7 @@ void Node::update()
       const float diff = (inputs_[y]->val_ - mean); 
       sum += diff * diff;
     }
-    var = std::sqrt(sum);
+    var = (sum / count);
     if (var == 0.0) var = 1.0;
   }
 
@@ -119,6 +119,8 @@ void Node::update()
   
   //std::cout << name_ << " val " <<  val_ << std::endl;
   // TBD apply sigmoid (map to 0.0-1.0) or tanh (-1.0 to 1.0)
+  //std::cout << name_ << " val " <<  val_ << " " << tanh(val_) << std::endl;
+  val_ = tanh(val_);
 }
 
 void Node2d::setup()
@@ -400,9 +402,9 @@ void layerToMat2D(std::vector< std::vector< Base* > >& layer, cv::Mat& vis)
   // now normalize
   cv::Scalar mean, std_dev;
   cv::meanStdDev(vis_pre, mean, std_dev);
-  
-  if (std_dev.val[0] != 0)
-    vis_pre = (vis_pre - mean.val[0]) / std::sqrt(std_dev.val[0]) + 0.5;
+  float var = std::sqrt(std_dev.val[0]); 
+  if (var != 0)
+    vis_pre = (vis_pre - mean.val[0]) / var + 0.5;
 
   vis_pre.convertTo(vis, CV_8UC1, 255);
   
@@ -452,6 +454,7 @@ bool layerToMat(std::vector< Base* >& layer, cv::Mat& vis)
   {
     //std::cerr << "bad wd ht " << xmax << " " << xmin << " " << ymax << " " << ymin << std::endl;
     //return false;
+    // TBD this isn't always a great choice, need to have caller determine this
     wd = std::sqrt(layer.size());
     std::cout << "can't use xy wd ht " << xmax << " " << xmin << " " << ymax << " " << ymin << std::endl;
     ht = wd;
@@ -591,8 +594,16 @@ void Net::draw()
 int main(int argn, char** argv)
 {
   //std::string image_file = "test_pattern.png"; 
-  std::string image_file =  "beach_128.png";
-  cv::Mat im = cv::imread(image_file);
+  //std::string image_file = "lena.png"; // "beach_128.png";
+  std::string image_file = "beach_128.png";
+  cv::Mat im = cv::imread(image_file, CV_LOAD_IMAGE_GRAYSCALE);
+  
+  if (im.empty())
+  { 
+    std::cerr << "could not load " << image_file << std::endl;
+    return -1;
+  }
+  #if 0
   cv::Mat yuv_im;
 
   cv::cvtColor(im, yuv_im, CV_RGB2YCrCb);
@@ -600,8 +611,11 @@ int main(int argn, char** argv)
   cv::split(yuv_im, yuvs);
 
   Net* net = new Net(yuvs[0]);
+  #endif
+  Net* net = new Net(im);
+
   net->update();
-  //net->draw();
+  net->draw();
 
   int i = 0;
   int x = 0;
