@@ -26,13 +26,24 @@ public:
 class Node: public Base
 {
 public:
-  Node(std::string name, int x, int y, int z);
+  Node(
+      const std::string name, 
+      const int x, const int y, const int z, 
+      const bool usr_var, const bool use_mean, const bool use_tanh);
 
   void drawGraph(cv::Mat& vis, const int sc);
-
-  int x_;
-  int y_; 
-  int z_;
+  
+  // optionally scale with the variance-
+  // TBD only makes sense if use_mean is true?
+  const bool use_var_;
+  // optionally subtract out the mean
+  // setting this to false means that constant offsets
+  // regions and not just edges can be represented
+  const bool use_mean_;
+  const bool use_tanh_;
+  const int x_;
+  const int y_; 
+  const int z_;
   
   virtual void setup() {}
   virtual void update();
@@ -47,7 +58,11 @@ class Node2d : public Node
 {
 public:
   ///Node2d();
-  Node2d(std::string name, int x, int y, int z);
+  Node2d(
+      const std::string name, 
+      const int x, const int y, const int z, 
+      const bool usr_var, const bool use_mean, const bool use_tanh);
+
   virtual void setup();
   // a std vector of Base is not the same as a vector of Node,
   // so have to use the base class
@@ -59,7 +74,11 @@ public:
 class Node3d : public Node
 {
 public:
-  Node3d(std::string name, int x, int y, int z);
+  Node3d( 
+      const std::string name, 
+      const int x, const int y, const int z, 
+      const bool usr_var, const bool use_mean, const bool use_tanh);
+  
   virtual void setup();
   // a std vector of Base is not the same as a vector of Node,
   // so have to use the base class

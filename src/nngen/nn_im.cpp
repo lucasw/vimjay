@@ -37,10 +37,16 @@ Weight::Weight(std::string name) :
 
 }
 
-Node::Node(std::string name, int x, int y, int z) :
+Node::Node(
+    const std::string name, 
+    const int x, const int y, const int z,
+    const bool use_var, const bool use_mean, const bool use_tanh) :
     x_(x),
     y_(y),
     z_(z),
+    use_var_(use_var),
+    use_mean_(use_mean),
+    use_tanh_(use_tanh),
     Base(name)
 {
 }
@@ -63,12 +69,16 @@ void Node::drawGraph(cv::Mat& vis, const int sc)
   }
 }
 
-Node2d::Node2d(std::string name, int x, int y, int z) :
-    Node(name, x, y, z)  
+Node2d::Node2d(const std::string name, 
+    const int x, const int y, const int z, 
+    const bool use_var, const bool use_mean, const bool use_tanh) :
+    Node(name, x, y, z, use_var, use_mean, use_tanh)  
 {
 }
-Node3d::Node3d(std::string name, int x, int y, int z) :
-    Node(name, x, y, z)  
+Node3d::Node3d(const std::string name, 
+    const int x, const int y, const int z, 
+    const bool use_var, const bool use_mean, const bool use_tanh) :
+    Node(name, x, y, z, use_var, use_mean, use_tanh)  
 {
 }
 
@@ -81,7 +91,7 @@ void Node::update()
   float var = 1.0;
   float mean = 0;
   // normalize
-  if (false) //(inputs_.size() > 1) 
+  if (use_mean_ && (inputs_.size() > 1))
   {
     float sum = 0;
     float count = 0;
@@ -93,15 +103,19 @@ void Node::update()
     }
 
     mean = sum / count;
-    sum = 0;
-    for (size_t y = 0; y < inputs_.size(); ++y)
+
+    if (use_var_) 
     {
-      if (inputs_[y] == NULL) continue;
-      const float diff = (inputs_[y]->val_ - mean); 
-      sum += diff * diff;
+      sum = 0;
+      for (size_t y = 0; y < inputs_.size(); ++y)
+      {
+        if (inputs_[y] == NULL) continue;
+        const float diff = (inputs_[y]->val_ - mean); 
+        sum += diff * diff;
+      }
+      var = (sum / count);
+      if (var == 0.0) var = 1.0;
     }
-    var = (sum / count);
-    if (var == 0.0) var = 1.0;
   }
 
   //std::cout << name_ << ", mean " << mean << ", var " << var << std::endl;
@@ -120,7 +134,8 @@ void Node::update()
   //std::cout << name_ << " val " <<  val_ << std::endl;
   // TBD apply sigmoid (map to 0.0-1.0) or tanh (-1.0 to 1.0)
   //std::cout << name_ << " val " <<  val_ << " " << tanh(val_) << std::endl;
-  val_ = tanh(val_);
+  if (use_tanh_)
+    val_ = tanh(val_);
 }
 
 void Node2d::setup()
@@ -216,8 +231,8 @@ Net::Net(cv::Mat& im) :
     {
       std::stringstream ss;
       ss << "layer1_" << y << "_" << x;
-      Node2d* node = new Node2d(ss.str(), x, y, 0);
-      node->val_ = float(im.at<uchar>(y,x))/256.0;
+      Node2d* node = new Node2d(ss.str(), x, y, 0, true, true, true);
+      node->val_ = float(im.at<uchar>(y,x))/128.0 - 1.0;
       inputs_[y][x] = node;
       nodes_.push_back(node);
     }
@@ -241,7 +256,7 @@ Net::Net(cv::Mat& im) :
         //
         std::stringstream ss;
         ss << "layer2_" << i << "_" << y << "_" << x;
-        Node2d* node = new Node2d(ss.str(), x * div + div/2, y * div + div/2, i);
+        Node2d* node = new Node2d(ss.str(), x * div + div/2, y * div + div/2, i, true, true, true);
         node->inputs2_.resize(bases_[i].size());
         node->weights2_.resize(bases_[i].size());
 
@@ -305,7 +320,7 @@ Net::Net(cv::Mat& im) :
     {
       std::stringstream ss;
       ss << "layer3_" << y << "_" << x;
-      Node* node = new Node(ss.str(), x, y, 0);
+      Node* node = new Node(ss.str(), x, y, 0, true, true, true);
       layer3_[y][x] = node;
       nodes_.push_back(node);
 
@@ -357,17 +372,17 @@ Net::Net(cv::Mat& im) :
   // Debug look at outputs from layer2  
   for (size_t i = 0; i < layer2_.size(); ++i)
   {
-  for (size_t y = 0; y < layer2_[i].size(); ++y)
-  {
-    for (size_t x = 0; x < layer2_[i][y].size(); ++x)
+    for (size_t y = 0; y < layer2_[i].size(); ++y)
     {
-      Node* input_node   = dynamic_cast<Node*>( layer2_[i][y][x] );
-      if ((input_node == NULL))
+      for (size_t x = 0; x < layer2_[i][y].size(); ++x)
       {
-        std::cerr << "layer 2 bad node " << i << " " << y << " " << x << " " 
-            << std::endl;
-        continue;
-      }
+        Node* input_node   = dynamic_cast<Node*>( layer2_[i][y][x] );
+        if ((input_node == NULL))
+        {
+          std::cerr << "layer 2 bad node " << i << " " << y << " " << x << " " 
+              << std::endl;
+          continue;
+        }
       //std::cout << "layer2 " << i << " " << y << " " << " " << x 
       //    << ": in " << input_node->inputs_.size() 
       //    << ", out " << input_node->outputs_.size() 
@@ -389,7 +404,7 @@ void Net::update()
 void layerToMat2D(std::vector< std::vector< Base* > >& layer, cv::Mat& vis) 
 {
   cv::Mat vis_pre = cv::Mat(cv::Size(layer[0].size(), layer.size()), CV_32FC1);
-  std::cout << "size " << vis_pre.size() << std::endl; 
+  //std::cout << "size " << vis_pre.size() << std::endl; 
   for (size_t y = 0; y < vis_pre.rows; ++y)
   {
     for (size_t x = 0; x < vis_pre.cols; ++x)
@@ -529,9 +544,9 @@ void Net::draw()
     cv::imshow("output", vis);
   }
 
-  std::cout << "layer2 " << std::endl;
   for (size_t i = 0; i < layer2_.size(); ++i)
   {
+    std::cout << "layer2 " << i << std::endl;
     cv::Mat vis_pre;
     layerToMat2D(layer2_[i], vis_pre);
     cv::Mat vis;
