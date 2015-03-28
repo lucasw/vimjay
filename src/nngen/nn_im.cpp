@@ -113,8 +113,11 @@ void Node::update()
         const float diff = (inputs_[y]->val_ - mean); 
         sum += diff * diff;
       }
-      var = (sum / count);
+      // not averaging seems better.
+      //var = (sum / count);
       if (var == 0.0) var = 1.0;
+    
+      //var *= 50.0;
     }
   }
 
