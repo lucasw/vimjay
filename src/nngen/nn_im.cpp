@@ -324,7 +324,8 @@ Net::Net(cv::Mat& im) :
                 continue;
               }
 
-              node->weights2_[k][l] = input_weight;  
+              node->weights2_[k][l] = input_weight; 
+              // TBD need to have constant offset input nodes
               node->inputs2_[k][l] = input_node;
               
               input_node->output_weights_.push_back(input_weight);
