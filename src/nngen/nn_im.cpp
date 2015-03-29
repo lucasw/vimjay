@@ -25,11 +25,45 @@ from the second layer scales the basis image coefficients of the first in other 
 
 */
 
+#include <ceres/ceres.h>
 #include <iostream>
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 
 #include "nn_im.hpp"
+
+// NodeDiff class that has pointers to two nodes
+// and reports the cost as the difference between them.
+struct NodeDiffFunctor
+{
+  NodeDiffFunctor(
+      Net* net,
+      Node* input,
+      Node* output
+      ) :
+      input_(input),
+      output_(output)
+  {
+  }
+
+  // the input is actually every weight in the entire network
+  template <typename T>
+  bool operator() (const T* const x, T* residual) const 
+  {
+    // iterate through all the weights and assign them values out of T- 
+    // that means they have to be templated to take type T (which means 
+    // Jet in addition to double)
+    // or the numericdiff is needed.
+    // Does tanh work on Jet?  jet.h support a bunch of other functions
+    residual = input_->val_ - output_->val_;    
+    return true;
+  }
+
+  const Node* const input_;
+  const Node* const output_;
+};
+
+
 
 Weight::Weight(std::string name) : 
     Base(name) 
