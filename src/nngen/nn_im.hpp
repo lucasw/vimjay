@@ -109,6 +109,7 @@ public:
 
   std::vector<std::vector< Base<T>* > > inputs_;
   std::vector<std::vector<std::vector< Base<T>* > > > layer2_;
+  // this should be same size as inputs_
   std::vector<std::vector< Base<T>* > > layer3_;
 
   std::vector< std::vector< std::vector < Base<T>* > > > bases_;

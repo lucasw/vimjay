@@ -34,33 +34,63 @@ from the second layer scales the basis image coefficients of the first in other 
 
 // NodeDiff class that has pointers to two nodes
 // and reports the cost as the difference between them.
-template <typename T>
 struct NodeDiffFunctor
 {
   NodeDiffFunctor(
-      Net<T>* net,
-      Node<T>* input,
-      Node<T>* output
+      void* net
+      // see wasteful comment below
+      //Node<T>* input,
+      //Node<T>* output
       ) :
-      input_(input),
-      output_(output)
+      net_(net)
+      //input_(input),
+      //output_(output)
   {
   }
 
   // the input is actually every weight in the entire network
-  bool operator() (const T* const x, T* residual) const 
+  template <typename T>
+  bool operator() (const T* const* const* x, T* residual) const 
   {
-    // iterate through all the weights and assign them values out of T- 
-    // that means they have to be templated to take type T (which means 
-    // Jet in addition to double)
-    // or the numericdiff is needed.
-    // Does tanh work on Jet?  jet.h support a bunch of other functions
-    residual = input_->val_ - output_->val_;    
+    // if x is pointing to the weights val (is that bad idea?)
+    // then don't need to copy values here.
+    //Net<T> net = dynamic_cast<Net<T>>  
+    
+    // TBD need to copy the structure of net but have the type T
+    // here.
+    // Actually could reformulate the Net so that it never stores
+    // a data type for val, just a network structure and then
+    // there is a single function call that defines the type,
+    // all the weights, and returns an output.
+    Net<T>* net;
+
+    // input array into data structure
+    // iterate through all the weights and assign them values out of x- 
+    for (size_t i = 0; i < net->weights_.size(); ++i)
+    {
+      net->weights_[i]->val_ = x[i][0];
+    }
+    net->update();
+
+    // this seems super wasteful, have to populate and update
+    // everything just to get the diff of a single pixel
+    // one al
+    //residual = input_->val_ - output_->val_;    
+   
+    // get the error of outputs minus inputs
+    for (size_t i = 0; i < net->inputs_.size(); ++i)
+    {
+      residual[i] = net->layer3_[i]->val_ - net->inputs_[i]->val_;    
+    }
+    
     return true;
   }
-
-  const Node<T>* const input_;
-  const Node<T>* const output_;
+  
+  // having this be a pointer seems like there is potential for 
+  // inter-thread conflict, TBD make it a copy instead
+  void* net_;
+  //const Node<T>* const input_;
+  // const Node<T>* const output_;
 };
 
 
@@ -98,7 +128,7 @@ void Node<T>::drawGraph(cv::Mat& vis, const int sc)
     cv::Point pt2 = cv::Point(
         node->x_ * sc + rand()%sc/2, 
         node->y_ * sc + rand()%sc/2);
-    const int weight = float(output_weights_[i]->val_) * 255;
+    const int weight = double(output_weights_[i]->val_) * 255;
     const int val = this->val_ * 255;
     cv::Scalar col = cv::Scalar(255, val, val);
     cv::line(vis, pt1, pt2, col, 1);
@@ -237,7 +267,7 @@ Net<T>::Net(cv::Mat& im) :
   const int num_bases = 5;
   
   cv::RNG rng;
-  const float sigma = 0.5;
+  const double sigma = 0.5;
   // create a basis image set of weights
   bases_.resize(num_bases);
   for (size_t i = 0; i < bases_.size(); ++i)
@@ -251,9 +281,9 @@ Net<T>::Net(cv::Mat& im) :
         std::stringstream ss;
         ss << "base_" << i << "_" << y << "_" << x;
         Weight<T>* weight = new Weight<T>(ss.str());
-        const float fx = float(x) / float(base_sz);
-        const float fy = float(y) / float(base_sz);
-        const float wn = sin(fx * M_PI) * sin(fy * M_PI);
+        const double fx = double(x) / double(base_sz);
+        const double fy = double(y) / double(base_sz);
+        const double wn = sin(fx * M_PI) * sin(fy * M_PI);
         if (i == 0) weight->val_ = fx - 0.5; //rng.gaussian(sigma);
         if (i == 1) weight->val_ = 1.0 - fx - 0.5; //rng.gaussian(sigma);
         if (i == 2) weight->val_ = fy - 0.5; //rng.gaussian(sigma);
@@ -277,7 +307,7 @@ Net<T>::Net(cv::Mat& im) :
       std::stringstream ss;
       ss << "layer1_" << y << "_" << x;
       Node2d<T>* node = new Node2d<T>(ss.str(), x, y, 0, true, true, true);
-      node->val_ = float(im.at<uchar>(y,x))/128.0 - 1.0;
+      node->val_ = double(im.at<uchar>(y,x))/128.0 - 1.0;
       inputs_[y][x] = node;
       nodes_.push_back(node);
     }
@@ -458,14 +488,14 @@ void layerToMat2D(std::vector< std::vector< Base<T>* > >& layer, cv::Mat& vis)
     for (size_t x = 0; x < vis_pre.cols; ++x)
     {
       //std::cout << y << " " << x << " " << layer[y][x]->val_ << std::endl;
-      vis_pre.at<float>(y, x) = layer[y][x]->val_; // * sc + offset;
+      vis_pre.at<double>(y, x) = layer[y][x]->val_; // * sc + offset;
     }
   }
 
   // now normalize
   cv::Scalar mean, std_dev;
   cv::meanStdDev(vis_pre, mean, std_dev);
-  float var = std::sqrt(std_dev.val[0]); 
+  double var = std::sqrt(std_dev.val[0]); 
   if (var != 0)
     vis_pre = (vis_pre - mean.val[0]) / var + 0.5;
 
@@ -557,7 +587,7 @@ bool layerToMat(std::vector< Base<T>* >& layer, cv::Mat& vis)
     if (y >= vis_pre.cols) continue;
     if (x >= vis_pre.rows) continue;
     //std::cout << "layer2Mat " << y << " " << x << " " << layer[i]->val_ << std::endl;
-    vis_pre.at<float>(y, x) = layer[i]->val_;
+    vis_pre.at<double>(y, x) = layer[i]->val_;
   }
 
   // now normalize
@@ -677,7 +707,26 @@ int main(int argn, char** argv)
 
   Net* net = new Net(yuvs[0]);
   #endif
-  Net<float>* net = new Net<float>(im);
+  Net<double>* net = new Net<double>(im);
+
+  std::vector<double*> parameter_blocks;
+  for (size_t i = 0; i < net->weights_.size(); ++i)
+  {
+    parameter_blocks.push_back( &(net->weights_[i]->val_) );
+  }
+
+  #if 0
+  // Newer version of ceres than 1.8.0 required here
+  ceres::Problem problem;
+  const int stride = 4;
+  ceres::CostFunction* cost_function =
+      new ceres::DynamicAutoDiffCostFunction<NodeDiffFunctor, stride>(new NodeDiffFunctor(net));
+  //cost_function.AddParameterBlock(net->weights_.size());
+ 
+  //cost_function->SetNumResiduals(net->inputs_.size());
+  
+  problem.AddResidualBlock(cost_function, NULL, parameter_blocks);
+  #endif
 
   net->update();
   net->draw();
@@ -693,7 +742,7 @@ int main(int argn, char** argv)
       y = (y + net->layer2_[i].size()) % net->layer2_[i].size();
       x = (x + net->layer2_[i][y].size()) % net->layer2_[i][y].size();
       std::cout << "output input " << i << " " << y << " " << x << std::endl;
-      Node<float>* node = dynamic_cast<Node<float>*> (net->layer2_[i][y][x]);
+      Node<double>* node = dynamic_cast<Node<double>*> (net->layer2_[i][y][x]);
       std::cout << "outputs " << node->outputs_.size() << std::endl;
       cv::Mat vis_pre;
       if (layerToMat( node->output_weights_, vis_pre )) 
