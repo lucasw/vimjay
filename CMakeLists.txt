@@ -169,16 +169,17 @@ boost_system
 find_package(cmake_modules REQUIRED)
 find_package(Eigen REQUIRED)
 
-add_executable(nn_im
-  src/nngen/nn_im.cpp
-)
 include_directories(
   src/nngen
   ${Eigen_INCLUDE_DIRS}
 )
+
+add_executable(nn_im
+  src/nngen/nn_im.cpp
+)
 target_link_libraries(nn_im
   ${catkin_LIBRARIES}
-)  
+)
 
 
 #############
