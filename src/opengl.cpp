@@ -27,7 +27,13 @@
 #include <boost/timer.hpp>
 #include <ros/console.h>
 
-
+// TODO consider replacing this with a wrapper around Ogre or OSG
+// Could even have a very simple one around the new OpenCV viz3d
+// want to be able to instantiate simple geometry,
+// load models in generic formats (osg is better than ogre there I think)
+// and run shaders in them, 
+// move the objects around with geometry topics
+// pipe textures to objects and out to Image topics
 #include "config.h"
 #include "utility.h"
 

@@ -30,6 +30,7 @@ using namespace std;
 
 namespace bm {
 
+// TODO this can go away entirely
 ScreenCap::ScreenCap(const std::string name) :
   ImageNode(name),
   display(NULL),

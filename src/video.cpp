@@ -44,6 +44,10 @@ using namespace std;
 namespace bm {
 //////////////////////////////////////////////////
 
+  // TODO get rid of these and replace with generic ros tools for webcam and 
+  // video playback (is there a video playback ros node, ffmpeg/mplayer to ros?)
+  // May want to just move these into standalone ros nodelets if the opencv 
+  // webcam is better/more flexible for this than uvc cam or whatever else).   
   VideoCapture::VideoCapture(const std::string name) : 
       ImageNode(name),
       error_count(0)

@@ -174,6 +174,13 @@ include_directories(
   ${Eigen_INCLUDE_DIRS}
 )
 
+add_executable(image_deque
+  src/standalone/image_deque.cpp
+)
+target_link_libraries(image_deque
+  ${catkin_LIBRARIES}
+)
+
 add_executable(nn_im
   src/nngen/nn_im.cpp
 )

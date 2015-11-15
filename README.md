@@ -9,6 +9,27 @@ The current model is to only update nodes that are input ancestors to an active 
 
 Originally hosted on http://code.google.com/p/binarymillenium/source/browse/trunk/opencv/camthing on svn.
 
+standalone tools
+================
+
+Launch a webcam:
+
+```
+rosrun libuvc_camera camera_node
+```
+
+rqt_image_view crashes when it tries to view /image_raw from this.
+
+rosrun image_view image_view does work though.
+
+image_deque
+-----------
+
+```
+rosrun vimjay image_deque image:=/image_raw
+rostopic pub -1 /single std_msgs/Bool True
+```
+
 ROS conversion
 --------------
 
