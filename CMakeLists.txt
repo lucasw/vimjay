@@ -174,6 +174,14 @@ include_directories(
   ${Eigen_INCLUDE_DIRS}
 )
 
+add_executable(noise_image
+  src/standalone/noise.cpp
+)
+target_link_libraries(noise_image
+  ${catkin_LIBRARIES}
+)
+
+
 add_executable(image_deque
   src/standalone/image_deque.cpp
 )
