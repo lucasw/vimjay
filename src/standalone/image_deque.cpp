@@ -132,6 +132,10 @@ void ImageDeque::imageCallback(const sensor_msgs::ImageConstPtr& msg)
 
   frames_.push_back(cv_ptr->image.clone());
 
+  // TODO make this optional
+  // save the image with unique timestamp from init time + counter
+  // Or have node that just saves any image it receives?
+
   if (capture_single_)
     capture_single_ = false;
 
