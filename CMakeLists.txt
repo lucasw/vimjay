@@ -189,6 +189,13 @@ target_link_libraries(image_deque
   ${catkin_LIBRARIES}
 )
 
+add_executable(iir_image
+  src/standalone/iir_image.cpp
+)
+target_link_libraries(iir_image
+  ${catkin_LIBRARIES}
+)
+
 add_executable(nn_im
   src/nngen/nn_im.cpp
 )

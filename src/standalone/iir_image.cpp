@@ -28,91 +28,56 @@
 #include <std_msgs/Bool.h>
 #include <std_msgs/UInt16.h>
 
-class ImageDeque
+class IirImage
 {
 protected:
-
-  // TODO(lucasw) capture at a certain rate- and optionally force the images
-  // to a certain rate even if at lower rate?
-  // throttle tool already does first part, can combine that with capture_continuous_.
-
-  //bool writeImage();
-
-  bool restrict_size_;
 
   ros::NodeHandle nh_;
   // TODO or maybe capture N images then stop?
   image_transport::ImageTransport it_;
   // publish the most recent captured image
-  image_transport::Publisher captured_pub_;
-  image_transport::Subscriber image_sub_;
+  image_transport::Publisher image_pub_;
+  std::vector<image_transport::Subscriber> image_subs_;
 
+  std::vector<double> b_coeffs_;
+  //std::vector<cv::Mat> a_coeffs;
   // TODO maybe just temp debug
-  unsigned int index_;
+  //unsigned int index_;
   ros::Timer timer_;
 
   void pubImage(const ros::TimerEvent& e);
 
   // TODO(lucasw) or a deque of sensor_msgs/Images?
-  std::deque<cv::Mat> frames_;
-  void imageCallback(const sensor_msgs::ImageConstPtr& msg);
-
-  bool capture_single_;
-  ros::Subscriber single_sub_;
-  void singleCallback(const std_msgs::Bool::ConstPtr& msg);
-
-  bool capture_continuous_;
-  ros::Subscriber continuous_sub_;
-  void continuousCallback(const std_msgs::Bool::ConstPtr& msg);
-
-  unsigned int max_size_;
-  ros::Subscriber max_size_sub_;
-  void maxSizeCallback(const std_msgs::UInt16::ConstPtr& msg);
+  std::vector<cv::Mat> in_frames_;
+  std::deque<cv::Mat> out_frames_;
+  void imageCallback(const sensor_msgs::ImageConstPtr& msg, const size_t index);
 
 public:
 
-  ImageDeque();
+  IirImage();
 };
 
-ImageDeque::ImageDeque() :
-    it_(nh_),
-    capture_single_(false),
-    capture_continuous_(false),
-    max_size_(10),
-    restrict_size_(false),
-    index_(0)
+IirImage::IirImage() :
+    it_(nh_)
 {
-  captured_pub_ = it_.advertise("captured_image", 1, true);
-  image_sub_ = it_.subscribe("image", 1, &ImageDeque::imageCallback, this);
-  // TODO also dynamic reconfigure for these
-  single_sub_ = nh_.subscribe<std_msgs::Bool>("single", 1,
-      &ImageDeque::singleCallback, this);
-  continuous_sub_ = nh_.subscribe<std_msgs::Bool>("continuous", 1,
-      &ImageDeque::continuousCallback, this);
-  max_size_sub_ = nh_.subscribe<std_msgs::UInt16>("max_size", 1,
-      &ImageDeque::maxSizeCallback, this);
+  image_pub_ = it_.advertise("filtered_image", 1, true);
 
-  timer_ = nh_.createTimer(ros::Duration(0.1), &ImageDeque::pubImage, this);
+  nh_.getParam("b_coeffs", b_coeffs_);
+  in_frames_.resize(b_coeffs_.size());
+  for (size_t i = 0; i < b_coeffs_.size(); ++i)
+  {
+    std::stringstream ss;
+    ss << "image_" << i;
+    image_subs_.push_back(it_.subscribe(ss.str(), 1,
+        boost::bind(&IirImage::imageCallback, this, _1, i)));
+  }
+
+  timer_ = nh_.createTimer(ros::Duration(0.1), &IirImage::pubImage, this);
 }
 
-void ImageDeque::maxSizeCallback(const std_msgs::UInt16::ConstPtr& msg)
+void IirImage::imageCallback(const sensor_msgs::ImageConstPtr& msg, const size_t index)
 {
-  max_size_ = msg->data;
-}
-
-void ImageDeque::singleCallback(const std_msgs::Bool::ConstPtr& msg)
-{
-  capture_single_ = msg->data;
-}
-
-void ImageDeque::continuousCallback(const std_msgs::Bool::ConstPtr& msg)
-{
-  capture_continuous_ = msg->data;
-}
-
-void ImageDeque::imageCallback(const sensor_msgs::ImageConstPtr& msg)
-{
-  if (!(capture_single_ || capture_continuous_))
+  if (index >= in_frames_.size())
     return;
 
   cv_bridge::CvImageConstPtr cv_ptr;
@@ -128,47 +93,28 @@ void ImageDeque::imageCallback(const sensor_msgs::ImageConstPtr& msg)
     return;
   }
 
-  frames_.push_back(cv_ptr->image.clone());
-
-  if (capture_single_)
-    capture_single_ = false;
-
-  if (restrict_size_)
-  {
-    while (frames_.size() > max_size_)
-      // TODO also could have mode where it fills and then doesn't accept any more
-      frames_.pop_front();
-  }
-
-  // TODO could put this in separate thread.
-  // publish the exact same message received - TODO is this safe?
-  //pub_.publish(msg);
+  in_frames_[index] = cv_ptr->image.clone();
 }
 
 // TEMP code to show output of frames
-void ImageDeque::pubImage(const ros::TimerEvent& e)
+void IirImage::pubImage(const ros::TimerEvent& e)
 {
-  if (index_ < frames_.size())
+  cv::Mat out_frame;
+
   {
     // TODO this may be argument for keeping original Image messages around
     cv_bridge::CvImage cv_image;
     cv_image.header.stamp = ros::Time::now(); // or reception time of original message?
-    cv_image.image = frames_[index_];
+    cv_image.image = out_frame;
     cv_image.encoding = "rgb8";
-    captured_pub_.publish(cv_image.toImageMsg());
-    index_++;
+    image_pub_.publish(cv_image.toImageMsg());
   }
 
-  ROS_INFO_STREAM(frames_.size() << " " << index_);
-
-
-  if (index_ >= frames_.size())
-    index_ = 0;
 }
 
 int main(int argc, char** argv)
 {
-  ros::init(argc, argv, "image_deque");
-  ImageDeque image_deque;
+  ros::init(argc, argv, "iir_image");
+  IirImage image_deque;
   ros::spin();
 }
