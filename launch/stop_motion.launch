@@ -45,17 +45,23 @@
     <remap from="image" to="image_raw" />
   </node>
 
+  <!-- capture the input image when triggered -->
+  <node name="capture_trigger" pkg="vimjay" type="key_trigger" >
+    <remap from="trigger" to="single" />
+  </node>
+
   <node name="image_deque" pkg="vimjay" type="image_deque" 
       output="screen"
       >
     <remap from="image" to="image_raw" />
   </node>
 
-  <node name="captured_image_view" pkg="image_view" type="image_view"
-      >
+  <node name="anim_image_view" pkg="image_view" type="image_view" >
+    <remap from="image" to="anim" />
+  </node>
+  <node name="captured_image_view" pkg="image_view" type="image_view" >
     <remap from="image" to="captured_image" />
   </node>
-
 
   <node name="blur_image" pkg="vimjay" type="iir_image" 
       output="screen"
@@ -71,6 +77,19 @@
     <remap from="image" to="filtered_image" />
   </node>
 
+  <node name="diff_image" pkg="vimjay" type="iir_image" 
+      output="screen"
+      >
+    <rosparam param="b_coeffs">[1.0, -1.0]</rosparam>
+    <remap from="image_0" to="captured_image" />
+    <remap from="image_1" to="image_raw" />
+    <remap from="filtered_image" to="diff_image" />
+  </node>
+  <node name="diff_image_view" pkg="image_view" type="image_view"
+      output="screen"
+      >
+    <remap from="image" to="diff_image" />
+  </node>
 
 
 </launch>

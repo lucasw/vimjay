@@ -182,6 +182,14 @@ target_link_libraries(noise_image
 )
 
 
+add_executable(key_trigger
+  src/standalone/key_trigger.cpp
+)
+target_link_libraries(key_trigger
+  ${catkin_LIBRARIES}
+)
+
+
 add_executable(image_deque
   src/standalone/image_deque.cpp
 )
