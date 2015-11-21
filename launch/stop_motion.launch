@@ -72,14 +72,12 @@
   </node>
 
   <node name="blur_image_view" pkg="image_view" type="image_view"
-      output="screen"
-      >
+      output="screen" >
     <remap from="image" to="filtered_image" />
   </node>
 
   <node name="diff_image" pkg="vimjay" type="iir_image" 
-      output="screen"
-      >
+      output="screen" >
     <rosparam param="b_coeffs">[1.0, -1.0]</rosparam>
     <remap from="image_0" to="captured_image" />
     <remap from="image_1" to="image_raw" />

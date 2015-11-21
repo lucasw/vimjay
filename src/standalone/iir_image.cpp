@@ -108,12 +108,16 @@ void IirImage::pubImage(const ros::TimerEvent& e)
 
   for (size_t i = 0; i < in_frames_.size() && i < b_coeffs_.size(); ++i)
   {
+    const double bn = b_coeffs_[i];
     if (i == 0)
-      out_frame = in_frames_[i] * b_coeffs_[i];
+      out_frame = in_frames_[i] * bn;
     else if ((out_frame.size() == in_frames_[i].size()) &&
       (out_frame.type() == in_frames_[i].type()))
     {
-      out_frame += in_frames_[i] * b_coeffs_[i];
+      if (bn > 0)
+        out_frame += in_frames_[i] * bn;
+      else
+        out_frame -= in_frames_[i] * -bn;
     }
   }
 
