@@ -45,6 +45,7 @@ protected:
   image_transport::ImageTransport it_;
   // publish the most recent captured image
   image_transport::Publisher captured_pub_;
+  image_transport::Publisher anim_pub_;
   image_transport::Subscriber image_sub_;
 
   // TODO maybe just temp debug
@@ -83,6 +84,7 @@ ImageDeque::ImageDeque() :
     index_(0)
 {
   captured_pub_ = it_.advertise("captured_image", 1, true);
+  anim_pub_ = it_.advertise("anim", 1);
   image_sub_ = it_.subscribe("image", 1, &ImageDeque::imageCallback, this);
   // TODO also dynamic reconfigure for these
   single_sub_ = nh_.subscribe<std_msgs::Bool>("single", 1,
@@ -142,7 +144,7 @@ void ImageDeque::imageCallback(const sensor_msgs::ImageConstPtr& msg)
 
   // TODO could put this in separate thread.
   // publish the exact same message received - TODO is this safe?
-  //pub_.publish(msg);
+  captured_pub_.publish(msg);
 }
 
 // TEMP code to show output of frames
@@ -155,12 +157,11 @@ void ImageDeque::pubImage(const ros::TimerEvent& e)
     cv_image.header.stamp = ros::Time::now(); // or reception time of original message?
     cv_image.image = frames_[index_];
     cv_image.encoding = "rgb8";
-    captured_pub_.publish(cv_image.toImageMsg());
+    anim_pub_.publish(cv_image.toImageMsg());
     index_++;
   }
 
-  ROS_INFO_STREAM(frames_.size() << " " << index_);
-
+  //ROS_INFO_STREAM(frames_.size() << " " << index_);
 
   if (index_ >= frames_.size())
     index_ = 0;

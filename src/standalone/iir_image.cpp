@@ -62,12 +62,17 @@ IirImage::IirImage() :
 {
   image_pub_ = it_.advertise("filtered_image", 1, true);
 
-  nh_.getParam("b_coeffs", b_coeffs_);
+  ros::param::get("~b_coeffs", b_coeffs_);
+  if (b_coeffs_.size() == 0)
+  {
+    ROS_WARN_STREAM("no b coefficients");
+  }
   in_frames_.resize(b_coeffs_.size());
   for (size_t i = 0; i < b_coeffs_.size(); ++i)
   {
     std::stringstream ss;
     ss << "image_" << i;
+    ROS_INFO_STREAM("subscribe " << ss.str() << " " << b_coeffs_[i]);
     image_subs_.push_back(it_.subscribe(ss.str(), 1,
         boost::bind(&IirImage::imageCallback, this, _1, i)));
   }
@@ -100,6 +105,17 @@ void IirImage::imageCallback(const sensor_msgs::ImageConstPtr& msg, const size_t
 void IirImage::pubImage(const ros::TimerEvent& e)
 {
   cv::Mat out_frame;
+
+  for (size_t i = 0; i < in_frames_.size() && i < b_coeffs_.size(); ++i)
+  {
+    if (i == 0)
+      out_frame = in_frames_[i] * b_coeffs_[i];
+    else if ((out_frame.size() == in_frames_[i].size()) &&
+      (out_frame.type() == in_frames_[i].type()))
+    {
+      out_frame += in_frames_[i] * b_coeffs_[i];
+    }
+  }
 
   {
     // TODO this may be argument for keeping original Image messages around
