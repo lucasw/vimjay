@@ -181,6 +181,13 @@ target_link_libraries(noise_image
   ${catkin_LIBRARIES}
 )
 
+add_executable(color
+  src/standalone/color.cpp
+)
+target_link_libraries(color
+  ${catkin_LIBRARIES}
+)
+
 add_executable(save_image
   src/standalone/save_image.cpp
 )

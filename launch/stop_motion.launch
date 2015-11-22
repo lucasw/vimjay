@@ -94,11 +94,18 @@
     <remap from="image_1" to="image_raw_small" />
   </node>
 
+  <node name="gray" pkg="vimjay" type="color"
+      output="screen" >
+    <param name="width" value="320" />
+    <param name="height" value="256" />
+    <remap from="image" to="gray" />
+  </node>
   <node name="diff_image" pkg="vimjay" type="iir_image" 
       output="screen" >
-    <rosparam param="b_coeffs">[1.0, -1.0]</rosparam>
-    <remap from="image_0" to="captured_image_small" />
-    <remap from="image_1" to="image_raw_small" />
+    <rosparam param="b_coeffs">[1.0, 0.5, -0.5]</rosparam>
+    <remap from="image_0" to="gray" />
+    <remap from="image_1" to="captured_image_small" />
+    <remap from="image_2" to="image_raw_small" />
     <remap from="filtered_image" to="diff_image" />
   </node>
 
