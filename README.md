@@ -12,6 +12,14 @@ Originally hosted on http://code.google.com/p/binarymillenium/source/browse/trun
 standalone tools
 ================
 
+usb-cam vs. libuvc_camera
+-------------------------
+
+The former uses v4l rather than uvc, so won't implement uvc controls (it would be great to have standalone for that).
+usb_cam seems more stable so far, doesn't require editing usb dev permissions and doesn't take down the linux usb camera modules (how to restore them?).
+
+ros-jade-usb-cam
+
 Launch a webcam:
 
 ```
@@ -32,6 +40,8 @@ rostopic pub -1 /single std_msgs/Bool True
 
 ROS conversion
 --------------
+
+This project is in the process of being converted to ros, which may substantially alter it to the point of being unrecognizable and it probably ought to be renamed.
 
 ```
   :s/VLOG(\(.\{-}\)) << \(.*\);/ROS_DEBUG_STREAM_COND(log_level > \1, \2);/

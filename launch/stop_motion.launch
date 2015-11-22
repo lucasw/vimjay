@@ -5,6 +5,14 @@
   <arg name="height" value="1024" />
 
   <group if="true">
+  <node name="usb_cam" pkg="usb_cam" type="usb_cam_node"
+      output="screen" >
+    <param name="image_width" value="1280" />
+    <param name="image_height" value="1024" />
+  </node>
+  </group>
+
+  <group if="false">
   <node name="uvc_camera" pkg="libuvc_camera" type="camera_node" 
       output="screen">
     <!-- Parameters used to find the camera -->
@@ -35,7 +43,8 @@
       <remap from="image" to="image_raw" />
     </node>
   </group>
-  
+
+  <group ns="usb_cam" >
   <!-- rqt_image_view doesn't support arg yet
   <node name="raw_image_view" pkg="rqt_image_view" type="rqt_image_view"
       args="image_raw" />
@@ -91,5 +100,5 @@
     <remap from="image" to="diff_image" />
   </node>
 
-
+  </group>
 </launch>
