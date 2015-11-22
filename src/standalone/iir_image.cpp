@@ -50,15 +50,16 @@ protected:
   // TODO(lucasw) or a deque of sensor_msgs/Images?
   std::vector<cv::Mat> in_frames_;
   std::deque<cv::Mat> out_frames_;
+  bool dirty_;
   void imageCallback(const sensor_msgs::ImageConstPtr& msg, const size_t index);
-
 public:
 
   IirImage();
 };
 
 IirImage::IirImage() :
-    it_(nh_)
+    it_(nh_),
+    dirty_(false)
 {
   image_pub_ = it_.advertise("filtered_image", 1, true);
 
@@ -99,11 +100,15 @@ void IirImage::imageCallback(const sensor_msgs::ImageConstPtr& msg, const size_t
   }
 
   in_frames_[index] = cv_ptr->image.clone();
+  dirty_ = true;
 }
 
 // TEMP code to show output of frames
 void IirImage::pubImage(const ros::TimerEvent& e)
 {
+  if (!dirty_)
+    return;
+
   cv::Mat out_frame;
 
   for (size_t i = 0; i < in_frames_.size() && i < b_coeffs_.size(); ++i)
@@ -130,6 +135,7 @@ void IirImage::pubImage(const ros::TimerEvent& e)
     image_pub_.publish(cv_image.toImageMsg());
   }
 
+  dirty_ = false;
 }
 
 int main(int argc, char** argv)
