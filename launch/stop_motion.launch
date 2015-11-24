@@ -1,12 +1,12 @@
 <?xml version="1.0"?>
 <launch>
-  <arg name="device" value="0" />
-  <arg name="width" value="1280" />
-  <arg name="height" value="1024" />
+  <arg name="device" default="0" />
+  <arg name="width" default="1280" />
+  <arg name="height" default="1024" />
 
-  <arg name="use_usb_cam" value="false" />
-  <arg name="use_libuvc_camera" value="true" />
-  <arg name="use_noise_image" value="false" />
+  <arg name="use_usb_cam" default="false" />
+  <arg name="use_libuvc_camera" default="true" />
+  <arg name="use_noise_image" default="false" />
 
   <group if="$(arg use_usb_cam)">
   <node name="usb_cam" pkg="usb_cam" type="usb_cam_node"
