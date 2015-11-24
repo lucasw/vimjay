@@ -19,6 +19,13 @@ Tried removing scanning_mode and now auto_exposure has a bad number in it.
 rosrun dynamic_reconfigure dynparam get /usb_cam/uvc_camera
 ```
 
+After running the node it may be necessary to restore the webcam:
+
+```
+sudo rmmod uvcvideo
+sudo modprobe uvcvideo
+```
+
 #### usb-cam vs. libuvc_camera
 
 The former uses v4l rather than uvc, so won't implement uvc controls (it would be great to have standalone for that).
@@ -36,6 +43,8 @@ rqt_image_view crashes when it tries to view /image_raw from this.
 
 rosrun image_view image_view does work though.
 
+
+
 ### Ros-ified v4l2ucp
 
 Using usb_cam seems fine, but would like to control it through ros with every control exposed just like v4l2ucp does.
@@ -44,9 +53,35 @@ The libuvc_camera cfg file has every possible control in it?
 Can the controls actually use be set at run-time?
 
 v4l2ucp source code:
+
+``` 
+  git clone git://git.code.sf.net/p/v4l2ucp/git v4l2ucp-git
+```
+
 http://sourceforge.net/p/v4l2ucp/git/ci/master/tree/src/
 
+Built from source easily.
+
+Also contains v4l2ctrl, which makes loading and saving current parameters easy:
+
+```
+  ./v4l2ctrl  -d /dev/video0 -s test.cfg
+  cat test.cfg
+  9963776:                     Brightness:0
+  9963777:                       Contrast:0
+  9963778:                     Saturation:64
+  9963779:                            Hue:0
+  9963788:White Balance Temperature, Auto:1
+  9963792:                          Gamma:100
+  9963795:                           Gain:0
+  9963800:           Power Line Frequency:0
+  9963802:      White Balance Temperature:4600
+  9963803:                      Sharpness:2
+  9963804:         Backlight Compensation:3
+```
+
 ### image_deque
+
 
 ```
 rosrun vimjay image_deque image:=/image_raw
