@@ -4,7 +4,11 @@
   <arg name="width" value="1280" />
   <arg name="height" value="1024" />
 
-  <group if="true">
+  <arg name="use_usb_cam" value="false" />
+  <arg name="use_libuvc_camera" value="true" />
+  <arg name="use_noise_image" value="false" />
+
+  <group if="$(arg use_usb_cam)">
   <node name="usb_cam" pkg="usb_cam" type="usb_cam_node"
       output="screen" >
     <param name="image_width" value="1280" />
@@ -13,7 +17,7 @@
   </node>
   </group>
 
-  <group if="false">
+  <group if="$(arg use_libuvc_camera)" ns="usb_cam" >
   <node name="uvc_camera" pkg="libuvc_camera" type="camera_node" 
       output="screen">
     <!-- Parameters used to find the camera -->
@@ -23,7 +27,7 @@
     <!-- If the above parameters aren't unique, choose the first match: -->
     <param name="index" value="$(arg device)"/>
 
-    <param name="scanning_mode" value="1" />
+    <!--param name="scanning_mode" value="1" /-->
     <!-- Image size and type -->
     <param name="width" value="$(arg width)"/>
     <param name="height" value="$(arg height)"/>
@@ -37,9 +41,9 @@
     <param name="auto_exposure" value="0"/>  <!-- use aperture_priority auto exposure -->
     <param name="auto_white_balance" value="false"/>
   </node>
-  </group>
+  </group>  <!-- use_libuvc_camera -->
 
-  <group if="false">
+  <group if="$(arg use_noise_image)">
     <node name="noise_image" pkg="vimjay" type="noise_image" >
       <remap from="image" to="image_raw" />
     </node>
