@@ -64,7 +64,7 @@ Noise::Noise() :
 
   // TODO get width height
   timer_ = nh_.createTimer(ros::Duration(1.0), &Noise::pubImage, this);
-  //pubImage(ros::TimerEvent());
+  // pubImage(ros::TimerEvent());
 }
 
 void Noise::pubImage(const ros::TimerEvent& e)

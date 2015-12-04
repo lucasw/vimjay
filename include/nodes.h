@@ -34,7 +34,7 @@ static int default_ind;
 
 // nesting, keys for moving up or down
 //
-//kinect support
+// kinect support
 
 // Basic nodes are ImageNodes, Signals (numerical), and image Buffers (TBD signal Buffers?)
 // second types are vectors of image nodes and signals (probably required to be the same size,
@@ -52,7 +52,7 @@ static int default_ind;
 static bool bool_val;
 
 class Node;
-//class Buffer;
+// class Buffer;
 
 // TBD need to template this
 enum conType
@@ -73,7 +73,7 @@ enum satType
   ROLL
 };
 
-//class Elem;
+// class Elem;
 
 // base class for Connector and Node to inherit from
 class Elem : public boost::enable_shared_from_this<Elem>
@@ -85,7 +85,7 @@ protected:
   std::map<const void*, std::map<int, bool> > dirty_hash;
 
 public:
-  //Elem();
+  // Elem();
   explicit Elem(const std::string name);
 
   virtual ~Elem();
@@ -97,7 +97,7 @@ public:
   std::string name;
   std::string description;
   // is the output of this node different from the last  timestep
-  //bool is_dirty;
+  // bool is_dirty;
   // has the node changed since the last time the pointer
   // parameter supplied has called this function (and cleared it)
   bool isDirty(
@@ -191,11 +191,11 @@ public:
 
   boost::mutex im_mutex;
 
-  //Buffer* getBuffer();
+  // Buffer* getBuffer();
 };
 
-//typedef std::map<std::string, std::pair<Node*, std::string> > inputsItemType;
-//typedef std::map<std::string, inputsItemType > inputsType;
+// typedef std::map<std::string, std::pair<Node*, std::string> > inputsItemType;
+// typedef std::map<std::string, inputsItemType > inputsType;
 
 class Node : public Elem
 {
@@ -229,11 +229,11 @@ public:
   std::string selected_port;
   conType selected_type;
   bool draw_selected_port;
-  //void drawSelectedPort();
+  // void drawSelectedPort();
 
   explicit Node(const std::string name);
 
-  //Node(std::string name, cv::Point loc, cv::Mat graph_ui );
+  // Node(std::string name, cv::Point loc, cv::Mat graph_ui );
 
   virtual ~Node() {}
 
@@ -276,8 +276,8 @@ public:
     bool& valid = bool_val,
     bool& is_dirty = bool_val,
     const int is_dirty_ind = 3);//,
-  //bool& is_dirty);
-  //const bool require_dirty= false);
+  // bool& is_dirty);
+  // const bool require_dirty= false);
 
   // set image, only succeeds if not an input TBD - rw permissions?
   bool setImage(const std::string port, cv::Mat& im, const bool internally_set = false);
@@ -309,16 +309,16 @@ public:
     const float val,
     int& actual_ind = default_ind
   );
-  //cv::Mat& image);
+  // cv::Mat& image);
 
   cv::Mat getBuffer(
     const std::string port,
     const int val,
     int& actual_ind = default_ind
   );
-  //cv::Mat& image);
+  // cv::Mat& image);
 
-  //cv::Mat getBuffer(
+  // cv::Mat getBuffer(
   //  const std::string port,
 
   // getSigBuf()

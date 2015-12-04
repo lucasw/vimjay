@@ -9,7 +9,7 @@
 #include "opencv2/highgui/highgui.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
 
-//#include <random>
+// #include <random>
 #include <deque>
 #include <map>
 #include "nodes.h"
@@ -46,7 +46,7 @@ public:
   float getFr(const float fr);
   float getInd(int& ind);
 
-  //bool writeSignals();
+  // bool writeSignals();
 };
 
 class SigBufferXY : public SigBuffer
@@ -63,7 +63,7 @@ public:
   explicit Trig(const std::string name);
   virtual void init();
   virtual bool update();
-  //virtual bool handleKey(int key);
+  // virtual bool handleKey(int key);
 };
 
 // Arbitrary inputs, TBD use multiple inheritance

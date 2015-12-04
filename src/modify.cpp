@@ -89,15 +89,15 @@ void Rot2D::init()
   setSignal("phi", 0);
   setSignal("theta", 0);
   setSignal("psi", 0);
-  setSignal("z", 573, false, SATURATE, 1, 1e6); // TBD this number
+  setSignal("z", 573, false, SATURATE, 1, 1e6);  // TBD this number
   setSignal("scale", 1.0);
-  setSignal("center_x", 5); //  Config::inst()->im_width/2 );
-  setSignal("center_y", 5); // Config::inst()->im_height/2 );
-  setSignal("center_z", 0); // -Config::inst()->im_height/2 );
-  setSignal("off_x", 5); //Config::inst()->im_width/2 );
-  setSignal("off_y", 5); //Config::inst()->im_height/2 );
+  setSignal("center_x", 5);  //  Config::inst()->im_width/2 );
+  setSignal("center_y", 5);  // Config::inst()->im_height/2 );
+  setSignal("center_z", 0);  // -Config::inst()->im_height/2 );
+  setSignal("off_x", 5);  // Config::inst()->im_width/2 );
+  setSignal("off_y", 5);  // Config::inst()->im_height/2 );
   setSignal("off_z", 0);
-  setSignal("nrm_px", 1, false, ROLL, 0, 1); // normalized (0-10) or pixel coordinates for above
+  setSignal("nrm_px", 1, false, ROLL, 0, 1);  // normalized (0-10) or pixel coordinates for above
   setSignal("border", 0, false, ROLL, 0, 4);
   setSignal("mode", 0, false, ROLL, 0, 4);
   setSignal("manual_xy", 0.0);
@@ -151,7 +151,7 @@ bool Rot2D::update()
     off_y *= ht / (10.0);
     off_z *= ht / (10.0);
   }
-  //ROS_DEBUG_STREAM_COND(log_level > 1, name << " " << is_dirty << " " << im_in->name << " " << im_in->is_dirty);
+  // ROS_DEBUG_STREAM_COND(log_level > 1, name << " " << is_dirty << " " << im_in->name << " " << im_in->is_dirty);
 
 
   cv::Mat in_p = (cv::Mat_<float>(3, 4) <<
@@ -159,14 +159,14 @@ bool Rot2D::update()
                   0, 0,  ht, ht,
                   0, 0, 0, 0);
 
-  cv::Mat in_roi = in_p.t()(cv::Rect(0, 0, 2, 4)); //).clone();
+  cv::Mat in_roi = in_p.t()(cv::Rect(0, 0, 2, 4));  // ).clone();
   in_roi = in_roi.clone();
   cv::Mat out_roi = in_roi.clone();
 
   if (!getBool("manual_xy"))
   {
     //////////////////////////////////////////////////
-    /// This implements a standard rotozoom
+    // This implements a standard rotozoom
     // move the image prior to rotation
     cv::Mat offset = (cv::Mat_<float>(3, 4) <<
                       off_x, off_x, off_x, off_x,
@@ -198,8 +198,8 @@ bool Rot2D::update()
     // TBD reformat the matrices so all the transposes aren't necessary
 
     // Transform into ideal coords
-    //float fx = getSignal("fx");
-    cv::Mat out_p = (in_p - offset).t() * rotx.t() * roty.t() * rotz.t() * scale; // + center_m.t();
+    // float fx = getSignal("fx");
+    cv::Mat out_p = (in_p - offset).t() * rotx.t() * roty.t() * rotz.t() * scale;  // + center_m.t();
 
     out_roi = out_p(cv::Rect(0, 0, 2, 4)).clone();
 
@@ -332,7 +332,7 @@ bool Kaleid::update()
     mask4 = in.clone();
   }
   cv::Mat mask1 = chan4to1(mask4);
-  //const int offset = getSignal("offset");
+  // const int offset = getSignal("offset");
   mask1 = (mask1 > getSignal("offset"));
 
   cv::Mat mask;
@@ -383,10 +383,10 @@ bool Kaleid::update()
       cv::Mat out_pts = (in_pts - offset_pts) * rot + offset_pts;
 
       for (int k = 0; k < 4; k++)
-        out_pts.at<float>(k, 0) += x_off * i; // + wd/2;
+        out_pts.at<float>(k, 0) += x_off * i;  // + wd/2;
 
       for (int k = 0; k < 4; k++)
-        out_pts.at<float>(k, 1) += y_off * j; // + ht/2;
+        out_pts.at<float>(k, 1) += y_off * j;  // + ht/2;
 
       if (getBool("do_y_offset"))
       {
@@ -402,9 +402,9 @@ bool Kaleid::update()
 
       cv::Mat x_tf, y_tf;
       // TBD combine using base_xy
-      cv::warpPerspective(base_x_masked, x_tf, transform, base_x_masked.size()); //, getModeType(), getBorderType());
-      cv::warpPerspective(base_y_masked, y_tf, transform, base_y_masked.size()); //, getModeType(), getBorderType());
-      //cv::Mat test= x_tf ==0; // these comparison produce 8 bit images
+      cv::warpPerspective(base_x_masked, x_tf, transform, base_x_masked.size());  //, getModeType(), getBorderType());
+      cv::warpPerspective(base_y_masked, y_tf, transform, base_y_masked.size());  //, getModeType(), getBorderType());
+      // cv::Mat test= x_tf ==0;  // these comparison produce 8 bit images
       // can't do simple binary comparisons because they produce 8-bit images
       cv::Mat x_tf_neg;
       cv::threshold(x_tf, x_tf_neg, 0.1, 1.0, THRESH_BINARY_INV);
@@ -554,7 +554,7 @@ void Remap::init()
   setSignal("offsety", 127.0);
   // select if base indices are added to offxy or not TBD current bit depth doesn't support
   // this
-  //setSignal("off_mode", 0, false, ROLL, 0, 1);
+  // setSignal("off_mode", 0, false, ROLL, 0, 1);
   setSignal("border", 0, false, ROLL, 0, 4);
   setSignal("mode", 0, false, ROLL, 0, 4);
 
@@ -598,7 +598,7 @@ bool Remap::update()
 
   if (offy.empty() && offx.empty())
   {
-    //if (offy.empty() || offx.empty()) {
+    // if (offy.empty() || offx.empty()) {
     setImage("out", in);
     return false;
   }
@@ -671,7 +671,7 @@ void Tap::init()
   getSignal("value");
   getBuffer("buffer", 0);
   setInputPort(BUFFER, "buffer", boost::shared_ptr<Node>(), "out");
-  //getImage("Buffer");
+  // getImage("Buffer");
 }
 
 void Tap::setup(
@@ -693,9 +693,9 @@ bool Tap::update()
     float value = getSignal("value");
 
     ROS_DEBUG_STREAM_COND(log_level > 5, name << " update " << value);
-    cv::Mat out; // = getImage("out");
+    cv::Mat out;  // = getImage("out");
     int actual_ind;
-    out = getBuffer("buffer", value, actual_ind); //, tmp)) return false;
+    out = getBuffer("buffer", value, actual_ind);  //, tmp)) return false;
     setSignal("actual_ind", actual_ind);
 
     if (out.empty()) return false;
@@ -728,7 +728,7 @@ bool TapInd::update()
     int ind = value;
 
     ROS_DEBUG_STREAM_COND(log_level > 2, name << " update " << ind);
-    cv::Mat out; //= getImage("out");
+    cv::Mat out;  //= getImage("out");
     int actual_ind;
     out = getBuffer("buffer", ind, actual_ind);
     setSignal("actual_ind", actual_ind);
@@ -769,7 +769,7 @@ void Add::setup(
   if (np.size() != nf.size())
   {
     ROS_ERROR_STREAM(CLWRN << "mismatched inputs and coefficients" << CLNRM);
-    //return;
+    // return;
   }
 
   // TBD instead of clearing all, only clear the keys that match "add"
@@ -777,7 +777,7 @@ void Add::setup(
   {
     const string port = "add" + boost::lexical_cast<string>(i);
     setInputPort(IMAGE, port, np[i], "out");
-    setInputPort(SIGNAL, port, boost::shared_ptr<Node>(), "value"); // this allows other signals to connect to replace nf
+    setInputPort(SIGNAL, port, boost::shared_ptr<Node>(), "value");  // this allows other signals to connect to replace nf
   }
 }
 
@@ -785,7 +785,7 @@ bool Add::update()
 {
   if (!Node::update()) return false;
 
-  //ROS_DEBUG_STREAM_COND(log_level > 1, "name " << is_dirty << " " << p1->name << " " << p1->is_dirty << ", " << p2->name << " " << p2->is_dirty );
+  // ROS_DEBUG_STREAM_COND(log_level > 1, "name " << is_dirty << " " << p1->name << " " << p1->is_dirty << ", " << p2->name << " " << p2->is_dirty );
   if (!isDirty(this, 5))
   {
     ROS_DEBUG_STREAM_COND(log_level > 1, name << " not dirty ");
@@ -818,7 +818,7 @@ bool Add::update()
 
     cv::Mat tmp_in;
     bool im_dirty;
-    //const string port = "add" + boost::lexical_cast<string>(i);
+    // const string port = "add" + boost::lexical_cast<string>(i);
     tmp_in = getImage(port);
     if (tmp_in.empty())
     {
@@ -854,7 +854,7 @@ bool Add::update()
     }
   } // nf loop
 
-  //ROS_DEBUG_STREAM_COND(log_level > 1, name << " " << "update");
+  // ROS_DEBUG_STREAM_COND(log_level > 1, name << " " << "update");
   setImage("out", out);
 
   return true;
@@ -888,7 +888,7 @@ bool Add::handleKey(int key)
     // add a new addition port
     const string port = "add" + boost::lexical_cast<string>(add_num);
     setInputPort(IMAGE, port, boost::shared_ptr<Node>(), "out");
-    setInputPort(SIGNAL, port, boost::shared_ptr<Node>(), "value"); // this allows other signals to connect to replace nf
+    setInputPort(SIGNAL, port, boost::shared_ptr<Node>(), "value");  // this allows other signals to connect to replace nf
 
     // TBD make a way to delete a port
   }
@@ -914,9 +914,9 @@ void AddMasked::init()
   ImageNode::init();
   cv::Mat tmp;
   setImage("add0", tmp);
-  //setSignal("add0", 1.0);
+  // setSignal("add0", 1.0);
   setImage("add1", tmp);
-  //setSignal("add1", 1.0);
+  // setSignal("add1", 1.0);
   setImage("mask", tmp);
   setSignal("offset", 0, false, SATURATE, 0, 255);
   vcol = cv::Scalar(200, 200, 50);
@@ -926,7 +926,7 @@ bool AddMasked::update()
 {
   if (!Node::update()) return false;
 
-  //ROS_DEBUG_STREAM_COND(log_level > 1, "name " << is_dirty << " " << p1->name << " " << p1->is_dirty << ", " << p2->name << " " << p2->is_dirty );
+  // ROS_DEBUG_STREAM_COND(log_level > 1, "name " << is_dirty << " " << p1->name << " " << p1->is_dirty << ", " << p2->name << " " << p2->is_dirty );
   if (!isDirty(this, 5))
   {
     ROS_DEBUG_STREAM_COND(log_level > 4, name << " not dirty ");
@@ -949,13 +949,13 @@ bool AddMasked::update()
   }
 
   int offset = getSignal("offset");
-  cv::Mat mask = mask4 - cv::Scalar(offset, offset, offset, 0); // cv::Mat(mask4.size(), CV_8UC1);
+  cv::Mat mask = mask4 - cv::Scalar(offset, offset, offset, 0);  // cv::Mat(mask4.size(), CV_8UC1);
   // TBD use first channel as mask, TBD could combine all channels
 
   // this is masking individually on all color channels, probably
   cv::Mat out = add0 & (mask == 0);
   out += add1 & (mask > 0);
-  //cv::Add(add0,
+  // cv::Add(add0,
   setImage("out", out);
   return true;
 }
@@ -1280,7 +1280,7 @@ bool Resize::update()
   float fy = abs(getSignal("fy"));
 
   cv::Size dsize = cv::Size(fx * sz.width, fy * sz.height);
-  //TBD
+  // TBD
   if (fx > 1.0) dsize.width = sz.width / fx;
   if (fy > 1.0) dsize.height = sz.height / fy;
 
@@ -1406,14 +1406,14 @@ bool EqualizeHist::update()
     cv::Mat mask = cv::Mat(mask4.size(), CV_8UC1);
 
     cv::cvtColor(mask4, mask, CV_BGR2GRAY);
-    cv::Scalar masked_mean = cv::mean(in, mask); //[0];
+    cv::Scalar masked_mean = cv::mean(in, mask);  // [0];
     setSignal("m_b", masked_mean[0]);
     setSignal("m_g", masked_mean[1]);
     setSignal("m_r", masked_mean[2]);
     // does setting the unmasked areas to the masked mean
     // make the histogram equalization functionally masked?
     in = in.clone();
-    //in += masked_mean & (mask4 == 0);
+    // in += masked_mean & (mask4 == 0);
     in += cv::Scalar::all(getSignal("black")) & (mask4 == 0);
     // TBD making so much of the image a single color produces a harsh light to dark transition
     // from equalizeHist, really it needs to be a gradient with the same histogram as the masked area
@@ -1430,7 +1430,7 @@ bool EqualizeHist::update()
   const int ch1[] = {ind, 0};
   mixChannels(&hsv, 1, &in_v, 1, ch1, 1);
 
-  cv::Mat out_v; // = in_v.clone();
+  cv::Mat out_v;  // = in_v.clone();
   cv::equalizeHist(in_v, out_v);
 
   const int ch2[] = {0, ind};
@@ -1529,7 +1529,7 @@ void Distance::init()
   cv::Mat tmp;
   setImage("in", tmp);
   setSignal("threshold", 128);
-  //setImage("mask", tmp);
+  // setImage("mask", tmp);
   setSignal("type", 0, false, ROLL, 0, 2);
   setSignal("alpha", 1);
   setSignal("beta", 0);
@@ -1613,7 +1613,7 @@ void DistanceFlip::init()
   setImage("to_flip", tmp);
   setImage("to_threshold", tmp);
   setSignal("threshold", 128);
-  //setImage("mask", tmp);
+  // setImage("mask", tmp);
   setSignal("type", 0, false, ROLL, 0, 2);
   setSignal("alpha", 1);
   setSignal("beta", 0);
@@ -1649,7 +1649,7 @@ bool DistanceFlip::update()
     return false;
   }
 
-  //cv::Mat flipped = cv::Mat(to_flip.size(), to_flip.type(), cv::Scalar(128,0,64,0));
+  // cv::Mat flipped = cv::Mat(to_flip.size(), to_flip.type(), cv::Scalar(128,0,64,0));
   cv::Mat flipped = cv::Mat(to_flip.size(), CV_8UC4, cv::Scalar(128, 0, 64, 0));
 
   cv::Mat mask;
@@ -1676,7 +1676,7 @@ bool DistanceFlip::update()
 
   {
     cv::Mat dist8, dist32b;
-    //dist32.convertTo(dist8, CV_8UC1, getSignal("alpha"), getSignal("beta") );
+    // dist32.convertTo(dist8, CV_8UC1, getSignal("alpha"), getSignal("beta") );
     cv::normalize(dist32, dist32b, 0, 255, NORM_MINMAX);
     dist32b.convertTo(dist8, CV_8UC1, getSignal("alpha"), getSignal("beta"));
     cv::Mat dist = chan1to4(dist8);
@@ -1715,17 +1715,17 @@ bool DistanceFlip::update()
 
       const int ind = y * wd + x;
       const int label = labels32.at<int>(y, x);
-      //if (label == ind) continue;
+      // if (label == ind) continue;
 
       // don't actually need the distance
-      //const float distance = dist.at<float>(y,x);
+      // const float distance = dist.at<float>(y,x);
 
       map<int, cv::Point >::iterator label_it;
       label_it = label_map.find(label);
       if (label_it == label_map.end())
       {
         // TBD use current pixel
-        //ROS_ERROR_STREAM(label << " not in map " << x << " " << y);
+        // ROS_ERROR_STREAM(label << " not in map " << x << " " << y);
         continue;
       }
 
@@ -1735,7 +1735,7 @@ bool DistanceFlip::update()
       const int src_x = ((x + (int)(2 * (pos.x - x))) + wd) % wd;
       const int src_y = ((y + (int)(2 * (pos.y - y))) + ht) % ht;
 
-      //if (VLOG_IS_ON(1) ) {
+      // if (VLOG_IS_ON(1) ) {
 
       // TBD use ros console
       /*
@@ -1749,11 +1749,11 @@ bool DistanceFlip::update()
       //}
 
       flipped.at<cv::Vec4b>(y, x) = to_flip.at<cv::Vec4b>(src_y, src_x);
-      //flipped.at<cv::Vec4b>(y, x) = to_flip.at<cv::Vec4b>(y, x);
+      // flipped.at<cv::Vec4b>(y, x) = to_flip.at<cv::Vec4b>(y, x);
 
-      // flipped.at<cv::Vec4b>(y, x) = cv::Scalar::all(label%255); //to_flip.at<cv::Vec4b>(src_y, src_x);
-      // flipped.at<cv::Vec4b>(y, x) = cv::Scalar::all(ind%255); //cv::Vec4b(ind%255, label%255, ind%255, 0); //to_flip.at<cv::Vec4b>(src_y, src_x);
-      // flipped.at<cv::Vec4b>(src_y, src_x) = to_flip.at<cv::Vec4b>(y,x); //cv::Scalar(ind%255, label%255, 0, 0); //to_flip.at<cv::Vec4b>(src_y, src_x);
+      //  flipped.at<cv::Vec4b>(y, x) = cv::Scalar::all(label%255);  //to_flip.at<cv::Vec4b>(src_y, src_x);
+      //  flipped.at<cv::Vec4b>(y, x) = cv::Scalar::all(ind%255);  //cv::Vec4b(ind%255, label%255, ind%255, 0); //to_flip.at<cv::Vec4b>(src_y, src_x);
+      //  flipped.at<cv::Vec4b>(src_y, src_x) = to_flip.at<cv::Vec4b>(y,x);  //cv::Scalar(ind%255, label%255, 0, 0); //to_flip.at<cv::Vec4b>(src_y, src_x);
 
     }
   }
@@ -1777,12 +1777,12 @@ void FloodFill::init()
   setSignal("r", 128, false, SATURATE, 0, 255);
   setSignal("g", 128, false, SATURATE, 0, 255);
   setSignal("b", 128, false, SATURATE, 0, 255);
-  //setImage("mask_in", tmp);  // TBD
+  // setImage("mask_in", tmp);  // TBD
 
   // normalized 0-10
   setSignal("x", 5, false, ROLL, 0, 10);
   setSignal("y", 5, false, ROLL, 0, 10);
-  setSignal("lodiff", 10); //, false, ROLL, 0, 2);
+  setSignal("lodiff", 10);  //, false, ROLL, 0, 2);
   setSignal("hidiff", 10);
 
   setSignal("mask_mode", 0, false, ROLL, 0, 1);
@@ -1818,7 +1818,7 @@ bool FloodFill::update()
                         getSignal("b")
                       );
 
-  int connectivity = 4; // also could be 8
+  int connectivity = 4;  // also could be 8
   int ffillMode = getSignal("fill_mode") < 0.5;
   // newMaskVal is not really documented but is the single channel value of
   // what to output in the FLOODFILL_MASK_ONLY option
@@ -1829,7 +1829,7 @@ bool FloodFill::update()
 
   cv::Rect ccomp;
   // TBD clone may not be necessary
-  cv::Mat out_3 = chan4to3(in).clone(); //cv::Mat(in.size(), CV_8UC3); //in.clone();
+  cv::Mat out_3 = chan4to3(in).clone();  // cv::Mat(in.size(), CV_8UC3); //in.clone();
 
   if (getBool("mask_mode"))
   {
@@ -1846,7 +1846,7 @@ bool FloodFill::update()
       flags | FLOODFILL_MASK_ONLY);
 
     cv::Mat out_1 = mask(cv::Rect(1, 1, in.cols, in.rows));
-    //cv::Mat out_1 = cv::Mat(in.size(), CV_8UC1, cv::Scalar::all(200));
+    // cv::Mat out_1 = cv::Mat(in.size(), CV_8UC1, cv::Scalar::all(200));
 
     cv::Mat out = chan1to4(out_1);
 
@@ -1873,5 +1873,5 @@ bool FloodFill::update()
   return true;
 }
 
-} //bm
+} // bm
 

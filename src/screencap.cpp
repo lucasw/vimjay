@@ -16,7 +16,9 @@
 
     You should have received a copy of the GNU General Public License
     along with Vimjay.  If not, see <http://www.gnu.org/licenses/>.
- */
+
+  TODO(lucasw) deprecate this and replace with screengrab_ros
+  */
 
 
 #include "screencap.h"
@@ -76,7 +78,7 @@ void ScreenCap::init()
   int startY = 0;
 
   // The size of the area (width,height) to take a screenshot of
-  int widthX = Config::inst()->im_width; //screen->width / 4, heightY = screen->height / 4;
+  int widthX = Config::inst()->im_width;  // screen->width / 4, heightY = screen->height / 4;
   int heightY = Config::inst()->im_height;
 
   cv::Mat out = cv::Mat(cv::Size(widthX, heightY), CV_8UC4);
@@ -159,7 +161,7 @@ bool ScreenCap::update()
 
   // Always clean up your mess
   XDestroyImage(xImageSample);
-  //XCloseDisplay(display);
+  // XCloseDisplay(display);
 
   if (tmp.empty()) return false;
 
@@ -173,6 +175,5 @@ bool ScreenCap::update()
 
   return true;
 }
-
-} // bm
+}  // namespace bm
 

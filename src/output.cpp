@@ -33,11 +33,11 @@ Output::Output(const std::string name) :
   ImageNode(name),
   seq_(0),
   it_(Config::inst()->nh_)
-  //camera_info_manager_(new camera_info_manager::CameraInfoManager(Config::inst()->nh_))
+  // camera_info_manager_(new camera_info_manager::CameraInfoManager(Config::inst()->nh_))
 {
   pub_ = it_.advertise(name, 1);
-  //pub_ = it_.advertiseCamera(name, 1);
-  //camera_info_manager_->setCameraName(name);
+  // pub_ = it_.advertiseCamera(name, 1);
+  // camera_info_manager_->setCameraName(name);
 }
 
 Output::~Output()
@@ -144,7 +144,7 @@ bool Output::draw(cv::Point2f ui_offset)
 #if 0
   XWindowAttributes xwAttr, xwAttr2;
   // these don't seem to be updating x and y
-  //Status ret = XGetWindowAttributes( display, win, &xwAttr );
+  // Status ret = XGetWindowAttributes( display, win, &xwAttr );
 
   /*
    Occasionally getting this error if decorate/undecorate multiple times.
@@ -242,8 +242,8 @@ bool Output::draw(cv::Point2f ui_offset)
                             << CLVAL << new_x << " " << new_y << ", " << new_w << " " << new_h << CLNRM
                             << ", old "
                             << CLVAL << x << " " << y << ", " << w << " " << h << CLNRM);
-      //int dx = new_x - x;
-      //int dy = new_y - y;
+      // int dx = new_x - x;
+      // int dy = new_y - y;
       x = new_x;
       y = new_y;
       w = new_w;
@@ -289,7 +289,7 @@ bool Output::draw(cv::Point2f ui_offset)
 
 
   cv::Mat in = getImage("in");
-  //if (in.empty()) return true;
+  // if (in.empty()) return true;
 
   if (!(in.empty()) && ximage)
   {

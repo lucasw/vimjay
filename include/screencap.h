@@ -6,8 +6,8 @@
 #include <X11/Xutil.h>
 
 // OpenCV includes
-//#include <opencv/cv.h>
-//#include <opencv/cvaux.h>
+// #include <opencv/cv.h>
+// #include <opencv/cvaux.h>
 
 #include "nodes.h"
 
@@ -33,7 +33,7 @@ public:
 
 };
 
-} // bm
+}  // namespace bm
 
-#endif //__SCREENCAP_H__
+#endif  // __SCREENCAP_H__
 

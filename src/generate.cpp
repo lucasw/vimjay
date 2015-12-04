@@ -28,8 +28,8 @@ extern "C" {
 #include "other/DSOnoises/sdnoise1234.h"
 #include "other/DSOnoises/srdnoise23.h"
 }
-//#include "other/simplexnoise.h"
-//#include "other/simplextextures.h"
+// #include "other/simplexnoise.h"
+// #include "other/simplextextures.h"
 // filter Node objects
 namespace bm
 {
@@ -59,7 +59,7 @@ void Bezier::init()
 
 bool Bezier::update()
 {
-  //if (!ImageNode::update()) return false;
+  // if (!ImageNode::update()) return false;
   if (!Node::update()) return false;
 
   cv::Mat out = cv::Mat(Config::inst()->getImSize(), MAT_FORMAT_C3);
@@ -101,9 +101,9 @@ void Circle::init()
 {
   ImageNode::init();
   // hard to enforce these all being the same size
-  //setSigBuf("x");
-  //setSigBuf("y");
-  //setSigBuf("r");
+  // setSigBuf("x");
+  // setSigBuf("y");
+  // setSigBuf("r");
   setSignal("x", 5);
   setSignal("y", 5);
   setSignal("radius", 50);
@@ -120,7 +120,7 @@ bool Circle::update()
 
   // if any inputs have changed this will go on to draw
   const bool id1 = isDirty(this, 30);
-  //ROS_INFO_STREAM(id1);
+  // ROS_INFO_STREAM(id1);
   if (!id1)
   {
     return true;
@@ -146,7 +146,7 @@ bool Circle::update()
   // clear this isDirty in advance of next loop
   const bool id2 = isDirty(this, 30);
   const bool id3 = isDirty(this, 30);
-  //ROS_INFO_STREAM(id2 << " " << id3);
+  // ROS_INFO_STREAM(id2 << " " << id3);
 }
 
 //////////////////////////////////////////////////
@@ -193,8 +193,8 @@ SimplexNoise::SimplexNoise(const std::string name) : ImageNode(name)
 void SimplexNoise::init()
 {
   ImageNode::init();
-  //setSignal("octaves", 2, false, SATURATE, 1, 20);
-  //setSignal("persist", 0.8);//, false, SATURATE, 0.0, 1.0);
+  // setSignal("octaves", 2, false, SATURATE, 1, 20);
+  // setSignal("persist", 0.8);//, false, SATURATE, 0.0, 1.0);
 
   cv::Mat tmp;
   setImage("dx", tmp, true);
@@ -222,7 +222,7 @@ bool SimplexNoise::update()
 
   // if any inputs have changed this will go on to draw
   const bool id1 = isDirty(this, 30);
-  //ROS_INFO_STREAM(id1);
+  // ROS_INFO_STREAM(id1);
   if (!id1)
   {
     return true;
@@ -233,8 +233,8 @@ bool SimplexNoise::update()
   cv::Mat dy_im = out.clone();
   cv::Mat dz_im = out.clone();
 
-  //const float octaves = getSignal("octaves");
-  //const float persist = getSignal("persist");
+  // const float octaves = getSignal("octaves");
+  // const float persist = getSignal("persist");
   const float scale = getSignal("scale");
   const float off_x_nrm = getSignal("off_x_nrm");// * out.cols;
   const float off_y_nrm = getSignal("off_y_nrm");// * out.rows;
@@ -338,7 +338,7 @@ bool SimplexNoise::update()
         if (dz < 0) dz = 0;
       }
 
-      //float val = marble_noise_2d(octaves, persist, scale, j + off_x_nrm, i + off_y_nrm)*127+127;
+      // float val = marble_noise_2d(octaves, persist, scale, j + off_x_nrm, i + off_y_nrm)*127+127;
       cv::Vec4b col = cv::Vec4b(val, val, val, 0);
       out.at<cv::Vec4b>(i, j) = col;
 

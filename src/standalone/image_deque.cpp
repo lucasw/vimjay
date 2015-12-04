@@ -36,7 +36,7 @@ protected:
   // to a certain rate even if at lower rate?
   // throttle tool already does first part, can combine that with capture_continuous_.
 
-  //bool writeImage();
+  // bool writeImage();
 
   bool restrict_size_;
 
@@ -165,7 +165,7 @@ void ImageDeque::pubImage(const ros::TimerEvent& e)
     index_++;
   }
 
-  //ROS_INFO_STREAM(frames_.size() << " " << index_);
+  // ROS_INFO_STREAM(frames_.size() << " " << index_);
 
   if (index_ >= frames_.size())
     index_ = 0;

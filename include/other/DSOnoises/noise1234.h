@@ -55,7 +55,7 @@ THE SOFTWARE.
 #define __NOISE_H__
 /** 1D, 2D, 3D and 4D float Perlin noise, SL "noise()"
  */
-//extern "C" {
+// extern "C" {
 extern float noise1(float x);
 extern float noise2(float x, float y);
 extern float noise3(float x, float y, float z);

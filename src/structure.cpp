@@ -42,12 +42,12 @@ void Contour::init()
   setImage("in", tmp);
   setSignal("epsilon" , 3.0);
 
-//setSignal("mode",0);
+// setSignal("mode",0);
 }
 
 bool Contour::update()
 {
-  //if (!ImageNode::update()) return false;
+  // if (!ImageNode::update()) return false;
   if (!Node::update()) return false;
 
   cv::Mat in = getImage("in");
@@ -70,13 +70,13 @@ bool Contour::update()
   const float eps = getSignal("epsilon"); // max error of approx
   contours0.resize(contours_orig.size());
   for (size_t k = 0; k < contours_orig.size(); k++)
-    //approxPolyDP(cv::Mat(contours_orig[k]), contours0[k], eps, true);
+    // approxPolyDP(cv::Mat(contours_orig[k]), contours0[k], eps, true);
     approxPolyDP((contours_orig[k]), contours0[k], eps, true);
 
   cv::Mat out = cv::Mat(Config::inst()->getImSize(), MAT_FORMAT_C3, cv::Scalar(0, 0, 0, 255));
 
   cv::drawContours(out, contours0, -1, cv::Scalar(255, 255, 255, 255));
-  //1, CV_AA, hierarchy, std::abs(_levels) );
+  // 1, CV_AA, hierarchy, std::abs(_levels) );
 
   setImage("out", out);
 
@@ -92,7 +92,7 @@ void ContourFlip::init()
   Contour::init();
   cv::Mat tmp;
   setImage("to_flip", tmp); // the image that will be flipped based on the contour found in in
-  //setSignal("mode",0);
+  // setSignal("mode",0);
   setImage("flipped", tmp, true);
   setImage("dist", tmp, true);
   setImage("mapx", tmp, true);
@@ -108,14 +108,14 @@ void ContourFlip::init()
 }
 
 // v w is the two points of the line segment, p is the test point
-//float minimum_distance(cv::Mat v, cv::Mat w, cv::Mat p) {
+// float minimum_distance(cv::Mat v, cv::Mat w, cv::Mat p) {
 float minimum_distance(cv::Point2f v, cv::Point2f w, cv::Point2f p, cv::Point2f& closest)
 {
 
   // Return minimum distance between line segment vw and point p
   float l2 = cv::norm(w - v);
   l2 *= l2;
-  //const float l2 = cv::norm(cv::Mat(v - w), cv::NORM_L1);  // i.e. |w-v|^2 -  avoid a sqrt
+  // const float l2 = cv::norm(cv::Mat(v - w), cv::NORM_L1);  // i.e. |w-v|^2 -  avoid a sqrt
   if (l2 == 0.0)
   {
     closest = v;
@@ -156,7 +156,7 @@ float minimum_distance(cv::Point2f v, cv::Point2f w, cv::Point2f p, cv::Point2f&
 
 bool ContourFlip::update()
 {
-  //if (!ImageNode::update()) return false;
+  // if (!ImageNode::update()) return false;
   if (!Contour::update()) return false;
 
   // TBD get dirtiness of in to see if flip map needs to be recomputed
@@ -209,10 +209,10 @@ bool ContourFlip::update()
 
             cv::Point2f v = contours0[i][j];
             cv::Point2f w = contours0[i][(j + 1) % contours0[i].size() ];
-            //const float dx = (contours0[i][j].x - x);
-            //const float dy = (contours0[i][j].y - y);
-            //const float cur_dist = fabs(dx) + fabs(dy);
-            //const float cur_dist = sqrt(dx*dx + dy*dy);
+            // const float dx = (contours0[i][j].x - x);
+            // const float dy = (contours0[i][j].y - y);
+            // const float cur_dist = fabs(dx) + fabs(dy);
+            // const float cur_dist = sqrt(dx*dx + dy*dy);
             cv::Point2f closest;
             const float cur_dist = minimum_distance(v, w, cv::Point2f(x, y), closest);
             if (cur_dist < min_dist)
@@ -232,16 +232,16 @@ bool ContourFlip::update()
 
         // TBD this could be a map for remap and if the in image doesn't change it will
         // be more efficient
-        //flipped.at<cv::Vec4b>(y, x) = to_flip.at<cv::Vec4b>(src_y, src_x);
+        // flipped.at<cv::Vec4b>(y, x) = to_flip.at<cv::Vec4b>(src_y, src_x);
         off_x.at<float>(y, x) = src_x - x;
         off_y.at<float>(y, x) = src_y - y;
-        //ROS_INFO_ONCE(src_x << " " << x << ", " << src_y << " " << y);
+        // ROS_INFO_ONCE(src_x << " " << x << ", " << src_y << " " << y);
         dist.at<cv::Vec4b>(y, x) = cv::Scalar::all(min_dist); // % 255);
       }
     }
 
-    cv::Mat dist_x = base_x + (off_x); //_scaled - offsetx * scalex);
-    cv::Mat dist_y = base_y + (off_y); //_scaled - offsety * scaley);
+    cv::Mat dist_x = base_x + (off_x); // _scaled - offsetx * scalex);
+    cv::Mat dist_y = base_y + (off_y); // _scaled - offsety * scaley);
 
     cv::convertMaps(dist_x, dist_y, dist_xy16, dist_int, CV_16SC2, true);
 

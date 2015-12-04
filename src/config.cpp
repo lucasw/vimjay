@@ -27,7 +27,7 @@
 
 #include "opencv2/highgui/highgui.hpp"
 
-//DEFINE_string(config_file, "../config.yml", "configuration settings for ui and output");
+// DEFINE_string(config_file, "../config.yml", "configuration settings for ui and output");
 
 namespace bm
 {
@@ -49,7 +49,7 @@ Config* Config::inst()
     instance->im_height = 480;
 
     // TBD
-    //instance->load(FLAGS_config_file);
+    // instance->load(FLAGS_config_file);
   }
 
   return instance;

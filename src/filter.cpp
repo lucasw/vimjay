@@ -162,7 +162,7 @@ void Sobel::init()
 
 bool Sobel::update()
 {
-  //if (!ImageNode::update()) return false;
+  // if (!ImageNode::update()) return false;
   if (!Node::update()) return false;
 
   cv::Mat in = getImage("in");
@@ -515,7 +515,7 @@ bool MorphologyEx::update()
 
   cv::Mat out;
 
-  //if (op_ind <= 6)
+  // if (op_ind <= 6)
   {
     cv::morphologyEx(in, out,
                      op,
@@ -548,10 +548,10 @@ void OpticalFlow::init()
 {
   Remap::init();
   cv::Mat tmp, tmp2, tmp3, tmp4;
-  //setImage("prev", tmp);
+  // setImage("prev", tmp);
   setImage("next", tmp2);
-  //setImage("flowx", tmp3);
-  //setImage("flowy", tmp4);
+  // setImage("flowx", tmp3);
+  // setImage("flowy", tmp4);
   setSignal("pyr_scale", 0.5);
   setSignal("levels", 1);
   setSignal("winsize", 16);
@@ -663,7 +663,7 @@ bool OpticalFlow::update()
     if ((interp_mode == 1) || (interp_mode == 2))
     {
 
-      //cv::Mat flow_reverse;
+      // cv::Mat flow_reverse;
       cv::calcOpticalFlowFarneback(nextm, prevm, flow_reverse,
                                    pyr_scale, levels, winsize,
                                    iterations, poly_n, poly_sigma, flow_mode);

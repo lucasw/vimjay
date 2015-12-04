@@ -51,20 +51,18 @@
 #include "filter.h"
 #include "cluster.h"
 #include "generate.h"
-//#include "screencap.h"
+// #include "screencap.h"
 #include "output.h"
-//#include "input.h"
+// #include "input.h"
 #include "structure.h"
-//#include "opengl.h"
+// #include "opengl.h"
 #include "video.h"
 
 using namespace cv;
-//using namespace std;
+// using namespace std;
 
-//DEFINE_string(graph, "../temp_graph.yml", "yaml file to load with graph in it");
-
-
-//DEFINE_bool(
+// DEFINE_string(graph, "../temp_graph.yml", "yaml file to load with graph in it");
+// DEFINE_bool(
 namespace bm
 {
 
@@ -89,7 +87,7 @@ class VimJay : public Output
   boost::shared_ptr<Output> preview_node;
 
   // TBD temp- currently need to connect output Xlib parameters to Mouse
-  //boost::shared_ptr<Mouse> input_node;
+  // boost::shared_ptr<Mouse> input_node;
 
   // where the ui pointer is (currently controlled by keyboard
   cv::Point cursor;
@@ -107,7 +105,7 @@ public:
   boost::shared_ptr<nodeType> getNode(string name = "", cv::Point2f loc = cv::Point2f(0.0, 0.0))
   {
     boost::shared_ptr<nodeType> node =
-      boost::shared_ptr<nodeType>(new nodeType(name));//name, loc, graph_ui);
+      boost::shared_ptr<nodeType>(new nodeType(name));  // name, loc, graph_ui);
 
     node->init();
 
@@ -142,7 +140,7 @@ public:
       ROS_DEBUG_STREAM_COND(log_level > 1, CLVAL << all_nodes.size()  << CLTX2
         << " new node " << CLNRM << name << " " << loc.x << ", " << loc.y);
       // the node already exists
-      //node = getNode<ScreenCap>(name, loc);
+      // node = getNode<ScreenCap>(name, loc);
       node = boost::dynamic_pointer_cast<Node>(shared_from_this());
       node->loc = loc;
       node->name = name;
@@ -383,9 +381,9 @@ public:
       // TBD need better way to share X11 info- Config probably
       if (output_node)
       {
-        //input_node->display = output_node->display;
-        //input_node->win = output_node->win;
-        //input_node->opcode = output_node->opcode;
+        // input_node->display = output_node->display;
+        // input_node->win = output_node->win;
+        // input_node->opcode = output_node->opcode;
       }
       else
       {
@@ -397,7 +395,7 @@ public:
     {
       ROS_INFO_STREAM("already created output and preview nodes, ignoring "
                       << CLTXT << name << CLNRM);
-      //node = getNode<Output>(name, loc);
+      // node = getNode<Output>(name, loc);
 
     }
     else
@@ -417,7 +415,7 @@ public:
     ROS_INFO_STREAM(CLTX2 << "clearing nodes" << CLNRM);
     update_nodes = false;
     node_thread.join();
-    //for (int i = 0; i < all_nodes.size(); i++) {
+    // for (int i = 0; i < all_nodes.size(); i++) {
     // TBD need to gather all displays and XCloseDisplay it
 
     //}
@@ -428,7 +426,7 @@ public:
     all_nodes.resize(3);
 
     // dangling reference to input_node
-    //input_node   = boost::shared_ptr<Mouse>();
+    // input_node   = boost::shared_ptr<Mouse>();
   }
 
   void clearAllNodeUpdates()
@@ -437,7 +435,7 @@ public:
     {
       all_nodes[i]->do_update = false;
       // TBD for asynchronous this fails, but need buffering to make that work anyhow
-      //all_nodes[i]->is_dirty = false;
+      // all_nodes[i]->is_dirty = false;
     }
   }
 
@@ -479,7 +477,7 @@ public:
 
       fs << "{";
 
-      fs << "ind" << i; //(int64_t)all_nodes[i];   //
+      fs << "ind" << i;  // (int64_t)all_nodes[i];
 
       all_nodes[i]->save(fs);
 
@@ -498,7 +496,7 @@ public:
         // TBD loc
         if (con->type == SIGNAL)
         {
-          //fs << it->first << it->second;  // this is clever but I don't know how to load it
+          // fs << it->first << it->second;  // this is clever but I don't know how to load it
           fs << "value" << con->value;
         }
 
@@ -563,7 +561,7 @@ public:
       all_nodes[i]->loc = loc;
 
       y += all_nodes[i]->ports.size() * 10 + 60;
-      //if ( (ImageNode*) all_nodes[i]) y += tht;
+      // if ( (ImageNode*) all_nodes[i]) y += tht;
       // TBD camthing can grow with input devices
       if (i == 0)
       {
@@ -586,9 +584,9 @@ public:
   int source_ind;
   boost::shared_ptr<Node> source_node;
   // ImageNode, Signal, or Buffer for now- TBD use enums instead of strings
-  //conType source_type;
-  //string source_port;
-  //int source_port_ind;
+  // conType source_type;
+  // string source_port;
+  // int source_port_ind;
 
   boost::thread node_thread;
 
@@ -601,11 +599,11 @@ public:
     Output(name),
     selected_ind(0),
     source_ind(0),
-    //source_type(NONE),
-    //source_port(""),
-    //source_port_ind(0),
+    // source_type(NONE),
+    // source_port(""),
+    // source_port_ind(0),
     draw_nodes(true),
-    //paused(true)
+    // paused(true)
     load_graph_file_(""),
     paused(true) // TBD control from config file?
   {
@@ -615,7 +613,7 @@ public:
 
   void keyCallback(const std_msgs::StringConstPtr& msg)
   {
-    //ROS_INFO_STREAM("keys " << msg->data);
+    // ROS_INFO_STREAM("keys " << msg->data);
     for (size_t i = 0; i < msg->data.size(); ++i)
     {
       keys.push_back(msg->data[i]);
@@ -635,12 +633,12 @@ public:
 
     count = 0;
 
-    //node_types.push_back("bm::VimJay"); // TBD can't spawn a new one of these
+    // node_types.push_back("bm::VimJay"); // TBD can't spawn a new one of these
     node_types.push_back("bm::ImageDir");
     node_types.push_back("bm::BrowseDir");
     node_types.push_back("bm::Webcam");
     node_types.push_back("bm::Video");
-    //node_types.push_back("bm::ScreenCap");
+    // node_types.push_back("bm::ScreenCap");
     node_types.push_back("bm::Rot2D");
     node_types.push_back("bm::SigToInd");
     node_types.push_back("bm::Buffer");
@@ -692,12 +690,12 @@ public:
     node_types.push_back("bm::Noise");
     node_types.push_back("bm::SimplexNoise");
 
-    //node_types.push_back("bm::OpenGL");
+    // node_types.push_back("bm::OpenGL");
 
     node_types.push_back("bm::SigADSR");
-    //node_types.push_back("bm::GamePad");
-    //node_types.push_back("bm::Mouse");
-    //node_types.push_back("bm::Output"); // TBD if can spawn this
+    // node_types.push_back("bm::GamePad");
+    // node_types.push_back("bm::Mouse");
+    // node_types.push_back("bm::Output"); // TBD if can spawn this
 
 
     setSignal("node_ind", 0, false, ROLL, 0, node_types.size() - 1);
@@ -728,9 +726,9 @@ public:
       output_node = boost::dynamic_pointer_cast<Output>(node1);
       output_node->setup(Config::inst()->out_width, Config::inst()->out_height);
       // force output node to move window
-      //output_node->draw(ui_offset);
-      //output_node->setSignal("x", Config::inst()->ui_width + 28);
-      //output_node->draw(ui_offset);
+      // output_node->draw(ui_offset);
+      // output_node->setSignal("x", Config::inst()->ui_width + 28);
+      // output_node->draw(ui_offset);
     }
 
     {
@@ -771,7 +769,7 @@ public:
 
       /* select on the window */
       XISelectEvents(display, DefaultRootWindow(display), &eventmask, 1);
-      //XISelectEvents(display, win, &eventmask, 1);
+      // XISelectEvents(display, win, &eventmask, 1);
 #endif
     }
 
@@ -924,7 +922,7 @@ public:
     }
 
     ROS_INFO_STREAM(all_nodes.size() << " nodes total");
-    //output_node->loc = cv::Point2f(graph.cols - (test_im.cols/2+100), 20);
+    // output_node->loc = cv::Point2f(graph.cols - (test_im.cols/2+100), 20);
 
     setString("graph_file", graph_file);
 
@@ -946,11 +944,11 @@ public:
 
       // Images
       // inputs
-      //node = getNode<Webcam>("web_cam", loc);
-      //node->update();
+      // node = getNode<Webcam>("web_cam", loc);
+      // node->update();
 #if 0
       node = getNode<ScreenCap>("screen_cap", loc);
-      //node->update();
+      // node->update();
 
       ImageDir* im_dir1 = getNode<ImageDir>("image_dir", loc);
       im_dir1->setString("dir", "../data");
@@ -987,13 +985,13 @@ public:
       node = getNode<GaussianBlur>("gauss_blur", loc);
       node = getNode<MedianBlur>("median_blur", loc);
       node = getNode<BilateralFilter>("bilateral_filter", loc);
-      //node = getNode<InPaint>("in_paint", loc);
+      // node = getNode<InPaint>("in_paint", loc);
 
       node = getNode<Resize>("resize", loc);
       node = getNode<Flip>("flip", loc);
       node = getNode<MorphologyEx>("morphology_ex", loc);
       node = getNode<OpticalFlow>("optical_flow", loc);
-      //node = getNode<OpenGL>("opengl", loc);
+      // node = getNode<OpenGL>("opengl", loc);
 
       // generate
       node = getNode<Bezier>("bezier", loc);
@@ -1076,7 +1074,7 @@ public:
         nf.push_back(1.0);
         add_iir->setup(add_in, nf);
 
-        //output = add_iir;
+        // output = add_iir;
       }
 #endif
 
@@ -1107,8 +1105,8 @@ public:
       }
 #endif
 
-      //output = nd;
-      //output = p1;
+      // output = nd;
+      // output = p1;
       /*
           cv::namedWindow("cam", CV_GUI_NORMAL);
           cv::moveWindow("cam", 0, 0);
@@ -1129,9 +1127,9 @@ public:
     {
       // select source node
       source_ind = selected_ind;
-      source_node = selected_node; //all_nodes[source_ind];
-      //source_port = selected_node->selected_port;
-      //source_type = selected_node->selected_type;
+      source_node = selected_node; // all_nodes[source_ind];
+      // source_port = selected_node->selected_port;
+      // source_type = selected_node->selected_type;
 
       ROS_DEBUG_STREAM_COND(log_level > 1, "selected source node " << source_node->selected_type << " " << source_node->selected_port);
     }
@@ -1140,8 +1138,8 @@ public:
       // select no source port, allows cycling through all inputs
       source_ind = 0;
       source_node = boost::shared_ptr<Node>();
-      //source_type = NONE;
-      //source_port = "";
+      // source_type = NONE;
+      // source_port = "";
       ROS_DEBUG_STREAM_COND(log_level > 1, "cleared source node");
     }
   }
@@ -1163,8 +1161,8 @@ public:
     {
 
 
-      //TBD
-      //if (!selected_node->selected_port_internally_set)
+      // TBD
+      // if (!selected_node->selected_port_internally_set)
       {
         // TBD a Buffer should act as an ImageNode if that is the only
         // input available
@@ -1215,7 +1213,7 @@ public:
 
   void selectNextNode()
   {
-    //if (selected_node) selected_node->draw_selected_port = false;
+    // if (selected_node) selected_node->draw_selected_port = false;
 
     // move forward in selection
     selected_ind++;
@@ -1230,7 +1228,7 @@ public:
 
   void selectPrevNode()
   {
-    //if (selected_node) selected_node->draw_selected_port = false;
+    // if (selected_node) selected_node->draw_selected_port = false;
     // move backward in selection
     selected_ind--;
     if (selected_ind < 0) selected_ind = all_nodes.size() - 1;
@@ -1358,8 +1356,8 @@ public:
     if (selected_node) cur_x = selected_node->loc.x;
 
     int min_ind = -1;
-    //float min_dx = dir*1e6;
-    //float min_dy = dir*1e6;
+    // float min_dx = dir*1e6;
+    // float min_dy = dir*1e6;
     float min_len = 1e6;
 
     for (int i = 0; i < all_nodes.size(); i++)
@@ -1382,8 +1380,8 @@ public:
 
       if (test && (len < min_len))
       {
-        //min_dy = dy;
-        //min_dx = dx;
+        // min_dy = dy;
+        // min_dx = dx;
         min_len = len;
         min_ind = i;
       }
@@ -1416,7 +1414,7 @@ public:
       float dy = 0;
 
       const cv::Point2f true_upper_left = selected_node->upper_left;
-      //selected_node->thumb_offset;
+      // selected_node->thumb_offset;
       const cv::Point2f true_lower_right = selected_node->upper_left +
                                            selected_node->extent;
 
@@ -1502,13 +1500,13 @@ public:
       saveGraph("temp_graph.yml");
       setString("graph_out", file_name.str());
     }
-    //else if (key == 'a') {
+    // else if (key == 'a') {
     //  gridGraph();
     //}
     else if (key == 'z')
     {
       // TBD need someway to disable this, maybe a camthing signal
-      //draw_nodes = !draw_nodes;
+      // draw_nodes = !draw_nodes;
       if (selected_node)
       {
         selected_node->setSignal("force_update",  !(selected_node->getBool("force_update")));
@@ -1654,7 +1652,7 @@ public:
       ui_offset += cv::Point2f(15, 0);
       ROS_DEBUG_STREAM_COND(log_level > 3, "ui_offset " << ui_offset);
 
-      //else if (key == 'c') {
+      // else if (key == 'c') {
       // swap selected node input with source node input- TBD this doesn't work since
       // outputs can be one-to-many
       //}
@@ -1675,9 +1673,9 @@ public:
         node->setSignal("value", val);
         node->setSignal("min", val);
         node->setSignal("max", val + 1);
-        //Connector* con;
-        //string src_port;
-        //node->getInputPort(SIGNAL, "value", con, src_port);
+        // Connector* con;
+        // string src_port;
+        // node->getInputPort(SIGNAL, "value", con, src_port);
 
         selected_node->setInputPort(
           SIGNAL, selected_node->selected_port,
@@ -1709,7 +1707,7 @@ public:
       }
       // TBD if the port is an image create a buffer for it to output to?
 
-      //node = getNode<MiscSignal>(name, loc);
+      // node = getNode<MiscSignal>(name, loc);
     }
     else if (key == '3')      // connect this image to output in
     {
@@ -1735,8 +1733,8 @@ public:
     {
       std::stringstream tmp;
       tmp << (char) key;
-      //tmp.resize(1);
-      //tmp[0] = key;
+      // tmp.resize(1);
+      // tmp[0] = key;
       command_text.append(tmp.str());
       ROS_DEBUG_STREAM_COND(log_level > 4, tmp.str() << " " << command_text);
     }
@@ -1759,7 +1757,7 @@ public:
     }
     else
     {
-      //command_text = "";
+      // command_text = "";
     }
 
     while (command_text.size() > wd / 12)
@@ -1829,7 +1827,7 @@ public:
 #if 1
   virtual bool update()
   {
-    //ImageNode::update();
+    // ImageNode::update();
     Node::update();
 
     cv::Mat out = getImage("out");
@@ -1846,7 +1844,7 @@ public:
       if (is_dirty)
       {
         setString("node", node_types[ind]);
-        ROS_DEBUG_STREAM_COND(log_level > 9, "node_ind " << ind << " " << node_types[ind] << " " << getString("node")); //node_types[ind]);
+        ROS_DEBUG_STREAM_COND(log_level > 9, "node_ind " << ind << " " << node_types[ind] << " " << getString("node")); // node_types[ind]);
       }
     }
 
@@ -1869,7 +1867,7 @@ public:
     cv::Mat out_node_im = output_node->getImage("out").clone();
 
     // draw the output in the background, dimmed down
-    if (false)   //(!out_node_im.empty()) {
+    if (false)   // (!out_node_im.empty()) {
     {
       cv::resize(out_node_im * (draw_nodes ? 0.2 : 1.0),  graph_ui,
                  graph_ui.size(), 0, 0, cv::INTER_NEAREST);
@@ -1932,7 +1930,7 @@ public:
 
          cv::Mat out = output->get();
          if (out.data) {
-      //imshow("out", out);
+      // imshow("out", out);
       } else {
       ROS_ERROR_STREAM("out no data");
       }*/
@@ -1942,7 +1940,7 @@ public:
 
       if (!ImageNode::draw(ui_offset))
       {
-        //if (!Node::draw(ui_offset)) {
+        // if (!Node::draw(ui_offset)) {
         ROS_ERROR_STREAM("something wrong with node drawing");
         return false;
       }
@@ -1981,7 +1979,7 @@ public:
           ROS_ERROR_STREAM("duplicate nodes in all_nodes " <<
                            all_nodes[i]->name << " " << all_nodes[j]->name);
         }
-        //if (i == j) continue;
+        // if (i == j) continue;
 
         // loc is actually the upper left corner of the
         // node

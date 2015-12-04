@@ -53,12 +53,12 @@ BrowseDir::BrowseDir(const std::string name) : ImageNode(name)
 void BrowseDir::init()
 {
   ImageNode::init();
-  setString("dir", "../data"); //"temp");
-  setString("old_dir", "../data"); //"temp");
+  setString("dir", "../data");  // "temp");
+  setString("old_dir", "../data");  // "temp");
   setString("selection", "", true);
   setSignal("ind", 0, false, ROLL, 0, 0);
-  //cv::Mat tmp;
-  //setImage("out", tmp);
+  // cv::Mat tmp;
+  // setImage("out", tmp);
 
   browse_thread = boost::thread(&BrowseDir::runThread, this);
 }
@@ -96,10 +96,10 @@ void BrowseDir::runThread()
         {
           std::vector<string> file_names2;
           std::vector<string> sub_dirs2;
-          //const bool rv3 = getImageNamesAndSubDirs( dir + "/" + sub_dirs[i], file_names2, sub_dirs2);
+          // const bool rv3 = getImageNamesAndSubDirs( dir + "/" + sub_dirs[i], file_names2, sub_dirs2);
           const bool rv3 = getImageNamesAndSubDirs(
                              sub_dirs_tmp[i], file_names2, sub_dirs2);
-          //if (!rv3) continue;
+          // if (!rv3) continue;
 
           num_sub_dirs_tmp.push_back(sub_dirs2.size());
           num_sub_images_tmp.push_back(file_names2.size());
@@ -150,7 +150,7 @@ bool BrowseDir::update()
   if ((sub_dirs.size() > 0) && (ind < sub_dirs.size()))
   {
     const string cur_dir = sub_dirs[ind];
-    //ROS_DEBUG_STREAM_COND(log_level > 1, name << " dir " << cur_dir);
+    // ROS_DEBUG_STREAM_COND(log_level > 1, name << " dir " << cur_dir);
     setString("cur_sel", cur_dir);
     highlight_dir_not_file = true;
     // index into files
@@ -159,7 +159,7 @@ bool BrowseDir::update()
            (file_ind < file_names.size()))
   {
     const string cur_file = file_names[file_ind];
-    //ROS_DEBUG_STREAM_COND(log_level > 1, name << " file " << cur_file);
+    // ROS_DEBUG_STREAM_COND(log_level > 1, name << " file " << cur_file);
     setString("cur_sel", cur_file);
     highlight_dir_not_file = false;
   }
@@ -295,10 +295,10 @@ bool BrowseDir::handleKey(int key)
   }
 
   // TBD
-  //if (valid_key) setDirty();
+  // if (valid_key) setDirty();
 
   return valid_key;
 }
 
-} //bm
+}  // namespace bm
 

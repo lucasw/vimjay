@@ -237,9 +237,9 @@ bool Cluster::update()
                                 cc.rgb.val[0], cc.rgb.val[1], cc.rgb.val[2], cc.x, cc.y,
                                 max_space_dist, dist_weight,
                                 use_manhat);
-          //in.cols, in.rows);
+          // in.cols, in.rows);
           //,
-          //wrap); //, inst->color_weight);
+          // wrap); //, inst->color_weight);
 
           // store the closest match
           if (kdist < dist)
@@ -266,7 +266,7 @@ bool Cluster::update()
       // use the old cluster center color
       out.at<cv::Vec4b>(y, x) = clusters[dist_ind].rgb;
       // TBD optionally provide a scaled image that encodes distance from centers
-      //out.at<cv::Vec4b>(y,x) = cv::Vec4b(dist*1024, dist*512,
+      // out.at<cv::Vec4b>(y,x) = cv::Vec4b(dist*1024, dist*512,
       //    dist*256, 0);
       //    clusters[dist_ind].rgb.val[2],0);
 
@@ -275,7 +275,7 @@ bool Cluster::update()
 
   setImage("out", out);
 
-  //setSignal("num", nc.size());
+  // setSignal("num", nc.size());
   /// update cluster_centers
   for (int k = 0; k < nc.size(); k++)
   {
@@ -309,7 +309,7 @@ bool Cluster::update()
 
   clusters = nc;
 
-  //setSignal("time", t1.elapsed());
+  // setSignal("time", t1.elapsed());
 }
 
 
@@ -366,7 +366,5 @@ bool PyrMean::update()
   cv::mixChannels(&out_3, 1, &out, 1, ch, 3);
 
   setImage("out", out);
-
 }
-
-} //bm
+}  // namspace bm

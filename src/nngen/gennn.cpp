@@ -63,7 +63,7 @@ public:
   bool update();
   void setOutput(const float val)
   {
-    //std::cout << this << " setting output to " << val << std::endl;
+    // std::cout << this << " setting output to " << val << std::endl;
     output_ = val;
   }
   float getOutput()
@@ -121,14 +121,14 @@ void Node::draw(cv::Mat& vis)
     if (val < 0) val = 0;
     if (val >= 255) val = 255;
     cv::Scalar col = convertColor(cv::Scalar(val, 228, 205), CV_HSV2BGR);
-    //cv::line(vis, pos_, inputs_[i]->pos_, col, 1);
+    // cv::line(vis, pos_, inputs_[i]->pos_, col, 1);
   }
 
   int val = getOutput() * 64 + 128;
   if (val < 0) val = 0;
   if (val >= 255) val = 255;
   cv::Scalar col = convertColor(cv::Scalar(val, 228, 208), CV_HSV2BGR);
-  //cv::Scalar col2 =
+  // cv::Scalar col2 =
   cv::circle(vis, pos_, 10, col, 1);
 
   std::stringstream txt;
@@ -136,7 +136,7 @@ void Node::draw(cv::Mat& vis)
   const int line_type = 8;
   const int font_face = cv::FONT_HERSHEY_SIMPLEX;
   const double font_scale = 0.3;
-  //cv::putText(vis, txt.str(), pos_ + cv::Point2f(13, 4), font_face, font_scale,
+  // cv::putText(vis, txt.str(), pos_ + cv::Point2f(13, 4), font_face, font_scale,
   //    cv::Scalar(0,0,0), 2, line_type);
   const cv::Scalar col2 = cv::Scalar(255, 230, 240);
   cv::putText(vis, txt.str(), pos_ + cv::Point2f(13, 4), font_face, font_scale,
@@ -153,13 +153,13 @@ bool Node::update()
   if (coefficients_.size() == 0) return true;
 
   float val = 0;
-  //std::cout << this << " ";
+  // std::cout << this << " ";
   for (size_t i = 0; i < coefficients_.size() && i < inputs_.size(); ++i)
   {
     val += coefficients_[i] * inputs_[i]->getOutput();
-    //std::cout << coefficients_[i] << " * " << inputs_[i]->getOutput() << " + ";
+    // std::cout << coefficients_[i] << " * " << inputs_[i]->getOutput() << " + ";
   }
-  //std::cout << getLayer() << " output : " << output_ << std::endl;
+  // std::cout << getLayer() << " output : " << output_ << std::endl;
 
   // make this nonlinear
   output_ = tanh(val);
@@ -215,7 +215,7 @@ Net::Net(std::vector<int> layer_sizes, const int seed, const float sigma,
       Node* node = new Node(coefficients, last_layer);
 
       node->pos_ = cv::Point(30, 30) + cv::Point(120 * j, 23 * i);
-      //std::cout << "layer " << j << " " << node->getLayer() << std::endl;
+      // std::cout << "layer " << j << " " << node->getLayer() << std::endl;
       cur_layer.push_back(node);
     }
 
@@ -246,7 +246,7 @@ bool Net::setInputs(std::vector<float> in_vals)
 {
   if (layers_.size() == 0) return false;
 
-  //std::cout << "set input " << in_vals.size() << " " << layers_[0].size() << std::endl;
+  // std::cout << "set input " << in_vals.size() << " " << layers_[0].size() << std::endl;
   for (size_t i = 0; (i < in_vals.size()) && (i < layers_[0].size()); ++i)
   {
     layers_[0][i]->setOutput(in_vals[i]);
@@ -321,7 +321,7 @@ private:
   Net* net_y_;
   cv::Mat output_;
   std::vector<cv::Mat> bases_;
-  //std::vector<cv::Mat> bases_big_;
+  // std::vector<cv::Mat> bases_big_;
 };
 
 ImageNet::ImageNet(std::vector<int> layer_sizes, const int num_inputs) :
@@ -368,10 +368,10 @@ ImageNet::ImageNet(std::vector<int> layer_sizes, const int num_inputs) :
   {
     cv::Mat base = cv::imread(prefix + base_files[i], CV_LOAD_IMAGE_COLOR);
     bases_.push_back(base);
-    //cv::Mat base_resized;
-    //const int mode = cv::INTER_CUBIC;
-    //cv::resize(base, base_resized, cv::Size(output_.cols/3, output_.rows/3), 0, 0, mode);
-    //bases_big_.push_back(base_resized);
+    // cv::Mat base_resized;
+    // const int mode = cv::INTER_CUBIC;
+    // cv::resize(base, base_resized, cv::Size(output_.cols/3, output_.rows/3), 0, 0, mode);
+    // bases_big_.push_back(base_resized);
   }
 }
 
@@ -386,12 +386,12 @@ bool ImageNet::update()
   std::vector<float> in_vals;
   for (size_t i = 0; i < num_inputs_; ++i)
   {
-    //std::cout << i << " " << slider_vals_[i] << std::endl;
+    // std::cout << i << " " << slider_vals_[i] << std::endl;
 
     float freq = 1.0 / (i * i * 201.1 + 115.1);
     float phase = i * 0.111;
     float val = sin(float(count_) * freq + phase);
-    in_vals.push_back(val);   //(double) (slider_vals_[i] - 256) / 512.0 );
+    in_vals.push_back(val);   // (double) (slider_vals_[i] - 256) / 512.0 );
   }
 
   net_->setInputs(in_vals);
@@ -405,13 +405,13 @@ bool ImageNet::update()
   const bool rv4 = net_y_->update();
 
   count_ += 1;
-  //std::cout << count_ << std::endl;
+  // std::cout << count_ << std::endl;
   return rv1 && rv2 && rv3 && rv4;
 }
 
 void ImageNet::draw()
 {
-  //net_->draw();
+  // net_->draw();
 
   output_ = cv::Scalar::all(128);
 
@@ -443,13 +443,13 @@ void ImageNet::draw()
     cv::Mat base2;
     cv::resize(bases_[base_ind], base2, cv::Size(0, 0),
                sc2, sc2,
-               //cv::INTER_CUBIC );
+               // cv::INTER_CUBIC );
                cv::INTER_LINEAR);
-    ///cv::INTER_NEAREST );
+    // cv::INTER_NEAREST );
 
     int off_x = out_vals_x[i] * output_.cols / 2.0 * xy_fr;
     int off_y = out_vals_y[i] * output_.rows / 2.0 * xy_fr;
-    //std::cout << out_vals_sc[i] << " " << out_vals_x[i] << " " << out_vals_y[i] << std::endl;
+    // std::cout << out_vals_sc[i] << " " << out_vals_x[i] << " " << out_vals_y[i] << std::endl;
     int cur_x = output_.cols / 2 + off_x - base2.cols / 2;
     int cur_y = output_.rows / 2 + off_y - base2.rows / 2;
 
@@ -460,27 +460,27 @@ void ImageNet::draw()
     if (cur_y + base2.rows >= output_.rows)
       cur_y = output_.rows - base2.rows - 1;
 
-    //std::cout << base_ind << " " << sc2 << " " << base2.size() << std::endl;
+    // std::cout << base_ind << " " << sc2 << " " << base2.size() << std::endl;
     cv::Rect roi = cv::Rect(cur_x, cur_y, base2.cols, base2.rows);
 
     cv::Mat dst_roi = output_(roi);
     cv::Mat scaled_base = base2 * std::abs(out_vals[i]) * weight_fr;
-    //scaled_base.copyTo(dst_roi);
+    // scaled_base.copyTo(dst_roi);
     if (out_vals[i] > 0)
       dst_roi += scaled_base;
     else
       dst_roi -= scaled_base;
-    //cur_x += base.cols;
+    // cur_x += base.cols;
 
-    //std::cout << roi << std::endl;
+    // std::cout << roi << std::endl;
   }
 
   const int wd = output_.cols / 3;
   const int ht = output_.rows / 3;
   cv::Rect roi = cv::Rect(wd, ht, wd, ht);
 
-  //cv::imshow("output", output_(roi));
-  cv::imshow("output", output_); //(roi));
+  // cv::imshow("output", output_(roi));
+  cv::imshow("output", output_);  // (roi));
 
   if (false)
   {
@@ -499,7 +499,7 @@ void ImageNet::draw()
 int main(int argn, char** argv)
 {
   std::vector<int> layer_sizes;
-  //layer_sizes.push_back(4);
+  // layer_sizes.push_back(4);
   layer_sizes.push_back(32);
   layer_sizes.push_back(16);
   layer_sizes.push_back(32);
@@ -507,9 +507,9 @@ int main(int argn, char** argv)
   layer_sizes.push_back(64);
   layer_sizes.push_back(128);
   layer_sizes.push_back(256);
-  //layer_sizes.push_back(64);
-  //layer_sizes.push_back(12);
-  //layer_sizes.push_back(16);
+  // layer_sizes.push_back(64);
+  // layer_sizes.push_back(12);
+  // layer_sizes.push_back(16);
   cv::namedWindow("vis");
   nngen::ImageNet* imnet = new nngen::ImageNet(layer_sizes, layer_sizes[0] / 4);
 

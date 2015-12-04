@@ -67,14 +67,14 @@ bool getImageNamesAndSubDirs(const std::string dir, std::vector<std::string>& im
   {
     itr = boost::filesystem::directory_iterator(image_path);
   }
-  //catch (boost::exception const& ex)
+  // catch (boost::exception const& ex)
   catch (const boost::filesystem::filesystem_error& ex)
   {
     ROS_ERROR_STREAM(dir << ": " << boost::diagnostic_information(ex));
     return false;
   }
 
-  //for ( boost::filesystem::directory_iterator itr( image_path );
+  // for ( boost::filesystem::directory_iterator itr( image_path );
   //    itr != end_itr;
   //    ++itr )
   while (itr != end_itr)
@@ -294,9 +294,9 @@ bool get_toplevel_parent(
     {
       ROS_ERROR_STREAM("XQueryTree error");
       return false;
-      //abort(); //change to whatever error handling you prefer
+      // abort(); //change to whatever error handling you prefer
     }
-    if (children)   //must test for null
+    if (children)   // must test for null
     {
       XFree(children);
     }
@@ -397,7 +397,7 @@ bool setupX(Display*& display, Window& win, const int width, const int height, i
 bool setWindowDecorations(Display* display, Window& win, bool decorations_on)
 {
   ROS_DEBUG_STREAM_COND(log_level > 2, "setting window decorations " << decorations_on << " " << win);
-  //code to remove decoration
+  // code to remove decoration
   Hints hints;
   Atom property;
   hints.flags = 2;
@@ -421,7 +421,7 @@ bool matToScreen(cv::Mat& tmp, Display* display, Window& win)
   if (ximage == NULL) return false;
 
   Screen* screen = DefaultScreenOfDisplay(display);
-  //XImage* ximage = XCreateImage(display, DefaultVisual(display, screen)
+  // XImage* ximage = XCreateImage(display, DefaultVisual(display, screen)
   bm::matToXImage(tmp, ximage, win, *display, *screen);
   GC gc = XCreateGC(display, win, 0, NULL);
   XPutImage(display, win,  gc, ximage, 0, 0, 0, 0, width, height);
@@ -442,7 +442,7 @@ cv::Mat XImage2OpenCVImage(XImage& ximage, Display& _xDisplay, Screen& _xScreen)
 {
   XColor color;
   //    cout << "WxH: " << imageData->width << "x" << imageData->height << ": " << imageData->data[0] << imageData->data[1] << imageData->data[2] << imageData->format << endl;
-  //IplImage* ocvImage = cvCreateImage(cv::Size(ximage.width, ximage.height), IPL_DEPTH_8U, 3);
+  // IplImage* ocvImage = cvCreateImage(cv::Size(ximage.width, ximage.height), IPL_DEPTH_8U, 3);
   cv::Mat tmp = cv::Mat(cv::Size(ximage.width, ximage.height), CV_8UC4);
 
   if (_xScreen.depths->depth == 24)
@@ -574,7 +574,7 @@ bool matToXImage(cv::Mat& im, XImage* ximage, Window& win, Display& display, Scr
 
   ROS_INFO_STREAM_ONCE("image size " << im.cols << " " << im.rows << ", "
                        << ximage->width << " " << ximage->height);
-  //cv::Mat tmp = cv::Mat(cv::Size(ximage.width, ximage.height), CV_8UC4);
+  // cv::Mat tmp = cv::Mat(cv::Size(ximage.width, ximage.height), CV_8UC4);
 
   if (screen.depths->depth == 24)
   {
@@ -584,7 +584,7 @@ bool matToXImage(cv::Mat& im, XImage* ximage, Window& win, Display& display, Scr
                   gmask = screen.root_visual->green_mask,
                   bmask = screen.root_visual->blue_mask;
     unsigned long rshift, rbits, gshift, gbits, bshift, bbits;
-    //unsigned char colorChannel[3];
+    // unsigned char colorChannel[3];
 
     rshift = 0;
     rbits = 0;
@@ -648,7 +648,7 @@ bool matToXImage(cv::Mat& im, XImage* ximage, Window& win, Display& display, Scr
 
     ROS_DEBUG_STREAM_COND(log_level > 4, "matToXImage setup time " << t1.elapsed());
 
-    //boost::timer t2;
+    // boost::timer t2;
     const int wd = ximage->width;
     const int ht = ximage->height;
 #if 0
@@ -656,10 +656,10 @@ bool matToXImage(cv::Mat& im, XImage* ximage, Window& win, Display& display, Scr
     {
       for (unsigned int x = 0; x < wd; x++)
       {
-        //colorChannel[0] = ((color.pixel >> bshift) & ((1 << bbits) - 1)) << (8 - bbits);
-        //colorChannel[1] = ((color.pixel >> gshift) & ((1 << gbits) - 1)) << (8 - gbits);
-        //colorChannel[2] = ((color.pixel >> rshift) & ((1 << rbits) - 1)) << (8 - rbits);
-        //cv::Vec4b col = cv::Vec4b(colorChannel[0], colorChannel[1], colorChannel[0], 0);
+        // colorChannel[0] = ((color.pixel >> bshift) & ((1 << bbits) - 1)) << (8 - bbits);
+        // colorChannel[1] = ((color.pixel >> gshift) & ((1 << gbits) - 1)) << (8 - gbits);
+        // colorChannel[2] = ((color.pixel >> rshift) & ((1 << rbits) - 1)) << (8 - rbits);
+        // cv::Vec4b col = cv::Vec4b(colorChannel[0], colorChannel[1], colorChannel[0], 0);
 
         cv::Vec4b col = im.at<cv::Vec4b> (y, x);
         int b = col[0];
@@ -680,12 +680,12 @@ bool matToXImage(cv::Mat& im, XImage* ximage, Window& win, Display& display, Scr
           ximage->data[y * wd * 4 + x * 4 + 1] = col[1];
           ximage->data[y * wd * 4 + x * 4 + 2] = col[2];
         }
-        //ximage->data[y * ximage->width + x*3+1] = col[1];
-        //if (ht < ht/4)
+        // ximage->data[y * ximage->width + x*3+1] = col[1];
+        // if (ht < ht/4)
         //  ximage->data[y * wd + x] = color.pixel;
-        //ximage->data[y * wd + x] = col[0];
-        //ximage->data[y * ximage->width + x*3+1] = col[1];
-        //ximage->data[y * ximage->width + x*3+2] = col[2];
+        // ximage->data[y * wd + x] = col[0];
+        // ximage->data[y * ximage->width + x*3+1] = col[1];
+        // ximage->data[y * ximage->width + x*3+2] = col[2];
       }
     }
 #else
@@ -753,7 +753,7 @@ bool getEv(
 
   case XI_KeyPress:
   case XI_KeyRelease:
-    //ROS_INFO_STREAM("key down");
+    // ROS_INFO_STREAM("key down");
 
     // Assign info from our XIDeviceEvent to a standard XKeyPressedEvent which
     // XLookupString() can actually understand:
@@ -812,7 +812,7 @@ bool getMouse(
     ROS_ERROR_STREAM("no display");
     return false;
   }
-  //ROS_DEBUG_STREAM_COND(log_level > 1, "mouse");
+  // ROS_DEBUG_STREAM_COND(log_level > 1, "mouse");
 
   XEvent ev;
   /* Get next event; blocks until an event occurs */
@@ -822,7 +822,7 @@ bool getMouse(
     if (ev.xcookie.type == GenericEvent &&
         ev.xcookie.extension == opcode &&
         XGetEventData(display, &ev.xcookie))
-      //if (XCheckWindowEvent(display, win, PointerMotionMask | ButtonPressMask | ButtonReleaseMask, &ev))
+      // if (XCheckWindowEvent(display, win, PointerMotionMask | ButtonPressMask | ButtonReleaseMask, &ev))
     {
       ROS_DEBUG_STREAM_COND(log_level > 1, " event found");
       getEv(display, ev, sig_name, sig_val, keys);
@@ -831,7 +831,7 @@ bool getMouse(
     XFreeEventData(display, &ev.xcookie);
 
   } // while
-  //usleep(1000);
+  // usleep(1000);
   return true;
 } // getMouse
 
@@ -949,8 +949,8 @@ bool getVideoFrame(
   if (!video.grab())
   {
     // TBD this is only an error with a live webcam
-    //ROS_ERROR_STREAM(name << " Can not grab images." << endl);
-    //error_count++;
+    // ROS_ERROR_STREAM(name << " Can not grab images." << endl);
+    // error_count++;
     return false;
   }
 
@@ -960,17 +960,17 @@ bool getVideoFrame(
   if (new_out.empty())
   {
     ROS_ERROR_STREAM(name << " new image empty");
-    //error_count++;
+    // error_count++;
     return false;
   }
 
-  //error_count--;
-  //if (error_count < 0) error_count = 0;
+  // error_count--;
+  // if (error_count < 0) error_count = 0;
   // I think opencv is reusing a mat within video so have to clone it
 
-  //if (&new_out.data == &out.data) {
+  // if (&new_out.data == &out.data) {
   //
-  //cv::Mat tmp; // new_out.clone();
+  // cv::Mat tmp; // new_out.clone();
 
   float scale = 1.0;
   if (MAT_FORMAT == CV_16S) scale = 255;

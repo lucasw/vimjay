@@ -56,11 +56,11 @@ void ImageDir::init()
   setSignal("keep_aspect", 1, false, ROLL, 0, 2);
 
   std::string dir = "data";
-  //ros::param::get
+  // ros::param::get
   Config::inst()->nh_.getParam("image_dir", dir);
   setString("dir", dir);
   setString("name", "");
-  //setSignal("ind", 0, false, ROLL, 0, 0);
+  // setSignal("ind", 0, false, ROLL, 0, 0);
 }
 
 /**
@@ -112,7 +112,7 @@ bool ImageDir::loadImages()
     const string next_im = files[i];
     cv::Mat new_out = cv::imread(next_im);
 
-    if (new_out.data == NULL)   //.empty()) {
+    if (new_out.data == NULL)   // .empty()) {
     {
       ROS_WARN_STREAM(name << " not an image? " << next_im);
       continue;
@@ -140,7 +140,7 @@ bool ImageDir::loadImages()
 
   ROS_INFO_STREAM(name << " " << frames_orig.size() << " image loaded " << t1.elapsed());
   setSignal("ind", getSignal("ind"), false, ROLL, 0, frames_orig.size() - 1);
-  //max_size = frames.size() + 1;
+  // max_size = frames.size() + 1;
   setDirty();
 
   return true;
@@ -149,7 +149,7 @@ bool ImageDir::loadImages()
 bool ImageDir::resizeImages()
 {
   const int mode = getModeType();
-  //ROS_INFO_STREAM("resize mode " << mode);
+  // ROS_INFO_STREAM("resize mode " << mode);
 
   boost::mutex::scoped_lock l(frames_mutex);
   frames.clear();
@@ -233,10 +233,9 @@ bool ImageDir::update()
   }
 
   // flush dirtiness, TBD is this necessary
-  //isDirty(this, 27);
+  // isDirty(this, 27);
 
   return true;
 }
-
-} //bm
+}  // namespace bm
 

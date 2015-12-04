@@ -35,7 +35,7 @@
 #include <ros/console.h>
 
 #include <deque>
-//#include <pair>
+// #include <pair>
 
 #include "nodes.h"
 #include "config.h"
@@ -77,7 +77,7 @@ cv::Scalar hashStringColor(const string str)
 
 //////////////////////////////////////////////////////////////////////////////////////
 
-//Elem::Elem() : name("undefined"), highlight(false), highlight2(false)
+// Elem::Elem() : name("undefined"), highlight(false), highlight2(false)
 //{
 //}
 
@@ -153,7 +153,7 @@ bool Elem::update()
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 Connector::Connector(const std::string name) :
   Elem(name),
-  //writeable(true),
+  // writeable(true),
   type(SIGNAL),
   saturate(0),
   val_min(0.0),
@@ -181,14 +181,14 @@ bool Connector::update()
     src.lock()->update();
     //}
 
-    //if (dst) {
-    //src->parent.lock()->update(); // why not src->update()?
+    // if (dst) {
+    // src->parent.lock()->update(); // why not src->update()?
     // TBD this overlooks the case where the connector has changed inputs
     // but with a src that isn't dirty- the image still needs to propagate,
     // w:w
     // here does the dirtiness properly belong to force the im = src->im or value = src->value?
     if (src.lock()->isDirty(this, 0)
-        //if ( isDirty(this, 0)
+        // if ( isDirty(this, 0)
         //||  (src.lock()->parent == parent)  // TBD special loop detection, TBD not sure why this is necessary
        )
     {
@@ -201,9 +201,9 @@ bool Connector::update()
       else if (type == IMAGE) setImage(src.lock()->getImage());
       else if (type == STRING) setString(src.lock()->getString());
 
-      //if (type == SIGNAL) dst->setSignal(value);
-      //else if (type == IMAGE) dst->setImage(im);
-      //else if (type == STRING) dst->setString(str);
+      // if (type == SIGNAL) dst->setSignal(value);
+      // else if (type == IMAGE) dst->setImage(im);
+      // else if (type == STRING) dst->setString(str);
 
       // this ought to err on the side of keeping last images before a disconnection
       // though that may have already been happening or not happening for reasons
@@ -212,7 +212,7 @@ bool Connector::update()
 
       // if a connector has a src then it can't be an output
       // (at least until it gets overridden as an output)
-      //internally_set = false;
+      // internally_set = false;
 
       // TBD get copy of sigbuf
       // sigbuf = src.lock()->sigbuf;
@@ -266,7 +266,7 @@ bool Connector::setSignal(float val)
 
   if (saturate == ROLL)
   {
-    //const float span = val_max - val_min;
+    // const float span = val_max - val_min;
     if (val < val_min) val = val_max;
     if (val > val_max) val = val_min;
   }
@@ -289,7 +289,7 @@ bool Connector::setSignal(float val)
 bool Connector::setString(const std::string new_str)
 {
   ROS_DEBUG_STREAM_COND(log_level > 1, "setString " << CLTXT << name << " " << CLVAL << new_str << CLNRM);
-  //if (str.compare(new_str) == 0) return true;
+  // if (str.compare(new_str) == 0) return true;
   if (str == new_str) return true;
   str = new_str;
   setDirty();
@@ -366,7 +366,7 @@ void Connector::preDraw(cv::Mat graph_ui, cv::Point2f ui_offset)
         wt2 = 1.0 * (fr);
       }
       cv::Scalar hc2 = dst_hash_col * cv::Scalar(wt1);
-      //cv::Scalar hc1 = hash_col *( 1.0-(1.0-fr));
+      // cv::Scalar hc1 = hash_col *( 1.0-(1.0-fr));
       cv::Scalar hc1 = hash_col * cv::Scalar(wt2);
       col = hc1 + hc2;
 
@@ -467,7 +467,7 @@ Buffer* Connector::getBuffer()
 
   if (
 
-    //dynamic_cast<Buffer*> (con->src->parent);
+    // dynamic_cast<Buffer*> (con->src->parent);
 
 }
 #endif
@@ -503,7 +503,7 @@ void Node::init()
     do_update(false)
   {
 
-    //is_dirty = true;
+    // is_dirty = true;
     vcol = cv::Scalar(0,128,255);
   }
   */
@@ -516,7 +516,7 @@ bool Node::setUpdate()
 
   do_update = true;
 
-  //boost::mutex::scoped_lock l(port_mutex);
+  // boost::mutex::scoped_lock l(port_mutex);
   for (int i = 0; i < ports.size(); i++)
   {
     // TBD look for per-port enable here
@@ -536,7 +536,7 @@ bool Node::update()
 {
   if (!Elem::update()) return false;
 
-  //boost::mutex::scoped_lock l(port_mutex);
+  // boost::mutex::scoped_lock l(port_mutex);
   // need to update enable no matter if it is false
   for (int i = 0; i < ports.size(); i++)
   {
@@ -633,7 +633,7 @@ bool Node::preDraw(cv::Point2f ui_offset)
     return false;
   }
 
-  //int max_width = 0;
+  // int max_width = 0;
   for (int i = 0; i < ports.size(); i++)
   {
     // highlight the selected port
@@ -660,7 +660,7 @@ bool Node::preDraw(cv::Point2f ui_offset)
 
 bool Node::draw(cv::Point2f ui_offset)
 {
-  //posUpdate();
+  // posUpdate();
 
   if (graph_ui.empty())
   {
@@ -670,8 +670,8 @@ bool Node::draw(cv::Point2f ui_offset)
 
   int fr = 1;
   if (!isDirty(this, 1)) fr = 5;
-  //cv::Scalar col = cv::Scalar(vcol/fr);
-  cv::Scalar col = vcol * (1.0 / fr); //cv::Scalar(vcol/fr);
+  // cv::Scalar col = cv::Scalar(vcol/fr);
+  cv::Scalar col = vcol * (1.0 / fr); // cv::Scalar(vcol/fr);
 
   if (!getBool("enable"))
     cv::circle(graph_ui, loc + ui_offset, 15, cv::Scalar(0, 0, 200), -1);
@@ -715,10 +715,10 @@ bool Node::draw(cv::Point2f ui_offset)
     cv::rectangle(graph_ui,
                   rect_origin + ui_offset,
                   loc + rect_wh + ui_offset,
-                  vcol * 0.2, //cv::Scalar(255,0,0),
+                  vcol * 0.2, // cv::Scalar(255,0,0),
                   2);
 
-    //int max_width = 0;
+    // int max_width = 0;
     for (int i = 0; i < ports.size(); i++)
     {
       ports[i]->draw(graph_ui, ui_offset);
@@ -740,8 +740,8 @@ bool Node::load(cv::FileNodeIterator nd)
   FileNode nd_in = (*nd)["inputs"];
   if (nd_in.type() != FileNode::SEQ)
   {
-    //ROS_ERROR_STREAM("no nodes");
-    //return false;
+    // ROS_ERROR_STREAM("no nodes");
+    // return false;
   }
 
   for (cv::FileNodeIterator it = nd_in.begin(); it != nd_in.end(); ++it)
@@ -770,10 +770,10 @@ bool Node::save(cv::FileStorage& fs)
   const string type = getId(boost::dynamic_pointer_cast<Node>(shared_from_this()));
 
   fs << "typeid" << type;
-  //fs << "typeid_mangled" << typeid(*all_nodes[i]).name();
+  // fs << "typeid_mangled" << typeid(*all_nodes[i]).name();
   fs << "name" << name;
   fs << "loc" << loc;
-  //fs << "vcol" << p->vcol  ;
+  // fs << "vcol" << p->vcol  ;
 
   return true;
 }
@@ -1045,8 +1045,8 @@ void Node::setInputPort(
 
     }
 
-    //if (src_con->dst != con) con->setDirty();
-    //src_con->setDirty();
+    // if (src_con->dst != con) con->setDirty();
+    // src_con->setDirty();
     src_con->dst = con;
     ROS_DEBUG_STREAM_COND(log_level > 1, "\"" << name << "\" setInputPort: " << type << " "
                           << CLTXT << "\"" << port << "\"" << CLNRM << " from "
@@ -1066,7 +1066,7 @@ bool Node::setImage(const std::string port, cv::Mat& im, const bool internally_s
 {
   // can't set the image if it is controlled by an input node
 
-  //if (port.substr(0,3) == "out") {
+  // if (port.substr(0,3) == "out") {
   //  type = "ImageOut";
   //}
 
@@ -1218,8 +1218,8 @@ float Node::getSignal(
   }
 
   if (!con) return 0;
-  //ROS_DEBUG_STREAM_COND(log_level > 1, name << " " << src_port << " " << valid << " " << new_val << " " << val);
-  //if (!valid) return val;
+  // ROS_DEBUG_STREAM_COND(log_level > 1, name << " " << src_port << " " << valid << " " << new_val << " " << val);
+  // if (!valid) return val;
   float val = con->value;
 
   is_dirty = con->isDirty(this, is_dirty_ind);
@@ -1252,7 +1252,7 @@ cv::Mat Node::getBuffer(
 
   if ((!tmp_src) || (!tmp_src->parent.lock())) return tmp;
 
-  //Buffer* im_in = con->getBuffer(); // dynamic_cast<Buffer*> (tmp_src->parent);
+  // Buffer* im_in = con->getBuffer(); // dynamic_cast<Buffer*> (tmp_src->parent);
   boost::shared_ptr<Buffer> im_in =
     boost::dynamic_pointer_cast<Buffer>(tmp_src->parent.lock());
 
@@ -1273,7 +1273,7 @@ cv::Mat Node::getBuffer(
   const int val,
   int& actual_ind
 )
-//cv::Mat& image)
+// cv::Mat& image)
 {
 
   cv::Mat tmp;
@@ -1338,7 +1338,7 @@ bool Node::setBuffer(
   }
 
   // can't set signal if it is controlled by src port
-  //if (con->src) return false;
+  // if (con->src) return false;
 
   con->setDirty();
   return true;
@@ -1365,7 +1365,7 @@ bool Node::setSigBuf(
   }
 
   // can't set signal if it is controlled by src port
-  //if (con->src) return false;
+  // if (con->src) return false;
 
   con->setDirty();
 
@@ -1428,7 +1428,7 @@ string Node::getString(
     return "";
   }
   ROS_DEBUG_STREAM_COND(log_level > 9, name << " " << con->name << " " << src_port << " " << valid << " " << con->getString() << " " << con << " " << this);
-  //if (!valid) return val;
+  // if (!valid) return val;
 
   is_dirty = con->isDirty(this, is_dirty_ind);
 
@@ -1450,7 +1450,7 @@ void ImageNode::init()
   cv::Mat out;
   setImage("out", out, true);
   // TBD image generators don't need this
-  //setImage("in", tmp);
+  // setImage("in", tmp);
 }
 
 /// Probably don't want to call this in most inheriting functions, skip back to Node::update()
@@ -1479,7 +1479,7 @@ bool ImageNode::update()
 
     setImage("out", in);
   }
-  //ROS_DEBUG_STREAM_COND(log_level > 4, name << " update: " <<  out.refcount << " " << out_old.refcount);
+  // ROS_DEBUG_STREAM_COND(log_level > 4, name << " update: " <<  out.refcount << " " << out_old.refcount);
 
   return true;
 }
@@ -1502,14 +1502,14 @@ bool ImageNode::draw(cv::Point2f ui_offset)
     cv::Size sz = cv::Size(Config::inst()->thumb_width, Config::inst()->thumb_height);
 
     cv::Mat thumbnail = cv::Mat(sz, CV_8UC4);
-    //cv::resize(tmp->get(), thumbnail, thumbnail.size(), 0, 0, cv::INTER_NEAREST );
+    // cv::resize(tmp->get(), thumbnail, thumbnail.size(), 0, 0, cv::INTER_NEAREST );
     cv::resize(tmp, thumbnail, sz, 0, 0, cv::INTER_NEAREST);
-    //cv::resize(tmp->get(), thumbnail, cv::INTER_NEAREST );
+    // cv::resize(tmp->get(), thumbnail, cv::INTER_NEAREST );
 
     int fr = 1;
     if (!isDirty(this, 2)) fr = 5;
-    //cv::Scalar col = cv::Scalar(vcol/fr);
-    cv::Scalar col = vcol * (1.0 / fr); //cv::Scalar(vcol/fr);
+    // cv::Scalar col = cv::Scalar(vcol/fr);
+    cv::Scalar col = vcol * (1.0 / fr); // cv::Scalar(vcol/fr);
 
     thumb_offset = cv::Point2f(0, -sz.height - 20);
 
@@ -1751,7 +1751,7 @@ bool Signal::update()
 {
   if (!Node::update()) return false;
 
-  //ROS_DEBUG_STREAM_COND(log_level > 4, "Signal " << name << " " << value);
+  // ROS_DEBUG_STREAM_COND(log_level > 4, "Signal " << name << " " << value);
 
   return true;
 }
@@ -1804,17 +1804,17 @@ Buffer::Buffer(const std::string name) : ImageNode(name)
 void Buffer::init()
 {
   ImageNode::init();
-  //this->max_size = max_size;
-  //ROS_INFO_STREAM("new buffer max_size " << this->max_size);
+  // this->max_size = max_size;
+  // ROS_INFO_STREAM("new buffer max_size " << this->max_size);
   vcol = cv::Scalar(200, 30, 200);
 
   cv::Mat tmp;
   setImage("in", tmp);
   // not really an input, but using inputs since outputs aren't distinct
   setBuffer("out", true);
-  //setInputPort(BUFFER, "out", NULL, "");
+  // setInputPort(BUFFER, "out", NULL, "");
 
-  //setImage("image", cv::Mat());
+  // setImage("image", cv::Mat());
   setSignal("max_size", 100);
 
   setSignal("cur_size", 0, true);
@@ -1827,8 +1827,8 @@ bool Buffer::manualUpdate()
   if (!in.empty() && con_is_dirty)
     add(in);
 
-  //const int ind =  ((int)getSignal("ind") + cur_size) % cur_size;
-  //setSignal("ind", ind);
+  // const int ind =  ((int)getSignal("ind") + cur_size) % cur_size;
+  // setSignal("ind", ind);
 
   return true;
 }
@@ -1849,7 +1849,7 @@ bool Buffer::setOut()
 
 bool Buffer::update()
 {
-  //ROS_DEBUG_STREAM_COND(log_level > 1, name << " buffer update");
+  // ROS_DEBUG_STREAM_COND(log_level > 1, name << " buffer update");
   bool rv = Node::update(); // ImageNode::update();
   if (!rv) return false;
 
@@ -1896,7 +1896,7 @@ bool Buffer::draw(cv::Point2f ui_offset)
     }
 
     // TBD make this optional
-    if (out.empty()) out = frames[0];//.clone();
+    if (out.empty()) out = frames[0];  // .clone();
 
     // make previews 25% of regular thumbnail size
     const float thumb_fr = 0.25;
@@ -1905,7 +1905,7 @@ bool Buffer::draw(cv::Point2f ui_offset)
 
     cv::Mat thumbnail = cv::Mat(sz, CV_8UC4);
     cv::resize(frame, thumbnail, sz, 0, 0, cv::INTER_NEAREST);
-    //cv::resize(tmp->get(), thumbnail, cv::INTER_NEAREST );
+    // cv::resize(tmp->get(), thumbnail, cv::INTER_NEAREST );
 
     // position the preview frames in a strip above the regular
     // thumbnail
@@ -1948,7 +1948,7 @@ bool Buffer::addCore(cv::Mat& new_frame, bool restrict_size)
     ROS_INFO_STREAM_ONCE(name << " cloning identical frame "
                          << new_frame.refcount << " " << frames[frames.size() - 1].refcount
                         );
-    //return false;
+    // return false;
   }
 
   frames.push_back(new_frame);
@@ -2009,7 +2009,7 @@ cv::Mat Buffer::get(const float fr, int& actual_ind)
   const int ind = (int)(fr * (float)frames.size());
   actual_ind = ind;
   ROS_DEBUG_STREAM_COND(log_level > 6, ind << " " << fr << " " << frames.size());
-  //if (fr < 0) {
+  // if (fr < 0) {
   //  ind = frames.size() - ind;
   //}
 
@@ -2027,15 +2027,15 @@ cv::Mat Buffer::get(int ind, int& actual_ind)
     tmp = cv::Scalar(128);
     return tmp;
   }
-  //if (ind > frames.size() - 1) ind = frames.size() - 1;
-  //if (ind < 0) ind = 0;
+  // if (ind > frames.size() - 1) ind = frames.size() - 1;
+  // if (ind < 0) ind = 0;
   ind %= frames.size();
   actual_ind = ind;
 
   ROS_DEBUG_STREAM_COND(log_level > 2, name << " ind " << ind);
 
-  //VLOG_EVERY_N(1,10)
-  //LOG_EVERY_N(INFO, 10) << ind << " " << frames.size();
+  // VLOG_EVERY_N(1,10)
+  // LOG_EVERY_N(INFO, 10) << ind << " " << frames.size();
   return frames[ind];
 }
 
@@ -2084,7 +2084,7 @@ bool Buffer::save(cv::FileStorage& fs)
 {
   ImageNode::save(fs);
 
-  //fs << "max_size" << max_size;
+  // fs << "max_size" << max_size;
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -2095,8 +2095,8 @@ Mux::Mux(const std::string name) : Buffer(name)
 void Mux::init()
 {
   Buffer::init();
-  //this->max_size = max_size;
-  //ROS_INFO_STREAM("new buffer max_size " << this->max_size);
+  // this->max_size = max_size;
+  // ROS_INFO_STREAM("new buffer max_size " << this->max_size);
   vcol = cv::Scalar(200, 30, 200);
 
   // not really an input, but using inputs since outputs aren't distinct
@@ -2238,7 +2238,7 @@ void MuxBuffer::init()
 
 bool MuxBuffer::update()
 {
-  //ROS_DEBUG_STREAM_COND(log_level > 1, name << "mux buffer update");
+  // ROS_DEBUG_STREAM_COND(log_level > 1, name << "mux buffer update");
   bool rv = Node::update(); // ImageNode::update();
   if (!rv) return false;
 

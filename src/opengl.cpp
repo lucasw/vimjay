@@ -89,7 +89,7 @@ bool OpenGL::setup()
   // TBD only want to render to texture, is creating this window necessary?
   glutInit(&argc, &argv);
   glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA);
-  //glutInitWindowSize(5, 5);
+  // glutInitWindowSize(5, 5);
   glutInitWindowSize(sz.width, sz.height);
   glutInitWindowPosition(Config::inst()->ui_width, 0);
   glutCreateWindow("opengl");
@@ -153,7 +153,7 @@ bool OpenGL::setup()
                GL_RGB, GL_UNSIGNED_BYTE, tmp.data);
 
   glEnable(GL_TEXTURE_2D);
-  //glTexEnvf( GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE );
+  // glTexEnvf( GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE );
   glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
 
   glBindTexture(GL_TEXTURE_2D, 0);
@@ -233,10 +233,10 @@ bool OpenGL::update()
   {
     cv::Mat out = cv::Mat(Config::inst()->getImSize(), CV_8UC4);
     // now extract image back to opencv
-    //use fast 4-byte alignment (default anyway) if possible
+    // use fast 4-byte alignment (default anyway) if possible
     glPixelStorei(GL_PACK_ALIGNMENT, (out.step & 3) ? 1 : 4);
 
-    //set length of one complete row in destination data (doesn't need to equal img.cols)
+    // set length of one complete row in destination data (doesn't need to equal img.cols)
     glPixelStorei(GL_PACK_ROW_LENGTH, out.step / out.elemSize());
 
     glReadPixels(0, 0, out.cols, out.rows, GL_BGRA, GL_UNSIGNED_BYTE, out.data);

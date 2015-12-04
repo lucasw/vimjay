@@ -29,10 +29,10 @@
 #include <stdlib.h>
 #include <time.h>
 #include <typeinfo>
-#include <cxxabi.h> // non portable
+#include <cxxabi.h>  // non portable
 
 #include <deque>
-//#include <pair>
+// #include <pair>
 
 #include <boost/lexical_cast.hpp>
 
@@ -51,14 +51,14 @@
 #include "screencap.h"
 #include "utility.h"
 
-//using namespace cv;
+// using namespace cv;
 using namespace std;
 
 namespace bm
 {
-//DEFINE_int32(width, 640, "");
-//DEFINE_int32(height, 480, "");
-//DEFINE_string(mouse, "/dev/input/mouse0", "/dev/input/mouseN or /dev/input/eventN");
+// DEFINE_int32(width, 640, "");
+// DEFINE_int32(height, 480, "");
+// DEFINE_string(mouse, "/dev/input/mouse0", "/dev/input/mouseN or /dev/input/eventN");
 /*
  * To work with Kinect the user must install OpenNI library and PrimeSensorModule for OpenNI and
  * configure OpenCV with WITH_OPENNI flag is ON (using CMake).
@@ -124,7 +124,7 @@ int main(int argc, char* argv[])
   Window win;
   int opcode;
   bm::setupX(display, win, width, height, opcode);
-  //bm::setWindowDecorations(display, win,false);
+  // bm::setWindowDecorations(display, win,false);
 
   cv::Mat tmp;
   // BGR
@@ -132,8 +132,8 @@ int main(int argc, char* argv[])
 
   bm::matToScreen(tmp, display, win);
 
-  //cv::imshow("temp", tmp);
-  //cv::waitKey(10);
+  // cv::imshow("temp", tmp);
+  // cv::waitKey(10);
 
   /* Event loop */
   while (1)
@@ -154,13 +154,13 @@ int main(int argc, char* argv[])
       Node::init();
       setSignal("0_x", 0);
 
-      //event_thread = boost::thread(&Mouse::runThread, this);
+      // event_thread = boost::thread(&Mouse::runThread, this);
     }
 
     Mouse::~Mouse()
     {
-      //run_thread = false;
-      //event_thread.join();
+      // run_thread = false;
+      // event_thread.join();
     }
 #if 0
     bool Mouse::update()
@@ -176,7 +176,7 @@ int main(int argc, char* argv[])
     bool Mouse::draw(cv::Point2f ui_offset)
     {
       Node::draw(ui_offset);
-      //run_thread = true;
+      // run_thread = true;
 
       vector<string> sig_name;
       vector<float> sig_val;
@@ -238,9 +238,9 @@ int main(int argc, char* argv[])
       ImageNode::init();
 
       is_initted = false;
-      //setSignal("0_x", 0);
+      // setSignal("0_x", 0);
 
-      //event_thread = boost::thread(&Mouse::runThread, this);
+      // event_thread = boost::thread(&Mouse::runThread, this);
 
       // TBD allow changing of joystick input- could allow numeric input
       // to append to js,
@@ -295,8 +295,8 @@ int main(int argc, char* argv[])
 
     GamePad::~GamePad()
     {
-      //run_thread = false;
-      //event_thread.join();
+      // run_thread = false;
+      // event_thread.join();
     }
 
     void GamePad::runThread()
@@ -307,17 +307,17 @@ int main(int argc, char* argv[])
 
       while (run_thread)
       {
-        //ROS_INFO_ONCE("game pad run loop " << fd);
+        // ROS_INFO_ONCE("game pad run loop " << fd);
         if (fd > 0)
         {
-          //ROS_INFO_ONCE("game pad fd " << fd);
+          // ROS_INFO_ONCE("game pad fd " << fd);
           // TBD put int thread
           while (
             read(fd, &js, sizeof(struct js_event)) == sizeof(struct js_event))
           {
 
             const int js_num = int(js.number);
-            //ROS_INFO_ONCE("game pad fd");
+            // ROS_INFO_ONCE("game pad fd");
 
             switch (js.type & ~JS_EVENT_INIT)
             {

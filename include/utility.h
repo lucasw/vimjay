@@ -33,10 +33,10 @@
 
 #define MAT_FORMAT_C3 CV_8UC4
 #define MAT_FORMAT CV_8U
-//#define MAT_FORMAT_C3 CV_16SC3
-//#define MAT_FORMAT CV_16S
-//#define MAT_FORMAT_C3 CV_32FC3
-//#define MAT_FORMAT CV_32F
+// #define MAT_FORMAT_C3 CV_16SC3
+// #define MAT_FORMAT CV_16S
+// #define MAT_FORMAT_C3 CV_32FC3
+// #define MAT_FORMAT CV_32F
 
 namespace bm
 {

@@ -40,9 +40,9 @@ protected:
   std::vector<image_transport::Subscriber> image_subs_;
 
   std::vector<double> b_coeffs_;
-  //std::vector<cv::Mat> a_coeffs;
+  // std::vector<cv::Mat> a_coeffs;
   // TODO maybe just temp debug
-  //unsigned int index_;
+  // unsigned int index_;
   ros::Timer timer_;
 
   void pubImage(const ros::TimerEvent& e);

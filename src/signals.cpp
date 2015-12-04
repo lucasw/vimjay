@@ -41,7 +41,7 @@ extern "C" {
 #include "other/DSOnoises/noise1234.h"
 #include "other/DSOnoises/simplexnoise1234.h"
 #include "other/DSOnoises/sdnoise1234.h"
-//#include "other/DSOnoises/srdnoise23.h"
+// #include "other/DSOnoises/srdnoise23.h"
 }
 
 using namespace cv;
@@ -61,7 +61,7 @@ void MiscSignal::init()
   setSignal("mode", 7, false, ROLL, 0, 7);
 }
 
-//void MiscSignal::setup(const float new_step, const float offset, const float min, const float max)
+// void MiscSignal::setup(const float new_step, const float offset, const float min, const float max)
 // {
 //   Signal::setup(new_step, offset, min, max);
 //}
@@ -71,7 +71,7 @@ bool MiscSignal::handleKey(int key)
   bool valid_key = Signal::handleKey(key);
   if (valid_key) return true;
 
-  //valid_key = true;
+  // valid_key = true;
 
   // TBD
   if (valid_key) setDirty();
@@ -330,7 +330,7 @@ bool SigBuffer::update()
   }
 
   setOut();
-  //setSignal("out", sigs[0]);
+  // setSignal("out", sigs[0]);
 
 
   return true;
@@ -433,16 +433,16 @@ bool SigBuffer::draw(cv::Point2f ui_offset)
   return ImageNode::draw(ui_offset);
 }
 
-//bool SigBuffer::writeSignals();
+// bool SigBuffer::writeSignals();
 
 // not the same as the inherited get on purpose
 // many callers per time step could be calling this
 float SigBuffer::getFr(const float fr)
 {
   int ind = (int)(fr * (float)sigs.size());
-  //if (fr < 0) {
+  // if (fr < 0) {
   //  ind = frames.size() - ind;
-  //}
+  // }
 
   // TBD set the signal ind to be this ind?
   const float val = getInd(ind);
@@ -460,14 +460,14 @@ float SigBuffer::getInd(int& ind)
     ROS_DEBUG_STREAM_COND(log_level > 1, "no sigs returning 0");
     return 0;
   }
-  //if (ind > sigs.size() - 1) ind = sigs.size() - 1;
-  //if (ind < 0) ind = 0;
+  // if (ind > sigs.size() - 1) ind = sigs.size() - 1;
+  // if (ind < 0) ind = 0;
   ind %= sigs.size();
 
   ROS_DEBUG_STREAM_COND(log_level > 2, name << " ind " << ind);
 
-  //VLOG_EVERY_N(1,10)
-  //LOG_EVERY_N(INFO, 10) << ind << " " << sigs.size();
+  // VLOG_EVERY_N(1,10)
+  // LOG_EVERY_N(INFO, 10) << ind << " " << sigs.size();
   return sigs[ind];
 }
 
@@ -670,7 +670,7 @@ void Mean::init()
   setSignal("mean_r", initial_val, internally_set);
   setSignal("mean_g", initial_val, internally_set);
   setSignal("mean_b", initial_val, internally_set);
-  //TBD stddev  setSignal("equal",initial_val, internally_set);
+  // TBD stddev  setSignal("equal",initial_val, internally_set);
 }
 
 bool Mean::update()
@@ -685,7 +685,7 @@ bool Mean::update()
 
   cv::Mat in = getImage("in");
 
-  cv::Scalar mean = cv::mean(in); //TBD optional mask
+  cv::Scalar mean = cv::mean(in); // TBD optional mask
 
   float b = mean.val[0];
   float g = mean.val[1];
@@ -922,9 +922,7 @@ bool SigToInd::update()
       break;
     }
   }
-
   return true;
-} // SigToInd::update
-
-} //bm
+}  // SigToInd::update
+}  // namespace bm
 

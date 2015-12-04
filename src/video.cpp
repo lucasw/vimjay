@@ -66,7 +66,7 @@ void VideoCapture::init()
 
 Video::Video(const std::string name) :
   Buffer(name)
-  //VideoCapture(name)
+  // VideoCapture(name)
 {
 }
 
@@ -75,7 +75,7 @@ void Video::init()
   Buffer::init();
   is_thread_dirty = false;
   setSignal("mode", 0, false, ROLL, 0, 4);
-  //setString("file", "../data/test.mp4");
+  // setString("file", "../data/test.mp4");
   setString("file", "../data/test.webm");
 
   ROS_INFO_STREAM(name << " video");
@@ -103,7 +103,7 @@ void Video::runThread()
                         << CLTXT << file << CLNRM);
         video.open(file);
         // TBD temp kinect test
-        //video.open(cv::CAP_OPENNI);
+        // video.open(cv::CAP_OPENNI);
 
         boost::mutex::scoped_lock l(frames_mutex);
         frames.clear();
@@ -119,7 +119,7 @@ void Video::runThread()
 
 bool Video::spinOnce()
 {
-  //if (!VideoCapture::spinOnce()) return false;
+  // if (!VideoCapture::spinOnce()) return false;
   if (!video.isOpened())
   {
     usleep(10000);
@@ -225,18 +225,18 @@ bool VideoCapture::spinOnce()
   if (!getVideoFrame(video, dst, name, getModeType(), getSignal("keep_aspect")))
     return false;
 
-  //out_lock.lock();
+  // out_lock.lock();
   setImage("out", dst);
   // TBD is this still necessary
-  //is_thread_dirty = true;
-  //out_lock.unlock();
-  //} else {
+  // is_thread_dirty = true;
+  // out_lock.unlock();
+  // } else {
   //  VLOG(3) << name << " dissimilar capture";
   //  out = new_out;
-  //}
+  // }
 
   // TBD out is the same address every time, why doesn't clone produce a new one?
-  //VLOG(3) <<
+  // VLOG(3) <<
 
   return true;
 } // spinOnce
@@ -244,7 +244,7 @@ bool VideoCapture::spinOnce()
 void Webcam::runThread()
 {
   run_thread = true;
-  //cv::namedWindow("webcam", CV_GUI_NORMAL);
+  // cv::namedWindow("webcam", CV_GUI_NORMAL);
 
   video.open(0);
 
@@ -259,7 +259,7 @@ bool Webcam::update()
 {
   // don't call ImageNode update because it will clobber the "out" image set in the thread
   if (!Node::update()) return false;
-  //ImageNode::update();
+  // ImageNode::update();
 
 
   if (is_thread_dirty) setDirty();
@@ -267,7 +267,5 @@ bool Webcam::update()
 
   return true;
 }
-
-
-} //bm
+}  // namespace bm
 

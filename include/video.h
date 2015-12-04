@@ -9,7 +9,7 @@
 #include "opencv2/highgui/highgui.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
 
-//#include <random>
+// #include <random>
 #include <deque>
 #include <map>
 
@@ -30,9 +30,7 @@ protected:
 public:
   explicit VideoCapture(const std::string name);
   virtual void init();
-  //virtual ~VideoCapture();
-  //
-
+  // virtual ~VideoCapture();
 };
 
 class Webcam : public VideoCapture
@@ -51,10 +49,10 @@ public:
 
 };
 
-/// multiple inheritance would maybe make this better
-/// but doesn't seem like a good fit/ or requires upstream
-/// changes I don't want to mess with right now.
-class Video : public Buffer //public VideoCapture
+// multiple inheritance would maybe make this better
+// but doesn't seem like a good fit/ or requires upstream
+// changes I don't want to mess with right now.
+class Video : public Buffer  // public VideoCapture
 {
   cv::VideoCapture video;
   boost::thread cam_thread;

@@ -11,7 +11,7 @@
 #include "opencv2/highgui/highgui.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
 
-//#include <random>
+// #include <random>
 #include <deque>
 #include <map>
 #include <boost/thread.hpp>
@@ -37,9 +37,9 @@ public:
   Window win;
   int opcode;
 
-  //bool run_thread;
-  //boost::thread event_thread;
-  //void runThread();
+  // bool run_thread;
+  // boost::thread event_thread;
+  // void runThread();
 
   explicit Mouse(const std::string name);
   ~Mouse();

@@ -39,12 +39,12 @@ struct NodeDiffFunctor
   NodeDiffFunctor(
     void* net
     // see wasteful comment below
-    //Node<T>* input,
-    //Node<T>* output
+    // Node<T>* input,
+    // Node<T>* output
   ) :
     net_(net)
-    //input_(input),
-    //output_(output)
+    // input_(input),
+    // output_(output)
   {
   }
 
@@ -54,7 +54,7 @@ struct NodeDiffFunctor
   {
     // if x is pointing to the weights val (is that bad idea?)
     // then don't need to copy values here.
-    //Net<T> net = dynamic_cast<Net<T>>
+    // Net<T> net = dynamic_cast<Net<T>>
 
     // TBD need to copy the structure of net but have the type T
     // here.
@@ -75,7 +75,7 @@ struct NodeDiffFunctor
     // this seems super wasteful, have to populate and update
     // everything just to get the diff of a single pixel
     // one al
-    //residual = input_->val_ - output_->val_;
+    // residual = input_->val_ - output_->val_;
 
     // get the error of outputs minus inputs
     for (size_t i = 0; i < net->inputs_.size(); ++i)
@@ -89,7 +89,7 @@ struct NodeDiffFunctor
   // having this be a pointer seems like there is potential for
   // inter-thread conflict, TBD make it a copy instead
   void* net_;
-  //const Node<T>* const input_;
+  // const Node<T>* const input_;
   // const Node<T>* const output_;
 };
 
@@ -183,29 +183,29 @@ void Node<T>::update()
         sum += diff * diff;
       }
       // not averaging seems better.
-      //var = (sum / count);
+      // var = (sum / count);
       if (var == 0.0) var = 1.0;
 
-      //var *= 50.0;
+      // var *= 50.0;
     }
   }
 
-  //std::cout << name_ << ", mean " << mean << ", var " << var << std::endl;
+  // std::cout << name_ << ", mean " << mean << ", var " << var << std::endl;
   for (size_t y = 0; y < inputs_.size(); ++y)
   {
     if (inputs_[y] == NULL) continue;
-    //std::cout << y << " " << x  << " " << inputs_[y].size() << " "
+    // std::cout << y << " " << x  << " " << inputs_[y].size() << " "
     //    << weights_[y].size() <<   std::endl;
-    //std::cout << inputs_[y][x] << std::endl;
-    //std::cout << weights_[y][x] << std::endl;
-    //std::cout << name_ << " input from " << inputs_[y]->name_ << " "
+    // std::cout << inputs_[y][x] << std::endl;
+    // std::cout << weights_[y][x] << std::endl;
+    // std::cout << name_ << " input from " << inputs_[y]->name_ << " "
     //    << inputs_[y]->val_ << " * " << weights_[y]->val_ << std::endl;
     this->val_ += (inputs_[y]->val_ - mean) / var * weights_[y]->val_;
   }
 
-  //std::cout << name_ << " val " <<  val_ << std::endl;
+  // std::cout << name_ << " val " <<  val_ << std::endl;
   // TBD apply sigmoid (map to 0.0-1.0) or tanh (-1.0 to 1.0)
-  //std::cout << name_ << " val " <<  val_ << " " << tanh(val_) << std::endl;
+  // std::cout << name_ << " val " <<  val_ << " " << tanh(val_) << std::endl;
   if (use_tanh_)
     this->val_ = tanh(this->val_);
 }
@@ -284,10 +284,10 @@ Net<T>::Net(cv::Mat& im) :
         const double fx = double(x) / double(base_sz);
         const double fy = double(y) / double(base_sz);
         const double wn = sin(fx * M_PI) * sin(fy * M_PI);
-        if (i == 0) weight->val_ = fx - 0.5; //rng.gaussian(sigma);
-        if (i == 1) weight->val_ = 1.0 - fx - 0.5; //rng.gaussian(sigma);
-        if (i == 2) weight->val_ = fy - 0.5; //rng.gaussian(sigma);
-        if (i == 3) weight->val_ = 1.0 - fy - 0.5; //rng.gaussian(sigma);
+        if (i == 0) weight->val_ = fx - 0.5; // rng.gaussian(sigma);
+        if (i == 1) weight->val_ = 1.0 - fx - 0.5; // rng.gaussian(sigma);
+        if (i == 2) weight->val_ = fy - 0.5; // rng.gaussian(sigma);
+        if (i == 3) weight->val_ = 1.0 - fy - 0.5; // rng.gaussian(sigma);
         if (i == 4) weight->val_ = rng.gaussian(sigma);
         weight->val_ *= wn;
         bases_[i][y][x] = weight;
@@ -344,7 +344,7 @@ Net<T>::Net(cv::Mat& im) :
           for (int l = 0; l < bases_[i][k].size(); ++l)
           {
             const int y2 = node->y_ + l - div / 2;
-            //std::cout << y << " " << x << ", "
+            // std::cout << y << " " << x << ", "
             //    << k << " " << l << ", "
             //    << y2 << " " << x2 << std::endl;
 
@@ -369,11 +369,11 @@ Net<T>::Net(cv::Mat& im) :
               input_node->output_weights_.push_back(input_weight);
               input_node->outputs_.push_back(node);
 
-              //std::cout << "layer1 yx " << y2 << " " << x2 << std::endl;
+              // std::cout << "layer1 yx " << y2 << " " << x2 << std::endl;
             }
             else
             {
-              //std::cout << "invalid layer1 yx " << y2 << " " << x2 << std::endl;
+              // std::cout << "invalid layer1 yx " << y2 << " " << x2 << std::endl;
             } // is input pixel valid or not
           } // loop through bases_ pixels x
         } // loop through bases_ pixels y
@@ -406,7 +406,7 @@ Net<T>::Net(cv::Mat& im) :
       // this node
       for (size_t i = 0; i < node_enc->outputs_.size(); ++i)
       {
-        //basis_ind = node->outputs_[i]->z_;
+        // basis_ind = node->outputs_[i]->z_;
         // TBD replace this with Node::addOutput()
         Base<T>* input_weight = node_enc->output_weights_[i];
         Node<T>* input_node = dynamic_cast<Node<T>*>(node_enc->outputs_[i]);
@@ -427,7 +427,7 @@ Net<T>::Net(cv::Mat& im) :
         input_node->outputs_.push_back(node);
       }
       // Debug look at outputs from layer1
-      //std::cout << "layer1 " << y << " " << " " << x
+      // std::cout << "layer1 " << y << " " << " " << x
       //    << ": in " << node_enc->inputs_.size()
       //    << " out " << node_enc->outputs_.size() << std::endl;
     }
@@ -459,7 +459,7 @@ Net<T>::Net(cv::Mat& im) :
                     << std::endl;
           continue;
         }
-        //std::cout << "layer2 " << i << " " << y << " " << " " << x
+        // std::cout << "layer2 " << i << " " << y << " " << " " << x
         //    << ": in " << input_node->inputs_.size()
         //    << ", out " << input_node->outputs_.size()
         //    << std::endl;
@@ -484,12 +484,12 @@ template <typename T>
 void layerToMat2D(std::vector< std::vector< Base<T>* > >& layer, cv::Mat& vis)
 {
   cv::Mat vis_pre = cv::Mat(cv::Size(layer[0].size(), layer.size()), CV_32FC1);
-  //std::cout << "size " << vis_pre.size() << std::endl;
+  // std::cout << "size " << vis_pre.size() << std::endl;
   for (size_t y = 0; y < vis_pre.rows; ++y)
   {
     for (size_t x = 0; x < vis_pre.cols; ++x)
     {
-      //std::cout << y << " " << x << " " << layer[y][x]->val_ << std::endl;
+      // std::cout << y << " " << x << " " << layer[y][x]->val_ << std::endl;
       vis_pre.at<double>(y, x) = layer[y][x]->val_; // * sc + offset;
     }
   }
@@ -548,8 +548,8 @@ bool layerToMat(std::vector< Base<T>* >& layer, cv::Mat& vis)
   int ht = ymax - ymin;
   if ((wd == 0) || (ht == 0))
   {
-    //std::cerr << "bad wd ht " << xmax << " " << xmin << " " << ymax << " " << ymin << std::endl;
-    //return false;
+    // std::cerr << "bad wd ht " << xmax << " " << xmin << " " << ymax << " " << ymin << std::endl;
+    // return false;
     // TBD this isn't always a great choice, need to have caller determine this
     wd = std::sqrt(layer.size());
     std::cout << "can't use xy wd ht " << xmax << " " << xmin << " " << ymax << " " << ymin << std::endl;
@@ -588,7 +588,7 @@ bool layerToMat(std::vector< Base<T>* >& layer, cv::Mat& vis)
     }
     if (y >= vis_pre.cols) continue;
     if (x >= vis_pre.rows) continue;
-    //std::cout << "layer2Mat " << y << " " << x << " " << layer[i]->val_ << std::endl;
+    // std::cout << "layer2Mat " << y << " " << x << " " << layer[i]->val_ << std::endl;
     vis_pre.at<double>(y, x) = layer[i]->val_;
   }
 
@@ -676,7 +676,7 @@ void Net<T>::draw()
     const int sc = 512 / im_.cols;
     cv::Mat vis = cv::Mat(cv::Size(im_.cols * sc, im_.rows * sc), CV_8UC3,
                           cv::Scalar::all(0));
-    //cv::resize(im_, vis, cv::Size(), sc, sc, cv::INTER_NEAREST);
+    // cv::resize(im_, vis, cv::Size(), sc, sc, cv::INTER_NEAREST);
 
     for (size_t i = 0; i < nodes_.size(); ++i)
     {
@@ -690,8 +690,8 @@ void Net<T>::draw()
 ///////////////////////////////////////////////////////////////////////////////
 int main(int argn, char** argv)
 {
-  //std::string image_file = "test_pattern.png";
-  //std::string image_file = "lena.png"; // "beach_128.png";
+  // std::string image_file = "test_pattern.png";
+  // std::string image_file = "lena.png"; // "beach_128.png";
   std::string image_file = "beach_128.png";
   cv::Mat im = cv::imread(image_file, CV_LOAD_IMAGE_GRAYSCALE);
 
@@ -723,9 +723,9 @@ int main(int argn, char** argv)
   const int stride = 4;
   ceres::CostFunction* cost_function =
     new ceres::DynamicAutoDiffCostFunction<NodeDiffFunctor, stride>(new NodeDiffFunctor(net));
-  //cost_function.AddParameterBlock(net->weights_.size());
+  // cost_function.AddParameterBlock(net->weights_.size());
 
-  //cost_function->SetNumResiduals(net->inputs_.size());
+  // cost_function->SetNumResiduals(net->inputs_.size());
 
   problem.AddResidualBlock(cost_function, NULL, parameter_blocks);
 #endif
