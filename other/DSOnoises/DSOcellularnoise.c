@@ -38,150 +38,159 @@ THE SOFTWARE.
 #include "shadeop.h"
 #include "cellular.h"  // cellular.c is (C) Stephen Worley. See file for details.
 
-SHADEOP_TABLE ( cellularnoise ) = {
-    { "float f_worleyFF (float, float)", "", "" },
-    { "float f_worleyP (point)", "", "" },
-    { "void worleyFF_F (float, float, float)", "", "" },
-    { "void worleyP_F (point, float)", "", "" },
-    { "void worleyFF_FF (float, float, float, float)", "", "" },
-    { "void worleyP_FF (point, float, float)", "", ""  },
-    { "void worleyFF_FFF (float, float, float, float, float)", "", "" },
-    { "void worleyP_FFF (point, float, float, float)", "", "" },
-    { "", "", "" }
+SHADEOP_TABLE(cellularnoise) =
+{
+  { "float f_worleyFF (float, float)", "", "" },
+  { "float f_worleyP (point)", "", "" },
+  { "void worleyFF_F (float, float, float)", "", "" },
+  { "void worleyP_F (point, float)", "", "" },
+  { "void worleyFF_FF (float, float, float, float)", "", "" },
+  { "void worleyP_FF (point, float, float)", "", ""  },
+  { "void worleyFF_FFF (float, float, float, float, float)", "", "" },
+  { "void worleyP_FFF (point, float, float, float)", "", "" },
+  { "", "", "" }
 };
 
-SHADEOP ( f_worleyFF ) {
-    float *result = ( float* )argv[0];
-    float *x = ( float* ) argv[1];
-    float *y = ( float* ) argv[2];
-    double at[3];
-    at[0] = *x;
-    at[1] = *y;
-    at[2] = 0.0;
-    double F[2];
-    double delta[2][3];
-    unsigned long ID[2];
-    Worley( at, 2, F, delta, ID );
-    *result = ( float ) F[0];
-    return 0;
+SHADEOP(f_worleyFF)
+{
+  float *result = (float*)argv[0];
+  float *x = (float*) argv[1];
+  float *y = (float*) argv[2];
+  double at[3];
+  at[0] = *x;
+  at[1] = *y;
+  at[2] = 0.0;
+  double F[2];
+  double delta[2][3];
+  unsigned long ID[2];
+  Worley(at, 2, F, delta, ID);
+  *result = (float) F[0];
+  return 0;
 }
 
-SHADEOP ( f_worleyP ) {
-    float *result = ( float* ) argv[0];
-    float *P = ( float* ) argv[1];
-    double at[3];
-    at[0] = ( double ) P[0];
-    at[1] = ( double ) P[1];
-    at[2] = ( double ) P[2];
-    double F[2];
-    double delta[2][3];
-    unsigned long ID[2];
-    Worley( at, 2, F, delta, ID );
-    *result = ( float ) F[0];
-    return 0;
+SHADEOP(f_worleyP)
+{
+  float *result = (float*) argv[0];
+  float *P = (float*) argv[1];
+  double at[3];
+  at[0] = (double) P[0];
+  at[1] = (double) P[1];
+  at[2] = (double) P[2];
+  double F[2];
+  double delta[2][3];
+  unsigned long ID[2];
+  Worley(at, 2, F, delta, ID);
+  *result = (float) F[0];
+  return 0;
 }
 
-SHADEOP ( worleyFF_F ) {
-    float *x = ( float* ) argv[1];
-    float *y = ( float* ) argv[2];
-    float *f1 = ( float* ) argv[3];
-    double at[3];
-    at[0] = *x;
-    at[1] = *y;
-    at[2] = 0.0;
-    double F[2];
-    double delta[2][3];
-    unsigned long ID[2];
-    Worley( at, 2, F, delta, ID );
-    *f1 = ( float ) F[0];
-    return 0;
+SHADEOP(worleyFF_F)
+{
+  float *x = (float*) argv[1];
+  float *y = (float*) argv[2];
+  float *f1 = (float*) argv[3];
+  double at[3];
+  at[0] = *x;
+  at[1] = *y;
+  at[2] = 0.0;
+  double F[2];
+  double delta[2][3];
+  unsigned long ID[2];
+  Worley(at, 2, F, delta, ID);
+  *f1 = (float) F[0];
+  return 0;
 }
 
-SHADEOP ( worleyP_F ) {
-    float *P = ( float* ) argv[1];
-    float *f1 = ( float* )argv[2];
-    double at[3];
-    at[0] = (double)P[0];
-    at[1] = (double)P[1];
-    at[2] = (double)P[2];
-    double F[2];
-    double delta[2][3];
-    unsigned long ID[2];
-    Worley( at, 2, F, delta, ID );
-    *f1 = ( float ) F[0];
-    return 0;
+SHADEOP(worleyP_F)
+{
+  float *P = (float*) argv[1];
+  float *f1 = (float*)argv[2];
+  double at[3];
+  at[0] = (double)P[0];
+  at[1] = (double)P[1];
+  at[2] = (double)P[2];
+  double F[2];
+  double delta[2][3];
+  unsigned long ID[2];
+  Worley(at, 2, F, delta, ID);
+  *f1 = (float) F[0];
+  return 0;
 }
 
-SHADEOP ( worleyFF_FF ) {
-    float *x = ( float* ) argv[1];
-    float *y = ( float* ) argv[2];
-    float *f1 = ( float* ) argv[3];
-    float *f2 = ( float* ) argv[4];
-    double at[3];
-    at[0] = *x;
-    at[1] = *y;
-    at[2] = 0.0;
-    double F[2];
-    double delta[2][3];
-    unsigned long ID[2];
-    Worley( at, 2, F, delta, ID );
-    *f1 = ( float ) F[0];
-    *f2 = ( float ) F[1];
-    return 0;
+SHADEOP(worleyFF_FF)
+{
+  float *x = (float*) argv[1];
+  float *y = (float*) argv[2];
+  float *f1 = (float*) argv[3];
+  float *f2 = (float*) argv[4];
+  double at[3];
+  at[0] = *x;
+  at[1] = *y;
+  at[2] = 0.0;
+  double F[2];
+  double delta[2][3];
+  unsigned long ID[2];
+  Worley(at, 2, F, delta, ID);
+  *f1 = (float) F[0];
+  *f2 = (float) F[1];
+  return 0;
 }
 
-SHADEOP ( worleyP_FF ) {
-    float *P = ( float* ) argv[1];
-    float *f1 = ( float* ) argv[2];
-    float *f2 = ( float* ) argv[3];
-    double at[3];
-    at[0] = ( double ) P[0];
-    at[1] = ( double ) P[1];
-    at[2] = ( double ) P[2];
-    double F[2];
-    double delta[2][3];
-    unsigned long ID[2];
-    Worley( at, 2, F, delta, ID );
-    *f1 = ( float ) F[0];
-    *f2 = ( float ) F[1];
-    return 0;
+SHADEOP(worleyP_FF)
+{
+  float *P = (float*) argv[1];
+  float *f1 = (float*) argv[2];
+  float *f2 = (float*) argv[3];
+  double at[3];
+  at[0] = (double) P[0];
+  at[1] = (double) P[1];
+  at[2] = (double) P[2];
+  double F[2];
+  double delta[2][3];
+  unsigned long ID[2];
+  Worley(at, 2, F, delta, ID);
+  *f1 = (float) F[0];
+  *f2 = (float) F[1];
+  return 0;
 }
 
-SHADEOP ( worleyFF_FFF ) {
-    float *x = ( float* ) argv[1];
-    float *y = ( float* ) argv[2];
-    float *f1 = ( float* ) argv[3];
-    float *f2 = ( float* ) argv[4];
-    float *id1 = ( float* ) argv[5];
-    double at[3];
-    at[0] = *x;
-    at[1] = *y;
-    at[2] = 0.0;
-    double F[2];
-    double delta[2][3];
-    unsigned long ID[2];
-    Worley( at, 2, F, delta, ID );
-    *f1 = ( float ) F[0];
-    *f2 = ( float ) F[1];
-    *id1 = ( float ) ID[0]; // Scaling this to [0,1] could be more useful
-    return 0;
+SHADEOP(worleyFF_FFF)
+{
+  float *x = (float*) argv[1];
+  float *y = (float*) argv[2];
+  float *f1 = (float*) argv[3];
+  float *f2 = (float*) argv[4];
+  float *id1 = (float*) argv[5];
+  double at[3];
+  at[0] = *x;
+  at[1] = *y;
+  at[2] = 0.0;
+  double F[2];
+  double delta[2][3];
+  unsigned long ID[2];
+  Worley(at, 2, F, delta, ID);
+  *f1 = (float) F[0];
+  *f2 = (float) F[1];
+  *id1 = (float) ID[0];   // Scaling this to [0,1] could be more useful
+  return 0;
 }
 
-SHADEOP ( worleyP_FFF ) {
-    float *P = ( float* ) argv[1];
-    float *f1 = ( float* ) argv[2];
-    float *f2 = ( float* ) argv[3];
-    float *id1 = ( float* ) argv[4];
-    double at[3];
-    at[0] = ( double ) P[0];
-    at[1] = ( double ) P[1];
-    at[2] = ( double ) P[2];
-    double F[2];
-    double delta[2][3];
-    unsigned long ID[2];
-    Worley( at, 2, F, delta, ID );
-    *f1 = ( float ) F[0];
-    *f2 = ( float ) F[1];
-    *id1 = ( float ) ID[0]; // Scaling this to [0,1] could be more useful
-    return 0;
+SHADEOP(worleyP_FFF)
+{
+  float *P = (float*) argv[1];
+  float *f1 = (float*) argv[2];
+  float *f2 = (float*) argv[3];
+  float *id1 = (float*) argv[4];
+  double at[3];
+  at[0] = (double) P[0];
+  at[1] = (double) P[1];
+  at[2] = (double) P[2];
+  double F[2];
+  double delta[2][3];
+  unsigned long ID[2];
+  Worley(at, 2, F, delta, ID);
+  *f1 = (float) F[0];
+  *f2 = (float) F[1];
+  *id1 = (float) ID[0];   // Scaling this to [0,1] could be more useful
+  return 0;
 }

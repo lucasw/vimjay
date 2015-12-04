@@ -52,57 +52,62 @@ THE SOFTWARE.
 #include "shadeop.h"
 #include "srdnoise23.h"
 
-SHADEOP_TABLE ( srdnoise ) = {
-    { "float f_srdnoise2 (float, float, float)", "", ""},
-    { "float fD_srdnoise2 (float, float, float, float, float)", "", ""},
-    { "float f_srdnoise3 (point, float)", "", ""},
-    { "float fD_srdnoise3 (point, float, float, float, float)", "", ""},
-    { "", "", "" }
+SHADEOP_TABLE(srdnoise) =
+{
+  { "float f_srdnoise2 (float, float, float)", "", ""},
+  { "float fD_srdnoise2 (float, float, float, float, float)", "", ""},
+  { "float f_srdnoise3 (point, float)", "", ""},
+  { "float fD_srdnoise3 (point, float, float, float, float)", "", ""},
+  { "", "", "" }
 };
 
-SHADEOP ( f_srdnoise2 ) {
-    float *result = (float *) argv[0];
-    float *x = (float *) argv[1];
-    float *y = (float *) argv[2];
-    float *t = (float *) argv[3];
+SHADEOP(f_srdnoise2)
+{
+  float *result = (float *) argv[0];
+  float *x = (float *) argv[1];
+  float *y = (float *) argv[2];
+  float *t = (float *) argv[3];
 
-    *result = srdnoise2( *x, *y, *t, (float *) 0, (float *) 0 );
+  *result = srdnoise2(*x, *y, *t, (float *) 0, (float *) 0);
 
-    return 0;
+  return 0;
 }
 
-SHADEOP ( fD_srdnoise2 ) {
-    float *result = (float *) argv[0];
-    float *x = (float *) argv[1];
-    float *y = (float *) argv[2];
-    float *t = (float *) argv[3];
-    float *dx = (float *) argv[4];
-    float *dy = (float *) argv[5];
+SHADEOP(fD_srdnoise2)
+{
+  float *result = (float *) argv[0];
+  float *x = (float *) argv[1];
+  float *y = (float *) argv[2];
+  float *t = (float *) argv[3];
+  float *dx = (float *) argv[4];
+  float *dy = (float *) argv[5];
 
-    *result = srdnoise2( *x, *y, *t, dx, dy );
+  *result = srdnoise2(*x, *y, *t, dx, dy);
 
-    return 0;
+  return 0;
 }
 
-SHADEOP ( f_srdnoise3 ) {
-    float *result = (float *) argv[0];
-    float *P = (float *) argv[1];
-    float *t = (float *) argv[2];
+SHADEOP(f_srdnoise3)
+{
+  float *result = (float *) argv[0];
+  float *P = (float *) argv[1];
+  float *t = (float *) argv[2];
 
-    *result = srdnoise3( P[0], P[1], P[2], *t, (float *) 0, (float *) 0, (float *) 0 );
+  *result = srdnoise3(P[0], P[1], P[2], *t, (float *) 0, (float *) 0, (float *) 0);
 
-    return 0;
+  return 0;
 }
 
-SHADEOP ( fD_srdnoise3 ) {
-    float *result = (float *)argv[0];
-    float *P = (float*) argv[1];
-    float *t = (float*) argv[2];
-    float *dx = (float*) argv[3];
-    float *dy = (float*) argv[4];
-    float *dz = (float*) argv[5];
+SHADEOP(fD_srdnoise3)
+{
+  float *result = (float *)argv[0];
+  float *P = (float*) argv[1];
+  float *t = (float*) argv[2];
+  float *dx = (float*) argv[3];
+  float *dy = (float*) argv[4];
+  float *dz = (float*) argv[5];
 
-    *result = srdnoise3( P[0], P[1], P[2], *t, dx, dy, dz );
+  *result = srdnoise3(P[0], P[1], P[2], *t, dx, dy, dz);
 
-    return 0;
+  return 0;
 }
