@@ -4,7 +4,7 @@
  * Author: Stefan Gustavson, 2003-2005
  * Contact: stegu@itn.liu.se
  */
- 
+
 /*
 This code was GPL licensed until February 2011.
 As the original author of this code, I hereby
@@ -39,8 +39,8 @@ THE SOFTWARE.
 */
 
 /** \file
-		\brief Header for "simplexnoise1234.c" for producing Perlin simplex noise.
-		\author Stefan Gustavson (stegu@itn.liu.se)
+    \brief Header for "simplexnoise1234.c" for producing Perlin simplex noise.
+    \author Stefan Gustavson (stegu@itn.liu.se)
 */
 
 /*
@@ -56,7 +56,7 @@ THE SOFTWARE.
 
 /** 1D, 2D, 3D and 4D float Perlin simplex noise
  */
-    float snoise1( float x );
-    float snoise2( float x, float y );
-    float snoise3( float x, float y, float z );
-    float snoise4( float x, float y, float z, float w );
+float snoise1(float x);
+float snoise2(float x, float y);
+float snoise3(float x, float y, float z);
+float snoise4(float x, float y, float z, float w);

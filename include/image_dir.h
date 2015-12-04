@@ -15,7 +15,8 @@
 
 #include "nodes.h"
 
-namespace bm {
+namespace bm
+{
 
 /////////////////////////////////
 class ImageDir : public Buffer
@@ -24,7 +25,7 @@ class ImageDir : public Buffer
   std::vector<std::string> all_files;
   bool resizeImages();
 
-  public:
+public:
 
   ImageDir(const std::string name);
   virtual void init();

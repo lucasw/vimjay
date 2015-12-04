@@ -1,5 +1,5 @@
 /*
-  
+
   Copyright 2012 Lucas Walter
 
      This file is part of Vimjay.
@@ -31,7 +31,8 @@ extern "C" {
 //#include "other/simplexnoise.h"
 //#include "other/simplextextures.h"
 // filter Node objects
-namespace bm {
+namespace bm
+{
 
 Bezier::Bezier(const std::string name) : ImageNode(name)
 {
@@ -41,17 +42,17 @@ void Bezier::init()
 {
   ImageNode::init();
   // TBD take x and y sigbuf inputs
-  setSignal("x0",10);
-  setSignal("y0",10);
-  
-  setSignal("x1",100);
-  setSignal("y1",50);
-  
-  setSignal("x2",200);
-  setSignal("y2",50);
-  
-  setSignal("x3",300);
-  setSignal("y3",150);
+  setSignal("x0", 10);
+  setSignal("y0", 10);
+
+  setSignal("x1", 100);
+  setSignal("y1", 50);
+
+  setSignal("x2", 200);
+  setSignal("y2", 50);
+
+  setSignal("x3", 300);
+  setSignal("y3", 150);
 
   setSignal("num", 4);
 }
@@ -62,24 +63,27 @@ bool Bezier::update()
   if (!Node::update()) return false;
 
   cv::Mat out = cv::Mat(Config::inst()->getImSize(), MAT_FORMAT_C3);
-  out = cv::Scalar(0,0,0);
+  out = cv::Scalar(0, 0, 0);
 
   std::vector<cv::Point2f> control_points;
-  control_points.push_back( cv::Point2f( getSignal("x0"), getSignal("y0") ));
-  control_points.push_back( cv::Point2f( getSignal("x1"), getSignal("y1") ));
-  control_points.push_back( cv::Point2f( getSignal("x2"), getSignal("y2") ));
-  control_points.push_back( cv::Point2f( getSignal("x3"), getSignal("y3") ));
-  
+  control_points.push_back(cv::Point2f(getSignal("x0"), getSignal("y0")));
+  control_points.push_back(cv::Point2f(getSignal("x1"), getSignal("y1")));
+  control_points.push_back(cv::Point2f(getSignal("x2"), getSignal("y2")));
+  control_points.push_back(cv::Point2f(getSignal("x3"), getSignal("y3")));
+
   int num = getSignal("num");
-  if (num < 2) { num = 2;
+  if (num < 2)
+  {
+    num = 2;
     setSignal("num", num);
   }
 
   std::vector<cv::Point2f> bezier_points;
   getBezier(control_points, bezier_points, num);
 
-  for (int i = 1; i < bezier_points.size(); i++) {
-    cv::line(out, bezier_points[i-1], bezier_points[i], cv::Scalar(255, 255, 255), 2, CV_AA ); 
+  for (int i = 1; i < bezier_points.size(); i++)
+  {
+    cv::line(out, bezier_points[i - 1], bezier_points[i], cv::Scalar(255, 255, 255), 2, CV_AA);
   }
 
   setImage("out", out);
@@ -115,32 +119,33 @@ bool Circle::update()
 
 
   // if any inputs have changed this will go on to draw
-  const bool id1 = isDirty(this,30);
+  const bool id1 = isDirty(this, 30);
   //ROS_INFO_STREAM(id1);
-  if (!id1) {
+  if (!id1)
+  {
     return true;
   }
 
   const int wd = Config::inst()->im_width;
   const int ht = Config::inst()->im_height;
 
-  cv::Mat out = cv::Mat(Config::inst()->getImSize(), 
-      MAT_FORMAT_C3);
-  out = cv::Scalar(0,0,0,0);
- 
-  cv::circle(out, 
-    cv::Point(wd*getSignal("x")/10.0, ht*getSignal("y")/10.0), 
-    getSignal("radius")*wd, 
-    cv::Scalar(
-      getSignal("b"),
-      getSignal("g"),
-      getSignal("r")),
-    getSignal("thickness")); 
-  
+  cv::Mat out = cv::Mat(Config::inst()->getImSize(),
+                        MAT_FORMAT_C3);
+  out = cv::Scalar(0, 0, 0, 0);
+
+  cv::circle(out,
+             cv::Point(wd * getSignal("x") / 10.0, ht * getSignal("y") / 10.0),
+             getSignal("radius")*wd,
+             cv::Scalar(
+               getSignal("b"),
+               getSignal("g"),
+               getSignal("r")),
+             getSignal("thickness"));
+
   setImage("out", out);
   // clear this isDirty in advance of next loop
-  const bool id2 = isDirty(this,30);
-  const bool id3 = isDirty(this,30);
+  const bool id2 = isDirty(this, 30);
+  const bool id3 = isDirty(this, 30);
   //ROS_INFO_STREAM(id2 << " " << id3);
 }
 
@@ -159,18 +164,21 @@ void Noise::init()
 bool Noise::update()
 {
   if (!Node::update()) return false;
-  
+
   cv::Mat out = cv::Mat(Config::inst()->getImSize(), MAT_FORMAT_C3);
 
   int type = (int)getSignal("type");
-  if (type == 0) {
+  if (type == 0)
+  {
     // uniform
-    cv::randu(out, cv::Scalar(0,0,0,0), cv::Scalar(255,255,255,255)); 
-  } else {
+    cv::randu(out, cv::Scalar(0, 0, 0, 0), cv::Scalar(255, 255, 255, 255));
+  }
+  else
+  {
     int mean = getSignal("mean");
     int stddev = getSignal("stddev");
     // TBD handle alpha channel
-    cv::randn(out, cv::Scalar(mean,mean,mean,mean), cv::Scalar(stddev,stddev,stddev,stddev)); 
+    cv::randn(out, cv::Scalar(mean, mean, mean, mean), cv::Scalar(stddev, stddev, stddev, stddev));
 
   }
   setImage("out", out);
@@ -187,16 +195,16 @@ void SimplexNoise::init()
   ImageNode::init();
   //setSignal("octaves", 2, false, SATURATE, 1, 20);
   //setSignal("persist", 0.8);//, false, SATURATE, 0.0, 1.0);
-  
+
   cv::Mat tmp;
   setImage("dx", tmp, true);
   setImage("dy", tmp, true);
   setImage("dz", tmp, true);
-  
+
   setSignal("type", 0, false, ROLL, 0, 8);
   setSignal("wrap_col", 0, false, ROLL, 0, 1);
 
-  setSignal("scale", 0.02); 
+  setSignal("scale", 0.02);
   setSignal("z", 0.0);
   setSignal("t", 0.0);
   setSignal("off_x_nrm", 0.0);
@@ -213,12 +221,13 @@ bool SimplexNoise::update()
   if (!Node::update()) return false;
 
   // if any inputs have changed this will go on to draw
-  const bool id1 = isDirty(this,30);
+  const bool id1 = isDirty(this, 30);
   //ROS_INFO_STREAM(id1);
-  if (!id1) {
+  if (!id1)
+  {
     return true;
   }
- 
+
   cv::Mat out = cv::Mat(Config::inst()->getImSize(), MAT_FORMAT_C3);
   cv::Mat dx_im = out.clone();
   cv::Mat dy_im = out.clone();
@@ -240,91 +249,118 @@ bool SimplexNoise::update()
   // TBD decimation parameter to shrink number of pixels that the noise
   // needs to be found for, resize at end of update.
 
-  for (int i = 0; i < out.rows; i++) {
-  for (int j = 0; j < out.cols; j++) {
-   
-    // TBD scale will always zoom in and out of the center 0,0, not the center
-    // of the current view if off_x and off_y non-zero
-    const float x = (j - out.cols/2)*scale + off_x_nrm;
-    const float y = (i - out.rows/2)*scale + off_y_nrm;
-    const float z = off_z;
-    
-    float val, dx, dy, dz;
-    
-    if (mode == 0) {
-      // noise 1 will be a signal
-      val = noise2(x, y);
-    } else if (mode == 1) {
-      val = noise3(x, y, z);
-    } else if (mode == 2) {
-      val = noise4(x, y, z, t);
+  for (int i = 0; i < out.rows; i++)
+  {
+    for (int j = 0; j < out.cols; j++)
+    {
 
-    // TBD pnoise (periodic)
+      // TBD scale will always zoom in and out of the center 0,0, not the center
+      // of the current view if off_x and off_y non-zero
+      const float x = (j - out.cols / 2) * scale + off_x_nrm;
+      const float y = (i - out.rows / 2) * scale + off_y_nrm;
+      const float z = off_z;
 
-    } else if (mode == 2) {
-      val = snoise2(x, y); // TBD is this faster than snoise3?  otherwise get rid of it
-    } else if (mode == 3) {
-      val = snoise3(x, y, z);
-    } else if (mode == 4) {
-      val = snoise4(x, y, z, t);
+      float val, dx, dy, dz;
 
-    // TBD the dx,dy,dz out of these seems empty
-    } else if (mode == 5) {
-      val = sdnoise2(x, y, &dx, &dy);
-    } else if (mode == 6) {
-      val = sdnoise3(x, y, z, &dx, &dy, &dz);
-      // TBD sdnoise4?
+      if (mode == 0)
+      {
+        // noise 1 will be a signal
+        val = noise2(x, y);
+      }
+      else if (mode == 1)
+      {
+        val = noise3(x, y, z);
+      }
+      else if (mode == 2)
+      {
+        val = noise4(x, y, z, t);
 
-    } else if (mode == 7) {
-      val = srdnoise2(x, y, t, &dx, &dy);
-    } else if (mode == 8) {
-      val = srdnoise3(x, y, z, t, &dx, &dy, &dz);
-    } else {
-      val = 0;
+        // TBD pnoise (periodic)
+
+      }
+      else if (mode == 2)
+      {
+        val = snoise2(x, y); // TBD is this faster than snoise3?  otherwise get rid of it
+      }
+      else if (mode == 3)
+      {
+        val = snoise3(x, y, z);
+      }
+      else if (mode == 4)
+      {
+        val = snoise4(x, y, z, t);
+
+        // TBD the dx,dy,dz out of these seems empty
+      }
+      else if (mode == 5)
+      {
+        val = sdnoise2(x, y, &dx, &dy);
+      }
+      else if (mode == 6)
+      {
+        val = sdnoise3(x, y, z, &dx, &dy, &dz);
+        // TBD sdnoise4?
+
+      }
+      else if (mode == 7)
+      {
+        val = srdnoise2(x, y, t, &dx, &dy);
+      }
+      else if (mode == 8)
+      {
+        val = srdnoise3(x, y, z, t, &dx, &dy, &dz);
+      }
+      else
+      {
+        val = 0;
+      }
+      // TBD srdnoise4
+
+      val = val * scale_v + off_v;
+      // TBD these probably deserve separate scaling
+      dx = dx * scale_v + off_v;
+      dy = dy * scale_v + off_v;
+      dz = dz * scale_v + off_v;
+
+      // TBD rollover can be interesting, but saturate for now
+      if (wrap_col)
+      {
+        if (val > 255) val = 255;
+        if (val < 0) val = 0;
+
+        if (dx > 255) dx = 255;
+        if (dx < 0) dx = 0;
+
+        if (dy > 255) dy = 255;
+        if (dy < 0) dy = 0;
+
+        if (dz > 255) dz = 255;
+        if (dz < 0) dz = 0;
+      }
+
+      //float val = marble_noise_2d(octaves, persist, scale, j + off_x_nrm, i + off_y_nrm)*127+127;
+      cv::Vec4b col = cv::Vec4b(val, val, val, 0);
+      out.at<cv::Vec4b>(i, j) = col;
+
+      if (mode >= 5)
+      {
+        // TBD this is somewhat wasteful, could combine all dx,dy,dz into rgb channels
+        col = cv::Vec4b(dx, dx, dx, 0);
+        dx_im.at<cv::Vec4b>(i, j) = col;
+
+        col = cv::Vec4b(dy, dy, dy, 0);
+        dy_im.at<cv::Vec4b>(i, j) = col;
+
+        col = cv::Vec4b(dz, dz, dz, 0);
+        dz_im.at<cv::Vec4b>(i, j) = col;
+      }
+
     }
-    // TBD srdnoise4
-    
-    val = val * scale_v + off_v;
-    // TBD these probably deserve separate scaling
-    dx = dx * scale_v + off_v;
-    dy = dy * scale_v + off_v;
-    dz = dz * scale_v + off_v;
-
-    // TBD rollover can be interesting, but saturate for now
-    if (wrap_col) {
-      if (val > 255) val = 255;
-      if (val < 0) val = 0;
-      
-      if (dx > 255) dx = 255;
-      if (dx < 0) dx = 0;
-      
-      if (dy > 255) dy = 255;
-      if (dy < 0) dy = 0;
-      
-      if (dz > 255) dz = 255;
-      if (dz < 0) dz = 0;
-    }
-
-    //float val = marble_noise_2d(octaves, persist, scale, j + off_x_nrm, i + off_y_nrm)*127+127;
-    cv::Vec4b col = cv::Vec4b(val, val, val, 0);
-    out.at<cv::Vec4b>(i,j) = col;
-
-    if (mode >= 5) {
-      // TBD this is somewhat wasteful, could combine all dx,dy,dz into rgb channels
-      col = cv::Vec4b(dx, dx, dx, 0);
-      dx_im.at<cv::Vec4b>(i, j) = col;
-      
-      col = cv::Vec4b(dy, dy, dy, 0);
-      dy_im.at<cv::Vec4b>(i, j) = col;
-
-      col = cv::Vec4b(dz, dz, dz, 0);
-      dz_im.at<cv::Vec4b>(i, j) = col;
-    }
-
-  }}
+  }
 
   setImage("out", out);
-  if (mode >= 5) {
+  if (mode >= 5)
+  {
     setImage("dx", dx_im);
     setImage("dy", dy_im);
     setImage("dz", dz_im);

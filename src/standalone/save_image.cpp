@@ -49,8 +49,8 @@ public:
 };
 
 SaveImage::SaveImage() :
-    it_(nh_),
-    prefix_("frame")
+  it_(nh_),
+  prefix_("frame")
 {
   ros::param::get("~prefix", prefix_);
 
@@ -59,7 +59,7 @@ SaveImage::SaveImage() :
   prefix_ += ss.str();
 
   image_sub_ = it_.subscribe("image", 1,
-      &SaveImage::imageCallback, this);
+                             &SaveImage::imageCallback, this);
 }
 
 void SaveImage::imageCallback(const sensor_msgs::ImageConstPtr& msg)

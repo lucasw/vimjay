@@ -5,7 +5,8 @@
 #include <stdio.h>
 
 
-namespace bm {
+namespace bm
+{
 
 
 };

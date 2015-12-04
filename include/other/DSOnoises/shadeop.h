@@ -20,8 +20,8 @@
 
 /** \file
                   \brief Utility macros for creating Dynamic Shader Operations for Aqsis
-		                  \author Tristan Colgate <tristan@inuxtech.co.uk>
-				  */
+                      \author Tristan Colgate <tristan@inuxtech.co.uk>
+          */
 
 /** Renderman Interface is Copyright (c) 1988 Pixar. All Rights reserved.*/
 
@@ -43,15 +43,15 @@
 
 struct SqShadeOp
 {
-	char *m_opspec;
-	char *m_init;
-	char *m_shutdown;
+  char *m_opspec;
+  char *m_init;
+  char *m_shutdown;
 } ;
 
 typedef struct _STRING_DESC
 {
-	char *s;
-	int bufflen;
+  char *s;
+  int bufflen;
 }
 STRING_DESC;
 
@@ -73,8 +73,8 @@ STRING_DESC;
 #define SHADEOP_CLEANUP(shutdownfunc) EXTERN_C EXPORT void shutdownfunc (void *initdata)
 
 // We declare these here for access from shaderexecenv
-typedef void (*DSOMethod)(void*,int,void**);
-typedef void* (*DSOInit)(int,void*);
+typedef void (*DSOMethod)(void*, int, void**);
+typedef void* (*DSOInit)(int, void*);
 typedef void (*DSOShutdown)(void*);
 
 #endif // SHADEOP_H

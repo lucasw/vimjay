@@ -28,7 +28,8 @@
 
 #include "nodes.h"
 
-namespace bm {
+namespace bm
+{
 
 struct cluster_center
 {
@@ -56,23 +57,23 @@ struct cluster_center
 class Cluster : public ImageNode
 {
   std::vector<cluster_center> clusters;
-  
-  public:
+
+public:
   Cluster(const std::string name);
   virtual void init();
 
   float find_dist(
-		int r1, int g1, int b1, int x1, int y1,
-		int r2, int g2, int b2, int x2, int y2,
-		const float max_space_dist, const float dist_weight,
-    const bool manhat= false); //, float color_weight)
-  
+    int r1, int g1, int b1, int x1, int y1,
+    int r2, int g2, int b2, int x2, int y2,
+    const float max_space_dist, const float dist_weight,
+    const bool manhat = false); //, float color_weight)
+
   virtual bool update();
 };
 
 class PyrMean : public ImageNode
 {
-  public:
+public:
   PyrMean(const std::string name);
   virtual void init();
 

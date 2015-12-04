@@ -15,23 +15,24 @@
 
 #include "nodes.h"
 
-namespace bm {
+namespace bm
+{
 
 class VideoCapture : public ImageNode
 {
 
-  protected:
-  cv::VideoCapture video; 
+protected:
+  cv::VideoCapture video;
   boost::thread cam_thread;
   virtual bool spinOnce();
   int error_count;
-  
-  public:
+
+public:
   VideoCapture(const std::string name);
   virtual void init();
   //virtual ~VideoCapture();
   //
-  
+
 };
 
 class Webcam : public VideoCapture
@@ -41,7 +42,7 @@ class Webcam : public VideoCapture
 
   void runThread();
 
-  public:
+public:
   Webcam(const std::string name);
   virtual void init();
   virtual ~Webcam();
@@ -53,9 +54,9 @@ class Webcam : public VideoCapture
 /// multiple inheritance would maybe make this better
 /// but doesn't seem like a good fit/ or requires upstream
 /// changes I don't want to mess with right now.
-class Video : public Buffer //public VideoCapture 
+class Video : public Buffer //public VideoCapture
 {
-  cv::VideoCapture video; 
+  cv::VideoCapture video;
   boost::thread cam_thread;
   bool run_thread;
   bool is_thread_dirty;

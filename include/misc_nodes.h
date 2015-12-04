@@ -15,23 +15,24 @@
 
 #include "nodes.h"
 
-namespace bm {
+namespace bm
+{
 
 /////////////////////////////////
 class BrowseDir : public ImageNode
 {
-  public:
+public:
 
   BrowseDir(const std::string name);
   virtual void init();
-  
+
   virtual bool handleKey(int key);
   virtual bool update();
-  
-  private:
+
+private:
   boost::thread browse_thread;
   void runThread();
-  
+
   boost::mutex dirs_mutex;
   std::vector<std::string> file_names;
   std::vector<std::string> sub_dirs;

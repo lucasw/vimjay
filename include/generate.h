@@ -9,11 +9,12 @@ Nodes which generate images
 
 //#include <iostream>
 //#include <stdio.h>
-namespace bm {
+namespace bm
+{
 
 class Bezier : public ImageNode
 {
-  public:
+public:
   Bezier(const std::string name);
   virtual void init();
   virtual bool update();
@@ -21,7 +22,7 @@ class Bezier : public ImageNode
 
 class Circle : public ImageNode
 {
-  public:
+public:
   Circle(const std::string name);
   virtual void init();
   virtual bool update();
@@ -30,7 +31,7 @@ class Circle : public ImageNode
 
 class Noise : public ImageNode
 {
-  public:
+public:
   Noise(const std::string name);
   virtual void init();
   virtual bool update();
@@ -38,7 +39,7 @@ class Noise : public ImageNode
 
 class SimplexNoise : public ImageNode
 {
-  public:
+public:
   SimplexNoise(const std::string name);
   virtual void init();
   virtual bool update();

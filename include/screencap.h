@@ -11,21 +11,22 @@
 
 #include "nodes.h"
 
-namespace bm {
+namespace bm
+{
 
 class ScreenCap : public ImageNode
 {
-    // X resources
-    Display* display;
-    Screen* screen;
-    XImage* xImageSample;
-    XColor col;
+  // X resources
+  Display* display;
+  Screen* screen;
+  XImage* xImageSample;
+  XColor col;
 
-  public:
+public:
 
   ScreenCap(const std::string name);
   virtual void init();
-  
+
   virtual bool update();
 
   int screen_w;

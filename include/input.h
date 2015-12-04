@@ -20,7 +20,8 @@
 
 #include "nodes.h"
 
-namespace bm {
+namespace bm
+{
 
 // input devices will present all as a set of Signals, for instance button clicks will be 0 or 1
 // and analog output will be 0-32768 or for mice the resolution of the screen
@@ -29,13 +30,13 @@ namespace bm {
 //  also output dx, dy, mousewheel
 class Mouse : public Node
 {
-  public:
-  
+public:
+
   // need to set all these - or just require an Output node pointer to be set?
   Display* display;
   Window win;
   int opcode;
-  
+
   //bool run_thread;
   //boost::thread event_thread;
   //void runThread();
@@ -50,7 +51,7 @@ class Mouse : public Node
 // draw a signal into a signal buffer
 class MouseSignal : public SigBuffer
 {
-  public: 
+public:
   MouseSignal(const std::string name);
   virtual bool update();
 
@@ -62,7 +63,7 @@ class MouseSignal : public SigBuffer
 
 class GamePad : public ImageNode
 {
-  private:
+private:
 
   int fd;
   struct js_event js;
@@ -76,7 +77,7 @@ class GamePad : public ImageNode
 
   void runThread();
 
-  public:
+public:
 
   GamePad(const std::string name);
   ~GamePad();

@@ -20,7 +20,7 @@
 #define CLVAL "\e[1;36m"
 #define CLTXT "\e[1;35m"
 // BOLD black text with blue background
-#define CLTX2 "\e[1;44m"  
+#define CLTX2 "\e[1;44m"
 #else
 #define CLNRM ""
 #define CLWRN ""
@@ -28,7 +28,7 @@
 #define CLVAL ""
 #define CLTXT ""
 // BOLD black text with blue background
-#define CLTX2 ""  
+#define CLTX2 ""
 #endif
 
 #define MAT_FORMAT_C3 CV_8UC4
@@ -38,7 +38,8 @@
 //#define MAT_FORMAT_C3 CV_32FC3
 //#define MAT_FORMAT CV_32F
 
-namespace bm {
+namespace bm
+{
 
 class Node;
 
@@ -51,30 +52,31 @@ std::string getId(boost::shared_ptr<Node> ptr);
 std::string logMat(const cv::Mat& m);
 
 bool getBezier(
-      const std::vector<cv::Point2f>& control_points, // TBD currently has to be 4
-      std::vector<cv::Point2f>& output_points,
-      const int num // numbe of intermediate points to generate 
-      );
+  const std::vector<cv::Point2f>& control_points, // TBD currently has to be 4
+  std::vector<cv::Point2f>& output_points,
+  const int num // numbe of intermediate points to generate
+);
 
 #if 0
 bool get_toplevel_parent(
-    Display* display, 
-    Window window,
-    Window& cur_window
-    );
+  Display* display,
+  Window window,
+  Window& cur_window
+);
 
 bool setupX(Display*& display, Window& win, const int width, const int height, int& opcode);
 
-bool setWindowDecorations(Display* display, Window& win, bool decorations_on); 
+bool setWindowDecorations(Display* display, Window& win, bool decorations_on);
 
 // TBD where is this properly defined?
-typedef struct Hints{
-    unsigned long   flags;
-    unsigned long   functions;
-    unsigned long   decorations;
-    long            inputMode;
-    unsigned long   status;
-  } Hints;
+typedef struct Hints
+{
+  unsigned long   flags;
+  unsigned long   functions;
+  unsigned long   decorations;
+  long            inputMode;
+  unsigned long   status;
+} Hints;
 
 bool matToScreen(cv::Mat& tmp, Display* display, Window& win);
 
@@ -83,32 +85,32 @@ cv::Mat XImage2OpenCVImage(XImage& ximage, Display& _xDisplay, Screen& _xScreen)
 bool matToXImage(cv::Mat& im, XImage* ximage, Window& win, Display& display, Screen& screen);
 
 bool getEv(
-    Display* display,
-    XEvent& ev,
-    std::vector<std::string>& sig_name,
-    std::vector<float>& sig_val,
-    std::vector< std::pair<char, bool> >& keys
-    );
+  Display* display,
+  XEvent& ev,
+  std::vector<std::string>& sig_name,
+  std::vector<float>& sig_val,
+  std::vector< std::pair<char, bool> >& keys
+);
 
 bool getMouse(
-    Display* display,
-    const int opcode,
-    std::vector<std::string>& sig_name,
-    std::vector<float>& sig_val,
-    std::vector< std::pair<char, bool> >& keys
-    );
+  Display* display,
+  const int opcode,
+  std::vector<std::string>& sig_name,
+  std::vector<float>& sig_val,
+  std::vector< std::pair<char, bool> >& keys
+);
 #endif
 
 bool fixAspect(cv::Mat& tmp0, cv::Mat& tmp1, const int mode);
 bool fixAspectFill(cv::Mat& tmp0, cv::Mat& tmp1, const int mode);
 
 bool getVideoFrame(
-    cv::VideoCapture& video, 
-    cv::Mat& dst,
-    const std::string name, 
-    const int mode_type,
-    const int aspect_mode
-    );
+  cv::VideoCapture& video,
+  cv::Mat& dst,
+  const std::string name,
+  const int mode_type,
+  const int aspect_mode
+);
 
 } // bm
 

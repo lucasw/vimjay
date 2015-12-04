@@ -7,26 +7,27 @@
 
 #include "nodes.h"
 
-namespace bm {
+namespace bm
+{
 
 // TBD allow multiple?
 class Output : public ImageNode
 {
-  int x,y,w,h;
+  int x, y, w, h;
   int seq_;
   image_transport::ImageTransport it_;
   image_transport::Publisher pub_;
   //image_transport::CameraPublisher pub_;
   //boost::shared_ptr<camera_info_manager::CameraInfoManager> camera_info_manager_;
 
-  public:
+public:
 
   Output(const std::string name);
   ~Output();
   virtual void init();
-  
+
   bool setup(const int width, const int height);
-  
+
   virtual bool update();
   virtual bool draw(cv::Point2f ui_offset);
 };

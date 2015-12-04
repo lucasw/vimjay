@@ -8,7 +8,8 @@
 
 //#include <iostream>
 //#include <stdio.h>
-namespace bm {
+namespace bm
+{
 
 class OpenGL : public ImageNode
 {
@@ -20,12 +21,12 @@ class OpenGL : public ImageNode
   // the input texture
   GLuint input_tex;
 
-  public:
+public:
   OpenGL(const std::string name);
   virtual void init();
-  
+
   bool setup();
-  
+
   virtual bool update();
   virtual bool draw(cv::Point2f ui_offset);
 

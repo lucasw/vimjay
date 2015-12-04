@@ -73,10 +73,10 @@ THE SOFTWARE.
 /**
  * Simplex, rotating, derivative noise over 2 dimensions
  */
-float srdnoise2( float x, float y, float t, float *dnoise_dx, float *dnoise_dy );
+float srdnoise2(float x, float y, float t, float *dnoise_dx, float *dnoise_dy);
 
 /**
  * Simplex, rotating, derivative noise over 3 dimensions
  */
-float srdnoise3( float x, float y, float z, float t, float *dnoise_dx, float *dnoise_dy, float *dnoise_dz );
+float srdnoise3(float x, float y, float z, float t, float *dnoise_dx, float *dnoise_dy, float *dnoise_dz);
 

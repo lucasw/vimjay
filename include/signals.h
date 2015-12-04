@@ -14,14 +14,15 @@
 #include <map>
 #include "nodes.h"
 
-namespace bm {
+namespace bm
+{
 
 class MiscSignal : public Signal
 {
   cv::RNG rng;
   int state;
-  public:
-  MiscSignal(const std::string name); 
+public:
+  MiscSignal(const std::string name);
   virtual void init();
   virtual bool update();
   virtual bool handleKey(int key);
@@ -30,18 +31,18 @@ class MiscSignal : public Signal
 /////////////////////////////////
 class SigBuffer : public ImageNode
 {
-  protected:
+protected:
   std::deque<float> sigs;
   bool setOut();
   boost::mutex sigs_mutex;
   bool last_get_was_fr;
 
-  public:
+public:
   SigBuffer(const std::string name);
   virtual void init();
   virtual bool update();
   virtual bool draw(cv::Point2f ui_offset);
-  
+
   float getFr(const float fr);
   float getInd(int& ind);
 
@@ -50,7 +51,7 @@ class SigBuffer : public ImageNode
 
 class SigBufferXY : public SigBuffer
 {
-  public:
+public:
   SigBufferXY(const std::string name);
   virtual void init();
   virtual bool update();
@@ -58,17 +59,17 @@ class SigBufferXY : public SigBuffer
 
 class Trig : public Node
 {
-  public:
-  Trig(const std::string name); 
+public:
+  Trig(const std::string name);
   virtual void init();
   virtual bool update();
   //virtual bool handleKey(int key);
 };
 
-// Arbitrary inputs, TBD use multiple inheritance 
+// Arbitrary inputs, TBD use multiple inheritance
 class SigAdd : public Node
 {
-  public:
+public:
   SigAdd(const std::string name); // : Signal()
   virtual void init();
   virtual bool update();
@@ -77,23 +78,23 @@ class SigAdd : public Node
 
 class SigGreater : public Signal
 {
-  public:
-  SigGreater(const std::string name); 
+public:
+  SigGreater(const std::string name);
   virtual void init();
   virtual bool update();
 };
 
 class Mean : public Signal
 {
-  public:
-  Mean(const std::string name); 
+public:
+  Mean(const std::string name);
   virtual void init();
   virtual bool update();
 };
 
 class SigADSR : public ImageNode
 {
-  public:
+public:
   SigADSR(const std::string name);
   virtual void init();
   virtual bool update();
@@ -104,7 +105,7 @@ class SigADSR : public ImageNode
 // are active
 class SigToInd : public Signal
 {
-  public:
+public:
   SigToInd(const std::string name);
   virtual void init();
   virtual bool update();
@@ -115,7 +116,7 @@ class SigToInd : public Signal
 
 class SigFile : public SigBuffer
 {
-  public:
+public:
   SigFile(const std::string name) {}
   virtual void init();
   std::string file;
@@ -127,7 +128,7 @@ class SigFile : public SigBuffer
 ///////////////////////////////////////////////////////////
 class SigTap : public Signal
 {
-  public:
+public:
   SigTap(const std::string name);// : Signal()
   virtual void init();
   virtual bool update();
@@ -136,7 +137,7 @@ class SigTap : public Signal
 
 class SigTapInd : public Tap
 {
-  public:
+public:
   SigTapInd(const std::string name) {}// : Signal()
   virtual void init();
   virtual bool update();
@@ -146,8 +147,8 @@ class SigTapInd : public Tap
 
 class SigMultiply : public Signal
 {
-  public:
-  Multiply(const std::string name); 
+public:
+  Multiply(const std::string name);
   virtual void init();
   virtual bool update();
 };
@@ -155,8 +156,8 @@ class SigMultiply : public Signal
 // Double inputs
 class SigAbsDiff : public Signal
 {
-  public:
-  SigAbsDiff(const std::string name); 
+public:
+  SigAbsDiff(const std::string name);
   virtual void init();
   virtual bool update();
 };
@@ -164,7 +165,7 @@ class SigAbsDiff : public Signal
 
 class SigFlip : public Signal
 {
-  public:
+public:
   SigFlip(const std::string name);
   virtual void init();
   virtual bool update();

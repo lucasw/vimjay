@@ -3,7 +3,7 @@
    provided this comment header remains intact in the source code.
    This code is provided with no warrantee, express or implied, for
    any purpose.
-   
+
    A detailed description and application examples can be found in the
    1996 SIGGRAPH paper "A Cellular Texture Basis Function" and
    especially in the 2002 book "Texturing and Modeling, a Procedural
@@ -26,7 +26,7 @@
    higher order F values, to use the Manhattan distance metric, or
    other fun perversions.
 
-   <at>    The input sample location. 
+   <at>    The input sample location.
    <max_order>  Smaller values compute faster. < 5, read the book to extend it.
    <F>     The output values of F_1, F_2, ..F[n] in F[0], F[1], F[n-1]
    <delta> The output vector difference between the sample point and the n-th
@@ -44,4 +44,4 @@
    computation. The book lists the details of this tuning.  */
 
 void Worley(double at[3], long max_order,
-	    double F[2], double delta[2][3], unsigned long ID[2]);
+            double F[2], double delta[2][3], unsigned long ID[2]);

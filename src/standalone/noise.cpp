@@ -60,9 +60,9 @@ Noise::Noise() :
 {
   pub_ = it_.advertise("image", 1, true);
   mean_sub_ = nh_.subscribe<std_msgs::Float32>("mean", 1,
-      &Noise::meanCallback, this);
+              &Noise::meanCallback, this);
   stddev_sub_ = nh_.subscribe<std_msgs::Float32>("stddev", 1,
-      &Noise::stddevCallback, this);
+                &Noise::stddevCallback, this);
 
   // TODO get width height
   timer_ = nh_.createTimer(ros::Duration(0.1), &Noise::pubImage, this);
@@ -83,13 +83,16 @@ void Noise::pubImage(const ros::TimerEvent& e)
   cv::Mat out = cv::Mat(cv::Size(width_, height_), CV_8UC3);
 
   int type = 1;
-  if (type == 0) {
+  if (type == 0)
+  {
     // uniform
-    cv::randu(out, cv::Scalar(0,0,0,0), cv::Scalar(255,255,255,255));
-  } else {
+    cv::randu(out, cv::Scalar(0, 0, 0, 0), cv::Scalar(255, 255, 255, 255));
+  }
+  else
+  {
     // TBD handle alpha channel
     cv::randn(out, cv::Scalar(mean_, mean_, mean_, mean_),
-        cv::Scalar(stddev_, stddev_, stddev_, stddev_));
+              cv::Scalar(stddev_, stddev_, stddev_, stddev_));
   }
 
   cv_bridge::CvImage cv_image;

@@ -76,23 +76,23 @@ public:
 };
 
 ImageDeque::ImageDeque() :
-    it_(nh_),
-    capture_single_(false),
-    capture_continuous_(false),
-    max_size_(10),
-    restrict_size_(false),
-    index_(0)
+  it_(nh_),
+  capture_single_(false),
+  capture_continuous_(false),
+  max_size_(10),
+  restrict_size_(false),
+  index_(0)
 {
   captured_pub_ = it_.advertise("captured_image", 1, true);
   anim_pub_ = it_.advertise("anim", 1);
   image_sub_ = it_.subscribe("image", 1, &ImageDeque::imageCallback, this);
   // TODO also dynamic reconfigure for these
   single_sub_ = nh_.subscribe<std_msgs::Bool>("single", 1,
-      &ImageDeque::singleCallback, this);
+                &ImageDeque::singleCallback, this);
   continuous_sub_ = nh_.subscribe<std_msgs::Bool>("continuous", 1,
-      &ImageDeque::continuousCallback, this);
+                    &ImageDeque::continuousCallback, this);
   max_size_sub_ = nh_.subscribe<std_msgs::UInt16>("max_size", 1,
-      &ImageDeque::maxSizeCallback, this);
+                  &ImageDeque::maxSizeCallback, this);
 
   timer_ = nh_.createTimer(ros::Duration(0.1), &ImageDeque::pubImage, this);
 }

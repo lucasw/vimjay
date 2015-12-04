@@ -1,5 +1,5 @@
 /*
-  
+
   Copyright 2012 Lucas Walter
 
      This file is part of Vimjay.
@@ -28,7 +28,8 @@
 
 using namespace std;
 
-namespace bm {
+namespace bm
+{
 
 // TODO this can go away entirely
 ScreenCap::ScreenCap(const std::string name) :
@@ -43,26 +44,29 @@ void ScreenCap::init()
 {
   ImageNode::init();
   display = XOpenDisplay(NULL); // Open first (-best) display
-  if (display == NULL) {
+  if (display == NULL)
+  {
     ROS_ERROR_STREAM(name << " bad display");
     return;
   }
 
   screen = DefaultScreenOfDisplay(display);
-  if (screen == NULL) {
+  if (screen == NULL)
+  {
     ROS_ERROR_STREAM(name << " bad screen");
     return;
   }
 
-  Window wid = DefaultRootWindow( display );
-  if ( 0 > wid ) {
+  Window wid = DefaultRootWindow(display);
+  if (0 > wid)
+  {
     ROS_ERROR_STREAM("Failed to obtain the root windows Id "
-        "of the default screen of given display.\n");
+                     "of the default screen of given display.\n");
     return;
   }
 
   XWindowAttributes xwAttr;
-  Status ret = XGetWindowAttributes( display, wid, &xwAttr );
+  Status ret = XGetWindowAttributes(display, wid, &xwAttr);
   screen_w = xwAttr.width;
   screen_h = xwAttr.height;
 
@@ -72,11 +76,11 @@ void ScreenCap::init()
   int startY = 0;
 
   // The size of the area (width,height) to take a screenshot of
-  int widthX = Config::inst()->im_width; //screen->width / 4, heightY = screen->height / 4; 
+  int widthX = Config::inst()->im_width; //screen->width / 4, heightY = screen->height / 4;
   int heightY = Config::inst()->im_height;
-  
+
   cv::Mat out = cv::Mat(cv::Size(widthX, heightY), CV_8UC4);
-  out = cv::Scalar(50,50,200);
+  out = cv::Scalar(50, 50, 200);
 
   setSignal("startX", startX);
   setSignal("startY", startY);
@@ -89,8 +93,11 @@ void ScreenCap::init()
 bool ScreenCap::update()
 {
   if (!Node::update()) return false;
-  
-  if ((display == NULL) || (screen == NULL)) { return false; }
+
+  if ((display == NULL) || (screen == NULL))
+  {
+    return false;
+  }
 
   int startX  = getSignal("startX");
   int startY  = getSignal("startY");
@@ -101,36 +108,45 @@ bool ScreenCap::update()
   if (startY < 0) startY = 0;
 
   // Need to check against resolution
-  if ((startX + widthX) > screen_w) {
+  if ((startX + widthX) > screen_w)
+  {
     // TBD need to more intelligently cap these
-    if (screen_w > widthX) {
+    if (screen_w > widthX)
+    {
       startX = screen_w - widthX;
-    } else {
+    }
+    else
+    {
       startX = 0;
       widthX = Config::inst()->im_width;
     }
   }
 
-  if ((startY + heightY) > screen_h) {
+  if ((startY + heightY) > screen_h)
+  {
     // TBD need to more intelligently cap these
-    if (screen_h > heightY) {
+    if (screen_h > heightY)
+    {
       startY = screen_h - heightY;
-    } else {
+    }
+    else
+    {
       startY = 0;
       heightY = Config::inst()->im_height;
     }
   }
- 
+
   setSignal("startX", startX);
   setSignal("startY", startY);
   setSignal("widthX", widthX);
   setSignal("heightY", heightY);
 
-  xImageSample = XGetImage(display, DefaultRootWindow(display), 
-      startX, startY, widthX, heightY, AllPlanes, ZPixmap);
-  
+  xImageSample = XGetImage(display, DefaultRootWindow(display),
+                           startX, startY, widthX, heightY, AllPlanes, ZPixmap);
+
   // Check for bad null pointers
-  if (xImageSample == NULL) { 
+  if (xImageSample == NULL)
+  {
     ROS_ERROR_STREAM("Error taking screenshot!");
     return false;
   }
@@ -139,22 +155,22 @@ bool ScreenCap::update()
   cv::Mat tmp = XImage2OpenCVImage(*xImageSample, *display, *screen);
 
   // To get the color values of the (sub-)image (can be slow, there are alternatives)
-  //    XQueryColor(display, DefaultColormap(display, DefaultScreen(display)), &col); 
+  //    XQueryColor(display, DefaultColormap(display, DefaultScreen(display)), &col);
 
   // Always clean up your mess
   XDestroyImage(xImageSample);
   //XCloseDisplay(display);
 
   if (tmp.empty()) return false;
- 
+
   // resize
   cv::Size sz = Config::inst()->getImSize();
   cv::Mat tmp1;
-  cv::resize(tmp, tmp1, sz, 0, 0, cv::INTER_NEAREST );
+  cv::resize(tmp, tmp1, sz, 0, 0, cv::INTER_NEAREST);
   setImage("out", tmp);
 
-  setDirty(); 
- 
+  setDirty();
+
   return true;
 }
 

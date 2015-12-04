@@ -9,6 +9,7 @@ find_package(catkin REQUIRED COMPONENTS
   camera_info_manager
   image_transport
   roscpp
+  roslint
   rospy
   std_msgs
 )
@@ -21,8 +22,8 @@ find_package(catkin REQUIRED COMPONENTS
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
-  
 
+roslint_cpp()
 
 ## Uncomment this if the package has a setup.py. This macro ensures
 ## modules and global scripts declared therein get installed
@@ -167,11 +168,11 @@ boost_system
 #GL
 
 find_package(cmake_modules REQUIRED)
-find_package(Eigen REQUIRED)
+find_package(Eigen3 REQUIRED)
 
 include_directories(
   src/nngen
-  ${Eigen_INCLUDE_DIRS}
+  ${EIGEN_INCLUDE_DIR}
 )
 
 add_executable(noise_image

@@ -5,15 +5,16 @@
 
 //#include <iostream>
 //#include <stdio.h>
-namespace bm {
+namespace bm
+{
 
 class Contour : public ImageNode
 {
-  protected:
+protected:
   std::vector<std::vector<cv::Point> > contours0;
   std::vector<cv::Vec4i> hierarchy;
-  
-  public:
+
+public:
   Contour(const std::string name);
   virtual void init();
   virtual bool update();
@@ -21,7 +22,7 @@ class Contour : public ImageNode
 
 class ContourFlip : public Contour
 {
-  protected:
+protected:
   cv::Mat base_x;
   cv::Mat base_y;
 
@@ -30,14 +31,14 @@ class ContourFlip : public Contour
 
   cv::Mat dist_xy16, dist_int;
 
-  public:
+public:
   ContourFlip(const std::string name);
   virtual void init();
   virtual bool update();
 };
 
 // TBD an IIR could be generated from a FIR chained to another FIR with an add block at the end
-// but it would be nice to be able to capture that inside a single Node- how to correctly handle 
+// but it would be nice to be able to capture that inside a single Node- how to correctly handle
 // hierarchical nodes?
 
 } // namespace bm
