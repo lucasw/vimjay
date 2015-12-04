@@ -1,35 +1,37 @@
-#ifndef __FILTER_H__
-#define __FILTER_H__
+/**
+  * Copyright 2014 Lucas Walter
+  */
+#ifndef FILTER_H
+#define FILTER_H
 
 #include "nodes.h"
 #include "modify.h"
 
-//#include <iostream>
-//#include <stdio.h>
+#include <string>
+#include <vector>
+
+// #include <iostream>
+// #include <stdio.h>
 namespace bm
 {
-
 class FilterFIR : public Buffer
 {
-
 public:
-
   /// filter coefficients
   std::vector<float> xi;
 
-  FilterFIR(const std::string name);
+  explicit FilterFIR(const std::string name);
   virtual void init();
   void setup(const std::vector<float> new_xi);
   virtual bool update();
 
   virtual bool handleKey(int key);
-
 };
 
 class Sobel : public ImageNode
 {
 public:
-  Sobel(const std::string name);
+  explicit Sobel(const std::string name);
   virtual void init();
   virtual bool update();
 };
@@ -37,7 +39,7 @@ public:
 class Laplacian : public ImageNode
 {
 public:
-  Laplacian(const std::string name);
+  explicit Laplacian(const std::string name);
   virtual void init();
   virtual bool update();
 };
@@ -45,7 +47,7 @@ public:
 class GaussianBlur : public ImageNode
 {
 public:
-  GaussianBlur(const std::string name);
+  explicit GaussianBlur(const std::string name);
   virtual void init();
   virtual bool update();
 };
@@ -53,7 +55,7 @@ public:
 class MedianBlur : public ImageNode
 {
 public:
-  MedianBlur(const std::string name);
+  explicit MedianBlur(const std::string name);
   virtual void init();
   virtual bool update();
 };
@@ -61,7 +63,7 @@ public:
 class BilateralFilter : public ImageNode
 {
 public:
-  BilateralFilter(const std::string name);
+  explicit BilateralFilter(const std::string name);
   virtual void init();
   virtual bool update();
 };
@@ -69,7 +71,7 @@ public:
 class InPaint : public ImageNode
 {
 public:
-  InPaint(const std::string name);
+  explicit InPaint(const std::string name);
   virtual void init();
   virtual bool update();
 };
@@ -79,7 +81,7 @@ public:
 class MorphologyEx : public ImageNode
 {
 public:
-  MorphologyEx(const std::string name);
+  explicit MorphologyEx(const std::string name);
   virtual void init();
   virtual bool update();
 };
@@ -91,7 +93,7 @@ class OpticalFlow : public Remap
   cv::Mat flow_reverse;
 
 public:
-  OpticalFlow(const std::string name);
+  explicit OpticalFlow(const std::string name);
   virtual void init();
   virtual bool update();
 };
@@ -101,5 +103,5 @@ public:
 // but it would be nice to be able to capture that inside a single Node- how to correctly handle
 // hierarchical nodes?
 
-} // namespace bm
-#endif // __FILTER_H__
+}  // namespace bm
+#endif  // FILTER_H

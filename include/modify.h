@@ -1,5 +1,8 @@
-#ifndef __MODIFY_H__
-#define __MODIFY_H__
+/**
+  * Copyright 2014 Lucas Walter
+  */
+#ifndef MODIFY_H
+#define MODIFY_H
 
 #include <iostream>
 #include <stdio.h>
@@ -9,19 +12,20 @@
 #include "opencv2/highgui/highgui.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
 
-//#include <random>
+// #include <random>
 #include <deque>
 #include <map>
+#include <string>
+#include <vector>
 
 #include "nodes.h"
 
 namespace bm
 {
-
 class Rot2D : public ImageNode
 {
 public:
-  Rot2D(const std::string name);
+  explicit Rot2D(const std::string name);
   virtual void init();
   virtual bool update();
 };
@@ -33,7 +37,7 @@ protected:
   cv::Mat base_y;
 
 public:
-  Kaleid(const std::string name);
+  explicit Kaleid(const std::string name);
   virtual void init();
   virtual bool update();
 };
@@ -42,7 +46,7 @@ public:
 class Undistort : public ImageNode
 {
 public:
-  Undistort(const std::string name);
+  explicit Undistort(const std::string name);
   virtual void init();
   virtual bool update();
 };
@@ -56,7 +60,7 @@ protected:
   cv::Mat base_xy;
 
 public:
-  Remap(const std::string name);
+  explicit Remap(const std::string name);
   virtual void init();
   virtual bool update();
 };
@@ -64,17 +68,15 @@ public:
 class Tap : public ImageNode
 {
 public:
-
   bool changed;
-  //float value;
+  // float value;
 
-  Tap(const std::string name);// : ImageNode()
+  explicit Tap(const std::string name);  // : ImageNode()
   virtual void init();
 
   void setup(
     boost::shared_ptr<Signal> new_signal = boost::shared_ptr<Signal>(),
-    boost::shared_ptr<Buffer> new_buffer = boost::shared_ptr<Buffer>()
-  );
+    boost::shared_ptr<Buffer> new_buffer = boost::shared_ptr<Buffer>());
 
   virtual bool update();
   virtual bool draw(cv::Point2f ui_offset);
@@ -83,12 +85,11 @@ public:
 class TapInd : public Tap
 {
 public:
-
-  TapInd(const std::string name) : Tap(name) {}
+  explicit TapInd(const std::string name) : Tap(name) {}
   virtual void init();
 
   // TBD make an sval?
-  //int ind;
+  // int ind;
   virtual bool update();
   virtual bool draw(cv::Point2f ui_offset);
 };
@@ -97,14 +98,13 @@ public:
 class Add : public ImageNode
 {
 public:
-  Add(const std::string name);
+  explicit Add(const std::string name);
   virtual void init();
   // TBD could require pair be passed in to enforce size
   // TBD get rid of this?
   void setup(
     std::vector<boost::shared_ptr<ImageNode> > np,
-    std::vector<float> nf
-  );
+    std::vector<float> nf);
   virtual bool update();
   virtual bool handleKey(int key);
 };
@@ -113,16 +113,16 @@ public:
 class AddMasked : public ImageNode
 {
 public:
-  AddMasked(const std::string name);
+  explicit AddMasked(const std::string name);
   virtual void init();
   virtual bool update();
-  //virtual bool handleKey(int key);
+  // virtual bool handleKey(int key);
 };
 
 class Multiply : public ImageNode
 {
 public:
-  Multiply(const std::string name);
+  explicit Multiply(const std::string name);
   virtual void init();
   virtual bool update();
 };
@@ -131,7 +131,7 @@ public:
 class AbsDiff : public ImageNode
 {
 public:
-  AbsDiff(const std::string name);
+  explicit AbsDiff(const std::string name);
   virtual void init();
   virtual bool update();
 };
@@ -139,7 +139,7 @@ public:
 class Max : public ImageNode
 {
 public:
-  Max(const std::string name);
+  explicit Max(const std::string name);
   virtual void init();
   virtual bool update();
 };
@@ -147,7 +147,7 @@ public:
 class Greater : public ImageNode
 {
 public:
-  Greater(const std::string name);
+  explicit Greater(const std::string name);
   virtual void init();
   virtual bool update();
 };
@@ -156,7 +156,7 @@ public:
 class Resize : public ImageNode
 {
 public:
-  Resize(const std::string name);
+  explicit Resize(const std::string name);
   virtual void init();
   virtual bool update();
 };
@@ -164,7 +164,7 @@ public:
 class Flip : public ImageNode
 {
 public:
-  Flip(const std::string name);
+  explicit Flip(const std::string name);
   virtual void init();
   virtual bool update();
 };
@@ -172,7 +172,7 @@ public:
 class EqualizeHist : public ImageNode
 {
 public:
-  EqualizeHist(const std::string name);
+  explicit EqualizeHist(const std::string name);
   virtual void init();
   virtual bool update();
 };
@@ -180,7 +180,7 @@ public:
 class Normalize : public ImageNode
 {
 public:
-  Normalize(const std::string name);
+  explicit Normalize(const std::string name);
   virtual void init();
   virtual bool update();
 };
@@ -188,7 +188,7 @@ public:
 class Distance : public ImageNode
 {
 public:
-  Distance(const std::string name);
+  explicit Distance(const std::string name);
   virtual void init();
   virtual bool update();
 };
@@ -196,22 +196,19 @@ public:
 class DistanceFlip : public ImageNode
 {
 public:
-  DistanceFlip(const std::string name);
+  explicit DistanceFlip(const std::string name);
   virtual void init();
   virtual bool update();
 };
-
 
 class FloodFill : public ImageNode
 {
 public:
-  FloodFill(const std::string name);
+  explicit FloodFill(const std::string name);
   virtual void init();
   virtual bool update();
 };
 
 
-
-
-} // bm
-#endif // MODIFY
+}  // namespace bm
+#endif  // MODIFY_H

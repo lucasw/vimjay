@@ -1,16 +1,16 @@
-#ifndef __VOPENGL_H__
-#define __VOPENGL_H__
+#ifndef VOPENGL_H
+#define VOPENGL_H
 
 #include "nodes.h"
 #include "misc_nodes.h"
 
 #include <GL/gl.h>
+#include <string>
 
-//#include <iostream>
-//#include <stdio.h>
+// #include <iostream>
+// #include <stdio.h>
 namespace bm
 {
-
 class OpenGL : public ImageNode
 {
   bool has_setup;
@@ -22,17 +22,15 @@ class OpenGL : public ImageNode
   GLuint input_tex;
 
 public:
-  OpenGL(const std::string name);
+  explicit OpenGL(const std::string name);
   virtual void init();
 
   bool setup();
 
   virtual bool update();
   virtual bool draw(cv::Point2f ui_offset);
-
 };
+}  // namespace bm
 
-}
-
-#endif // __VOPENGL_H__
+#endif  // VOPENGL_H
 

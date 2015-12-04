@@ -1,5 +1,5 @@
-#ifndef __MISC_NODES_H__
-#define __MISC_NODES_H__
+#ifndef IMAGE_DIR_H
+#define IMAGE_DIR_H
 
 #include <iostream>
 #include <stdio.h>
@@ -12,12 +12,13 @@
 //#include <random>
 #include <deque>
 #include <map>
+#include <vector>
+#include <string>
 
 #include "nodes.h"
 
 namespace bm
 {
-
 /////////////////////////////////
 class ImageDir : public Buffer
 {
@@ -26,8 +27,7 @@ class ImageDir : public Buffer
   bool resizeImages();
 
 public:
-
-  ImageDir(const std::string name);
+  explicit ImageDir(const std::string name);
   virtual void init();
 
   bool loadImages();
@@ -36,6 +36,5 @@ public:
   virtual bool load(cv::FileNodeIterator nd);
   virtual bool save(cv::FileStorage& fs);
 };
-
-} // bm
-#endif // MISC_NODES
+}  // namespace bm
+#endif  // IMAGE_DIR_H 

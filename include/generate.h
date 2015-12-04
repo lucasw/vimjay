@@ -15,7 +15,7 @@ namespace bm
 class Bezier : public ImageNode
 {
 public:
-  Bezier(const std::string name);
+  explicit Bezier(const std::string name);
   virtual void init();
   virtual bool update();
 };
@@ -23,7 +23,7 @@ public:
 class Circle : public ImageNode
 {
 public:
-  Circle(const std::string name);
+  explicit Circle(const std::string name);
   virtual void init();
   virtual bool update();
 };
@@ -32,7 +32,7 @@ public:
 class Noise : public ImageNode
 {
 public:
-  Noise(const std::string name);
+  explicit Noise(const std::string name);
   virtual void init();
   virtual bool update();
 };
@@ -40,11 +40,9 @@ public:
 class SimplexNoise : public ImageNode
 {
 public:
-  SimplexNoise(const std::string name);
+  explicit SimplexNoise(const std::string name);
   virtual void init();
   virtual bool update();
 };
-
-
-} // namespace bm
-#endif // __FILTER_H__
+}  // namespace bm
+#endif  // __FILTER_H__

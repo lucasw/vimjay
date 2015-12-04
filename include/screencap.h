@@ -23,8 +23,7 @@ class ScreenCap : public ImageNode
   XColor col;
 
 public:
-
-  ScreenCap(const std::string name);
+  explicit ScreenCap(const std::string name);
   virtual void init();
 
   virtual bool update();

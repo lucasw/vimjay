@@ -15,7 +15,7 @@ protected:
   std::vector<cv::Vec4i> hierarchy;
 
 public:
-  Contour(const std::string name);
+  explicit Contour(const std::string name);
   virtual void init();
   virtual bool update();
 };
@@ -32,7 +32,7 @@ protected:
   cv::Mat dist_xy16, dist_int;
 
 public:
-  ContourFlip(const std::string name);
+  explicit ContourFlip(const std::string name);
   virtual void init();
   virtual bool update();
 };

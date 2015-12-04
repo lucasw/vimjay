@@ -22,7 +22,7 @@ class MiscSignal : public Signal
   cv::RNG rng;
   int state;
 public:
-  MiscSignal(const std::string name);
+  explicit MiscSignal(const std::string name);
   virtual void init();
   virtual bool update();
   virtual bool handleKey(int key);
@@ -38,7 +38,7 @@ protected:
   bool last_get_was_fr;
 
 public:
-  SigBuffer(const std::string name);
+  explicit SigBuffer(const std::string name);
   virtual void init();
   virtual bool update();
   virtual bool draw(cv::Point2f ui_offset);
@@ -52,7 +52,7 @@ public:
 class SigBufferXY : public SigBuffer
 {
 public:
-  SigBufferXY(const std::string name);
+  explicit SigBufferXY(const std::string name);
   virtual void init();
   virtual bool update();
 };
@@ -60,7 +60,7 @@ public:
 class Trig : public Node
 {
 public:
-  Trig(const std::string name);
+  explicit Trig(const std::string name);
   virtual void init();
   virtual bool update();
   //virtual bool handleKey(int key);
@@ -70,7 +70,7 @@ public:
 class SigAdd : public Node
 {
 public:
-  SigAdd(const std::string name); // : Signal()
+  explicit SigAdd(const std::string name); // : Signal()
   virtual void init();
   virtual bool update();
   virtual bool handleKey(int key);
@@ -79,7 +79,7 @@ public:
 class SigGreater : public Signal
 {
 public:
-  SigGreater(const std::string name);
+  explicit SigGreater(const std::string name);
   virtual void init();
   virtual bool update();
 };
@@ -87,7 +87,7 @@ public:
 class Mean : public Signal
 {
 public:
-  Mean(const std::string name);
+  explicit Mean(const std::string name);
   virtual void init();
   virtual bool update();
 };
@@ -95,7 +95,7 @@ public:
 class SigADSR : public ImageNode
 {
 public:
-  SigADSR(const std::string name);
+  explicit SigADSR(const std::string name);
   virtual void init();
   virtual bool update();
 };
@@ -106,7 +106,7 @@ public:
 class SigToInd : public Signal
 {
 public:
-  SigToInd(const std::string name);
+  explicit SigToInd(const std::string name);
   virtual void init();
   virtual bool update();
 };
@@ -117,7 +117,7 @@ public:
 class SigFile : public SigBuffer
 {
 public:
-  SigFile(const std::string name) {}
+  explicit SigFile(const std::string name) {}
   virtual void init();
   std::string file;
   bool loadBuffer();
@@ -129,7 +129,7 @@ public:
 class SigTap : public Signal
 {
 public:
-  SigTap(const std::string name);// : Signal()
+  explicit SigTap(const std::string name);// : Signal()
   virtual void init();
   virtual bool update();
   virtual bool draw(cv::Point2f ui_offset);
@@ -138,7 +138,7 @@ public:
 class SigTapInd : public Tap
 {
 public:
-  SigTapInd(const std::string name) {}// : Signal()
+  explicit SigTapInd(const std::string name) {}// : Signal()
   virtual void init();
   virtual bool update();
   virtual bool draw(cv::Point2f ui_offset);
@@ -148,7 +148,7 @@ public:
 class SigMultiply : public Signal
 {
 public:
-  Multiply(const std::string name);
+  explicit Multiply(const std::string name);
   virtual void init();
   virtual bool update();
 };
@@ -157,7 +157,7 @@ public:
 class SigAbsDiff : public Signal
 {
 public:
-  SigAbsDiff(const std::string name);
+  explicit SigAbsDiff(const std::string name);
   virtual void init();
   virtual bool update();
 };
@@ -166,7 +166,7 @@ public:
 class SigFlip : public Signal
 {
 public:
-  SigFlip(const std::string name);
+  explicit SigFlip(const std::string name);
   virtual void init();
   virtual bool update();
 };

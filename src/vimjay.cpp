@@ -597,7 +597,7 @@ public:
   std::string load_graph_file_;
 
   ///////////////////////////////////////////////////////////////////////////
-  VimJay(const std::string name) :
+  explicit VimJay(const std::string name) :
     Output(name),
     selected_ind(0),
     source_ind(0),

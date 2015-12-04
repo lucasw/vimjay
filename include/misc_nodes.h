@@ -1,5 +1,5 @@
-#ifndef __IMAGE_DIR_H__
-#define __IMAGE_DIR_H__
+#ifndef MISC_NODES_H
+#define MISC_NODES_H
 
 #include <iostream>
 #include <stdio.h>
@@ -9,21 +9,21 @@
 #include "opencv2/highgui/highgui.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
 
-//#include <random>
+// #include <random>
 #include <deque>
 #include <map>
+#include <string>
+#include <vector>
 
 #include "nodes.h"
 
 namespace bm
 {
-
 /////////////////////////////////
 class BrowseDir : public ImageNode
 {
 public:
-
-  BrowseDir(const std::string name);
+  explicit BrowseDir(const std::string name);
   virtual void init();
 
   virtual bool handleKey(int key);
@@ -38,11 +38,6 @@ private:
   std::vector<std::string> sub_dirs;
   std::vector<int> num_sub_images;
   std::vector<int> num_sub_dirs;
-
 };
-
-
-
-
-} // bm
-#endif // IMAGE_DIR
+}  // namespace bm
+#endif  // MISC_NODES_H

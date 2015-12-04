@@ -86,7 +86,7 @@ protected:
 
 public:
   //Elem();
-  Elem(const std::string name);
+  explicit Elem(const std::string name);
 
   virtual ~Elem();
   virtual void init() {}
@@ -128,7 +128,7 @@ protected:
   std::string str;
 
 public:
-  Connector(const std::string name);
+  explicit Connector(const std::string name);
 
   virtual bool update();
 
@@ -231,7 +231,7 @@ public:
   bool draw_selected_port;
   //void drawSelectedPort();
 
-  Node(const std::string name);
+  explicit Node(const std::string name);
 
   //Node(std::string name, cv::Point loc, cv::Mat graph_ui );
 
@@ -349,7 +349,7 @@ class ImageNode : public Node
 {
 public:
 
-  ImageNode(const std::string name);
+  explicit ImageNode(const std::string name);
 
   virtual void init();
 
@@ -371,7 +371,7 @@ public:
 class Signal : public Node
 {
 public:
-  Signal(const std::string name); // : Node()
+  explicit Signal(const std::string name); // : Node()
   virtual void init();
 
   void setup(const float new_step = 0.01, const float offset = 0.0, const float min = 0.0, const float max = 1.0);
@@ -403,7 +403,7 @@ protected:
 
 public:
 
-  Buffer(const std::string name);
+  explicit Buffer(const std::string name);
   virtual void init();
 
   bool manualUpdate();
@@ -439,7 +439,7 @@ class Mux : public Buffer
 {
 public:
 
-  Mux(const std::string name);
+  explicit Mux(const std::string name);
   virtual void init();
 
   virtual bool update();
@@ -451,7 +451,7 @@ class MuxBuffer : public Buffer
   boost::shared_ptr<Buffer> selected_buffer;
 
 public:
-  MuxBuffer(const std::string name);
+  explicit MuxBuffer(const std::string name);
   virtual void init();
 
   virtual cv::Mat get(const float fr, int& actual_ind = default_ind);

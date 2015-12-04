@@ -59,7 +59,7 @@ class Cluster : public ImageNode
   std::vector<cluster_center> clusters;
 
 public:
-  Cluster(const std::string name);
+  explicit Cluster(const std::string name);
   virtual void init();
 
   float find_dist(
@@ -74,7 +74,7 @@ public:
 class PyrMean : public ImageNode
 {
 public:
-  PyrMean(const std::string name);
+  explicit PyrMean(const std::string name);
   virtual void init();
 
   virtual bool update();

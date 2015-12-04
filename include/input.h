@@ -41,7 +41,7 @@ public:
   //boost::thread event_thread;
   //void runThread();
 
-  Mouse(const std::string name);
+  explicit Mouse(const std::string name);
   ~Mouse();
   virtual void init();
   virtual bool draw(cv::Point2f ui_offset);
@@ -52,7 +52,7 @@ public:
 class MouseSignal : public SigBuffer
 {
 public:
-  MouseSignal(const std::string name);
+  explicit MouseSignal(const std::string name);
   virtual bool update();
 
   Display* display;
@@ -79,7 +79,7 @@ private:
 
 public:
 
-  GamePad(const std::string name);
+  explicit GamePad(const std::string name);
   ~GamePad();
   virtual void init();
   virtual bool update();

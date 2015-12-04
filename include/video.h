@@ -28,7 +28,7 @@ protected:
   int error_count;
 
 public:
-  VideoCapture(const std::string name);
+  explicit VideoCapture(const std::string name);
   virtual void init();
   //virtual ~VideoCapture();
   //
@@ -43,7 +43,7 @@ class Webcam : public VideoCapture
   void runThread();
 
 public:
-  Webcam(const std::string name);
+  explicit Webcam(const std::string name);
   virtual void init();
   virtual ~Webcam();
 
@@ -65,7 +65,7 @@ protected:
   virtual bool spinOnce();
 
 public:
-  Video(const std::string name);
+  explicit Video(const std::string name);
   virtual ~Video();
   virtual void init();
   virtual bool update();
