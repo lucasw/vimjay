@@ -1,5 +1,6 @@
-#ifndef VOPENGL_H
-#define VOPENGL_H
+/** Copyright 2012 Lucas Walter */
+#ifndef VIMJAY_OPENGL_H
+#define VIMJAY_OPENGL_H
 
 #include <GL/gl.h>
 #include <string>
@@ -32,5 +33,5 @@ public:
 };
 }  // namespace bm
 
-#endif  // VOPENGL_H
+#endif  // VIMJAY_OPENGL_H
 

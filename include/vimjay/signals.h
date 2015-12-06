@@ -1,5 +1,6 @@
-#ifndef __SIGNALS_H__
-#define __SIGNALS_H__
+/** Copyright 2012 Lucas Walter */
+#ifndef VIMJAY_SIGNALS_H
+#define VIMJAY_SIGNALS_H
 
 #include <iostream>
 #include <stdio.h>
@@ -12,6 +13,7 @@
 // #include <random>
 #include <deque>
 #include <map>
+#include <string>
 
 #include "vimjay/nodes.h"
 
@@ -71,7 +73,7 @@ public:
 class SigAdd : public Node
 {
 public:
-  explicit SigAdd(const std::string name); // : Signal()
+  explicit SigAdd(const std::string name);  // : Signal()
   virtual void init();
   virtual bool update();
   virtual bool handleKey(int key);
@@ -130,7 +132,7 @@ public:
 class SigTap : public Signal
 {
 public:
-  explicit SigTap(const std::string name);// : Signal()
+  explicit SigTap(const std::string name);  // : Signal()
   virtual void init();
   virtual bool update();
   virtual bool draw(cv::Point2f ui_offset);
@@ -139,7 +141,7 @@ public:
 class SigTapInd : public Tap
 {
 public:
-  explicit SigTapInd(const std::string name) {}// : Signal()
+  explicit SigTapInd(const std::string name) {}  // : Signal()
   virtual void init();
   virtual bool update();
   virtual bool draw(cv::Point2f ui_offset);
@@ -173,6 +175,5 @@ public:
 };
 #endif
 
-
-} // bm
-#endif // MISC_NODES
+}  // namespace bm
+#endif  // VIMJAY_SIGNALS_H

@@ -1,5 +1,6 @@
-#ifndef __INPUT_H__
-#define __INPUT_H__
+/** Copyright 2012 Lucas Walter */
+#ifndef VIMJAY_INPUT_H
+#define VIMJAY_INPUT_H
 
 #include <iostream>
 #include <stdio.h>
@@ -14,9 +15,10 @@
 // #include <random>
 #include <deque>
 #include <map>
-#include <boost/thread.hpp>
 
 #include <linux/joystick.h>
+#include <string>
+#include <vector>
 
 #include "vimjay/nodes.h"
 
@@ -31,7 +33,6 @@ namespace bm
 class Mouse : public Node
 {
 public:
-
   // need to set all these - or just require an Output node pointer to be set?
   Display* display;
   Window win;
@@ -64,7 +65,6 @@ public:
 class GamePad : public ImageNode
 {
 private:
-
   int fd;
   struct js_event js;
 
@@ -78,17 +78,14 @@ private:
   void runThread();
 
 public:
-
   explicit GamePad(const std::string name);
   ~GamePad();
   virtual void init();
   virtual bool update();
   virtual bool draw(cv::Point2f ui_offset);
-
 };
-
 
 // Future -- wiimote?
 
-} // bm
-#endif // MISC_NODES
+}  // namespace bm
+#endif  // VIMJAY_INPUT_H

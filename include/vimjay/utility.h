@@ -1,5 +1,6 @@
-#ifndef __UTILITY_H__
-#define __UTILITY_H__
+/** Copyright 2012 Lucas Walter */
+#ifndef VIMJAY_UTILITY_H
+#define VIMJAY_UTILITY_H
 
 #if 0
 #include <X11/Xlib.h>
@@ -9,6 +10,9 @@
 #endif
 
 #include <opencv2/imgproc/imgproc.hpp>
+#include <string>
+#include <utility>
+#include <vector>
 
 #include "vimjay/nodes.h"
 
@@ -43,7 +47,8 @@ namespace bm
 
 class Node;
 
-bool getImageNamesAndSubDirs(const std::string dir, std::vector<std::string>& image_names, std::vector<std::string>& sub_dirs);
+bool getImageNamesAndSubDirs(const std::string dir,
+    std::vector<std::string>& image_names, std::vector<std::string>& sub_dirs);
 
 void initRemaps(cv::Mat& base_x, cv::Mat& base_y);
 
@@ -54,15 +59,14 @@ std::string logMat(const cv::Mat& m);
 bool getBezier(
   const std::vector<cv::Point2f>& control_points, // TBD currently has to be 4
   std::vector<cv::Point2f>& output_points,
-  const int num // numbe of intermediate points to generate
-);
+  // numbe of intermediate points to generate
+  const int num);
 
 #if 0
 bool get_toplevel_parent(
   Display* display,
   Window window,
-  Window& cur_window
-);
+  Window& cur_window);
 
 bool setupX(Display*& display, Window& win, const int width, const int height, int& opcode);
 
@@ -76,7 +80,8 @@ typedef struct Hints
   unsigned long   decorations;
   long            inputMode;
   unsigned long   status;
-} Hints;
+}
+Hints;
 
 bool matToScreen(cv::Mat& tmp, Display* display, Window& win);
 
@@ -89,16 +94,14 @@ bool getEv(
   XEvent& ev,
   std::vector<std::string>& sig_name,
   std::vector<float>& sig_val,
-  std::vector< std::pair<char, bool> >& keys
-);
+  std::vector< std::pair<char, bool> >& keys);
 
 bool getMouse(
   Display* display,
   const int opcode,
   std::vector<std::string>& sig_name,
   std::vector<float>& sig_val,
-  std::vector< std::pair<char, bool> >& keys
-);
+  std::vector<std::pair<char, bool> >& keys);
 #endif
 
 bool fixAspect(cv::Mat& tmp0, cv::Mat& tmp1, const int mode);
@@ -112,7 +115,7 @@ bool getVideoFrame(
   const int aspect_mode
 );
 
-} // bm
+}  // namespace bm
 
-#endif
+#endif  // VIMJAY_UTILITY
 

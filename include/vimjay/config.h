@@ -1,6 +1,6 @@
-#ifndef __CONFIG_H__
-#define __CONFIG_H__
-
+/** Copyright 2012 Lucas Walter */
+#ifndef VIMJAY_CONFIG_H
+#define VIMJAY_CONFIG_H
 
 #include <map>
 #include <iostream>
@@ -10,6 +10,7 @@
 
 #include "opencv2/highgui/highgui.hpp"
 #include <ros/ros.h>
+#include <string>
 
 namespace bm
 {
@@ -20,9 +21,9 @@ static int log_level = 2;
 class Config
 {
 private:
-  Config() {};
-  Config(Config const&) {};
-  Config& operator=(Config const&) {};
+  Config() {}
+  Config(Config const&) {}
+  Config& operator=(Config const&) {}
 
   static Config* instance;
 
@@ -60,6 +61,6 @@ public:
   // or specific node deletion
 };
 
-};
+}  // namespace bm
 
-#endif // __CONFIG_H__
+#endif  // VIMJAY_CONFIG_H

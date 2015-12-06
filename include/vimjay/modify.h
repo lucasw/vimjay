@@ -1,8 +1,8 @@
 /**
   * Copyright 2014 Lucas Walter
   */
-#ifndef MODIFY_H
-#define MODIFY_H
+#ifndef VIMJAY_MODIFY_H
+#define VIMJAY_MODIFY_H
 
 #include <iostream>
 #include <stdio.h>
@@ -211,4 +211,4 @@ public:
 
 
 }  // namespace bm
-#endif  // MODIFY_H
+#endif  // VIMJAY_MODIFY_H

@@ -1,5 +1,6 @@
-#ifndef OUTPUT_H
-#define OUTPUT_H
+/** Copyright 2012 Lucas Walter */
+#ifndef VIMJAY_OUTPUT_H
+#define VIMJAY_OUTPUT_H
 
 #include <camera_info_manager/camera_info_manager.h>
 #include <cv_bridge/cv_bridge.h>
@@ -32,4 +33,4 @@ public:
 };
 }  // namespace bm
 
-#endif  // OUTPUT_H
+#endif  // VIMJAY_OUTPUT_H

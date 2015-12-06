@@ -1,8 +1,10 @@
-#ifndef __GENERATE_H__
-#define __FILTER_H__
+/** Copyright 2012 Lucas Walter */
+#ifndef VIMJAY_GENERATE_H
+#define VIMJAY_GENERATE_H
 
 #include "vimjay/nodes.h"
 
+#include <string>
 /**
 Nodes which generate images
 */
@@ -28,7 +30,6 @@ public:
   virtual bool update();
 };
 
-
 class Noise : public ImageNode
 {
 public:
@@ -45,4 +46,4 @@ public:
   virtual bool update();
 };
 }  // namespace bm
-#endif  // __FILTER_H__
+#endif  // VIMJAY_GENERATE_H

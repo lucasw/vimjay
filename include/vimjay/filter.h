@@ -1,8 +1,8 @@
 /**
   * Copyright 2014 Lucas Walter
   */
-#ifndef FILTER_H
-#define FILTER_H
+#ifndef VIMJAY_FILTER_H
+#define VIMJAY_FILTER_H
 
 #include "vimjay/nodes.h"
 #include "vimjay/modify.h"

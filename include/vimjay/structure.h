@@ -1,7 +1,11 @@
-#ifndef __STRUCTURE_H__
-#define __STRUCTURE_H__
+/** Copyright 2012 Lucas Walter */
+#ifndef VIMJAY_STRUCTURE_H
+#define VIMJAY_STRUCTURE_H
 
 #include "vimjay/nodes.h"
+
+#include <string>
+#include <vector>
 
 // #include <iostream>
 // #include <stdio.h>
@@ -41,5 +45,5 @@ public:
 // but it would be nice to be able to capture that inside a single Node- how to correctly handle
 // hierarchical nodes?
 
-} // namespace bm
-#endif // __STRUCTURE_H__
+}  // namespace bm
+#endif  // VIMJAY_STRUCTURE_H

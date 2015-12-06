@@ -1,5 +1,6 @@
-#ifndef __VIDEO_H__
-#define __VIDEO_H__
+/** Copyright 2012 Lucas Walter */
+#ifndef VIMJAY_VIDEO_H
+#define VIMJAY_VIDEO_H
 
 #include <iostream>
 #include <stdio.h>
@@ -12,6 +13,7 @@
 // #include <random>
 #include <deque>
 #include <map>
+#include <string>
 
 #include "vimjay/nodes.h"
 
@@ -20,7 +22,6 @@ namespace bm
 
 class VideoCapture : public ImageNode
 {
-
 protected:
   cv::VideoCapture video;
   boost::thread cam_thread;
@@ -46,7 +47,6 @@ public:
   virtual ~Webcam();
 
   virtual bool update();
-
 };
 
 // multiple inheritance would maybe make this better
@@ -69,7 +69,5 @@ public:
   virtual bool update();
 };
 
-
-
-} // bm
-#endif // MISC_NODES
+}  // namespace bm
+#endif  // VIMJAY_VIDEO_H

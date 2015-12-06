@@ -1,5 +1,6 @@
-#ifndef IMAGE_DIR_H
-#define IMAGE_DIR_H
+/** Copyright 2012 Lucas Walter */
+#ifndef VIMJAY_IMAGE_DIR_H
+#define VIMJAY_IMAGE_DIR_H
 
 #include <iostream>
 #include <stdio.h>
@@ -37,4 +38,4 @@ public:
   virtual bool save(cv::FileStorage& fs);
 };
 }  // namespace bm
-#endif  // IMAGE_DIR_H 
+#endif  // VIMJAY_IMAGE_DIR_H

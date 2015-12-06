@@ -1,5 +1,6 @@
-#ifndef MISC_NODES_H
-#define MISC_NODES_H
+/** Copyright 2012 Lucas Walter */
+#ifndef VIMJAY_MISC_NODES_H
+#define VIMJAY_MISC_NODES_H
 
 #include <iostream>
 #include <stdio.h>
@@ -40,4 +41,4 @@ private:
   std::vector<int> num_sub_dirs;
 };
 }  // namespace bm
-#endif  // MISC_NODES_H
+#endif  // VIMJAY_MISC_NODES_H

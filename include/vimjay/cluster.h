@@ -17,14 +17,16 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-#ifndef __CLUSTER_H__
-#define __CLUSTER_H__
+#ifndef VIMJAY_CLUSTER_H
+#define VIMJAY_CLUSTER_H
 
 #include <stdlib.h>
 #include <assert.h>
 #include <math.h>
 
 #include <stdio.h>
+#include <string>
+#include <vector>
 
 #include "vimjay/nodes.h"
 
@@ -66,7 +68,7 @@ public:
     int r1, int g1, int b1, int x1, int y1,
     int r2, int g2, int b2, int x2, int y2,
     const float max_space_dist, const float dist_weight,
-    const bool manhat = false); //, float color_weight)
+    const bool manhat = false);  //, float color_weight)
 
   virtual bool update();
 };
@@ -80,5 +82,5 @@ public:
   virtual bool update();
 };
 
-}; // bm
-#endif // __CLUSTER_H__
+};  // namespace bm
+#endif  // VIMJAY_CLUSTER_H

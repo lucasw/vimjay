@@ -1,5 +1,6 @@
-#ifndef __NODES_H__
-#define __NODES_H__
+/** Copyright 2012 Lucas Walter */
+#ifndef VIMJAY_NODES_H
+#define VIMJAY_NODES_H
 
 #include <iostream>
 #include <sstream>
@@ -15,6 +16,8 @@
 
 #include <deque>
 #include <map>
+#include <string>
+#include <vector>
 
 #include "vimjay/utility.h"
 
@@ -79,7 +82,6 @@ enum satType
 class Elem : public boost::enable_shared_from_this<Elem>
 {
 protected:
-
   // this structure tracks arbitrary numbers of callers to see if there have been
   // change since the last call
   std::map<const void*, std::map<int, bool> > dirty_hash;
@@ -200,13 +202,11 @@ public:
 class Node : public Elem
 {
 protected:
-
   // velocity and acceleration of node screen position
   bool posUpdate();
   boost::mutex port_mutex;
 
 public:
-
   cv::Point2f acc;
   cv::Point2f vel;
 
@@ -266,8 +266,7 @@ public:
     const conType type,
     const std::string port,
     boost::shared_ptr<Node> src_node = boost::shared_ptr<Node>(),
-    const std::string src_port = ""
-  );
+    const std::string src_port = "");
 
   // TBD calling any of these will create the input, so outside
   // nodes probably shouldn't call them?
@@ -275,7 +274,7 @@ public:
     const std::string port,
     bool& valid = bool_val,
     bool& is_dirty = bool_val,
-    const int is_dirty_ind = 3);//,
+    const int is_dirty_ind = 3);  //,
   // bool& is_dirty);
   // const bool require_dirty= false);
 
@@ -286,15 +285,13 @@ public:
     const std::string port,
     bool& valid = bool_val,
     bool& is_dirty = bool_val,
-    const int is_dirty_ind = 73
-  );
+    const int is_dirty_ind = 73);
 
   float getSignal(
     const std::string port,
     bool& valid = bool_val,
     bool& is_dirty = bool_val,
-    const int is_dirty_ind = 71
-  );
+    const int is_dirty_ind = 71);
 
   bool setSignal(const std::string port,
                  const float val = 0.0,
@@ -307,15 +304,13 @@ public:
   cv::Mat getBuffer(
     const std::string port,
     const float val,
-    int& actual_ind = default_ind
-  );
+    int& actual_ind = default_ind);
   // cv::Mat& image);
 
   cv::Mat getBuffer(
     const std::string port,
     const int val,
-    int& actual_ind = default_ind
-  );
+    int& actual_ind = default_ind);
   // cv::Mat& image);
 
   // cv::Mat getBuffer(
@@ -335,8 +330,7 @@ public:
   std::string getString(const std::string port,
                         bool& valid = bool_val,
                         bool& is_dirty = bool_val,
-                        const int is_dirty_ind = 71
-                       );
+                        const int is_dirty_ind = 71);
 
   virtual bool handleKey(int key);
 };
@@ -348,7 +342,6 @@ public:
 class ImageNode : public Node
 {
 public:
-
   explicit ImageNode(const std::string name);
 
   virtual void init();
@@ -362,7 +355,7 @@ public:
   std::stringstream dir_name;
   virtual bool writeImage();
 
-  int getModeType(); // TBD supply string optionally
+  int getModeType();  // TBD supply string optionally
   int getBorderType(const bool avoid_wrap = false);
 };
 
@@ -371,7 +364,7 @@ public:
 class Signal : public Node
 {
 public:
-  explicit Signal(const std::string name); // : Node()
+  explicit Signal(const std::string name);  // : Node()
   virtual void init();
 
   void setup(const float new_step = 0.01, const float offset = 0.0, const float min = 0.0, const float max = 1.0);
@@ -402,7 +395,6 @@ protected:
   bool addCore(cv::Mat& new_frame, bool restrict_size = true);
 
 public:
-
   explicit Buffer(const std::string name);
   virtual void init();
 
@@ -438,7 +430,6 @@ public:
 class Mux : public Buffer
 {
 public:
-
   explicit Mux(const std::string name);
   virtual void init();
 
@@ -461,6 +452,5 @@ public:
   virtual bool handleKey(int key);
 };
 
-
-};
-#endif // ifdef __NODES_H__
+}  // namespace bm
+#endif  // VIMJAY_NODES_H
