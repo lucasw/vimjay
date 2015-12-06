@@ -26,13 +26,13 @@
 #include <ros/ros.h>
 #include <sensor_msgs/Image.h>
 #include <sensor_msgs/image_encodings.h>
+#include <string>
 
 class SaveImage
 {
 protected:
-
   ros::NodeHandle nh_;
-  // TODO or maybe capture N images then stop?
+  // TODO(lucasw) or maybe capture N images then stop?
   image_transport::ImageTransport it_;
   // publish the most recent captured image
   image_transport::Subscriber image_sub_;
@@ -44,7 +44,6 @@ protected:
   void imageCallback(const sensor_msgs::ImageConstPtr& msg);
 
 public:
-
   SaveImage();
 };
 

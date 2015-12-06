@@ -62,7 +62,7 @@ Noise::Noise() :
   ros::param::get("~width", width_);
   ros::param::get("~height", height_);
 
-  // TODO get width height
+  // TODO(lucasw) get width height
   timer_ = nh_.createTimer(ros::Duration(1.0), &Noise::pubImage, this);
   // pubImage(ros::TimerEvent());
 }
@@ -73,7 +73,7 @@ void Noise::pubImage(const ros::TimerEvent& e)
   out = cv::Scalar(red_, green_, blue_);
 
   cv_bridge::CvImage cv_image;
-  cv_image.header.stamp = ros::Time::now(); // or reception time of original message?
+  cv_image.header.stamp = ros::Time::now();  // or reception time of original message?
   cv_image.image = out;
   cv_image.encoding = "rgb8";
   pub_.publish(cv_image.toImageMsg());

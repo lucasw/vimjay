@@ -23,7 +23,6 @@ find_package(catkin REQUIRED COMPONENTS
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
 
-roslint_cpp()
 
 ## Uncomment this if the package has a setup.py. This macro ensures
 ## modules and global scripts declared therein get installed
@@ -175,6 +174,15 @@ include_directories(
   ${EIGEN_INCLUDE_DIR}
 )
 
+roslint_cpp(
+  src/standalone/noise.cpp
+  src/standalone/color.cpp
+  src/standalone/save_image.cpp
+  src/standalone/key_trigger.cpp
+  src/standalone/image_deque.cpp
+  src/standalone/iir_image.cpp
+  src/nngen/nn_im.cpp
+)
 add_executable(noise_image
   src/standalone/noise.cpp
 )

@@ -31,7 +31,6 @@
 class ImageDeque
 {
 protected:
-
   // TODO(lucasw) capture at a certain rate- and optionally force the images
   // to a certain rate even if at lower rate?
   // throttle tool already does first part, can combine that with capture_continuous_.
@@ -41,14 +40,14 @@ protected:
   bool restrict_size_;
 
   ros::NodeHandle nh_;
-  // TODO or maybe capture N images then stop?
+  // TODO(lucasw) or maybe capture N images then stop?
   image_transport::ImageTransport it_;
   // publish the most recent captured image
   image_transport::Publisher captured_pub_;
   image_transport::Publisher anim_pub_;
   image_transport::Subscriber image_sub_;
 
-  // TODO maybe just temp debug
+  // TODO(lucasw) maybe just temp debug
   unsigned int index_;
   ros::Timer timer_;
 
@@ -71,7 +70,6 @@ protected:
   void maxSizeCallback(const std_msgs::UInt16::ConstPtr& msg);
 
 public:
-
   ImageDeque();
 };
 
@@ -86,7 +84,7 @@ ImageDeque::ImageDeque() :
   captured_pub_ = it_.advertise("captured_image", 1, true);
   anim_pub_ = it_.advertise("anim", 1);
   image_sub_ = it_.subscribe("image", 1, &ImageDeque::imageCallback, this);
-  // TODO also dynamic reconfigure for these
+  // TODO(lucasw) also dynamic reconfigure for these
   single_sub_ = nh_.subscribe<std_msgs::Bool>("single", 1,
                 &ImageDeque::singleCallback, this);
   continuous_sub_ = nh_.subscribe<std_msgs::Bool>("continuous", 1,
@@ -132,7 +130,7 @@ void ImageDeque::imageCallback(const sensor_msgs::ImageConstPtr& msg)
 
   frames_.push_back(cv_ptr->image.clone());
 
-  // TODO make this optional
+  // TODO(lucasw) make this optional
   // save the image with unique timestamp from init time + counter
   // Or have node that just saves any image it receives?
 
@@ -142,12 +140,12 @@ void ImageDeque::imageCallback(const sensor_msgs::ImageConstPtr& msg)
   if (restrict_size_)
   {
     while (frames_.size() > max_size_)
-      // TODO also could have mode where it fills and then doesn't accept any more
+      // TODO(lucasw) also could have mode where it fills and then doesn't accept any more
       frames_.pop_front();
   }
 
-  // TODO could put this in separate thread.
-  // publish the exact same message received - TODO is this safe?
+  // TODO(lucasw) could put this in separate thread.
+  // publish the exact same message received - TODO(lucasw) is this safe?
   captured_pub_.publish(msg);
 }
 
@@ -156,9 +154,9 @@ void ImageDeque::pubImage(const ros::TimerEvent& e)
 {
   if (index_ < frames_.size())
   {
-    // TODO this may be argument for keeping original Image messages around
+    // TODO(lucasw) this may be argument for keeping original Image messages around
     cv_bridge::CvImage cv_image;
-    cv_image.header.stamp = ros::Time::now(); // or reception time of original message?
+    cv_image.header.stamp = ros::Time::now();  // or reception time of original message?
     cv_image.image = frames_[index_];
     cv_image.encoding = "rgb8";
     anim_pub_.publish(cv_image.toImageMsg());

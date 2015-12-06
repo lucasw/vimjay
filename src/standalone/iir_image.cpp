@@ -27,13 +27,13 @@
 #include <sensor_msgs/image_encodings.h>
 #include <std_msgs/Bool.h>
 #include <std_msgs/UInt16.h>
+#include <vector>
 
 class IirImage
 {
 protected:
-
   ros::NodeHandle nh_;
-  // TODO or maybe capture N images then stop?
+  // TODO(lucasw) or maybe capture N images then stop?
   image_transport::ImageTransport it_;
   // publish the most recent captured image
   image_transport::Publisher image_pub_;
@@ -41,7 +41,7 @@ protected:
 
   std::vector<double> b_coeffs_;
   // std::vector<cv::Mat> a_coeffs;
-  // TODO maybe just temp debug
+  // TODO(lucasw) maybe just temp debug
   // unsigned int index_;
   ros::Timer timer_;
 
@@ -53,7 +53,6 @@ protected:
   bool dirty_;
   void imageCallback(const sensor_msgs::ImageConstPtr& msg, const size_t index);
 public:
-
   IirImage();
 };
 
@@ -127,9 +126,9 @@ void IirImage::pubImage(const ros::TimerEvent& e)
   }
 
   {
-    // TODO this may be argument for keeping original Image messages around
+    // TODO(lucasw) this may be argument for keeping original Image messages around
     cv_bridge::CvImage cv_image;
-    cv_image.header.stamp = ros::Time::now(); // or reception time of original message?
+    cv_image.header.stamp = ros::Time::now();  // or reception time of original message?
     cv_image.image = out_frame;
     cv_image.encoding = "rgb8";
     image_pub_.publish(cv_image.toImageMsg());

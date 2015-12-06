@@ -64,7 +64,7 @@ Noise::Noise() :
   stddev_sub_ = nh_.subscribe<std_msgs::Float32>("stddev", 1,
                 &Noise::stddevCallback, this);
 
-  // TODO get width height
+  // TODO(lucasw) get width height
   timer_ = nh_.createTimer(ros::Duration(0.1), &Noise::pubImage, this);
 }
 
@@ -96,7 +96,7 @@ void Noise::pubImage(const ros::TimerEvent& e)
   }
 
   cv_bridge::CvImage cv_image;
-  cv_image.header.stamp = ros::Time::now(); // or reception time of original message?
+  cv_image.header.stamp = ros::Time::now();  // or reception time of original message?
   cv_image.image = out;
   cv_image.encoding = "rgb8";
   pub_.publish(cv_image.toImageMsg());

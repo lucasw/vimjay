@@ -1,5 +1,5 @@
 /**
-Lucas Walter
+Copyright 2015 Lucas Walter
 March 2015
 
 GPL 3.0
@@ -29,6 +29,8 @@ from the second layer scales the basis image coefficients of the first in other 
 #include <iostream>
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
+#include <string>
+#include <vector>
 
 #include "nn_im.hpp"
 
@@ -37,11 +39,10 @@ from the second layer scales the basis image coefficients of the first in other 
 struct NodeDiffFunctor
 {
   NodeDiffFunctor(
-    void* net
+    void* net) :
     // see wasteful comment below
     // Node<T>* input,
     // Node<T>* output
-  ) :
     net_(net)
     // input_(input),
     // output_(output)
@@ -98,7 +99,6 @@ template <typename T>
 Weight<T>::Weight(std::string name) :
   Base<T>(name)
 {
-
 }
 
 template <typename T>
@@ -128,7 +128,7 @@ void Node<T>::drawGraph(cv::Mat& vis, const int sc)
     cv::Point pt2 = cv::Point(
                       node->x_ * sc + rand() % sc / 2,
                       node->y_ * sc + rand() % sc / 2);
-    const int weight = double(output_weights_[i]->val_) * 255;
+    const int weight = static_cast<double>(output_weights_[i]->val_) * 255;
     const int val = this->val_ * 255;
     cv::Scalar col = cv::Scalar(255, val, val);
     cv::line(vis, pt1, pt2, col, 1);
@@ -261,7 +261,6 @@ template <typename T>
 Net<T>::Net(cv::Mat& im) :
   im_(im)
 {
-
   const size_t base_sz = 16;
   const int div = 4;
   const int num_bases = 5;
@@ -281,13 +280,13 @@ Net<T>::Net(cv::Mat& im) :
         std::stringstream ss;
         ss << "base_" << i << "_" << y << "_" << x;
         Weight<T>* weight = new Weight<T>(ss.str());
-        const double fx = double(x) / double(base_sz);
-        const double fy = double(y) / double(base_sz);
+        const double fx = static_cast<double>(x) / static_cast<double>(base_sz);
+        const double fy = static_cast<double>(y) / static_cast<double>(base_sz);
         const double wn = sin(fx * M_PI) * sin(fy * M_PI);
-        if (i == 0) weight->val_ = fx - 0.5; // rng.gaussian(sigma);
-        if (i == 1) weight->val_ = 1.0 - fx - 0.5; // rng.gaussian(sigma);
-        if (i == 2) weight->val_ = fy - 0.5; // rng.gaussian(sigma);
-        if (i == 3) weight->val_ = 1.0 - fy - 0.5; // rng.gaussian(sigma);
+        if (i == 0) weight->val_ = fx - 0.5;  // rng.gaussian(sigma);
+        if (i == 1) weight->val_ = 1.0 - fx - 0.5;  // rng.gaussian(sigma);
+        if (i == 2) weight->val_ = fy - 0.5;  // rng.gaussian(sigma);
+        if (i == 3) weight->val_ = 1.0 - fy - 0.5;  // rng.gaussian(sigma);
         if (i == 4) weight->val_ = rng.gaussian(sigma);
         weight->val_ *= wn;
         bases_[i][y][x] = weight;
@@ -307,7 +306,7 @@ Net<T>::Net(cv::Mat& im) :
       std::stringstream ss;
       ss << "layer1_" << y << "_" << x;
       Node2d<T>* node = new Node2d<T>(ss.str(), x, y, 0, true, true, true);
-      node->val_ = double(im.at<uchar>(y, x)) / 128.0 - 1.0;
+      node->val_ = static_cast<double>(im.at<uchar>(y, x)) / 128.0 - 1.0;
       inputs_[y][x] = node;
       nodes_.push_back(node);
     }
@@ -374,16 +373,16 @@ Net<T>::Net(cv::Mat& im) :
             else
             {
               // std::cout << "invalid layer1 yx " << y2 << " " << x2 << std::endl;
-            } // is input pixel valid or not
-          } // loop through bases_ pixels x
-        } // loop through bases_ pixels y
+            }  // is input pixel valid or not
+          }  // loop through bases_ pixels x
+        }  // loop through bases_ pixels y
 
         layer2_[i][y][x] = node;
         nodes_.push_back(node);
         //
-      } // loop through layer2 x
-    } // loop through layer2 y
-  } // loop through bases
+      }  // loop through layer2 x
+    }  // loop through layer2 y
+  }  // loop through bases
 
 
   // layer 3 decode the image
@@ -466,7 +465,6 @@ Net<T>::Net(cv::Mat& im) :
       }
     }
   }
-
 }
 
 template <typename T>
@@ -490,7 +488,7 @@ void layerToMat2D(std::vector< std::vector< Base<T>* > >& layer, cv::Mat& vis)
     for (size_t x = 0; x < vis_pre.cols; ++x)
     {
       // std::cout << y << " " << x << " " << layer[y][x]->val_ << std::endl;
-      vis_pre.at<double>(y, x) = layer[y][x]->val_; // * sc + offset;
+      vis_pre.at<double>(y, x) = layer[y][x]->val_;  // * sc + offset;
     }
   }
 
@@ -510,7 +508,6 @@ void layerToMat2D(std::vector< std::vector< Base<T>* > >& layer, cv::Mat& vis)
   std::cout << "mean, stddev ";
   std::cout << mean.val[0] << " " << std_dev.val[0] << ", ";
   std::cout << mean2.val[0] << " " << std_dev2.val[0] << std::endl;
-
 }
 
 template <typename T>
@@ -521,7 +518,7 @@ bool layerToMat(std::vector< Base<T>* >& layer, cv::Mat& vis)
   int ymin = 0;
   int ymax = 0;
 
-  // TODO make this a utility function?
+  // TODO(lucasw) make this a utility function?
   for (size_t i = 0; i < layer.size(); ++i)
   {
     Node<T>* node = dynamic_cast<Node<T>*>(layer[i]);
@@ -618,7 +615,7 @@ void Net<T>::draw()
   std::cout << "output " << std::endl;
   {
     cv::Mat vis_pre;
-    layerToMat2D(layer3_, vis_pre); // 128);
+    layerToMat2D(layer3_, vis_pre);  // 128);
     cv::Mat vis;
     const int sc = 512 / vis_pre.cols;
     cv::resize(vis_pre, vis, cv::Size(vis_pre.cols * sc, vis_pre.rows * sc),
@@ -691,7 +688,7 @@ void Net<T>::draw()
 int main(int argn, char** argv)
 {
   // std::string image_file = "test_pattern.png";
-  // std::string image_file = "lena.png"; // "beach_128.png";
+  // std::string image_file = "lena.png";  // "beach_128.png";
   std::string image_file = "beach_128.png";
   cv::Mat im = cv::imread(image_file, CV_LOAD_IMAGE_GRAYSCALE);
 
@@ -762,7 +759,7 @@ int main(int argn, char** argv)
       cv::Mat vis_pre2;
       if (layerToMat(node->outputs_, vis_pre2))
       {
-        // TODO put this in layerToMat
+        // TODO(lucasw) put this in layerToMat
         cv::Mat vis;
         const int sc = 256 / vis_pre2.cols;
         cv::resize(vis_pre2, vis, cv::Size(vis_pre2.cols * sc, vis_pre2.rows * sc),
@@ -772,7 +769,6 @@ int main(int argn, char** argv)
         ss << "layer2 outputs";
         cv::imshow(ss.str(), vis);
       }
-
     }
 
     int key = cv::waitKey(0);
@@ -786,7 +782,6 @@ int main(int argn, char** argv)
 
     if (key == 'd') i += 1;
     if (key == 'f') i -= 1;
-
   }
 
   return 0;
