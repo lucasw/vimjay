@@ -106,7 +106,7 @@ catkin_package(
 # include_directories(include)
 include_directories(
   include
-  include/other/DSOnoises
+  include/other
   ${catkin_INCLUDE_DIRS}
 )
 

@@ -1,7 +1,7 @@
 #ifndef __STRUCTURE_H__
 #define __STRUCTURE_H__
 
-#include "nodes.h"
+#include "vimjay/nodes.h"
 
 // #include <iostream>
 // #include <stdio.h>

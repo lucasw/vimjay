@@ -49,8 +49,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#include "shadeop.h"
-#include "srdnoise23.h"
+#include "DSOnoises/shadeop.h"
+#include "DSOnoises/srdnoise23.h"
 
 SHADEOP_TABLE(srdnoise) =
 {

@@ -59,7 +59,7 @@ THE SOFTWARE.
 
 #include <math.h>
 
-#include "sdnoise1234.h" /* We strictly don't need this, but play nice. */
+#include "DSOnoises/sdnoise1234.h" /* We strictly don't need this, but play nice. */
 
 #define FASTFLOOR(x) ( ((x)>0) ? ((int)x) : (((int)x)-1) )
 

@@ -1,11 +1,11 @@
 #ifndef VOPENGL_H
 #define VOPENGL_H
 
-#include "nodes.h"
-#include "misc_nodes.h"
-
 #include <GL/gl.h>
 #include <string>
+
+#include "vimjay/nodes.h"
+#include "vimjay/misc_nodes.h"
 
 // #include <iostream>
 // #include <stdio.h>

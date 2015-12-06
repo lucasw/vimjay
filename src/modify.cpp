@@ -18,7 +18,7 @@
     along with Vimjay.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "modify.h"
+#include "vimjay/modify.h"
 
 #include <iostream>
 #include <stdio.h>
@@ -29,14 +29,14 @@
 #include <boost/filesystem/operations.hpp>
 #include <boost/lexical_cast.hpp>
 
-#include "opencv2/highgui/highgui.hpp"
-#include "opencv2/imgproc/imgproc.hpp"
+#include <opencv2/highgui/highgui.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
 
 #include <ros/console.h>
 
 #include <deque>
 
-#include "config.h"
+#include "vimjay/config.h"
 
 using namespace cv;
 using namespace std;

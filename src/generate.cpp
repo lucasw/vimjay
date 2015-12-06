@@ -19,14 +19,14 @@
  */
 
 
-#include "generate.h"
-#include "config.h"
+#include "vimjay/generate.h"
+#include "vimjay/config.h"
 
 extern "C" {
-#include "other/DSOnoises/noise1234.h"
-#include "other/DSOnoises/simplexnoise1234.h"
-#include "other/DSOnoises/sdnoise1234.h"
-#include "other/DSOnoises/srdnoise23.h"
+#include "DSOnoises/noise1234.h"
+#include "DSOnoises/simplexnoise1234.h"
+#include "DSOnoises/sdnoise1234.h"
+#include "DSOnoises/srdnoise23.h"
 }
 // #include "other/simplexnoise.h"
 // #include "other/simplextextures.h"

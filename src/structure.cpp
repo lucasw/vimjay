@@ -19,13 +19,13 @@
  */
 
 
-#include "structure.h"
+#include "vimjay/structure.h"
 
 #include <boost/lexical_cast.hpp>
 
 #include <ros/console.h>
 
-#include "config.h"
+#include "vimjay/config.h"
 
 // filter Node objects
 namespace bm

@@ -8,9 +8,9 @@
 #include <X11/extensions/XInput2.h>
 #endif
 
-#include "opencv2/imgproc/imgproc.hpp"
+#include <opencv2/imgproc/imgproc.hpp>
 
-#include "nodes.h"
+#include "vimjay/nodes.h"
 
 #if 0
 // bash color codes, screw up ros console output

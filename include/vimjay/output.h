@@ -6,7 +6,7 @@
 #include <image_transport/image_transport.h>
 #include <string>
 
-#include "nodes.h"
+#include "vimjay/nodes.h"
 
 namespace bm
 {

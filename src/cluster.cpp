@@ -26,7 +26,7 @@
 #include <boost/lexical_cast.hpp>
 #include <ros/console.h>
 
-#include "cluster.h"
+#include "vimjay/cluster.h"
 
 namespace bm
 {

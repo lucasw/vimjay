@@ -19,13 +19,13 @@
  */
 
 
-#include "filter.h"
+#include "vimjay/filter.h"
 
 #include <boost/lexical_cast.hpp>
 #include <opencv2/video/tracking.hpp>
 
 #include <ros/console.h>
-#include "config.h"
+#include "vimjay/config.h"
 
 #if 0
 // TDB need CV_MAJOR_VERSION to establish this is available

@@ -20,12 +20,12 @@
 
 
 
-#include "config.h"
+#include "vimjay/config.h"
 
 #include <iostream>
 #include <ros/console.h>
 
-#include "opencv2/highgui/highgui.hpp"
+#include <opencv2/highgui/highgui.hpp>
 
 // DEFINE_string(config_file, "../config.yml", "configuration settings for ui and output");
 

@@ -72,7 +72,7 @@ THE SOFTWARE.
 
 #include <math.h>
 
-#include "srdnoise23.h" /* We strictly don't need this, but play nice. */
+#include "DSOnoises/srdnoise23.h" /* We strictly don't need this, but play nice. */
 
 #define FASTFLOOR(x) ( ((x)>0) ? ((int)x) : (((int)x)-1) )
 

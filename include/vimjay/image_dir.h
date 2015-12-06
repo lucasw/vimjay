@@ -15,7 +15,7 @@
 #include <vector>
 #include <string>
 
-#include "nodes.h"
+#include "vimjay/nodes.h"
 
 namespace bm
 {

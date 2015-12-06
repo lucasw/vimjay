@@ -18,7 +18,7 @@
     along with Vimjay.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "signals.h"
+#include "vimjay/signals.h"
 
 #include <iostream>
 #include <stdio.h>
@@ -28,19 +28,19 @@
 #include <boost/filesystem/operations.hpp>
 #include <boost/lexical_cast.hpp>
 
-#include "opencv2/highgui/highgui.hpp"
-#include "opencv2/imgproc/imgproc.hpp"
+#include <opencv2/highgui/highgui.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
 
 #include <ros/console.h>
 
 #include <deque>
 
-#include "config.h"
+#include "vimjay/config.h"
 
 extern "C" {
-#include "other/DSOnoises/noise1234.h"
-#include "other/DSOnoises/simplexnoise1234.h"
-#include "other/DSOnoises/sdnoise1234.h"
+#include "DSOnoises/noise1234.h"
+#include "DSOnoises/simplexnoise1234.h"
+#include "DSOnoises/sdnoise1234.h"
 // #include "other/DSOnoises/srdnoise23.h"
 }
 

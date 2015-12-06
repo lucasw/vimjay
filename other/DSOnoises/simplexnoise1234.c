@@ -59,7 +59,7 @@ THE SOFTWARE.
 
 
 // We don't need to include this. It does no harm, but no use either.
-#include  "simplexnoise1234.h"
+#include "DSOnoises/simplexnoise1234.h"
 
 #define FASTFLOOR(x) ( ((x)>0) ? ((int)x) : (((int)x)-1) )
 

@@ -29,16 +29,16 @@
 #include <boost/filesystem/operations.hpp>
 #include <boost/lexical_cast.hpp>
 
-#include "opencv2/highgui/highgui.hpp"
-#include "opencv2/imgproc/imgproc.hpp"
+#include <opencv2/highgui/highgui.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
 
 #include <ros/console.h>
 
 #include <deque>
 // #include <pair>
 
-#include "nodes.h"
-#include "config.h"
+#include "vimjay/nodes.h"
+#include "vimjay/config.h"
 
 
 using namespace cv;

@@ -35,8 +35,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#include "shadeop.h"
-#include "cellular.h"  // cellular.c is (C) Stephen Worley. See file for details.
+#include "DSOnoises/shadeop.h"
+#include "DSOnoises/cellular.h"  // cellular.c is (C) Stephen Worley. See file for details.
 
 SHADEOP_TABLE(cellularnoise) =
 {

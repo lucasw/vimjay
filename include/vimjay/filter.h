@@ -4,8 +4,8 @@
 #ifndef FILTER_H
 #define FILTER_H
 
-#include "nodes.h"
-#include "modify.h"
+#include "vimjay/nodes.h"
+#include "vimjay/modify.h"
 
 #include <string>
 #include <vector>
@@ -104,4 +104,4 @@ public:
 // hierarchical nodes?
 
 }  // namespace bm
-#endif  // FILTER_H
+#endif  // VIMJAY_FILTER_H

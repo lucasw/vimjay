@@ -18,7 +18,7 @@
     along with Vimjay.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "misc_nodes.h"
+#include "vimjay/misc_nodes.h"
 
 #include <iostream>
 #include <stdio.h>
@@ -31,12 +31,12 @@
 
 #include <ros/console.h>
 
-#include "opencv2/highgui/highgui.hpp"
-#include "opencv2/imgproc/imgproc.hpp"
+#include <opencv2/highgui/highgui.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
 
 #include <deque>
 
-#include "config.h"
+#include "vimjay/config.h"
 
 using namespace cv;
 using namespace std;

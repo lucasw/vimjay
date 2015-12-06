@@ -22,7 +22,7 @@
 #include <GL/glext.h>
 #include <GL/glut.h>
 
-#include "opengl.h"
+#include "vimjay/opengl.h"
 
 #include <boost/timer.hpp>
 #include <ros/console.h>
@@ -34,8 +34,8 @@
 // and run shaders in them,
 // move the objects around with geometry topics
 // pipe textures to objects and out to Image topics
-#include "config.h"
-#include "utility.h"
+#include "vimjay/config.h"
+#include "vimjay/utility.h"
 
 namespace bm
 {

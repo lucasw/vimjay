@@ -1,7 +1,7 @@
 #ifndef __GENERATE_H__
 #define __FILTER_H__
 
-#include "nodes.h"
+#include "vimjay/nodes.h"
 
 /**
 Nodes which generate images

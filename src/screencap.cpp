@@ -21,12 +21,12 @@
   */
 
 
-#include "screencap.h"
-#include "config.h"
+#include "vimjay/screencap.h"
+#include "vimjay/config.h"
 
 #include <ros/console.h>
 
-#include "utility.h"
+#include "vimjay/utility.h"
 
 using namespace std;
 

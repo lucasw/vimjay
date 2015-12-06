@@ -18,7 +18,7 @@
     along with Vimjay.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "input.h"
+#include "vimjay/input.h"
 
 #include <sys/ioctl.h>
 #include <fcntl.h>
@@ -38,18 +38,18 @@
 
 #include <ros/console.h>
 
-#include "opencv2/highgui/highgui.hpp"
-#include "opencv2/imgproc/imgproc.hpp"
+#include <opencv2/highgui/highgui.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
 
-#include "config.h"
-#include "input.h"
-#include "nodes.h"
-#include "misc_nodes.h"
-#include "signals.h"
-#include "filter.h"
-#include "generate.h"
-#include "screencap.h"
-#include "utility.h"
+#include "vimjay/config.h"
+#include "vimjay/input.h"
+#include "vimjay/nodes.h"
+#include "vimjay/misc_nodes.h"
+#include "vimjay/signals.h"
+#include "vimjay/filter.h"
+#include "vimjay/generate.h"
+#include "vimjay/screencap.h"
+#include "vimjay/utility.h"
 
 // using namespace cv;
 using namespace std;

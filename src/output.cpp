@@ -18,13 +18,13 @@
     along with Vimjay.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "output.h"
+#include "vimjay/output.h"
 
 #include <boost/timer.hpp>
 #include <ros/console.h>
 
-#include "config.h"
-#include "utility.h"
+#include "vimjay/config.h"
+#include "vimjay/utility.h"
 
 namespace bm
 {

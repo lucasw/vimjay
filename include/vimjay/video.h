@@ -6,14 +6,14 @@
 
 #include <boost/thread.hpp>
 
-#include "opencv2/highgui/highgui.hpp"
-#include "opencv2/imgproc/imgproc.hpp"
+#include <opencv2/highgui/highgui.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
 
 // #include <random>
 #include <deque>
 #include <map>
 
-#include "nodes.h"
+#include "vimjay/nodes.h"
 
 namespace bm
 {

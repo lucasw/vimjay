@@ -20,12 +20,12 @@
 
 
 
-#include "utility.h"
+#include "vimjay/utility.h"
 
 #include <boost/filesystem/operations.hpp>
 #include <boost/lexical_cast.hpp>
 
-#include "config.h"
+#include "vimjay/config.h"
 
 #include <boost/timer.hpp>
 #include <ros/console.h>

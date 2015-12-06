@@ -15,7 +15,7 @@
 
 #include <math.h>
 //#include <stdio.h>
-#include "cellular.h"  /* Function prototype */
+#include "DSOnoises/cellular.h"  /* Function prototype */
 
 /* This macro is a *lot* faster than using (long)floor() on an x86 CPU.
    It actually speeds up the entire Worley() call with almost 10%.

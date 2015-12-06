@@ -18,7 +18,7 @@
     along with Vimjay.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "camthing.h"
+#include "vimjay/camthing.h"
 
 /*
 #include <linux/input.h>
@@ -39,24 +39,24 @@
 #include <ros/console.h>
 #include <std_msgs/String.h>
 
-#include "opencv2/highgui/highgui.hpp"
-#include "opencv2/imgproc/imgproc.hpp"
+#include <opencv2/highgui/highgui.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
 
-#include "config.h"
-#include "image_dir.h"
-#include "nodes.h"
-#include "modify.h"
-#include "misc_nodes.h"
-#include "signals.h"
-#include "filter.h"
-#include "cluster.h"
-#include "generate.h"
-// #include "screencap.h"
-#include "output.h"
-// #include "input.h"
-#include "structure.h"
-// #include "opengl.h"
-#include "video.h"
+#include "vimjay/config.h"
+#include "vimjay/image_dir.h"
+#include "vimjay/nodes.h"
+#include "vimjay/modify.h"
+#include "vimjay/misc_nodes.h"
+#include "vimjay/signals.h"
+#include "vimjay/filter.h"
+#include "vimjay/cluster.h"
+#include "vimjay/generate.h"
+// #include "vimjay/screencap.h"
+#include "vimjay/output.h"
+// #include "vimjay/input.h"
+#include "vimjay/structure.h"
+// #include "vimjay/opengl.h"
+#include "vimjay/video.h"
 
 using namespace cv;
 // using namespace std;
