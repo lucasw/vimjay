@@ -126,8 +126,8 @@ void Node<T>::drawGraph(cv::Mat& vis, const int sc)
     Node<T>* node = dynamic_cast<Node<T>*>(outputs_[i]);
     if (!node) continue;
     cv::Point pt2 = cv::Point(
-                      node->x_ * sc + rand() % sc / 2,
-                      node->y_ * sc + rand() % sc / 2);
+                      node->x_ * sc + rng.uniform(0, sc) % sc / 2,
+                      node->y_ * sc + rng.uniform(0, sc) % sc / 2);
     const int weight = static_cast<double>(output_weights_[i]->val_) * 255;
     const int val = this->val_ * 255;
     cv::Scalar col = cv::Scalar(255, val, val);

@@ -49,6 +49,7 @@ public:
   const int y_;
   const int z_;
 
+  cv::RNG rng;
   virtual void setup() {}
   virtual void update();
   std::vector< Base<T>* > inputs_;
