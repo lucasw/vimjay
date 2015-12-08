@@ -20,39 +20,33 @@
 
 #include "vimjay/input.h"
 
-#include <sys/ioctl.h>
+#include <boost/lexical_cast.hpp>
+#include <cxxabi.h>  // non portable
+#include <deque>
 #include <fcntl.h>
-
 #include <iostream>
+#include <opencv2/highgui/highgui.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
+#include <ros/console.h>
 #include <sstream>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string>
+#include <sys/ioctl.h>
 #include <time.h>
 #include <typeinfo>
-#include <cxxabi.h>  // non portable
-
-#include <deque>
+#include <utility>
+#include <vector>
 // #include <pair>
 
-#include <boost/lexical_cast.hpp>
-
-#include <ros/console.h>
-
-#include <opencv2/highgui/highgui.hpp>
-#include <opencv2/imgproc/imgproc.hpp>
-
 #include "vimjay/config.h"
-#include "vimjay/input.h"
-#include "vimjay/nodes.h"
-#include "vimjay/misc_nodes.h"
-#include "vimjay/signals.h"
 #include "vimjay/filter.h"
 #include "vimjay/generate.h"
+#include "vimjay/misc_nodes.h"
+#include "vimjay/nodes.h"
 #include "vimjay/screencap.h"
+#include "vimjay/signals.h"
 #include "vimjay/utility.h"
-
-// using namespace cv;
-using namespace std;
 
 namespace bm
 {
@@ -89,7 +83,6 @@ int main(int argc, char* argv[])
   bool rv = true;
   while (rv)
   {
-
     read(fd, &ev, sizeof(struct input_event));
     ROS_DEBUG_STREAM_COND(log_level > 1, "value 0x" << std::hex << ev.value
                           << ", type 0x" << std::hex << ev.type
@@ -111,7 +104,6 @@ int main(int argc, char* argv[])
       // 0x90001 - 3
       ROS_INFO_STREAM("Button value 0x" << std::hex << ev.value
                       << ", code " << ev.code);
-
     }
   }
 #endif
@@ -138,7 +130,6 @@ int main(int argc, char* argv[])
   /* Event loop */
   while (1)
   {
-
     bm::matToScreen(tmp, display, win);
     usleep(10000);
 #endif
@@ -215,7 +206,6 @@ int main(int argc, char* argv[])
 
     bool MouseSignal::draw()
     {
-
       vector<string> sig_name;
       vector<float> sig_val;
       // TBD getMouse is completely unsuitable for this
@@ -315,8 +305,7 @@ int main(int argc, char* argv[])
           while (
             read(fd, &js, sizeof(struct js_event)) == sizeof(struct js_event))
           {
-
-            const int js_num = int(js.number);
+            const int js_num = static_cast<int>(js.number);
             // ROS_INFO_ONCE("game pad fd");
 
             switch (js.type & ~JS_EVENT_INIT)
@@ -350,18 +339,14 @@ int main(int argc, char* argv[])
           }
 
           usleep(1000);
-
         }
         else
         {
           ROS_WARN_ONCE("no joystick connectect yet");
           sleep(1);
         }
-
-
-      } // run_thread
-
-    } // runThread
+      }  // run_thread
+    }  // runThread
 
     bool GamePad::update()
     {
@@ -373,8 +358,6 @@ int main(int argc, char* argv[])
     bool GamePad::draw(cv::Point2f ui_offset)
     {
       return ImageNode::draw(ui_offset);
-
     }
-
-  } //  bm
+  }  // namespace bm
 
