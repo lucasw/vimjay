@@ -3,17 +3,22 @@
   <arg name="device" default="0" />
   <arg name="width" default="1280" />
   <arg name="height" default="1024" />
+  <arg name="decimation" value="4" />
+  <!-- These values need to be width/decimation and height/decimation -->
+  <arg name="small_width" value="320" />
+  <arg name="small_height" value="256" />
+  <arg name="frame_rate" default="5" />
 
-  <arg name="use_usb_cam" default="false" />
-  <arg name="use_libuvc_camera" default="true" />
+  <arg name="use_usb_cam" default="true" />
+  <arg name="use_libuvc_camera" default="false" />
   <arg name="use_noise_image" default="false" />
 
   <group if="$(arg use_usb_cam)">
   <node name="usb_cam" pkg="usb_cam" type="usb_cam_node"
       output="screen" >
-    <param name="image_width" value="1280" />
-    <param name="image_height" value="1024" />
-    <param name="framerate" value="5" />
+    <param name="image_width" value="$(arg width)" />
+    <param name="image_height" value="$(arg height)" />
+    <param name="framerate" value="$(arg frame_rate)" />
     <param name="video_device" value="/dev/video$(arg device)" />
   </node>
   </group>
@@ -34,7 +39,7 @@
     <param name="height" value="$(arg height)"/>
     <!-- choose whichever uncompressed format the camera supports: -->
     <param name="video_mode" value="uncompressed"/>  <!-- or yuyv/nv12/jpeg -->
-    <param name="frame_rate" value="5"/>
+    <param name="frame_rate" value="$(arg frame_rate)"/>
 
     <param name="timestamp_method" value="start"/>  <!-- start of frame -->
     <!--param name="camera_info_url" value="file:///tmp/cam.yaml"/-->
@@ -57,20 +62,17 @@
     <remap from="trigger" to="single" />
   </node>
 
-  <!-- image deque doesn't really need to full size image, but it is the only
-    source of the most recent captured image.
-    Could reconfigure to have one gateway node that doesn't store past images,
-    just lets a new captured image through when triggered, and then
-    image_deque is behind that.
-    -->
-  <node name="image_deque" pkg="vimjay" type="image_deque" 
+  <!-- TODO(lucasw) 
+    the save and the deque when triggered may not save the same frame to disk
+    and the queue -->
+  <node name="save_image" pkg="vimjay" type="save_image"
       output="screen" >
     <remap from="image" to="image_raw" />
   </node>
 
-  <node name="save_image" pkg="vimjay" type="save_image"
+  <node name="image_deque" pkg="vimjay" type="image_deque" 
       output="screen" >
-    <remap from="image" to="captured_image" />
+    <remap from="image" to="live_image_small" />
   </node>
 
   <!-- resize the image down for faster processing -->
@@ -78,39 +80,42 @@
       args="standalone image_proc/crop_decimate" >
     <remap from="camera/image_raw" to="image_raw" />
     <remap from="camera/camera_info" to="camera_info" />
-    <param name="decimation_x" value="4" />
-    <param name="decimation_y" value="4" />
-    <remap from="camera_out/image_raw" to="image_raw_small" />
+    <param name="decimation_x" value="$(arg decimation)" />
+    <param name="decimation_y" value="$(arg decimation)" />
+    <remap from="camera_out/image_raw" to="live_image_small" />
     <remap from="camera_out/camera_info" to="camera_info_small" />
   </node>
-  <node name="cap_decimate" pkg="nodelet" type="nodelet" 
+
+  <node name="saved_decimate" pkg="nodelet" type="nodelet" 
       args="standalone image_proc/crop_decimate" >
-    <remap from="camera/image_raw" to="captured_image" />
+    <remap from="camera/image_raw" to="saved_image" />
     <!--remap from="camera/camera_info" to="camera_info" /-->
-    <param name="decimation_x" value="4" />
-    <param name="decimation_y" value="4" />
-    <remap from="camera_out/image_raw" to="captured_image_small" />
+    <param name="decimation_x" value="$(arg decimation)" />
+    <param name="decimation_y" value="$(arg decimation)" />
+    <remap from="camera_out/image_raw" to="saved_image_small" />
   </node>
 
   <node name="blur_image" pkg="vimjay" type="iir_image" 
       output="screen" >
     <rosparam param="b_coeffs">[0.5, 0.5]</rosparam>
-    <remap from="image_0" to="captured_image_small" />
-    <remap from="image_1" to="image_raw_small" />
+    <remap from="image_0" to="saved_image_small" />
+    <remap from="image_1" to="live_image_small" />
   </node>
 
   <node name="gray" pkg="vimjay" type="color"
       output="screen" >
-    <param name="width" value="320" />
-    <param name="height" value="256" />
+    <!-- These values need to be width/4 and height/4 -->
+    <param name="width" value="$(arg small_width)" />
+    <param name="height" value="$(arg small_height)" />
     <remap from="image" to="gray" />
   </node>
+
   <node name="diff_image" pkg="vimjay" type="iir_image" 
       output="screen" >
     <rosparam param="b_coeffs">[1.0, 0.5, -0.5]</rosparam>
     <remap from="image_0" to="gray" />
-    <remap from="image_1" to="captured_image_small" />
-    <remap from="image_2" to="image_raw_small" />
+    <remap from="image_1" to="saved_image_small" />
+    <remap from="image_2" to="live_image_small" />
     <remap from="filtered_image" to="diff_image" />
   </node>
 
@@ -131,8 +136,8 @@
   <node name="anim_image_view" pkg="image_view" type="image_view" >
     <remap from="image" to="anim" />
   </node>
-  <node name="captured_image_view" pkg="image_view" type="image_view" >
-    <remap from="image" to="captured_image" />
+  <node name="saved_image_view" pkg="image_view" type="image_view" >
+    <remap from="image" to="saved_image_small" />
   </node>
   <node name="blur_image_view" pkg="image_view" type="image_view"
       output="screen" >

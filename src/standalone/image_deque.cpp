@@ -49,10 +49,14 @@ protected:
 
   // TODO(lucasw) maybe just temp debug
   unsigned int index_;
+  unsigned int start_index_;
   ros::Timer timer_;
 
   void pubImage(const ros::TimerEvent& e);
 
+  // this is for appending onto the animation output
+  bool use_live_frame_;
+  cv::Mat live_frame_;
   // TODO(lucasw) or a deque of sensor_msgs/Images?
   std::deque<cv::Mat> frames_;
   void imageCallback(const sensor_msgs::ImageConstPtr& msg);
@@ -79,8 +83,12 @@ ImageDeque::ImageDeque() :
   capture_continuous_(false),
   max_size_(10),
   restrict_size_(false),
-  index_(0)
+  index_(0),
+  start_index_(0),
+  use_live_frame_(true)
 {
+  ros::param::get("~use_live_frame", use_live_frame_);
+  ros::param::get("~capture_continuous", capture_continuous_);
   captured_pub_ = it_.advertise("captured_image", 1, true);
   anim_pub_ = it_.advertise("anim", 1);
   image_sub_ = it_.subscribe("image", 1, &ImageDeque::imageCallback, this);
@@ -92,7 +100,7 @@ ImageDeque::ImageDeque() :
   max_size_sub_ = nh_.subscribe<std_msgs::UInt16>("max_size", 1,
                   &ImageDeque::maxSizeCallback, this);
 
-  timer_ = nh_.createTimer(ros::Duration(0.1), &ImageDeque::pubImage, this);
+  timer_ = nh_.createTimer(ros::Duration(0.2), &ImageDeque::pubImage, this);
 }
 
 void ImageDeque::maxSizeCallback(const std_msgs::UInt16::ConstPtr& msg)
@@ -112,7 +120,7 @@ void ImageDeque::continuousCallback(const std_msgs::Bool::ConstPtr& msg)
 
 void ImageDeque::imageCallback(const sensor_msgs::ImageConstPtr& msg)
 {
-  if (!(capture_single_ || capture_continuous_))
+  if (!use_live_frame_ &&(!(capture_single_ || capture_continuous_)))
     return;
 
   cv_bridge::CvImageConstPtr cv_ptr;
@@ -128,7 +136,12 @@ void ImageDeque::imageCallback(const sensor_msgs::ImageConstPtr& msg)
     return;
   }
 
-  frames_.push_back(cv_ptr->image.clone());
+  live_frame_ = cv_ptr->image.clone();
+
+  if (!(capture_single_ || capture_continuous_))
+    return;
+
+  frames_.push_back(live_frame_);
 
   // TODO(lucasw) make this optional
   // save the image with unique timestamp from init time + counter
@@ -152,12 +165,16 @@ void ImageDeque::imageCallback(const sensor_msgs::ImageConstPtr& msg)
 // TEMP code to show output of frames
 void ImageDeque::pubImage(const ros::TimerEvent& e)
 {
-  if (index_ < frames_.size())
+  if (index_ <= frames_.size())
   {
     // TODO(lucasw) this may be argument for keeping original Image messages around
     cv_bridge::CvImage cv_image;
     cv_image.header.stamp = ros::Time::now();  // or reception time of original message?
-    cv_image.image = frames_[index_];
+    if (index_ < frames_.size())
+      cv_image.image = frames_[index_];
+    else
+      // preview the live frame at the end of the saved animation
+      cv_image.image = live_frame_;
     cv_image.encoding = "rgb8";
     anim_pub_.publish(cv_image.toImageMsg());
     index_++;
@@ -165,8 +182,11 @@ void ImageDeque::pubImage(const ros::TimerEvent& e)
 
   // ROS_INFO_STREAM(frames_.size() << " " << index_);
 
-  if (index_ >= frames_.size())
-    index_ = 0;
+  if ((use_live_frame_ && (index_ > frames_.size())) ||
+      (!use_live_frame_) && (index_ >= frames_.size()))
+  {
+    index_ = start_index_;
+  }
 }
 
 int main(int argc, char** argv)
