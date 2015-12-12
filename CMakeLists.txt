@@ -182,7 +182,10 @@ roslint_cpp(
   src/standalone/image_deque.cpp
   src/standalone/iir_image.cpp
   src/nngen/nn_im.cpp
+  src/vimjay.cpp
+  src/input.cpp
 )
+
 add_executable(noise_image
   src/standalone/noise.cpp
 )

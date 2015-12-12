@@ -15,7 +15,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with Vimjay.  If not, see <http://www.gnu.org/licenses/>.
+    along with Vimjay.  If not, see <http:  //www.gnu.org/licenses/>.
  */
 
 #include "vimjay/camthing.h"
@@ -25,51 +25,47 @@
 #include <fcntl.h>
 */
 
-#include <iostream>
-#include <memory>
-#include <sstream>
-#include <stdio.h>
-#include <time.h>
-
-#include <deque>
-
 #include <boost/lexical_cast.hpp>
 #include <boost/timer.hpp>
-
-#include <ros/console.h>
-#include <std_msgs/String.h>
-
+#include <deque>
+#include <iostream>
+#include <memory>
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
+#include <ros/console.h>
+#include <sstream>
+#include <std_msgs/String.h>
+#include <stdio.h>
+#include <string>
+#include <time.h>
+#include <vector>
 
-#include "vimjay/config.h"
-#include "vimjay/image_dir.h"
-#include "vimjay/nodes.h"
-#include "vimjay/modify.h"
-#include "vimjay/misc_nodes.h"
-#include "vimjay/signals.h"
-#include "vimjay/filter.h"
 #include "vimjay/cluster.h"
+#include "vimjay/config.h"
+#include "vimjay/filter.h"
 #include "vimjay/generate.h"
-// #include "vimjay/screencap.h"
+#include "vimjay/image_dir.h"
+#include "vimjay/misc_nodes.h"
+#include "vimjay/modify.h"
+#include "vimjay/nodes.h"
 #include "vimjay/output.h"
-// #include "vimjay/input.h"
+#include "vimjay/signals.h"
 #include "vimjay/structure.h"
-// #include "vimjay/opengl.h"
 #include "vimjay/video.h"
+// #include "vimjay/input.h"
+// #include "vimjay/opengl.h"
+// #include "vimjay/screencap.h"
 
-using namespace cv;
-// using namespace std;
+// using namespace cv;
 
 // DEFINE_string(graph, "../temp_graph.yml", "yaml file to load with graph in it");
 // DEFINE_bool(
 namespace bm
 {
-
-///////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////
+  ///////////////////////////////////////////////////////////////////////////////
+  ///////////////////////////////////////////////////////////////////////////////
+  ///////////////////////////////////////////////////////////////////////////////
+  ///////////////////////////////////////////////////////////////////////////////
 
 class VimJay : public Output
 {
@@ -95,14 +91,13 @@ class VimJay : public Output
   float zoom;
 
 public:
-
   // where the upper left coordinate of the window into the ui is
   cv::Point2f ui_offset;
 
-  /////////////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////////////
   // conveniently create and store node
   template <class nodeType>
-  boost::shared_ptr<nodeType> getNode(string name = "", cv::Point2f loc = cv::Point2f(0.0, 0.0))
+  boost::shared_ptr<nodeType> getNode(std::string name = "", cv::Point2f loc = cv::Point2f(0.0, 0.0))
   {
     boost::shared_ptr<nodeType> node =
       boost::shared_ptr<nodeType>(new nodeType(name));  // name, loc, graph_ui);
@@ -123,7 +118,7 @@ public:
     return node;
   }
 
-  ///////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////
   boost::shared_ptr<Node> getNodeByName(
     std::string type_id,
     std::string name = "",
@@ -396,7 +391,6 @@ public:
       ROS_INFO_STREAM("already created output and preview nodes, ignoring "
                       << CLTXT << name << CLNRM);
       // node = getNode<Output>(name, loc);
-
     }
     else
     {
@@ -408,7 +402,7 @@ public:
   }
 
 
-  ///////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////
   // delete all the nodes
   bool clearNodes()
   {
@@ -458,7 +452,7 @@ public:
 
 
 
-  /// save the graph to an output yaml file
+    /// save the graph to an output yaml file
   bool saveGraph(const std::string graph_file = "graph.yml")
   {
     boost::mutex::scoped_lock l(update_mutex);
@@ -474,7 +468,6 @@ public:
     fs << "nodes" << "[";
     for (int i = 0; i < all_nodes.size(); i++)
     {
-
       fs << "{";
 
       fs << "ind" << i;  // (int64_t)all_nodes[i];
@@ -487,7 +480,6 @@ public:
       ROS_DEBUG_STREAM_COND(log_level > 2, all_nodes[i]->name << " saving " << all_nodes[i]->ports.size() << " inputs");
       for (int j = 0; j < all_nodes[i]->ports.size(); j++)
       {
-
         boost::shared_ptr<Connector> con = all_nodes[i]->ports[j];
 
         fs << "{";
@@ -541,7 +533,6 @@ public:
     int y = 20;
     for (int i = 0; i < all_nodes.size(); i++)
     {
-
       if (boost::dynamic_pointer_cast<ImageNode> (all_nodes[i])) y += tht;
 
       if (y + all_nodes[i]->ports.size() * 10 > graph_ui.rows)
@@ -567,9 +558,8 @@ public:
       {
         y += tht;
       }
-
     }
-  } // gridGraph
+  }  // gridGraph
 
   int count;
 
@@ -590,11 +580,11 @@ public:
 
   boost::thread node_thread;
 
-  std::vector<string> node_types;
+  std::vector<std::string> node_types;
 
   std::string load_graph_file_;
 
-  ///////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////
   explicit VimJay(const std::string name) :
     Output(name),
     selected_ind(0),
@@ -605,7 +595,7 @@ public:
     draw_nodes(true),
     // paused(true)
     load_graph_file_(""),
-    paused(true) // TBD control from config file?
+    paused(true)  // TBD control from config file?
   {
     key_sub = Config::inst()->nh_.subscribe<std_msgs::String>("key", 5,
               &VimJay::keyCallback, this);
@@ -633,7 +623,7 @@ public:
 
     count = 0;
 
-    // node_types.push_back("bm::VimJay"); // TBD can't spawn a new one of these
+    // node_types.push_back("bm::VimJay");  // TBD can't spawn a new one of these
     node_types.push_back("bm::ImageDir");
     node_types.push_back("bm::BrowseDir");
     node_types.push_back("bm::Webcam");
@@ -695,7 +685,7 @@ public:
     node_types.push_back("bm::SigADSR");
     // node_types.push_back("bm::GamePad");
     // node_types.push_back("bm::Mouse");
-    // node_types.push_back("bm::Output"); // TBD if can spawn this
+    // node_types.push_back("bm::Output");  // TBD if can spawn this
 
 
     setSignal("node_ind", 0, false, ROLL, 0, node_types.size() - 1);
@@ -720,7 +710,7 @@ public:
       all_nodes.push_back(node);
     }
 
-    //// make default output nodes
+      //// make default output nodes
     {
       boost::shared_ptr<Node> node1 = getNode<Output>("output", loc);
       output_node = boost::dynamic_pointer_cast<Output>(node1);
@@ -775,17 +765,16 @@ public:
 
     update_nodes = true;
     node_thread = boost::thread(&VimJay::updateThread, this);
-
   }
 
-  ///////////////////////////////////////////////
+    ///////////////////////////////////////////////
   bool loadGraph(const std::string graph_file)
   {
     boost::mutex::scoped_lock l(update_mutex);
     ROS_INFO_STREAM("loading graph " << CLTXT << graph_file << CLNRM);
 
-    FileStorage fs;
-    fs.open(graph_file, FileStorage::READ);
+    cv::FileStorage fs;
+    fs.open(graph_file, cv::FileStorage::READ);
 
     if (!fs.isOpened())
     {
@@ -793,15 +782,15 @@ public:
                        return false);
     }
 
-    FileNode nd = fs["nodes"];
-    if (nd.type() != FileNode::SEQ)
+    cv::FileNode nd = fs["nodes"];
+    if (nd.type() != cv::FileNode::SEQ)
     {
       ROS_ERROR_STREAM("no nodes");
 
       return false;
     }
 
-    for (FileNodeIterator it = nd.begin(); it != nd.end(); ++it)
+    for (cv::FileNodeIterator it = nd.begin(); it != nd.end(); ++it)
     {
       std::string type_id = (*it)["typeid"];
       std::string name;
@@ -865,7 +854,7 @@ public:
         if (type == "Buffer") con_type = BUFFER;
         */
 
-        node->setInputPort((conType)type, port); //, NULL, "");
+        node->setInputPort((conType)type, port);  //, NULL, "");
       }
     }
 
@@ -874,11 +863,12 @@ public:
     ROS_DEBUG_STREAM_COND(log_level > 1, " ");
     ROS_INFO_STREAM("second pass inputs");
     ROS_DEBUG_STREAM_COND(log_level > 1, " ");
-    for (FileNodeIterator it = nd.begin(); it != nd.end(); ++it)
+    for (cv::FileNodeIterator it = nd.begin(); it != nd.end(); ++it)
     {
       int ind;
       (*it)["ind"] >> ind;
-      ROS_DEBUG_STREAM_COND(log_level > 2, "second pass inputs " << ind << " " << CLTXT << all_nodes[ind]->name << CLNRM);
+      ROS_DEBUG_STREAM_COND(log_level > 2, "second pass inputs " << ind << " "
+          << CLTXT << all_nodes[ind]->name << CLNRM);
       for (int i = 0; i < (*it)["inputs"].size(); i++)
       {
         int input_ind;
@@ -900,16 +890,14 @@ public:
                                 << " " << src_port);
 
           all_nodes[ind]->setInputPort((conType)type, port, all_nodes[input_ind], src_port);
-        } // input_ind > 0
+        }  // input_ind > 0
 
         if (type == SIGNAL)
         {
-
           all_nodes[ind]->setSignal(port, value);
         }
-
       }
-    } // second input pass
+    }  // second input pass
 
     if (output_node == NULL)
     {
@@ -927,8 +915,7 @@ public:
     setString("graph_file", graph_file);
 
     return true;
-
-  } // loadGraph
+  }  // loadGraph
 
   void defaultGraph()
   {
@@ -940,7 +927,7 @@ public:
       // create a bunch of nodes of every type (TBD make sure new ones get added)
       // but don't connect them, user will do that
 
-      getNode<ImageDir>("image_dir"); //, loc);
+      getNode<ImageDir>("image_dir");  //, loc);
 
       // Images
       // inputs
@@ -1008,7 +995,7 @@ public:
       // Signals
       // inputs
       node = getNode<Mouse>("mouse", loc);
-      input_node = (Mouse*) node;
+      input_node = reinterpret_cast<Mouse*>(node);
 
       // generate
       node = getNode<SigAdd>("sigadd", loc);
@@ -1022,8 +1009,8 @@ public:
       {
         FilterFIR* fir = getNode<FilterFIR>("fir_filter", cv::Point2(500, 150));
 
-        // http://www-users.cs.york.ac.uk/~fisher/cgi-bin/mkfscript
-        static float arr[] =  { -1.0, 3.0, -3.0, 1.0, }; //{ 0.85, -0.35, 0.55, -0.05, };
+          // http://www-users.cs.york.ac.uk/~fisher/cgi-bin/mkfscript
+        static float arr[] =  { -1.0, 3.0, -3.0, 1.0, };  //{ 0.85, -0.35, 0.55, -0.05, };
         /* {
            0.2, -0.1,
            0.2, -0.1,
@@ -1055,9 +1042,9 @@ public:
         FilterFIR* denom = getNode<FilterFIR>("iir_denom", cv::Point2f(500, 350));
         static float arr2[] =
         {
-          1.7600418803, // y[n-1]
-          -1.1828932620, // * y[n- 2])
-          0.2780599176, // * y[n- 3])
+          1.7600418803,  // y[n-1]
+          -1.1828932620,  // * y[n- 2])
+          0.2780599176,  // * y[n- 3])
         };
 
         std::vector<float> vec2(arr2, arr2 + sizeof(arr2) / sizeof(arr2[0]));
@@ -1083,7 +1070,6 @@ public:
       bool toggle = false;
       for (float ifr = advance; ifr <= 1.0; ifr += advance)
       {
-
         Signal* s2 = getNode<Saw>("sawl", cv::Point2f(400.0 + ifr * 400.0, 200.0 + ifr * 40.0));
         s2->setup(advance, ifr);
 
@@ -1111,7 +1097,6 @@ public:
           cv::namedWindow("cam", CV_GUI_NORMAL);
           cv::moveWindow("cam", 0, 0);
       */
-
     }
 
     nodeUpdate();
@@ -1122,16 +1107,16 @@ public:
 
   bool selectSourceNode()
   {
-
     if (selected_node && (source_node != selected_node))
     {
       // select source node
       source_ind = selected_ind;
-      source_node = selected_node; // all_nodes[source_ind];
+      source_node = selected_node;  // all_nodes[source_ind];
       // source_port = selected_node->selected_port;
       // source_type = selected_node->selected_type;
 
-      ROS_DEBUG_STREAM_COND(log_level > 1, "selected source node " << source_node->selected_type << " " << source_node->selected_port);
+      ROS_DEBUG_STREAM_COND(log_level > 1, "selected source node "
+          << source_node->selected_type << " " << source_node->selected_port);
     }
     else
     {
@@ -1156,17 +1141,16 @@ public:
         (selected_node->selected_port != "") &&
         (source_node->selected_port != "") &&
         (selected_node->selected_port != "") &&
-        (selected_node->selected_port != "out") // TBD delete this
+        (selected_node->selected_port != "out")  // TBD delete this
        )
     {
-
-
       // TBD
       // if (!selected_node->selected_port_internally_set)
       {
         // TBD a Buffer should act as an ImageNode if that is the only
         // input available
-        selected_node->setInputPort(source_node->selected_type, selected_node->selected_port, source_node, source_node->selected_port);
+        selected_node->setInputPort(source_node->selected_type,
+            selected_node->selected_port, source_node, source_node->selected_port);
       }
 
       return true;
@@ -1198,7 +1182,7 @@ public:
     }
 
     return true;
-  } // updatePreviewNode
+  }  // updatePreviewNode
 
   bool removePortConnection()
   {
@@ -1207,7 +1191,7 @@ public:
     // disconnect current input
     if (selected_node && (selected_node->selected_type != NONE) && (selected_node->selected_port != ""))
     {
-      selected_node->setInputPort(selected_node->selected_type, selected_node->selected_port); //, NULL, "");
+      selected_node->setInputPort(selected_node->selected_type, selected_node->selected_port);  //, NULL, "");
     }
   }
 
@@ -1334,7 +1318,7 @@ public:
     }
 
     return rv;
-  } // selectPort()
+  }  // selectPort()
 
   std::string command_text;
   bool draw_nodes;
@@ -1517,7 +1501,8 @@ public:
       if (selected_node)
       {
         // TBD make node function to do this without exposing setSignal
-        selected_node->setSignal("enable",  !((bool)selected_node->getSignal("enable")));
+        selected_node->setSignal("enable",
+            !(static_cast<bool>(selected_node->getSignal("enable"))));
       }
     }
     else if (key == ']')
@@ -1608,7 +1593,7 @@ public:
     else if (key == 't')
     {
       selectTargetNode();
-    } // set source_node to target input
+    }  // set source_node to target input
     else if (key == 'c')
     {
       removePortConnection();
@@ -1630,7 +1615,6 @@ public:
     else if (key == 'l')      // RIGHT
     {
       selectNodeDirection(1);
-
     }
     else if (key == 'i')      // ui UP
     {
@@ -1656,11 +1640,9 @@ public:
       // swap selected node input with source node input- TBD this doesn't work since
       // outputs can be one-to-many
       //}
-
     }
     else if (key == '1')
     {
-
       if ((selected_node) && (selected_node->selected_type == SIGNAL))
       {
         // create generic signal generator feeding into this port
@@ -1674,13 +1656,12 @@ public:
         node->setSignal("min", val);
         node->setSignal("max", val + 1);
         // Connector* con;
-        // string src_port;
+        // std::string src_port;
         // node->getInputPort(SIGNAL, "value", con, src_port);
 
         selected_node->setInputPort(
           SIGNAL, selected_node->selected_port,
           node, "value");
-
       }
       else if ((selected_node) &&
                (selected_node->selected_port == "dir") ||
@@ -1703,7 +1684,6 @@ public:
         selected_node->setInputPort(
           STRING, selected_node->selected_port,
           node, dir_or_file);
-
       }
       // TBD if the port is an image create a buffer for it to output to?
 
@@ -1713,8 +1693,8 @@ public:
     {
       if ((selected_node) && (selected_node->selected_type == IMAGE) && (output_node))
       {
-        output_node->setInputPort(IMAGE, "in", selected_node, selected_node->selected_port);
-
+        output_node->setInputPort(IMAGE, "in", selected_node,
+          selected_node->selected_port);
       }
       else
       {
@@ -1732,7 +1712,7 @@ public:
     if (valid_key)
     {
       std::stringstream tmp;
-      tmp << (char) key;
+      tmp << static_cast<char>(key);
       // tmp.resize(1);
       // tmp[0] = key;
       command_text.append(tmp.str());
@@ -1752,8 +1732,8 @@ public:
     if (command_text.size() > wd / 16) max_count = 1;
     if (count % max_count == 0)
     {
-      if (command_text.size() > 0);
-      command_text = command_text.erase(0, 1);
+      if (command_text.size() > 0)
+        command_text = command_text.erase(0, 1);
     }
     else
     {
@@ -1766,7 +1746,7 @@ public:
     ROS_DEBUG_STREAM_COND(log_level > 5, wd << " " << command_text.size());
 
     return true;
-  } // handleInput
+  }  // handleInput
 
   bool update_nodes;
   boost::mutex update_mutex;
@@ -1802,7 +1782,6 @@ public:
     ROS_INFO_STREAM("starting node update thread");
     while (update_nodes)
     {
-
       ROS_DEBUG_STREAM_COND(log_level > 4, "");
       if (!output_node)
       {
@@ -1844,7 +1823,8 @@ public:
       if (is_dirty)
       {
         setString("node", node_types[ind]);
-        ROS_DEBUG_STREAM_COND(log_level > 9, "node_ind " << ind << " " << node_types[ind] << " " << getString("node")); // node_types[ind]);
+        ROS_DEBUG_STREAM_COND(log_level > 9, "node_ind " << ind << " "
+          << node_types[ind] << " " << getString("node"));  // node_types[ind]);
       }
     }
 
@@ -1879,7 +1859,6 @@ public:
 
     if (draw_nodes)
     {
-
       // loop through and draw connectors
       for (int i = 0; i < all_nodes.size(); i++)
       {
@@ -1964,7 +1943,7 @@ public:
     Output::draw(ui_offset);
 
     ROS_DEBUG_STREAM_COND(log_level > 4, "full draw time" << t1.elapsed());
-  } // VimJay::draw
+  }  // VimJay::draw
 
   // cause all the nodes to repel each other so the display isn't too
   // jumbled
@@ -2020,8 +1999,7 @@ public:
         }
       }
     }
-
-  } // node repell
+  }  // node repell
 
   virtual bool handleKey(int key)
   {
@@ -2041,7 +2019,6 @@ public:
       getNodeByName(node_types[ind],
                     node_types[ind],
                     loc + cv::Point2f(150, 10));
-
     }
     else
     {
@@ -2049,11 +2026,9 @@ public:
     }
 
     return valid_key;
-  } // handleKey
-
-}; // vimjay
-
-} // bm
+  }  // handleKey
+};  // vimjay
+}  // namespace bm
 
 
 /*
@@ -2080,7 +2055,6 @@ int main(int argc, char* argv[])
   bool rv = true;
   while (rv && ros::ok())
   {
-
     // have to do this before update to avoid some crashes
     // input is handled in the same thread as drawing because of Xlib- TBD
     rv = vimjay->handleInput();
