@@ -43,7 +43,9 @@ rqt_image_view crashes when it tries to view /image_raw from this.
 
 rosrun image_view image_view does work though.
 
+### libuvc_camera
 
+Not in jade package, need to install libuvc
 
 ### Ros-ified v4l2ucp
 
