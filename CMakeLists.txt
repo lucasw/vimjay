@@ -171,7 +171,7 @@ find_package(Eigen3 REQUIRED)
 
 include_directories(
   src/nngen
-  ${EIGEN_INCLUDE_DIR}
+  ${EIGEN3_INCLUDE_DIR}
 )
 
 roslint_cpp(
