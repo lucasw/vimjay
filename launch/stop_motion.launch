@@ -1,12 +1,19 @@
 <?xml version="1.0"?>
 <launch>
-  <arg name="device" default="0" />
+  <arg name="device" default="1" />
+  <arg name="width" default="1920" />
+  <arg name="height" default="1080" />
+  <arg name="small_width" value="480" />
+  <arg name="small_height" value="270" />
+  <!--
   <arg name="width" default="1280" />
   <arg name="height" default="1024" />
-  <arg name="decimation" value="4" />
-  <!-- These values need to be width/decimation and height/decimation -->
   <arg name="small_width" value="320" />
   <arg name="small_height" value="256" />
+  -->
+  <!-- The above values need to be width/decimation and height/decimation -->
+  <arg name="decimation" value="4" />
+
   <arg name="frame_rate" default="5" />
 
   <arg name="use_usb_cam" default="true" />
@@ -126,6 +133,10 @@
   <node name="rqt_generic" pkg="rqt_gui" type="rqt_gui" 
       args="--perspective-file $(find vimjay)/config/stop_motion.perspective" 
       output="screen" >
+  </node>
+
+  <node name="v4l2ucp" pkg="v4l2ucp" type="v4l2ucp" >
+    <param name="device" value="/dev/video$(arg device)" />
   </node>
 
   <group if="false" >

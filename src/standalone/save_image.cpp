@@ -106,7 +106,8 @@ void SaveImage::imageCallback(const sensor_msgs::ImageConstPtr& msg)
   try
   {
     // TBD why converting to BGR8
-    cv_ptr = cv_bridge::toCvShare(msg, sensor_msgs::image_encodings::RGB8);
+    //cv_ptr = cv_bridge::toCvShare(msg, sensor_msgs::image_encodings::RGB8);
+    cv_ptr = cv_bridge::toCvShare(msg, sensor_msgs::image_encodings::BGR8);
     //, "mono8"); // sensor_msgs::image_encodings::MONO8);
   }
   catch (cv_bridge::Exception& e)
