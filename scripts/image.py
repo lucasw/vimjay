@@ -18,12 +18,14 @@ if __name__ == '__main__':
     #cv2.waitKey(5)
     
     hz = rospy.get_param("~rate", 1)
+    frame_id = rospy.get_param("~frame_id", "map")
     rate = rospy.Rate(hz)
 
     pub = rospy.Publisher('image', Image, queue_size=1)
     
     msg = Image()
     msg.header.stamp = rospy.Time.now()
+    msg.header.frame_id = frame_id
     msg.encoding = 'bgr8'
     msg.height = image.shape[0]
     msg.width = image.shape[1]
