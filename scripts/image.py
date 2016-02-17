@@ -7,7 +7,7 @@ import cv2
 import numpy as np
 import rospy
 import sys
-from sensor_msgs.msg import Image
+from sensor_msgs.msg import CameraInfo, Image
 
 if __name__ == '__main__': 
     rospy.init_node('image_publish')
@@ -22,6 +22,7 @@ if __name__ == '__main__':
     rate = rospy.Rate(hz)
 
     pub = rospy.Publisher('image', Image, queue_size=1)
+    ci_pub = rospy.Publisher('camera_info', CameraInfo, queue_size=1)
     
     msg = Image()
     msg.header.stamp = rospy.Time.now()
@@ -33,6 +34,17 @@ if __name__ == '__main__':
     msg.data = image.tostring()
     pub.publish(msg)
 
+    ci = CameraInfo()
+    ci.header = msg.header
+    ci.height = msg.height
+    ci.width = msg.width
+    ci.distortion_model ="plumb_bob"
+    ci.K = [500.0, 0.0, msg.width/2, 0.0, 500.0, msg.height/2, 0.0, 0.0, 1.0]
+    ci.R = [1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0]
+    ci.P = [500.0, 0.0, msg.width/2, 0.0, 0.0, 500.0, msg.height/2, 0.0,  0.0, 0.0, 1.0, 0.0]
+    ci_pub.publish(ci)
+
     while not rospy.is_shutdown():
         pub.publish(msg)
+        ci_pub.publish(ci)
         rate.sleep()
