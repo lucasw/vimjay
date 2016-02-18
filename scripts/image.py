@@ -46,6 +46,8 @@ if __name__ == '__main__':
     ci_pub.publish(ci)
 
     while not rospy.is_shutdown():
+        # the ci header is the same object so also gets updated
+        msg.header.stamp = rospy.Time.now()
         pub.publish(msg)
         ci_pub.publish(ci)
         rate.sleep()
