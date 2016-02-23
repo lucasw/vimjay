@@ -19,9 +19,11 @@ if __name__ == '__main__':
     
     hz = rospy.get_param("~rate", 1)
     frame_id = rospy.get_param("~frame_id", "map")
+    use_image = rospy.get_param("~use_image", True)
     rate = rospy.Rate(hz)
 
-    pub = rospy.Publisher('image', Image, queue_size=1)
+    if use_image:
+        pub = rospy.Publisher('image', Image, queue_size=1)
     ci_pub = rospy.Publisher('camera_info', CameraInfo, queue_size=1)
     
     msg = Image()
@@ -32,7 +34,8 @@ if __name__ == '__main__':
     msg.width = image.shape[1]
     msg.step = image.shape[1] * 3
     msg.data = image.tostring()
-    pub.publish(msg)
+    if use_image:
+        pub.publish(msg)
 
     ci = CameraInfo()
     ci.header = msg.header
@@ -48,6 +51,7 @@ if __name__ == '__main__':
     while not rospy.is_shutdown():
         # the ci header is the same object so also gets updated
         msg.header.stamp = rospy.Time.now()
-        pub.publish(msg)
+        if use_image:
+            pub.publish(msg)
         ci_pub.publish(ci)
         rate.sleep()
