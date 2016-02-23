@@ -49,7 +49,7 @@ protected:
   image_transport::ImageTransport it_;
   image_transport::Publisher image_pub_;
   image_transport::Subscriber image_sub_;
-  void imageCallback(const sensor_msgs::ImageConstPtr msg);
+  void imageCallback(const sensor_msgs::ImageConstPtr& msg);
   ros::Subscriber camera_info_sub_;
   void cameraInfoCallback(const sensor_msgs::CameraInfo::ConstPtr& msg);
   cv::Mat camera_matrix_;
@@ -61,7 +61,7 @@ DistortImage::DistortImage() :
 {
   camera_matrix_ = cv::Mat(3, 3, CV_64F);
   image_pub_ = it_.advertise("distorted_image", 1, true);
-  // image_sub_ = it_.subscribe("image", 1, &DistortImage::imageCallback, this);
+  image_sub_ = it_.subscribe("image", 1, &DistortImage::imageCallback, this);
   camera_info_sub_ = nh_.subscribe("camera_info", 1, &DistortImage::cameraInfoCallback, this);
 }
 
@@ -90,7 +90,7 @@ void DistortImage::cameraInfoCallback(const sensor_msgs::CameraInfo::ConstPtr& m
   }
 }
 
-void DistortImage::imageCallback(const sensor_msgs::ImageConstPtr msg)
+void DistortImage::imageCallback(const sensor_msgs::ImageConstPtr& msg)
 {
   if (camera_matrix_.empty())
     return;
