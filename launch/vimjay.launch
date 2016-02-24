@@ -18,7 +18,7 @@
     <node name="key_input1" pkg="vimjay" type="key_input.py"
         respawn="false" output="screen" >
     </node>
-  
+
     <node name="rqt_image_view1" pkg="rqt_image_view" type="rqt_image_view" />
     <!-- image view is very resource intensive -->
     <!--node name="image_out1" pkg="image_view" type="image_view"
