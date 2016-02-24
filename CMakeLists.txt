@@ -7,6 +7,7 @@ project(vimjay)
 find_package(catkin REQUIRED COMPONENTS
   cv_bridge
   camera_info_manager
+  dynamic_reconfigure
   image_transport
   roscpp
   roslint
@@ -80,6 +81,10 @@ find_package(catkin REQUIRED COMPONENTS
 #   std_msgs
 # )
 
+generate_dynamic_reconfigure_options(
+  cfg/CameraInfo.cfg
+)
+
 ###################################
 ## catkin specific configuration ##
 ###################################
@@ -149,7 +154,7 @@ other/simplextextures.cpp
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
-# add_dependencies(vimjay_node vimjay_generate_messages_cpp)
+# add_dependencies(vimjay ${PROJECT_NAME}_gencfg)
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(vimjay_node
