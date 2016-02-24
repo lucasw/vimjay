@@ -1,3 +1,15 @@
 <?xml version="1.0"?>
 <launch>
+
+  <node name="image" pkg="vimjay" type="image.py"
+      args="$(find vimjay)/data/gradient_box.png"
+      output="screen" >
+    <remap from="camera_info" to="camera_info_unused" />
+  </node>
+  <node name="dr_camera_info" pkg="vimjay" type="dr_camera_info.py"
+      output="screen" >
+  </node>
+  <node name="distort" pkg="vimjay" type="distort_image"
+      output="screen" >
+  </node>
 </launch>
