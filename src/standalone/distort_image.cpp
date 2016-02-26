@@ -8,7 +8,8 @@
 // from http://code.opencv.org/issues/1387
 // TODO(lucasw) need to make a function that only returns the pixel_locations_dst,
 // then the caller can re-use that instead of recomputing it if the intrinsics/dist
-// doesn't change
+// doesn't change.
+// Also would want to make use of convertMaps to make it even more efficient
 void distort(const cv::Mat& src, cv::Mat& image_dst,
     const cv::Mat& cameraMatrix, const cv::Mat& distCoeffs)
 {
@@ -30,7 +31,8 @@ void distort(const cv::Mat& src, cv::Mat& image_dst,
   const float cx = cameraMatrix.at<double>(0, 2);
   const float cy = cameraMatrix.at<double>(1, 2);
 
-  // is there a faster way to do this?
+  // TODO(lucasw) is there a faster way to do this?
+  // A matrix operation?
   cv::Mat pixel_locations_dst = cv::Mat(src.size(), CV_32FC2);
   ind = 0;
   for (int i = 0; i < src.size().height; i++) {
@@ -38,6 +40,8 @@ void distort(const cv::Mat& src, cv::Mat& image_dst,
       const float x = fractional_locations_dst.at<cv::Point2f>(ind, 0).x * fx + cx;
       const float y = fractional_locations_dst.at<cv::Point2f>(ind, 0).y * fy + cy;
       pixel_locations_dst.at<cv::Point2f>(i,j) = cv::Point2f(x,y);
+      // if ((i == 0) && (j == 0))
+      //  ROS_INFO_STREAM(ind << ": " << i << " " << j << ", " << y << " " << x);
       ++ind;
     }
   }
@@ -53,6 +57,8 @@ protected:
   ros::NodeHandle nh_;
   image_transport::ImageTransport it_;
   image_transport::Publisher image_pub_;
+  ros::Publisher camera_info_pub_;
+  sensor_msgs::CameraInfo camera_info_;
   image_transport::Subscriber image_sub_;
   void imageCallback(const sensor_msgs::ImageConstPtr& msg);
   ros::Subscriber camera_info_sub_;
@@ -65,13 +71,15 @@ DistortImage::DistortImage() :
   it_(nh_)
 {
   camera_matrix_ = cv::Mat(3, 3, CV_64F);
-  image_pub_ = it_.advertise("distorted_image", 1, true);
+  image_pub_ = it_.advertise("distorted/image", 1, true);
+  camera_info_pub_ = nh_.advertise<sensor_msgs::CameraInfo>("distorted/camera_info", 1);
   image_sub_ = it_.subscribe("image", 1, &DistortImage::imageCallback, this);
   camera_info_sub_ = nh_.subscribe("camera_info", 1, &DistortImage::cameraInfoCallback, this);
 }
 
 void DistortImage::cameraInfoCallback(const sensor_msgs::CameraInfo::ConstPtr& msg)
 {
+  camera_info_ = *msg;
   dist_coeffs_ = cv::Mat(msg->D.size(), 1, CV_64F);
   for (size_t i = 0; i < msg->D.size(); ++i)
   {
@@ -93,6 +101,8 @@ void DistortImage::cameraInfoCallback(const sensor_msgs::CameraInfo::ConstPtr& m
       ++ind;
     }
   }
+
+  ROS_INFO_STREAM(dist_coeffs_);
 }
 
 void DistortImage::imageCallback(const sensor_msgs::ImageConstPtr& msg)
@@ -125,8 +135,11 @@ void DistortImage::imageCallback(const sensor_msgs::ImageConstPtr& msg)
 
   cv_bridge::CvImage distorted_image;
   distorted_image.header = msg->header;
+  distorted_image.encoding = msg->encoding;
   distorted_image.image = distorted_cv_image;
   image_pub_.publish(distorted_image.toImageMsg());
+  camera_info_.header = msg->header;
+  camera_info_pub_.publish(camera_info_);
 }
 
 int main(int argc, char** argv)
