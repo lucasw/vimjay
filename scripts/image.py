@@ -44,7 +44,7 @@ if __name__ == '__main__':
     ci.distortion_model ="plumb_bob"
     # TODO(lucasw) need a way to set these values- have this node
     # subscribe to an input CameraInfo?
-    ci.D = [-0.1, 0.5, 1.0, 0, 0]
+    ci.D = [0.0, 0.0, 0.0, 0, 0]
     ci.K = [500.0, 0.0, msg.width/2, 0.0, 500.0, msg.height/2, 0.0, 0.0, 1.0]
     ci.R = [1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0]
     ci.P = [500.0, 0.0, msg.width/2, 0.0, 0.0, 500.0, msg.height/2, 0.0,  0.0, 0.0, 1.0, 0.0]

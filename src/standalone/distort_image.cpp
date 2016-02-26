@@ -57,6 +57,7 @@ protected:
   ros::NodeHandle nh_;
   image_transport::ImageTransport it_;
   image_transport::Publisher image_pub_;
+  image_transport::Publisher debug_image_pub_;
   ros::Publisher camera_info_pub_;
   sensor_msgs::CameraInfo camera_info_;
   image_transport::Subscriber image_sub_;
@@ -72,6 +73,7 @@ DistortImage::DistortImage() :
 {
   camera_matrix_ = cv::Mat(3, 3, CV_64F);
   image_pub_ = it_.advertise("distorted/image", 1, true);
+  debug_image_pub_ = it_.advertise("debug_image", 1, true);
   camera_info_pub_ = nh_.advertise<sensor_msgs::CameraInfo>("distorted/camera_info", 1);
   image_sub_ = it_.subscribe("image", 1, &DistortImage::imageCallback, this);
   camera_info_sub_ = nh_.subscribe("camera_info", 1, &DistortImage::cameraInfoCallback, this);
@@ -102,7 +104,7 @@ void DistortImage::cameraInfoCallback(const sensor_msgs::CameraInfo::ConstPtr& m
     }
   }
 
-  ROS_INFO_STREAM(dist_coeffs_);
+  // ROS_INFO_STREAM(dist_coeffs_);
 }
 
 void DistortImage::imageCallback(const sensor_msgs::ImageConstPtr& msg)
@@ -140,6 +142,14 @@ void DistortImage::imageCallback(const sensor_msgs::ImageConstPtr& msg)
   image_pub_.publish(distorted_image.toImageMsg());
   camera_info_.header = msg->header;
   camera_info_pub_.publish(camera_info_);
+
+  cv::Mat debug_cv_image;
+  cv::undistort(distorted_cv_image, debug_cv_image, camera_matrix_, dist_coeffs_);
+  cv_bridge::CvImage debug_image;
+  debug_image.header = msg->header;
+  debug_image.encoding = msg->encoding;
+  debug_image.image = debug_cv_image;
+  debug_image_pub_.publish(debug_image.toImageMsg());
 }
 
 int main(int argc, char** argv)
