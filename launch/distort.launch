@@ -15,7 +15,31 @@
       output="screen" >
   </node>
 
-  <group ns="distort" >
+
+  <node name="image_proc" pkg="image_proc" type="image_proc"
+      output="screen" >
+    <remap from="image_raw" to="image" />
+    <remap from="camera_info" to="camera_info_unused" />
+  </node>
+  <node name="image_view_rect" pkg="image_view" type="image_view"
+      output="screen" >
+    <remap from="image" to="image_rect" />
+  </node>
+
+  <group ns="redistort" if="true" >
+  <node name="distort" pkg="vimjay" type="distort_image"
+      output="screen" >
+    <remap from="image" to="/image_rect" />
+    <remap from="camera_info" to="/camera_info_unused" />
+  </node>
+  <node name="image_view_distort" pkg="image_view" type="image_view"
+      output="screen" >
+    <remap from="image" to="distorted/image" />
+  </node>
+  </group>
+
+
+  <group ns="distort" if="false" >
   <node name="distort" pkg="vimjay" type="distort_image"
       output="screen" >
     <remap from="image" to="/image" />
@@ -36,4 +60,5 @@
     <remap from="image" to="image_rect" />
   </node>
   </group>
+
 </launch>
