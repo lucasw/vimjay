@@ -71,6 +71,7 @@ protected:
 DistortImage::DistortImage() :
   it_(nh_)
 {
+  // TODO(lucasw) use CameraPublisher to sync camera info and image?
   camera_matrix_ = cv::Mat(3, 3, CV_64F);
   image_pub_ = it_.advertise("distorted/image", 1, true);
   debug_image_pub_ = it_.advertise("debug_image", 1, true);
@@ -139,9 +140,10 @@ void DistortImage::imageCallback(const sensor_msgs::ImageConstPtr& msg)
   distorted_image.header = msg->header;
   distorted_image.encoding = msg->encoding;
   distorted_image.image = distorted_cv_image;
-  image_pub_.publish(distorted_image.toImageMsg());
-  camera_info_.header = msg->header;
+  sensor_msgs::ImagePtr image_msg = distorted_image.toImageMsg();
+  camera_info_.header = image_msg->header;
   // camera_info_.roi.do_rectify = true;
+  image_pub_.publish(image_msg);
   camera_info_pub_.publish(camera_info_);
 
   cv::Mat debug_cv_image;
