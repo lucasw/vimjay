@@ -141,6 +141,7 @@ void DistortImage::imageCallback(const sensor_msgs::ImageConstPtr& msg)
   distorted_image.image = distorted_cv_image;
   image_pub_.publish(distorted_image.toImageMsg());
   camera_info_.header = msg->header;
+  // camera_info_.roi.do_rectify = true;
   camera_info_pub_.publish(camera_info_);
 
   cv::Mat debug_cv_image;
