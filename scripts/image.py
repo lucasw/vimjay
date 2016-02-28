@@ -9,14 +9,13 @@ import rospy
 import sys
 from sensor_msgs.msg import CameraInfo, Image
 
-if __name__ == '__main__': 
+if __name__ == '__main__':
     rospy.init_node('image_publish')
-    
     name = sys.argv[1]
     image = cv2.imread(name)
     #cv2.imshow("im", image)
     #cv2.waitKey(5)
-    
+
     hz = rospy.get_param("~rate", 1)
     frame_id = rospy.get_param("~frame_id", "map")
     use_image = rospy.get_param("~use_image", True)
@@ -25,7 +24,7 @@ if __name__ == '__main__':
     if use_image:
         pub = rospy.Publisher('image', Image, queue_size=1)
     ci_pub = rospy.Publisher('camera_info', CameraInfo, queue_size=1)
-    
+
     msg = Image()
     msg.header.stamp = rospy.Time.now()
     msg.header.frame_id = frame_id
