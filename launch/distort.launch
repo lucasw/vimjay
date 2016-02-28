@@ -69,7 +69,7 @@
     <rosparam param="b_coeffs">[1.0, 0.5, -0.5]</rosparam>
     <remap from="image_0" to="gray" />
     <remap from="image_1" to="/image" />
-    <remap from="image_2" to="debug_image" />
+    <remap from="image_2" to="/distort/image_rect" />
     <remap from="filtered_image" to="diff_image" />
   </node>
   <node name="image_view_diff" pkg="image_view" type="image_view"

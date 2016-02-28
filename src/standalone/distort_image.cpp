@@ -57,6 +57,7 @@ protected:
   ros::NodeHandle nh_;
   image_transport::ImageTransport it_;
   image_transport::Publisher image_pub_;
+  bool use_debug_;
   image_transport::Publisher debug_image_pub_;
   ros::Publisher camera_info_pub_;
   sensor_msgs::CameraInfo camera_info_;
@@ -69,12 +70,14 @@ protected:
 };
 
 DistortImage::DistortImage() :
-  it_(nh_)
+  it_(nh_),
+  use_debug_(false)
 {
   // TODO(lucasw) use CameraPublisher to sync camera info and image?
   camera_matrix_ = cv::Mat(3, 3, CV_64F);
   image_pub_ = it_.advertise("distorted/image", 1, true);
-  debug_image_pub_ = it_.advertise("debug_image", 1, true);
+  if (use_debug_)
+    debug_image_pub_ = it_.advertise("debug_image", 1, true);
   camera_info_pub_ = nh_.advertise<sensor_msgs::CameraInfo>("distorted/camera_info", 1);
   image_sub_ = it_.subscribe("image", 1, &DistortImage::imageCallback, this);
   camera_info_sub_ = nh_.subscribe("camera_info", 1, &DistortImage::cameraInfoCallback, this);
@@ -146,13 +149,16 @@ void DistortImage::imageCallback(const sensor_msgs::ImageConstPtr& msg)
   image_pub_.publish(image_msg);
   camera_info_pub_.publish(camera_info_);
 
-  cv::Mat debug_cv_image;
-  cv::undistort(distorted_cv_image, debug_cv_image, camera_matrix_, dist_coeffs_);
-  cv_bridge::CvImage debug_image;
-  debug_image.header = msg->header;
-  debug_image.encoding = msg->encoding;
-  debug_image.image = debug_cv_image;
-  debug_image_pub_.publish(debug_image.toImageMsg());
+  if (use_debug_)
+  {
+    cv::Mat debug_cv_image;
+    cv::undistort(distorted_cv_image, debug_cv_image, camera_matrix_, dist_coeffs_);
+    cv_bridge::CvImage debug_image;
+    debug_image.header = msg->header;
+    debug_image.encoding = msg->encoding;
+    debug_image.image = debug_cv_image;
+    debug_image_pub_.publish(debug_image.toImageMsg());
+  }
 }
 
 int main(int argc, char** argv)
