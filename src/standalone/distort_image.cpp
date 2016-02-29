@@ -98,6 +98,7 @@ DistortImage::DistortImage() :
   // TODO(lucasw) use CameraPublisher to sync camera info and image?
   camera_matrix_ = cv::Mat(3, 3, CV_64F);
   image_pub_ = it_.advertise("distorted/image", 1, true);
+  ros::param::get("~use_debug", use_debug_);
   if (use_debug_)
     debug_image_pub_ = it_.advertise("debug_image", 1, true);
   camera_info_pub_ = nh_.advertise<sensor_msgs::CameraInfo>("distorted/camera_info", 1);

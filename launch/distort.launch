@@ -1,5 +1,6 @@
 <?xml version="1.0"?>
 <launch>
+  <arg name="use_debug" default="false" />
 
   <node name="image" pkg="vimjay" type="image.py"
       args="$(find vimjay)/data/chess.png"
@@ -34,9 +35,11 @@
       output="screen" >
     <remap from="image" to="/image" />
     <remap from="camera_info" to="/camera_info" />
+    <param name="use_debug" value="$(arg use_debug)" />
   </node>
 
-  <!-- visualize the difference between the input and debug output - should be the same -->
+  <!-- visualize the difference between the input and rectified output -
+      should be the same except for interpolation errors and where data is missing -->
   <node name="gray" pkg="vimjay" type="color"
       output="screen" >
     <!-- would be nice to derive these from CameraInfo input -->
