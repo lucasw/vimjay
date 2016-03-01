@@ -6,14 +6,14 @@ import rospy
 
 from dynamic_reconfigure.server import Server
 from sensor_msgs.msg import CameraInfo
-from vimjay.cfg import CameraInfoConfig
+from vimjay.cfg import DrCameraInfoConfig
 
 class DrCameraInfo:
     def __init__(self):
         rospy.init_node('dr_camera_info')
         self.camera_info = None
         self.pub = rospy.Publisher("camera_info", CameraInfo, queue_size=1, latch=True)
-        self.server = Server(CameraInfoConfig, self.dr_callback)
+        self.server = Server(DrCameraInfoConfig, self.dr_callback)
 
     def dr_callback(self, config, level):
         ci = CameraInfo()
