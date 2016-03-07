@@ -3,7 +3,7 @@
   <arg name="use_debug" default="false" />
 
   <node name="image" pkg="vimjay" type="image.py"
-      args="$(find vimjay)/data/chess.png"
+      args="$(find vimjay)/data/chess_640.png"
       output="screen" >
     <remap from="camera_info" to="camera_info_unused" />
   </node>
@@ -43,8 +43,8 @@
   <node name="gray" pkg="vimjay" type="color"
       output="screen" >
     <!-- would be nice to derive these from CameraInfo input -->
-    <param name="width" value="64" />
-    <param name="height" value="48" />
+    <param name="width" value="640" />
+    <param name="height" value="480" />
     <remap from="image" to="gray" />
   </node>
   <node name="diff_image" pkg="vimjay" type="iir_image" 
