@@ -1,19 +1,24 @@
 <?xml version="1.0"?>
 <launch>
   <arg name="use_debug" default="false" />
+  <arg name="use_dr_camera_info" default="true" />
+  <arg name="use_rqt" default="true" />
+  <arg name="image" default="$(find vimjay)/data/chess_640.png" />
+  <arg name="distort_then_rectify" default="true" />
 
   <node name="image" pkg="vimjay" type="image.py"
-      args="$(find vimjay)/data/chess_640.png"
+      args="$(arg image)"
       output="screen" >
     <remap from="camera_info" to="camera_info_unused" />
   </node>
 
   <node name="dr_camera_info" pkg="vimjay" type="dr_camera_info.py"
-      output="screen" >
+      output="screen"
+      if="$(arg use_dr_camera_info)" >
   </node>
 
   <!-- this is for rectifying then distorting -->
-  <group if="false">
+  <group unless="$(arg distort_then_rectify)">
   <node name="image_proc" pkg="image_proc" type="image_proc"
       output="screen" >
     <remap from="image_raw" to="image" />
@@ -30,12 +35,17 @@
   </group>  <!-- false -->
 
   <!-- this is for distorting then rectifying -->
-  <group ns="distort" if="true" >
+  <group ns="distort" if="$(arg distort_then_rectify)">
   <node name="distort" pkg="vimjay" type="distort_image"
       output="screen" >
     <remap from="image" to="/image" />
     <remap from="camera_info" to="/camera_info" />
     <param name="use_debug" value="$(arg use_debug)" />
+  </node>
+  <node name="image_proc" pkg="image_proc" type="image_proc"
+      output="screen" >
+    <remap from="image_raw" to="distorted/image" />
+    <remap from="camera_info" to="distorted/camera_info" />
   </node>
 
   <!-- visualize the difference between the input and rectified output -
@@ -55,19 +65,12 @@
     <remap from="image_2" to="/distort/image_rect" />
     <remap from="filtered_image" to="diff_image" />
   </node>
-
-  <group if="true" >
-  <node name="image_proc" pkg="image_proc" type="image_proc"
-      output="screen" >
-    <remap from="image_raw" to="distorted/image" />
-    <remap from="camera_info" to="distorted/camera_info" />
-  </node>
-  </group>
-  </group>
+  </group>  <!-- if distort_then_rectify -->
 
   <node name="rqt_generic" pkg="rqt_gui" type="rqt_gui" 
       args="--perspective-file $(find vimjay)/config/distort.perspective" 
-      output="screen" >
+      output="screen"
+      if="$(arg use_rqt)" >
   </node>
 
 </launch>

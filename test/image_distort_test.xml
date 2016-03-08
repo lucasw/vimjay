@@ -1,0 +1,25 @@
+<launch>
+  <arg name="image" default="$(find vimjay)/data/chess_640.png" />
+  <!--include file="$(find vimjay)/distort.launch" >
+    <arg name="image" value="$(arg image)" />
+    <arg name="use_dr_camera_info" value="false" />
+    <arg name="use_rqt" value="false" />
+  </include-->
+  <group ns="distort">
+  <node name="distort" pkg="vimjay" type="distort_image"
+      output="screen" >
+    <!--remap from="image" to="/image" />
+    <remap from="camera_info" to="/camera_info" />
+    <param name="use_debug" value="$(arg use_debug)" /-->
+  </node>
+  <node name="image_proc" pkg="image_proc" type="image_proc"
+      output="screen" >
+    <remap from="image_raw" to="distorted/image" />
+    <remap from="camera_info" to="distorted/camera_info" />
+  </node>
+
+  <test test-name="image_distort_test"  pkg="vimjay" type="image_distort_test" >
+    <arg name="image" value="$(arg image)" />
+  </test>
+  </group>
+</launch>

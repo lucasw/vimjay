@@ -54,6 +54,8 @@ class ImagePub:
         ci.P = [500.0, 0.0, msg.width/2, 0.0, 0.0, 500.0, msg.height/2, 0.0,  0.0, 0.0, 1.0, 0.0]
         # ci_pub.publish(ci)
 
+        # TODO(lwalter) only run this is hz is positive,
+        # otherwise wait for input trigger message to publish an image
         while not rospy.is_shutdown():
             if self.ci_in is not None:
                 ci = self.ci_in
@@ -63,7 +65,11 @@ class ImagePub:
             if use_image:
                 pub.publish(msg)
             ci_pub.publish(ci)
-            rate.sleep()
+
+            if hz <= 0:
+                rospy.sleep()
+            else:
+                rate.sleep()
 
     def camera_info_callback(self, msg):
         self.ci_in = msg
