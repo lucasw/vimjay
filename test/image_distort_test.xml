@@ -19,7 +19,7 @@
   </node>
 
   <test test-name="image_distort_test"  pkg="vimjay" type="image_distort_test" >
-    <arg name="image" value="$(arg image)" />
+    <param name="image" value="$(arg image)" />
   </test>
   </group>
 </launch>
