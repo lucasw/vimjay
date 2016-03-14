@@ -8,6 +8,13 @@ The current model is to only update nodes that are input ancestors to an active 
 
 Originally hosted on http://code.google.com/p/binarymillenium/source/browse/trunk/opencv/camthing on svn.
 
+# Image processing nodes
+
+image_proc
+
+Need to check these nodes out:
+http://wiki.ros.org/opencv_apps
+
 ## standalone tools
 
 ### USB camera input
