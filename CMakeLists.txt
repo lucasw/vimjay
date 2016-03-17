@@ -234,13 +234,17 @@ target_link_libraries(iir_image
   ${catkin_LIBRARIES}
 )
 
+add_library(cv_distort_image
+  src/standalone/cv_distort_image.cpp
+)
+
 add_executable(distort_image
   src/standalone/distort_image.cpp
 )
 target_link_libraries(distort_image
+  cv_distort_image
   ${catkin_LIBRARIES}
 )
-
 
 add_executable(nn_im
   src/nngen/nn_im.cpp
