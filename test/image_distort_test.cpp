@@ -113,6 +113,8 @@ TEST_F(ImageDistortTest, rectifyTest)
     ros::Duration(0.5).sleep();
   }
 
+  double diff_threshold = sent_image_.cols * sent_image_.rows * 255 * 0.05;
+  double diff;
   publishRaw();
   while(!has_new_image_)
   {
@@ -122,13 +124,26 @@ TEST_F(ImageDistortTest, rectifyTest)
   // cv::imshow("sent", sent_image_);
   // cv::imshow("received", received_image_);
   // cv::waitKey(0);
-  double diff = cv::norm(sent_image_, received_image_, cv::NORM_L1);
   // cv::Mat diff_image;
   // cv::absdiff(received_image_,sent_image_, diff_image);
   // cv::imshow("received", diff_image);
   // cv::waitKey(0);
+  diff = cv::norm(sent_image_, received_image_, cv::NORM_L1);
   ROS_INFO_STREAM(diff);
-  EXPECT_LT(diff, sent_image_.cols * sent_image_.rows * 255 * 0.05);
+  EXPECT_LT(diff, diff_threshold);
+
+  // same image again- should exercise re-use of remap maps, though
+  // can't prove it actually did reuse maps- without accessing them or
+  // publishing a flag from the node that indicates they were reused.
+  publishRaw();
+  while(!has_new_image_)
+  {
+    ros::spinOnce();
+    ros::Duration(0.5).sleep();
+  }
+  diff = cv::norm(sent_image_, received_image_, cv::NORM_L1);
+  ROS_INFO_STREAM(diff);
+  EXPECT_LT(diff, diff_threshold);
 }
 
 int main(int argc, char** argv)

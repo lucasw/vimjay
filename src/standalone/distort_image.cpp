@@ -55,10 +55,7 @@ void initDistortMap(const cv::Mat& cameraMatrix, const cv::Mat distCoeffs,
 }
 
 // adapted from http://code.opencv.org/issues/1387 (which had errors)
-// TODO(lucasw) need to make a function that only returns the pixel_locations_dst,
-// then the caller can re-use that instead of recomputing it if the intrinsics/dist
-// doesn't change.
-// Also would want to make use of convertMaps to make it even more efficient
+// TODO(lucasw) I think this can make use of convertMaps to make it even more efficient
 void distort(const cv::Mat& src, cv::Mat& image_dst,
     const cv::Mat& cameraMatrix, const cv::Mat& distCoeffs)
 {
@@ -89,11 +86,15 @@ protected:
   void cameraInfoCallback(const sensor_msgs::CameraInfo::ConstPtr& msg);
   cv::Mat camera_matrix_;
   cv::Mat dist_coeffs_;
+  cv::Mat map_1_;
+  cv::Mat map_2_;
+  bool new_maps_needed_;
 };
 
 DistortImage::DistortImage() :
   it_(nh_),
-  use_debug_(false)
+  use_debug_(false),
+  new_maps_needed_(true)
 {
   // TODO(lucasw) use CameraPublisher to sync camera info and image?
   camera_matrix_ = cv::Mat(3, 3, CV_64F);
@@ -106,12 +107,21 @@ DistortImage::DistortImage() :
   camera_info_sub_ = nh_.subscribe("camera_info", 1, &DistortImage::cameraInfoCallback, this);
 }
 
+// TODO(lucasw) this use of a non synchronized callback is really non-standard
+// should use a TimeSynchronizer and expect the camera info to have matching
+// headers with the image.
 void DistortImage::cameraInfoCallback(const sensor_msgs::CameraInfo::ConstPtr& msg)
 {
   camera_info_ = *msg;
-  dist_coeffs_ = cv::Mat(msg->D.size(), 1, CV_64F);
+
+  if (dist_coeffs_.rows != msg->D.size())
+    new_maps_needed_ = true;
+    dist_coeffs_ = cv::Mat(msg->D.size(), 1, CV_64F);
+
   for (size_t i = 0; i < msg->D.size(); ++i)
   {
+    if (dist_coeffs_.at<double>(i, 0) != msg->D[i])
+      new_maps_needed_ = true;
     dist_coeffs_.at<double>(i, 0) = msg->D[i];
   }
 
@@ -122,10 +132,14 @@ void DistortImage::cameraInfoCallback(const sensor_msgs::CameraInfo::ConstPtr& m
     {
       if (ind > msg->K.size())
       {
+        // TODO(lucasw) save the old camera_info if the new
+        // is bad?
         ROS_ERROR_STREAM(msg->K.size() << " " << camera_matrix_.size() << " " << ind);
         return;
       }
 
+      if (camera_matrix_.at<double>(y, x) != msg->K[ind])
+        new_maps_needed_ = true;
       camera_matrix_.at<double>(y, x) = msg->K[ind];
       ++ind;
     }
@@ -159,8 +173,18 @@ void DistortImage::imageCallback(const sensor_msgs::ImageConstPtr& msg)
     ROS_ERROR("no converted image");
   }
 
+  cv::Size src_size = cv_ptr->image.size();
   cv::Mat distorted_cv_image;
-  distort(cv_ptr->image, distorted_cv_image, camera_matrix_, dist_coeffs_);
+  if (map_1_.empty() || map_2_.empty() ||
+      (map_1_.size() != src_size) ||
+      (map_2_.size() != src_size) ||
+      new_maps_needed_)
+  {
+    initDistortMap(camera_matrix_, dist_coeffs_, src_size, map_1_, map_2_);
+    new_maps_needed_ = false;
+  }
+  // TODO(lucasw) make the interpolation controllable
+  cv::remap(cv_ptr->image, distorted_cv_image, map_1_, map_2_, CV_INTER_LINEAR);
 
   cv_bridge::CvImage distorted_image;
   distorted_image.header = msg->header;
