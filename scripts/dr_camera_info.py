@@ -32,6 +32,9 @@ class DrCameraInfo:
         ci.P[1 * 4 + 1] = config['fy']
         ci.P[1 * 4 + 2] = config['cy']
         ci.P[2 * 4 + 2] = 1
+        ci.R[0] = 1
+        ci.R[4] = 1
+        ci.R[8] = 1
         self.camera_info = ci
         self.pub.publish(ci)
         return config

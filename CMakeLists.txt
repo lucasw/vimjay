@@ -83,7 +83,7 @@ find_package(catkin REQUIRED COMPONENTS
 # )
 
 generate_dynamic_reconfigure_options(
-  cfg/CameraInfo.cfg
+  cfg/DrCameraInfo.cfg
 )
 
 ###################################
@@ -234,13 +234,17 @@ target_link_libraries(iir_image
   ${catkin_LIBRARIES}
 )
 
+add_library(cv_distort_image
+  src/standalone/cv_distort_image.cpp
+)
+
 add_executable(distort_image
   src/standalone/distort_image.cpp
 )
 target_link_libraries(distort_image
+  cv_distort_image
   ${catkin_LIBRARIES}
 )
-
 
 add_executable(nn_im
   src/nngen/nn_im.cpp
@@ -290,10 +294,10 @@ install(TARGETS vimjay_node
 #############
 
 ## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_vimjay.cpp)
-# if(TARGET ${PROJECT_NAME}-test)
-#   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
-# endif()
+catkin_add_gtest(image_distort_test test/image_distort_test.cpp)
+if(TARGET image_distort_test)
+  target_link_libraries(image_distort_test ${catkin_LIBRARIES})
+endif()
 
 ## Add folders to be run by python nosetests
 # catkin_add_nosetests(test)

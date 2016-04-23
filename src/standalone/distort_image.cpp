@@ -4,50 +4,7 @@
 #include <ros/ros.h>
 #include <sensor_msgs/Image.h>
 #include <sensor_msgs/image_encodings.h>
-
-// from http://code.opencv.org/issues/1387
-// TODO(lucasw) need to make a function that only returns the pixel_locations_dst,
-// then the caller can re-use that instead of recomputing it if the intrinsics/dist
-// doesn't change.
-// Also would want to make use of convertMaps to make it even more efficient
-void distort(const cv::Mat& src, cv::Mat& image_dst,
-    const cv::Mat& cameraMatrix, const cv::Mat& distCoeffs)
-{
-  cv::Mat pixel_locations_src = cv::Mat(src.rows * src.cols, 1, CV_32FC2);
-
-  int ind = 0;
-  for (int i = 0; i < src.size().height; i++) {
-    for (int j = 0; j < src.size().width; j++) {
-      pixel_locations_src.at<cv::Point2f>(ind, 0) = cv::Point2f(j,i);
-      ++ind;
-    }
-  }
-
-  cv::Mat fractional_locations_dst = cv::Mat(pixel_locations_src.size(), CV_32FC2);
-  cv::undistortPoints(pixel_locations_src, fractional_locations_dst, cameraMatrix, distCoeffs);
-
-  const float fx = cameraMatrix.at<double>(0, 0);
-  const float fy = cameraMatrix.at<double>(1, 1);
-  const float cx = cameraMatrix.at<double>(0, 2);
-  const float cy = cameraMatrix.at<double>(1, 2);
-
-  // TODO(lucasw) is there a faster way to do this?
-  // A matrix operation?
-  cv::Mat pixel_locations_dst = cv::Mat(src.size(), CV_32FC2);
-  ind = 0;
-  for (int i = 0; i < src.size().height; i++) {
-    for (int j = 0; j < src.size().width; j++) {
-      const float x = fractional_locations_dst.at<cv::Point2f>(ind, 0).x * fx + cx;
-      const float y = fractional_locations_dst.at<cv::Point2f>(ind, 0).y * fy + cy;
-      pixel_locations_dst.at<cv::Point2f>(i,j) = cv::Point2f(x,y);
-      // if ((i == 0) && (j == 0))
-      //  ROS_INFO_STREAM(ind << ": " << i << " " << j << ", " << y << " " << x);
-      ++ind;
-    }
-  }
-
-  cv::remap(src, image_dst, pixel_locations_dst, cv::Mat(), CV_INTER_LINEAR);
-}
+#include <vimjay/cv_distort_image.h>
 
 class DistortImage
 {
@@ -57,6 +14,7 @@ protected:
   ros::NodeHandle nh_;
   image_transport::ImageTransport it_;
   image_transport::Publisher image_pub_;
+  bool use_debug_;
   image_transport::Publisher debug_image_pub_;
   ros::Publisher camera_info_pub_;
   sensor_msgs::CameraInfo camera_info_;
@@ -66,26 +24,42 @@ protected:
   void cameraInfoCallback(const sensor_msgs::CameraInfo::ConstPtr& msg);
   cv::Mat camera_matrix_;
   cv::Mat dist_coeffs_;
+  cv::Mat map_1_;
+  cv::Mat map_2_;
+  bool new_maps_needed_;
 };
 
 DistortImage::DistortImage() :
-  it_(nh_)
+  it_(nh_),
+  use_debug_(false),
+  new_maps_needed_(true)
 {
   // TODO(lucasw) use CameraPublisher to sync camera info and image?
   camera_matrix_ = cv::Mat(3, 3, CV_64F);
   image_pub_ = it_.advertise("distorted/image", 1, true);
-  debug_image_pub_ = it_.advertise("debug_image", 1, true);
+  ros::param::get("~use_debug", use_debug_);
+  if (use_debug_)
+    debug_image_pub_ = it_.advertise("debug_image", 1, true);
   camera_info_pub_ = nh_.advertise<sensor_msgs::CameraInfo>("distorted/camera_info", 1);
   image_sub_ = it_.subscribe("image", 1, &DistortImage::imageCallback, this);
   camera_info_sub_ = nh_.subscribe("camera_info", 1, &DistortImage::cameraInfoCallback, this);
 }
 
+// TODO(lucasw) this use of a non synchronized callback is really non-standard
+// should use a TimeSynchronizer and expect the camera info to have matching
+// headers with the image.
 void DistortImage::cameraInfoCallback(const sensor_msgs::CameraInfo::ConstPtr& msg)
 {
   camera_info_ = *msg;
-  dist_coeffs_ = cv::Mat(msg->D.size(), 1, CV_64F);
+
+  if (dist_coeffs_.rows != msg->D.size())
+    new_maps_needed_ = true;
+    dist_coeffs_ = cv::Mat(msg->D.size(), 1, CV_64F);
+
   for (size_t i = 0; i < msg->D.size(); ++i)
   {
+    if (dist_coeffs_.at<double>(i, 0) != msg->D[i])
+      new_maps_needed_ = true;
     dist_coeffs_.at<double>(i, 0) = msg->D[i];
   }
 
@@ -96,10 +70,14 @@ void DistortImage::cameraInfoCallback(const sensor_msgs::CameraInfo::ConstPtr& m
     {
       if (ind > msg->K.size())
       {
+        // TODO(lucasw) save the old camera_info if the new
+        // is bad?
         ROS_ERROR_STREAM(msg->K.size() << " " << camera_matrix_.size() << " " << ind);
         return;
       }
 
+      if (camera_matrix_.at<double>(y, x) != msg->K[ind])
+        new_maps_needed_ = true;
       camera_matrix_.at<double>(y, x) = msg->K[ind];
       ++ind;
     }
@@ -133,8 +111,20 @@ void DistortImage::imageCallback(const sensor_msgs::ImageConstPtr& msg)
     ROS_ERROR("no converted image");
   }
 
+  cv::Size src_size = cv_ptr->image.size();
   cv::Mat distorted_cv_image;
-  distort(cv_ptr->image, distorted_cv_image, camera_matrix_, dist_coeffs_);
+  if (map_1_.empty() || map_2_.empty() ||
+      (map_1_.size() != src_size) ||
+      (map_2_.size() != src_size) ||
+      new_maps_needed_)
+  {
+    initDistortMap(camera_matrix_, dist_coeffs_, src_size, map_1_, map_2_);
+    new_maps_needed_ = false;
+  }
+  // Don't ever call distort() directly because it is more efficient to
+  // reuse maps.
+  // TODO(lucasw) make the interpolation controllable
+  cv::remap(cv_ptr->image, distorted_cv_image, map_1_, map_2_, CV_INTER_LINEAR);
 
   cv_bridge::CvImage distorted_image;
   distorted_image.header = msg->header;
@@ -146,13 +136,16 @@ void DistortImage::imageCallback(const sensor_msgs::ImageConstPtr& msg)
   image_pub_.publish(image_msg);
   camera_info_pub_.publish(camera_info_);
 
-  cv::Mat debug_cv_image;
-  cv::undistort(distorted_cv_image, debug_cv_image, camera_matrix_, dist_coeffs_);
-  cv_bridge::CvImage debug_image;
-  debug_image.header = msg->header;
-  debug_image.encoding = msg->encoding;
-  debug_image.image = debug_cv_image;
-  debug_image_pub_.publish(debug_image.toImageMsg());
+  if (use_debug_)
+  {
+    cv::Mat debug_cv_image;
+    cv::undistort(distorted_cv_image, debug_cv_image, camera_matrix_, dist_coeffs_);
+    cv_bridge::CvImage debug_image;
+    debug_image.header = msg->header;
+    debug_image.encoding = msg->encoding;
+    debug_image.image = debug_cv_image;
+    debug_image_pub_.publish(debug_image.toImageMsg());
+  }
 }
 
 int main(int argc, char** argv)

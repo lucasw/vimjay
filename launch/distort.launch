@@ -1,30 +1,28 @@
 <?xml version="1.0"?>
 <launch>
+  <arg name="use_debug" default="false" />
+  <arg name="use_dr_camera_info" default="true" />
+  <arg name="use_rqt" default="true" />
+  <arg name="image" default="$(find vimjay)/data/chess_640.png" />
+  <arg name="distort_then_rectify" default="true" />
 
   <node name="image" pkg="vimjay" type="image.py"
-      args="$(find vimjay)/data/chess.png"
+      args="$(arg image)"
       output="screen" >
     <remap from="camera_info" to="camera_info_unused" />
   </node>
 
-  <node name="image_view_src" pkg="image_view" type="image_view"
-      output="screen" >
-    <remap from="image" to="image" />
-  </node>
   <node name="dr_camera_info" pkg="vimjay" type="dr_camera_info.py"
-      output="screen" >
+      output="screen"
+      if="$(arg use_dr_camera_info)" >
   </node>
 
-
-  <group if="false">
+  <!-- this is for rectifying then distorting -->
+  <group unless="$(arg distort_then_rectify)">
   <node name="image_proc" pkg="image_proc" type="image_proc"
       output="screen" >
     <remap from="image_raw" to="image" />
     <remap from="camera_info" to="camera_info_unused" />
-  </node>
-  <node name="image_view_rect" pkg="image_view" type="image_view"
-      output="screen" >
-    <remap from="image" to="image_rect" />
   </node>
 
   <group ns="redistort" if="true" >
@@ -33,35 +31,30 @@
     <remap from="image" to="/image_rect" />
     <remap from="camera_info" to="/camera_info_unused" />
   </node>
-  <node name="image_view_distort" pkg="image_view" type="image_view"
-      output="screen" >
-    <remap from="image" to="distorted/image" />
-  </node>
   </group>
-  </group>
+  </group>  <!-- false -->
 
-
-  <group ns="distort" if="true" >
+  <!-- this is for distorting then rectifying -->
+  <group ns="distort" if="$(arg distort_then_rectify)">
   <node name="distort" pkg="vimjay" type="distort_image"
       output="screen" >
     <remap from="image" to="/image" />
     <remap from="camera_info" to="/camera_info" />
+    <param name="use_debug" value="$(arg use_debug)" />
   </node>
-  <node name="image_view_distort" pkg="image_view" type="image_view"
+  <node name="image_proc" pkg="image_proc" type="image_proc"
       output="screen" >
-    <remap from="image" to="distorted/image" />
-  </node>
-  <node name="image_view_debug" pkg="image_view" type="image_view"
-      output="screen" >
-    <remap from="image" to="debug_image" />
+    <remap from="image_raw" to="distorted/image" />
+    <remap from="camera_info" to="distorted/camera_info" />
   </node>
 
-  <!-- visualize the difference between the input and debug output - should be the same -->
+  <!-- visualize the difference between the input and rectified output -
+      should be the same except for interpolation errors and where data is missing -->
   <node name="gray" pkg="vimjay" type="color"
       output="screen" >
     <!-- would be nice to derive these from CameraInfo input -->
-    <param name="width" value="64" />
-    <param name="height" value="48" />
+    <param name="width" value="640" />
+    <param name="height" value="480" />
     <remap from="image" to="gray" />
   </node>
   <node name="diff_image" pkg="vimjay" type="iir_image" 
@@ -69,25 +62,15 @@
     <rosparam param="b_coeffs">[1.0, 0.5, -0.5]</rosparam>
     <remap from="image_0" to="gray" />
     <remap from="image_1" to="/image" />
-    <remap from="image_2" to="debug_image" />
+    <remap from="image_2" to="/distort/image_rect" />
     <remap from="filtered_image" to="diff_image" />
   </node>
-  <node name="image_view_diff" pkg="image_view" type="image_view"
-      output="screen" >
-    <remap from="image" to="diff_image" />
-  </node>
+  </group>  <!-- if distort_then_rectify -->
 
-  <group if="true" >
-  <node name="image_proc" pkg="image_proc" type="image_proc"
-      output="screen" >
-    <remap from="image_raw" to="distorted/image" />
-    <remap from="camera_info" to="distorted/camera_info" />
+  <node name="rqt_generic" pkg="rqt_gui" type="rqt_gui" 
+      args="--perspective-file $(find vimjay)/config/distort.perspective" 
+      output="screen"
+      if="$(arg use_rqt)" >
   </node>
-  <node name="image_view_rect" pkg="image_view" type="image_view"
-      output="screen" >
-    <remap from="image" to="image_rect_color" />
-  </node>
-  </group>
-  </group>
 
 </launch>
