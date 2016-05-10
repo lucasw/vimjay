@@ -134,6 +134,10 @@
       args="--perspective-file $(find vimjay)/config/stop_motion.perspective" 
       output="screen" >
   </node>
+  <node name="rqt_dr" pkg="rqt_gui" type="rqt_gui"
+      args="--perspective-file $(find vimjay)/config/dr.perspective"
+      output="screen" >
+  </node>
 
   <node name="v4l2ucp" pkg="v4l2ucp" type="v4l2ucp" >
     <param name="device" value="/dev/video$(arg device)" />
