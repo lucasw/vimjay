@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<launch>
+  <include file="$(find vimjay)/launch/stop_motion.launch" >
+    <arg name="device" default="0" />
+    <arg name="width" default="1280" />
+    <arg name="height" default="720" />
+    <arg name="small_width" value="320" />
+    <arg name="small_height" value="180" />
+    <arg name="decimation" value="4" />
+  </include>
+</launch>

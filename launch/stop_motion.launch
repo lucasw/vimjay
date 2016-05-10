@@ -3,16 +3,16 @@
   <arg name="device" default="1" />
   <arg name="width" default="1920" />
   <arg name="height" default="1080" />
-  <arg name="small_width" value="480" />
-  <arg name="small_height" value="270" />
+  <arg name="small_width" default="480" />
+  <arg name="small_height" default="270" />
   <!--
   <arg name="width" default="1280" />
   <arg name="height" default="1024" />
-  <arg name="small_width" value="320" />
-  <arg name="small_height" value="256" />
+  <arg name="small_width" default="320" />
+  <arg name="small_height" default="256" />
   -->
   <!-- The above values need to be width/decimation and height/decimation -->
-  <arg name="decimation" value="4" />
+  <arg name="decimation" default="4" />
 
   <arg name="frame_rate" default="5" />
 
@@ -138,28 +138,11 @@
   <node name="v4l2ucp" pkg="v4l2ucp" type="v4l2ucp" >
     <param name="device" value="/dev/video$(arg device)" />
   </node>
-
-  <group if="false" >
-  <node name="raw_image_view" pkg="image_view" type="image_view"
-      >
-    <remap from="image" to="image_raw" />
+  <!-- TODO(lucasw) Need to delay launch of this until the v4l2ucp node above
+    has complete creating all the parameters- maybe it should publish an 'update'
+    signal? -->
+  <node name="dr_topics" pkg="rqt_v4l2ucp" type="dr_topics.py" >
   </node>
-  <node name="anim_image_view" pkg="image_view" type="image_view" >
-    <remap from="image" to="anim" />
-  </node>
-  <node name="saved_image_view" pkg="image_view" type="image_view" >
-    <remap from="image" to="saved_image_small" />
-  </node>
-  <node name="blur_image_view" pkg="image_view" type="image_view"
-      output="screen" >
-    <remap from="image" to="filtered_image" />
-  </node>
-  <node name="diff_image_view" pkg="image_view" type="image_view"
-      output="screen"
-      >
-    <remap from="image" to="diff_image" />
-  </node>
-  </group>
 
   </group>
 </launch>

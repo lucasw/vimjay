@@ -227,6 +227,12 @@ target_link_libraries(image_deque
   ${catkin_LIBRARIES}
 )
 
+add_executable(cam_sub
+  src/standalone/cam_sub.cpp
+)
+target_link_libraries(cam_sub
+  ${catkin_LIBRARIES}
+)
 add_executable(iir_image
   src/standalone/iir_image.cpp
 )
