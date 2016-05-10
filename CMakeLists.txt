@@ -84,6 +84,7 @@ find_package(catkin REQUIRED COMPONENTS
 
 generate_dynamic_reconfigure_options(
   cfg/DrCameraInfo.cfg
+  cfg/ImageDeque.cfg
 )
 
 ###################################
@@ -155,7 +156,6 @@ other/simplextextures.cpp
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
-# add_dependencies(vimjay ${PROJECT_NAME}_gencfg)
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(vimjay_node
@@ -223,6 +223,7 @@ target_link_libraries(key_trigger
 add_executable(image_deque
   src/standalone/image_deque.cpp
 )
+add_dependencies(image_deque ${PROJECT_NAME}_gencfg)
 target_link_libraries(image_deque
   ${catkin_LIBRARIES}
 )

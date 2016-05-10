@@ -65,9 +65,9 @@
   <group ns="usb_cam" >
 
   <!-- capture the input image when triggered -->
-  <node name="capture_trigger" pkg="vimjay" type="key_trigger" >
+  <!--node name="capture_trigger" pkg="vimjay" type="key_trigger" >
     <remap from="trigger" to="single" />
-  </node>
+  </node-->
 
   <!-- TODO(lucasw) 
     the save and the deque when triggered may not save the same frame to disk
