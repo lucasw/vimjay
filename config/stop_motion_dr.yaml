@@ -1,0 +1,4 @@
+# this needs dr2dr to work
+# [server name, server value name, type, level, description, default value, min, max]
+capture_single: ["/usb_cam/image_deque", "capture_single", "bool", 1, "capture single image", False, False, True]
+white_balance_temperature: ["/usb_cam/v4l2ucp_ddr", "WhiteBalanceTemperature", "int", 2, "Change camera white balance", 5000, 2800, 6500]

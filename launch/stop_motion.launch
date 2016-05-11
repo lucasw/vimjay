@@ -145,7 +145,7 @@
   <!-- TODO(lucasw) Need to delay launch of this until the v4l2ucp node above
     has complete creating all the parameters- maybe it should publish an 'update'
     signal? -->
-  <node name="dr_topics" pkg="rqt_v4l2ucp" type="dr_topics.py" >
+  <node name="v4l2ucp_ddr" pkg="rqt_v4l2ucp" type="dr_topics.py" >
   </node>
 
   </group>

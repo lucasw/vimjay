@@ -97,7 +97,7 @@ ImageDeque::ImageDeque() :
   max_size_sub_ = nh_.subscribe<std_msgs::UInt16>("max_size", 1,
                   &ImageDeque::maxSizeCallback, this);
 
-  server_.reset(new ReconfigureServer(dr_mutex_, nh_));
+  server_.reset(new ReconfigureServer(dr_mutex_, ros::NodeHandle(ros::this_node::getName())));
   dynamic_reconfigure::Server<vimjay::ImageDequeConfig>::CallbackType cbt =
     boost::bind(&ImageDeque::callback, this, _1, _2);
   server_->setCallback(cbt);
