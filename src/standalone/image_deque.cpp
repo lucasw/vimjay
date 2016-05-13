@@ -42,6 +42,8 @@ protected:
   ros::NodeHandle nh_;
   // TODO(lucasw) or maybe capture N images then stop?
   image_transport::ImageTransport it_;
+  // send a bool to indicate that an image was saved
+  ros::Publisher captured_trigger_pub_;
   // publish the most recent captured image
   image_transport::Publisher captured_pub_;
   image_transport::Publisher anim_pub_;
@@ -86,6 +88,7 @@ ImageDeque::ImageDeque() :
   capture_single_(false),
   index_(0)
 {
+  captured_trigger_pub_ = nh_.advertise<std_msgs::Bool>("captured_image_trigger", 1);
   captured_pub_ = it_.advertise("captured_image", 1, true);
   anim_pub_ = it_.advertise("anim", 1);
   image_sub_ = it_.subscribe("image", 1, &ImageDeque::imageCallback, this);
@@ -195,6 +198,9 @@ void ImageDeque::imageCallback(const sensor_msgs::ImageConstPtr& msg)
   // TODO(lucasw) could put this in separate thread.
   // publish the exact same message received - TODO(lucasw) is this safe?
   captured_pub_.publish(msg);
+  std_msgs::Bool trigger;
+  trigger.data = true;
+  captured_trigger_pub_.publish(trigger);
 }
 
 // TEMP code to show output of frames

@@ -75,6 +75,7 @@
   <node name="save_image" pkg="vimjay" type="save_image"
       output="screen" >
     <remap from="image" to="image_raw" />
+    <remap from="single" to="captured_image_trigger" />
   </node>
 
   <node name="image_deque" pkg="vimjay" type="image_deque" 
