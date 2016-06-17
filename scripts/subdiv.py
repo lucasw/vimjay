@@ -19,6 +19,16 @@ class SubDiv:
         self.point_sub = rospy.Subscriber('control_points', Point2DArray,
                                           self.control_points_callback, queue_size=1)
 
+    def sub_point_weighted(self, points, weights):
+        point = Point2D()
+        if len(points) != len(weights):
+            return point
+
+        for i in range(len(points)):
+            point.x += points[i].x * weights[i]
+            point.y += points[i].y * weights[i]
+        return point
+
     def sub_point(self, p1, p2, t):
         pt = Point2D()
         pt.x = p1.x + (p2.x - p1.x) * t
@@ -32,8 +42,8 @@ class SubDiv:
             i2 = (i1 + 1) % len(point_array.points)
             p1 = point_array.points[i1]
             p2 = point_array.points[i2]
-            sub_points.points.append(self.sub_point(p1, p2, 0.25))
-            sub_points.points.append(self.sub_point(p1, p2, 0.75))
+            sub_points.points.append(self.sub_point_weighted([p1, p2], [0.75, 0.25]))
+            sub_points.points.append(self.sub_point_weighted([p1, p2], [0.25, 0.75]))
         return sub_points
 
     def control_points_callback(self, msg):
