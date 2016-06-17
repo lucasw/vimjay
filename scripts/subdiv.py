@@ -40,6 +40,10 @@ class SubDiv:
         # TODO(lucasw) replace with numpy operations
         for i1 in range(len(point_array.points)):
             i2 = (i1 + 1) % len(point_array.points)
+            # TODO(lucasw) proper weighted averaging generalized to any
+            # number of weights -> create an array of the original points
+            # intermixed with midpoints.  Then apply the weights to each point in sequence
+            # summing previous and later points as necessary.
             p1 = point_array.points[i1]
             p2 = point_array.points[i2]
             sub_points.points.append(self.sub_point_weighted([p1, p2], [0.75, 0.25]))
