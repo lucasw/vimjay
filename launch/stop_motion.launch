@@ -135,6 +135,18 @@
       args="--perspective-file $(find vimjay)/config/stop_motion.perspective" 
       output="screen" >
   </node>
+
+  <!--
+  <node name="rqt_anim" pkg="rqt_dr_single" type="rqt_dr_single"
+      output="screen" >
+    <remap from="topic" to="image_deque" />
+  </node>
+  <node name="rqt_cam" pkg="rqt_dr_single" type="rqt_dr_single"
+      output="screen" >
+    <remap from="topic" to="v4l2ucp_ddr" />
+  </node>
+  -->
+
   <node name="rqt_dr" pkg="rqt_gui" type="rqt_gui"
       args="--perspective-file $(find vimjay)/config/dr.perspective"
       output="screen" >
