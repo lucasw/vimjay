@@ -68,6 +68,7 @@ protected:
   cv::Mat fg_mask_mog2_rgb_;
   cv::Ptr<cv::BackgroundSubtractor> mog2_;
 
+  cv::Mat bg_image_;
 public:
   BackgroundSubtraction();
 };
@@ -121,18 +122,30 @@ void BackgroundSubtraction::imageCallback(const sensor_msgs::ImageConstPtr& msg)
   cv::Mat live_frame = cv_ptr->image.clone();
 
   mog2_->apply(live_frame, fg_mask_mog2_);
-  // if (config_.capture_background)
-  // {
-  // }
+  if (config_.capture_background)
+  {
+    bg_image_ = live_frame;
+  }
   // else
   // if (config_.subtract_background)
+  // if (!bg_image_.isEmpty())
   {
-    cv::cvtColor(fg_mask_mog2_, fg_mask_mog2_rgb_, CV_GRAY2RGB);
     cv::Mat image;
+    #if 0
+    cv::cvtColor(fg_mask_mog2_, fg_mask_mog2_rgb_, CV_GRAY2RGB);
     if (fg_mask_mog2_rgb_.size() == live_frame.size())
       image = live_frame & fg_mask_mog2_rgb_;
     else
       image = live_frame;
+    #endif
+    cv::Mat diff;
+    cv::absdiff(bg_image_, live_frame, diff);
+    cv::Mat diff_gray;
+    cv::cvtColor(diff, diff_gray, CV_RGB2GRAY);
+    cv::Mat mask = diff_gray > 20;  // TODO(lucasw) make this a config_ dr param
+    cv::Mat mask_rgb;
+    cv::cvtColor(mask, mask_rgb, CV_GRAY2RGB);
+    image = mask_rgb & live_frame;
 
     cv_bridge::CvImage cv_image;
     cv_image.image = image;
