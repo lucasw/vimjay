@@ -83,6 +83,7 @@ find_package(catkin REQUIRED COMPONENTS
 # )
 
 generate_dynamic_reconfigure_options(
+  cfg/BackgroundSubtraction.cfg
   cfg/DrCameraInfo.cfg
   cfg/ImageDeque.cfg
 )
@@ -182,6 +183,7 @@ include_directories(
 
 roslint_cpp(
   src/standalone/noise.cpp
+  src/standalone/background_subtraction.cpp
   src/standalone/color.cpp
   src/standalone/save_image.cpp
   src/standalone/key_trigger.cpp
@@ -228,6 +230,14 @@ target_link_libraries(image_deque
   ${catkin_LIBRARIES}
 )
 
+add_executable(background_subtraction
+  src/standalone/background_subtraction.cpp
+)
+add_dependencies(background_subtraction ${PROJECT_NAME}_gencfg)
+target_link_libraries(background_subtraction
+  ${catkin_LIBRARIES}
+)
+
 add_executable(cam_sub
   src/standalone/cam_sub.cpp
 )
@@ -253,12 +263,14 @@ target_link_libraries(distort_image
   ${catkin_LIBRARIES}
 )
 
+if (false)
 add_executable(nn_im
   src/nngen/nn_im.cpp
 )
 target_link_libraries(nn_im
   ${catkin_LIBRARIES}
 )
+endif()
 
 
 #############

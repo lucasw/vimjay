@@ -1942,11 +1942,11 @@ bool Buffer::addCore(cv::Mat& new_frame, bool restrict_size)
 {
 
   if ((frames.size() > 0) &&
-      (new_frame.refcount == frames[frames.size() - 1].refcount))
+      (new_frame.u->refcount == frames[frames.size() - 1].u->refcount))
   {
     new_frame = new_frame.clone();
     ROS_INFO_STREAM_ONCE(name << " cloning identical frame "
-                         << new_frame.refcount << " " << frames[frames.size() - 1].refcount
+                         << new_frame.u->refcount << " " << frames[frames.size() - 1].u->refcount
                         );
     // return false;
   }
