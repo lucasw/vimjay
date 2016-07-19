@@ -92,6 +92,13 @@
           background-color: black;
       }
 
+      img
+      {
+        height: 100%;
+        width: 100%;
+        object-fit: contain;
+      }
+
       div:-webkit-full-screen 
       {
           width: 100%;	
@@ -144,8 +151,7 @@
 <body>
 
 <div id="box" onclick="full_screen();">
-  <img src="http://localhost:8080/stream?topic=/usb_cam/image_raw"
-      style='height: 100%; width: 100%; object-fit: contain'>
+  <img src="http://localhost:8080/stream?topic=/usb_cam/image_raw"></img>
 </div>
 
 </body>
