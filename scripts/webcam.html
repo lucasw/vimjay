@@ -2,28 +2,151 @@
 <html>
 <head>
 <meta charset="utf-8" />
-<script type="text/javascript" src="http://cdn.robotwebtools.org/EventEmitter2/current/eventemitter2.min.js"></script>
-<script type="text/javascript" src="http://cdn.robotwebtools.org/mjpegcanvasjs/current/mjpegcanvas.min.js"></script>
 
-<script type="text/javascript" type="text/javascript">
-  /**
-   * Setup all visualization elements when the page is loaded. 
-   */
-  function init() {
-    // Create the main viewer.
-    var viewer = new MJPEGCANVAS.Viewer({
-      divID : 'mjpeg',
-      host : 'localhost',
-      width : 640,
-      height : 480,
-      topic : '/usb_cam/image_raw'
-    });
-  }
-</script>
-</head>
+<title>ROS Web Video Server Fullscreen</title>
+  <script type="text/javascript">
+  // http://qnimate.com/full-screen-api-tutorial-with-demo/
+      function full_screen()
+      {
+          // check if user allows full screen of elements. This can
+          // be enabled or disabled in browser config. By default its enabled.
+          // its also used to check if browser supports full screen api.
+          if("fullscreenEnabled" in document || "webkitFullscreenEnabled" in document || "mozFullScreenEnabled" in document || "msFullscreenEnabled" in document) 
+          {
+              if(document.fullscreenEnabled || document.webkitFullscreenEnabled || document.mozFullScreenEnabled || document.msFullscreenEnabled)
+              {
+                  console.log("User allows fullscreen");
+              
+                  var element = document.getElementById("box");
+                  //requestFullscreen is used to display an element in full screen mode.
+                  if("requestFullscreen" in element) 
+                  {
+                      element.requestFullscreen();
+                  } 
+                  else if ("webkitRequestFullscreen" in element) 
+                  {
+                      element.webkitRequestFullscreen();
+                  } 
+                  else if ("mozRequestFullScreen" in element) 
+                  {
+                      element.mozRequestFullScreen();
+                  } 
+                  else if ("msRequestFullscreen" in element) 
+                  {
+                      element.msRequestFullscreen();
+                  }
 
-<body onload="init()">
-  <h1>Simple MJPEG Canvas Example</h1>
-  <div id="mjpeg"></div>
+              }
+          }
+          else
+          {
+              console.log("User doesn't allow full screen");
+          }
+      }
+
+      function screen_change()
+      {
+          //fullscreenElement is assigned to html element if any element is in full screen mode.
+          if(document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement) 
+          {
+              console.log("Current full screen element is : " + (document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement))
+          }
+          else
+          {
+              // exitFullscreen us used to exit full screen manually
+              if ("exitFullscreen" in document) 
+              {
+                  document.exitFullscreen();
+              } 
+              else if ("webkitExitFullscreen" in document) 
+              {
+                  document.webkitExitFullscreen();
+              } 
+              else if ("mozCancelFullScreen" in document) 
+              {
+                  document.mozCancelFullScreen();
+              } 
+              else if ("msExitFullscreen" in document) 
+              {
+                  document.msExitFullscreen();
+              }
+          }
+      }
+
+      //called when an event goes full screen and vice-versa.
+      document.addEventListener("fullscreenchange", screen_change);
+      document.addEventListener("webkitfullscreenchange", screen_change);
+      document.addEventListener("mozfullscreenchange", screen_change);
+      document.addEventListener("MSFullscreenChange", screen_change);
+
+      //called when requestFullscreen(); fails. it may fail if iframe don't have allowfullscreen attribute enabled or for something else. 
+      document.addEventListener("fullscreenerror", function(){console.log("Full screen failed");});
+      document.addEventListener("webkitfullscreenerror", function(){console.log("Full screen failed");});
+      document.addEventListener("mozfullscreenerror", function(){console.log("Full screen failed");});
+      document.addEventListener("MSFullscreenError", function(){console.log("Full screen failed");});
+  </script>
+  <style type="text/css">
+      div
+      {
+          height: 100%;
+          background-color: black;
+      }
+
+      div:-webkit-full-screen 
+      {
+          width: 100%;	
+          height: 100%;
+          background-color: black;
+      }
+       
+      div:-moz-full-screen 
+      {
+          width: 100%;	
+          height: 100%;
+          background-color: black;
+      }
+       
+      div:-ms-fullscreen 
+      {
+          width: 100%;	
+          height: 100%;
+          background-color: black;
+      }
+       
+      div:fullscreen 
+      {
+          width: 100%;	
+          height: 100%;
+          background-color: black;
+      }
+
+      /*backdrop pseudo element is used to style element behing the full screen element.*/
+      :fullscreen::backdrop 
+      {
+          background-color: red;
+      }
+
+      :-webkit-full-screen::-webkit-backdrop 
+      {
+          background-color: red;
+      }
+      
+      :-moz-full-screen::-moz-backdrop {
+          background-color: red;
+      }
+
+      :-ms-fullscreen::-ms-backdrop {
+          background-color: red; /* dark blue */
+      } 
+
+    </style>
+  </head>
+<body>
+
+<div id="box" onclick="full_screen();">
+  <img src="http://localhost:8080/stream?topic=/usb_cam/image_raw"
+      style='height: 100%; width: 100%; object-fit: contain'>
+</div>
+
 </body>
 </html>
