@@ -66,7 +66,8 @@ SaveImage::SaveImage() :
   it_(nh_),
   prefix_("frame"),
   capture_single_(false),
-  capture_continuous_(false)
+  capture_continuous_(false),
+  counter_(0)
 {
   ros::param::get("~prefix", prefix_);
   ros::param::get("~capture_continuous", capture_continuous_);
