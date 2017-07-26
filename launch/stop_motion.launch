@@ -178,7 +178,7 @@
     <remap from="camera_out/image_raw" to="saved_image_small" />
   </node>
 
-  <node name="blur_image" pkg="vimjay" type="iir_image" 
+  <node name="blur_image" pkg="vimjay" type="iir_imagev" 
       output="screen" >
     <rosparam param="b_coeffs">[0.5, 0.5]</rosparam>
     <remap from="image_0" to="saved_image_small" />
@@ -193,7 +193,7 @@
     <remap from="image" to="gray" />
   </node>
 
-  <node name="diff_image" pkg="vimjay" type="iir_image" 
+  <node name="diff_image" pkg="vimjay" type="iir_imagev" 
       output="screen" >
     <rosparam param="b_coeffs">[1.0, 0.5, -0.5]</rosparam>
     <remap from="image_0" to="gray" />
@@ -206,10 +206,23 @@
   <node name="raw_image_view" pkg="rqt_image_view" type="rqt_image_view"
       args="image_raw" />
   -->
+  <!-- TODO(lucasw) re-add hide-title -->
+  <!-- lock-perspective and freeze-layout are causing problems
+   File "/opt/ros/kinetic/lib/python2.7/dist-packages/rqt_gui/main.py", line 59, in main
+    return super(Main, self).main(argv, standalone=standalone, plugin_argument_provider=plugin_argument_provider, plugin_manager_settings_prefix=str(hash(os.environ['ROS_PACKAGE_PATH'])))
+  File "/opt/ros/kinetic/lib/python2.7/dist-packages/qt_gui/main.py", line 523, in main
+    perspective_manager.import_perspective_from_file(self._options.perspective_file, perspective_manager.HIDDEN_PREFIX + '__cli_perspective_from_file')
+  File "/opt/ros/kinetic/lib/python2.7/dist-packages/qt_gui/perspective_manager.py", line 330, in import_perspective_from_file
+    self._remove_perspective(perspective_name)
+  File "/opt/ros/kinetic/lib/python2.7/dist-packages/qt_gui/perspective_manager.py", line 305, in _remove_perspective
+    self._menu_manager.remove_item(name)
+AttributeError: 'NoneType' object has no attribute 'remove_ite 
+  -->
   <node name="rqt_generic" pkg="rqt_gui" type="rqt_gui" 
-      args="--lock-perspective --freeze-layout --hide-title --perspective-file $(find vimjay)/config/stop_motion.perspective" 
+      args="--perspective-file $(find vimjay)/config/stop_motion.perspective" 
       output="screen" >
   </node>
+
 
   <!--
   <node name="rqt_anim" pkg="rqt_dr_single" type="rqt_dr_single"
