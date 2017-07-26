@@ -244,10 +244,10 @@ add_executable(cam_sub
 target_link_libraries(cam_sub
   ${catkin_LIBRARIES}
 )
-add_executable(iir_image
+add_executable(iir_imagev
   src/standalone/iir_image.cpp
 )
-target_link_libraries(iir_image
+target_link_libraries(iir_imagev
   ${catkin_LIBRARIES}
 )
 
