@@ -239,6 +239,7 @@ add_executable(background_subtraction
 add_dependencies(background_subtraction ${PROJECT_NAME}_gencfg)
 target_link_libraries(background_subtraction
   ${catkin_LIBRARIES}
+  ${OpenCV_LIBRARIES}
 )
 
 add_executable(cam_sub
