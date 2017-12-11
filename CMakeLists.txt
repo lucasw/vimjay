@@ -16,6 +16,7 @@ find_package(catkin REQUIRED COMPONENTS
   std_msgs
 )
 
+find_package(OpenCV REQUIRED)
 # this may be a bad idea given linkage of ROS stuff
 # http://answers.ros.org/question/152276/is-there-a-way-to-enable-c11-support-for-catkin-packages/
 # if this is eliminated get  error: ‘dynamic_pointer_cast’ was not declared in this scope
@@ -161,6 +162,7 @@ other/simplextextures.cpp
 ## Specify libraries to link a library or executable target against
 target_link_libraries(vimjay_node
    ${catkin_LIBRARIES}
+  ${OpenCV_LIBRARIES}
 boost_thread
 boost_filesystem
 boost_system
@@ -220,6 +222,7 @@ add_executable(key_trigger
 )
 target_link_libraries(key_trigger
   ${catkin_LIBRARIES}
+  ${OpenCV_LIBRARIES}
 )
 
 add_executable(image_deque
