@@ -163,6 +163,7 @@ other/simplextextures.cpp
 ## Specify libraries to link a library or executable target against
 target_link_libraries(vimjay_node
    ${catkin_LIBRARIES}
+  ${OpenCV_LIBRARIES}
 boost_thread
 boost_filesystem
 boost_system
