@@ -16,6 +16,7 @@ find_package(catkin REQUIRED COMPONENTS
   std_msgs
 )
 
+find_package(OpenCV REQUIRED)
 # this may be a bad idea given linkage of ROS stuff
 # http://answers.ros.org/question/152276/is-there-a-way-to-enable-c11-support-for-catkin-packages/
 # if this is eliminated get  error: ‘dynamic_pointer_cast’ was not declared in this scope
@@ -100,7 +101,8 @@ generate_dynamic_reconfigure_options(
 catkin_package(
   INCLUDE_DIRS include
 #  LIBRARIES vimjay
-  CATKIN_DEPENDS roscpp rospy std_msgs 
+  CATKIN_DEPENDS roscpp rospy std_msgs
+  DEPENDS OpenCV
 #  DEPENDS glog gflags
 )
 
@@ -164,7 +166,7 @@ target_link_libraries(vimjay_node
 boost_thread
 boost_filesystem
 boost_system
-
+  ${OpenCV_LIBRARIES}
 )
 
 #Xi
@@ -220,6 +222,7 @@ add_executable(key_trigger
 )
 target_link_libraries(key_trigger
   ${catkin_LIBRARIES}
+  ${OpenCV_LIBRARIES}
 )
 
 add_executable(image_deque
@@ -236,6 +239,7 @@ add_executable(background_subtraction
 add_dependencies(background_subtraction ${PROJECT_NAME}_gencfg)
 target_link_libraries(background_subtraction
   ${catkin_LIBRARIES}
+  ${OpenCV_LIBRARIES}
 )
 
 add_executable(cam_sub
