@@ -10,6 +10,7 @@
       args="$(arg image)"
       output="screen" >
     <remap from="camera_info" to="camera_info_unused" />
+    <param name="rate" value="10" />
   </node>
 
   <node name="dr_camera_info" pkg="vimjay" type="dr_camera_info.py"
@@ -57,7 +58,7 @@
     <param name="height" value="480" />
     <remap from="image" to="gray" />
   </node>
-  <node name="diff_image" pkg="vimjay" type="iir_image" 
+  <node name="diff_image" pkg="vimjay" type="iir_imagev" 
       output="screen" >
     <rosparam param="b_coeffs">[1.0, 0.5, -0.5]</rosparam>
     <remap from="image_0" to="gray" />
