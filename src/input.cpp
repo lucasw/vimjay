@@ -124,6 +124,7 @@ TBD have a mode that takes a webcam, uses brightness as depth, and thresholds it
   {
     bm::matToScreen(tmp, display, win);
     usleep(10000);
+  }
 #endif
 
   Mouse::Mouse(const std::string name) :

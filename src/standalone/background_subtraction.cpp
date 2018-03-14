@@ -86,7 +86,7 @@ BackgroundSubtraction::BackgroundSubtraction():
     boost::bind(&BackgroundSubtraction::callback, this, _1, _2);
   server_->setCallback(cbt);
 
-  // timer_ = nh_.createTimer(ros::Duration(0.2), &BackgroundSubtraction::pubImage, this); 
+  // timer_ = nh_.createTimer(ros::Duration(0.2), &BackgroundSubtraction::pubImage, this);
 }
 
 void BackgroundSubtraction::callback(

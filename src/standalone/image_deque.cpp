@@ -153,7 +153,7 @@ void ImageDeque::continuousCallback(const std_msgs::Bool::ConstPtr& msg)
 
 void ImageDeque::imageCallback(const sensor_msgs::ImageConstPtr& msg)
 {
-  if (!config_.use_live_frame &&(!(capture_single_ || config_.capture_continuous)))
+  if (!config_.use_live_frame && (!(capture_single_ || config_.capture_continuous)))
     return;
 
   cv_bridge::CvImageConstPtr cv_ptr;

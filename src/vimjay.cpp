@@ -450,9 +450,7 @@ public:
     return -1;
   }
 
-
-
-    /// save the graph to an output yaml file
+  /// save the graph to an output yaml file
   bool saveGraph(const std::string graph_file = "graph.yml")
   {
     boost::mutex::scoped_lock l(update_mutex);
@@ -463,7 +461,11 @@ public:
     // TBD save date and time
     time_t rawtime;
     time(&rawtime);
-    fs << "date" << asctime(localtime(&rawtime));
+    struct tm tmr;
+    localtime_r(&rawtime, &tmr);
+    char buffer[26];
+    asctime_r(&tmr, buffer);
+    fs << "date" << buffer;
 
     fs << "nodes" << "[";
     for (int i = 0; i < all_nodes.size(); i++)
