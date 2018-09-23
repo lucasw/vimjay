@@ -306,7 +306,8 @@ float sdnoise2(float x, float y, float *dnoise_dx, float *dnoise_dy)
   if (t0 < 0.0f) t40 = t20 = t0 = n0 = gx0 = gy0 = 0.0f;  /* No influence */
   else
   {
-    grad2(sd_perm[ii + sd_perm[jj]], &gx0, &gy0);
+    // TODO(lucasw) mostly sure this is the right grad2
+    sdnoise_grad2(sd_perm[ii + sd_perm[jj]], &gx0, &gy0);
     t20 = t0 * t0;
     t40 = t20 * t20;
     n0 = t40 * (gx0 * x0 + gy0 * y0);
@@ -317,7 +318,7 @@ float sdnoise2(float x, float y, float *dnoise_dx, float *dnoise_dy)
   if (t1 < 0.0f) t21 = t41 = t1 = n1 = gx1 = gy1 = 0.0f;  /* No influence */
   else
   {
-    grad2(sd_perm[ii + i1 + sd_perm[jj + j1]], &gx1, &gy1);
+    sdnoise_grad2(sd_perm[ii + i1 + sd_perm[jj + j1]], &gx1, &gy1);
     t21 = t1 * t1;
     t41 = t21 * t21;
     n1 = t41 * (gx1 * x1 + gy1 * y1);
@@ -328,7 +329,7 @@ float sdnoise2(float x, float y, float *dnoise_dx, float *dnoise_dy)
   if (t2 < 0.0f) t42 = t22 = t2 = n2 = gx2 = gy2 = 0.0f;  /* No influence */
   else
   {
-    grad2(sd_perm[ii + 1 + sd_perm[jj + 1]], &gx2, &gy2);
+    sdnoise_grad2(sd_perm[ii + 1 + sd_perm[jj + 1]], &gx2, &gy2);
     t22 = t2 * t2;
     t42 = t22 * t22;
     n2 = t42 * (gx2 * x2 + gy2 * y2);
@@ -498,7 +499,8 @@ float sdnoise3(float x, float y, float z,
   if (t0 < 0.0f) n0 = t0 = t20 = t40 = gx0 = gy0 = gz0 = 0.0f;
   else
   {
-    grad3(sd_perm[ii + sd_perm[jj + sd_perm[kk]]], &gx0, &gy0, &gz0);
+    // TODO(lucasw) not sure if this was supposed to be sdnoise_grad3 or grad3 from simplex_noise
+    sdnoise_grad3(sd_perm[ii + sd_perm[jj + sd_perm[kk]]], &gx0, &gy0, &gz0);
     t20 = t0 * t0;
     t40 = t20 * t20;
     n0 = t40 * (gx0 * x0 + gy0 * y0 + gz0 * z0);
@@ -509,7 +511,7 @@ float sdnoise3(float x, float y, float z,
   if (t1 < 0.0f) n1 = t1 = t21 = t41 = gx1 = gy1 = gz1 = 0.0f;
   else
   {
-    grad3(sd_perm[ii + i1 + sd_perm[jj + j1 + sd_perm[kk + k1]]], &gx1, &gy1, &gz1);
+    sdnoise_grad3(sd_perm[ii + i1 + sd_perm[jj + j1 + sd_perm[kk + k1]]], &gx1, &gy1, &gz1);
     t21 = t1 * t1;
     t41 = t21 * t21;
     n1 = t41 * (gx1 * x1 + gy1 * y1 + gz1 * z1);
@@ -520,7 +522,7 @@ float sdnoise3(float x, float y, float z,
   if (t2 < 0.0f) n2 = t2 = t22 = t42 = gx2 = gy2 = gz2 = 0.0f;
   else
   {
-    grad3(sd_perm[ii + i2 + sd_perm[jj + j2 + sd_perm[kk + k2]]], &gx2, &gy2, &gz2);
+    sdnoise_grad3(sd_perm[ii + i2 + sd_perm[jj + j2 + sd_perm[kk + k2]]], &gx2, &gy2, &gz2);
     t22 = t2 * t2;
     t42 = t22 * t22;
     n2 = t42 * (gx2 * x2 + gy2 * y2 + gz2 * z2);
@@ -531,7 +533,7 @@ float sdnoise3(float x, float y, float z,
   if (t3 < 0.0f) n3 = t3 = t23 = t43 = gx3 = gy3 = gz3 = 0.0f;
   else
   {
-    grad3(sd_perm[ii + 1 + sd_perm[jj + 1 + sd_perm[kk + 1]]], &gx3, &gy3, &gz3);
+    sdnoise_grad3(sd_perm[ii + 1 + sd_perm[jj + 1 + sd_perm[kk + 1]]], &gx3, &gy3, &gz3);
     t23 = t3 * t3;
     t43 = t23 * t23;
     n3 = t43 * (gx3 * x3 + gy3 * y3 + gz3 * z3);
