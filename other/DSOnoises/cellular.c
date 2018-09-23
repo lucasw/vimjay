@@ -15,12 +15,12 @@
 
 #include <math.h>
 //#include <stdio.h>
-#include "DSOnoises/cellular.h"  /* Function prototype */
+#include "DSOnoises/cellular.h" /* Function prototype */
 
 /* This macro is a *lot* faster than using (long)floor() on an x86 CPU.
    It actually speeds up the entire Worley() call with almost 10%.
    Added by Stefan Gustavson, October 2003. */
-#define LFLOOR(x) ((x)<0 ? ((long)x-1) : ((long)x) )
+#define LFLOOR(x) ((x) < 0 ? ((long)x - 1) : ((long)x))
 
 /* A hardwired lookup table to quickly determine how many feature
    points should be in each spatial cube. We use a table so we don't
@@ -28,32 +28,31 @@
    this array will give an approximate Poisson distribution of mean
    density 2.5. Read the book for the longwinded explanation. */
 
-static int Poisson_count[256] =
-{
-  4, 3, 1, 1, 1, 2, 4, 2, 2, 2, 5, 1, 0, 2, 1, 2, 2, 0, 4, 3, 2, 1, 2, 1, 3, 2, 2, 4, 2, 2, 5, 1, 2, 3, 2, 2, 2, 2, 2, 3,
-  2, 4, 2, 5, 3, 2, 2, 2, 5, 3, 3, 5, 2, 1, 3, 3, 4, 4, 2, 3, 0, 4, 2, 2, 2, 1, 3, 2, 2, 2, 3, 3, 3, 1, 2, 0, 2, 1, 1, 2,
-  2, 2, 2, 5, 3, 2, 3, 2, 3, 2, 2, 1, 0, 2, 1, 1, 2, 1, 2, 2, 1, 3, 4, 2, 2, 2, 5, 4, 2, 4, 2, 2, 5, 4, 3, 2, 2, 5, 4, 3,
-  3, 3, 5, 2, 2, 2, 2, 2, 3, 1, 1, 4, 2, 1, 3, 3, 4, 3, 2, 4, 3, 3, 3, 4, 5, 1, 4, 2, 4, 3, 1, 2, 3, 5, 3, 2, 1, 3, 1, 3,
-  3, 3, 2, 3, 1, 5, 5, 4, 2, 2, 4, 1, 3, 4, 1, 5, 3, 3, 5, 3, 4, 3, 2, 2, 1, 1, 1, 1, 1, 2, 4, 5, 4, 5, 4, 2, 1, 5, 1, 1,
-  2, 3, 3, 3, 2, 5, 2, 3, 3, 2, 0, 2, 1, 1, 4, 2, 1, 3, 2, 1, 2, 2, 3, 2, 5, 5, 3, 4, 5, 5, 2, 4, 4, 5, 3, 2, 2, 2, 1, 4,
-  2, 3, 3, 4, 2, 5, 4, 2, 4, 2, 2, 2, 4, 5, 3, 2
-};
+static int Poisson_count[256] = {
+    4, 3, 1, 1, 1, 2, 4, 2, 2, 2, 5, 1, 0, 2, 1, 2, 2, 0, 4, 3, 2, 1, 2, 1,
+    3, 2, 2, 4, 2, 2, 5, 1, 2, 3, 2, 2, 2, 2, 2, 3, 2, 4, 2, 5, 3, 2, 2, 2,
+    5, 3, 3, 5, 2, 1, 3, 3, 4, 4, 2, 3, 0, 4, 2, 2, 2, 1, 3, 2, 2, 2, 3, 3,
+    3, 1, 2, 0, 2, 1, 1, 2, 2, 2, 2, 5, 3, 2, 3, 2, 3, 2, 2, 1, 0, 2, 1, 1,
+    2, 1, 2, 2, 1, 3, 4, 2, 2, 2, 5, 4, 2, 4, 2, 2, 5, 4, 3, 2, 2, 5, 4, 3,
+    3, 3, 5, 2, 2, 2, 2, 2, 3, 1, 1, 4, 2, 1, 3, 3, 4, 3, 2, 4, 3, 3, 3, 4,
+    5, 1, 4, 2, 4, 3, 1, 2, 3, 5, 3, 2, 1, 3, 1, 3, 3, 3, 2, 3, 1, 5, 5, 4,
+    2, 2, 4, 1, 3, 4, 1, 5, 3, 3, 5, 3, 4, 3, 2, 2, 1, 1, 1, 1, 1, 2, 4, 5,
+    4, 5, 4, 2, 1, 5, 1, 1, 2, 3, 3, 3, 2, 5, 2, 3, 3, 2, 0, 2, 1, 1, 4, 2,
+    1, 3, 2, 1, 2, 2, 3, 2, 5, 5, 3, 4, 5, 5, 2, 4, 4, 5, 3, 2, 2, 2, 1, 4,
+    2, 3, 3, 4, 2, 5, 4, 2, 4, 2, 2, 2, 4, 5, 3, 2};
 
 /* This constant is manipulated to make sure that the mean value of F[0]
    is 1.0. This makes an easy natural "scale" size of the cellular features. */
-#define DENSITY_ADJUSTMENT  0.398150
+#define DENSITY_ADJUSTMENT 0.398150
 
 /* the function to merge-sort a "cube" of samples into the current best-found
    list of values. */
-static void AddSamples(long xi, long yi, long zi, long max_order,
-                       double at[3], double *F,
-                       double(*delta)[3], unsigned long *ID);
-
+static void AddSamples(long xi, long yi, long zi, long max_order, double at[3],
+                       double *F, double (*delta)[3], unsigned long *ID);
 
 /* The main function! */
-void Worley(double at[3], long max_order,
-            double *F, double(*delta)[3], unsigned long *ID)
-{
+void Worley(double at[3], long max_order, double *F, double (*delta)[3],
+            unsigned long *ID) {
   double x2, y2, z2, mx2, my2, mz2;
   double new_at[3];
   long int_at[3], i;
@@ -62,7 +61,8 @@ void Worley(double at[3], long max_order,
      first real sample tests. Note we'll be storing and comparing the
      SQUARED distance from the feature points to avoid lots of slow
      sqrt() calls. We'll use sqrt() only on the final answer. */
-  for (i = 0; i < max_order; i++) F[i] = 999999.9;
+  for (i = 0; i < max_order; i++)
+    F[i] = 999999.9;
 
   /* Make our own local copy, multiplying to make mean(F[0])==1.0  */
   new_at[0] = DENSITY_ADJUSTMENT * at[0];
@@ -78,9 +78,9 @@ void Worley(double at[3], long max_order,
      boundary cubes exhaustively. This is simple with code like:
      {
        long ii, jj, kk;
-       for (ii=-1; ii<=1; ii++) for (jj=-1; jj<=1; jj++) for (kk=-1; kk<=1; kk++)
-       AddSamples(int_at[0]+ii,int_at[1]+jj,int_at[2]+kk,
-       max_order, new_at, F, delta, ID);
+       for (ii=-1; ii<=1; ii++) for (jj=-1; jj<=1; jj++) for (kk=-1; kk<=1;
+     kk++) AddSamples(int_at[0]+ii,int_at[1]+jj,int_at[2]+kk, max_order, new_at,
+     F, delta, ID);
      }
      But this wastes a lot of time working on cubes which are known to be
      too far away to matter! So we can use a more complex testing method
@@ -105,67 +105,92 @@ void Worley(double at[3], long max_order,
 
   /* Test 6 facing neighbors of center cube. These are closest and most
      likely to have a close feature point. */
-  if (x2 < F[max_order - 1])  AddSamples(int_at[0] - 1, int_at[1]  , int_at[2]  ,
-                                           max_order, new_at, F, delta, ID);
-  if (y2 < F[max_order - 1])  AddSamples(int_at[0]  , int_at[1] - 1, int_at[2]  ,
-                                           max_order, new_at, F, delta, ID);
-  if (z2 < F[max_order - 1])  AddSamples(int_at[0]  , int_at[1]  , int_at[2] - 1,
-                                           max_order, new_at, F, delta, ID);
+  if (x2 < F[max_order - 1])
+    AddSamples(int_at[0] - 1, int_at[1], int_at[2], max_order, new_at, F, delta,
+               ID);
+  if (y2 < F[max_order - 1])
+    AddSamples(int_at[0], int_at[1] - 1, int_at[2], max_order, new_at, F, delta,
+               ID);
+  if (z2 < F[max_order - 1])
+    AddSamples(int_at[0], int_at[1], int_at[2] - 1, max_order, new_at, F, delta,
+               ID);
 
-  if (mx2 < F[max_order - 1]) AddSamples(int_at[0] + 1, int_at[1]  , int_at[2]  ,
-                                           max_order, new_at, F, delta, ID);
-  if (my2 < F[max_order - 1]) AddSamples(int_at[0]  , int_at[1] + 1, int_at[2]  ,
-                                           max_order, new_at, F, delta, ID);
-  if (mz2 < F[max_order - 1]) AddSamples(int_at[0]  , int_at[1]  , int_at[2] + 1,
-                                           max_order, new_at, F, delta, ID);
+  if (mx2 < F[max_order - 1])
+    AddSamples(int_at[0] + 1, int_at[1], int_at[2], max_order, new_at, F, delta,
+               ID);
+  if (my2 < F[max_order - 1])
+    AddSamples(int_at[0], int_at[1] + 1, int_at[2], max_order, new_at, F, delta,
+               ID);
+  if (mz2 < F[max_order - 1])
+    AddSamples(int_at[0], int_at[1], int_at[2] + 1, max_order, new_at, F, delta,
+               ID);
 
   /* Test 12 "edge cube" neighbors if necessary. They're next closest. */
-  if (x2 + y2 < F[max_order - 1]) AddSamples(int_at[0] - 1, int_at[1] - 1, int_at[2]  ,
-        max_order, new_at, F, delta, ID);
-  if (x2 + z2 < F[max_order - 1]) AddSamples(int_at[0] - 1, int_at[1]  , int_at[2] - 1,
-        max_order, new_at, F, delta, ID);
-  if (y2 + z2 < F[max_order - 1]) AddSamples(int_at[0]  , int_at[1] - 1, int_at[2] - 1,
-        max_order, new_at, F, delta, ID);
-  if (mx2 + my2 < F[max_order - 1]) AddSamples(int_at[0] + 1, int_at[1] + 1, int_at[2]  ,
-        max_order, new_at, F, delta, ID);
-  if (mx2 + mz2 < F[max_order - 1]) AddSamples(int_at[0] + 1, int_at[1]  , int_at[2] + 1,
-        max_order, new_at, F, delta, ID);
-  if (my2 + mz2 < F[max_order - 1]) AddSamples(int_at[0]  , int_at[1] + 1, int_at[2] + 1,
-        max_order, new_at, F, delta, ID);
-  if (x2 + my2 < F[max_order - 1]) AddSamples(int_at[0] - 1, int_at[1] + 1, int_at[2]  ,
-        max_order, new_at, F, delta, ID);
-  if (x2 + mz2 < F[max_order - 1]) AddSamples(int_at[0] - 1, int_at[1]  , int_at[2] + 1,
-        max_order, new_at, F, delta, ID);
-  if (y2 + mz2 < F[max_order - 1]) AddSamples(int_at[0]  , int_at[1] - 1, int_at[2] + 1,
-        max_order, new_at, F, delta, ID);
-  if (mx2 + y2 < F[max_order - 1]) AddSamples(int_at[0] + 1, int_at[1] - 1, int_at[2]  ,
-        max_order, new_at, F, delta, ID);
-  if (mx2 + z2 < F[max_order - 1]) AddSamples(int_at[0] + 1, int_at[1]  , int_at[2] - 1,
-        max_order, new_at, F, delta, ID);
-  if (my2 + z2 < F[max_order - 1]) AddSamples(int_at[0]  , int_at[1] + 1, int_at[2] - 1,
-        max_order, new_at, F, delta, ID);
+  if (x2 + y2 < F[max_order - 1])
+    AddSamples(int_at[0] - 1, int_at[1] - 1, int_at[2], max_order, new_at, F,
+               delta, ID);
+  if (x2 + z2 < F[max_order - 1])
+    AddSamples(int_at[0] - 1, int_at[1], int_at[2] - 1, max_order, new_at, F,
+               delta, ID);
+  if (y2 + z2 < F[max_order - 1])
+    AddSamples(int_at[0], int_at[1] - 1, int_at[2] - 1, max_order, new_at, F,
+               delta, ID);
+  if (mx2 + my2 < F[max_order - 1])
+    AddSamples(int_at[0] + 1, int_at[1] + 1, int_at[2], max_order, new_at, F,
+               delta, ID);
+  if (mx2 + mz2 < F[max_order - 1])
+    AddSamples(int_at[0] + 1, int_at[1], int_at[2] + 1, max_order, new_at, F,
+               delta, ID);
+  if (my2 + mz2 < F[max_order - 1])
+    AddSamples(int_at[0], int_at[1] + 1, int_at[2] + 1, max_order, new_at, F,
+               delta, ID);
+  if (x2 + my2 < F[max_order - 1])
+    AddSamples(int_at[0] - 1, int_at[1] + 1, int_at[2], max_order, new_at, F,
+               delta, ID);
+  if (x2 + mz2 < F[max_order - 1])
+    AddSamples(int_at[0] - 1, int_at[1], int_at[2] + 1, max_order, new_at, F,
+               delta, ID);
+  if (y2 + mz2 < F[max_order - 1])
+    AddSamples(int_at[0], int_at[1] - 1, int_at[2] + 1, max_order, new_at, F,
+               delta, ID);
+  if (mx2 + y2 < F[max_order - 1])
+    AddSamples(int_at[0] + 1, int_at[1] - 1, int_at[2], max_order, new_at, F,
+               delta, ID);
+  if (mx2 + z2 < F[max_order - 1])
+    AddSamples(int_at[0] + 1, int_at[1], int_at[2] - 1, max_order, new_at, F,
+               delta, ID);
+  if (my2 + z2 < F[max_order - 1])
+    AddSamples(int_at[0], int_at[1] + 1, int_at[2] - 1, max_order, new_at, F,
+               delta, ID);
 
   /* Final 8 "corner" cubes */
-  if (x2 + y2 + z2 < F[max_order - 1]) AddSamples(int_at[0] - 1, int_at[1] - 1, int_at[2] - 1,
-        max_order, new_at, F, delta, ID);
-  if (x2 + y2 + mz2 < F[max_order - 1]) AddSamples(int_at[0] - 1, int_at[1] - 1, int_at[2] + 1,
-        max_order, new_at, F, delta, ID);
-  if (x2 + my2 + z2 < F[max_order - 1]) AddSamples(int_at[0] - 1, int_at[1] + 1, int_at[2] - 1,
-        max_order, new_at, F, delta, ID);
-  if (x2 + my2 + mz2 < F[max_order - 1]) AddSamples(int_at[0] - 1, int_at[1] + 1, int_at[2] + 1,
-        max_order, new_at, F, delta, ID);
-  if (mx2 + y2 + z2 < F[max_order - 1]) AddSamples(int_at[0] + 1, int_at[1] - 1, int_at[2] - 1,
-        max_order, new_at, F, delta, ID);
-  if (mx2 + y2 + mz2 < F[max_order - 1]) AddSamples(int_at[0] + 1, int_at[1] - 1, int_at[2] + 1,
-        max_order, new_at, F, delta, ID);
-  if (mx2 + my2 + z2 < F[max_order - 1]) AddSamples(int_at[0] + 1, int_at[1] + 1, int_at[2] - 1,
-        max_order, new_at, F, delta, ID);
-  if (mx2 + my2 + mz2 < F[max_order - 1]) AddSamples(int_at[0] + 1, int_at[1] + 1, int_at[2] + 1,
-        max_order, new_at, F, delta, ID);
+  if (x2 + y2 + z2 < F[max_order - 1])
+    AddSamples(int_at[0] - 1, int_at[1] - 1, int_at[2] - 1, max_order, new_at,
+               F, delta, ID);
+  if (x2 + y2 + mz2 < F[max_order - 1])
+    AddSamples(int_at[0] - 1, int_at[1] - 1, int_at[2] + 1, max_order, new_at,
+               F, delta, ID);
+  if (x2 + my2 + z2 < F[max_order - 1])
+    AddSamples(int_at[0] - 1, int_at[1] + 1, int_at[2] - 1, max_order, new_at,
+               F, delta, ID);
+  if (x2 + my2 + mz2 < F[max_order - 1])
+    AddSamples(int_at[0] - 1, int_at[1] + 1, int_at[2] + 1, max_order, new_at,
+               F, delta, ID);
+  if (mx2 + y2 + z2 < F[max_order - 1])
+    AddSamples(int_at[0] + 1, int_at[1] - 1, int_at[2] - 1, max_order, new_at,
+               F, delta, ID);
+  if (mx2 + y2 + mz2 < F[max_order - 1])
+    AddSamples(int_at[0] + 1, int_at[1] - 1, int_at[2] + 1, max_order, new_at,
+               F, delta, ID);
+  if (mx2 + my2 + z2 < F[max_order - 1])
+    AddSamples(int_at[0] + 1, int_at[1] + 1, int_at[2] - 1, max_order, new_at,
+               F, delta, ID);
+  if (mx2 + my2 + mz2 < F[max_order - 1])
+    AddSamples(int_at[0] + 1, int_at[1] + 1, int_at[2] + 1, max_order, new_at,
+               F, delta, ID);
 
   /* We're done! Convert everything to right size scale */
-  for (i = 0; i < max_order; i++)
-  {
+  for (i = 0; i < max_order; i++) {
     F[i] = sqrt(F[i]) * (1.0 / DENSITY_ADJUSTMENT);
     delta[i][0] *= (1.0 / DENSITY_ADJUSTMENT);
     delta[i][1] *= (1.0 / DENSITY_ADJUSTMENT);
@@ -175,12 +200,8 @@ void Worley(double at[3], long max_order,
   return;
 }
 
-
-
-static void AddSamples(long xi, long yi, long zi, long max_order,
-                       double at[3], double *F,
-                       double(*delta)[3], unsigned long *ID)
-{
+static void AddSamples(long xi, long yi, long zi, long max_order, double at[3],
+                       double *F, double (*delta)[3], unsigned long *ID) {
   double dx, dy, dz, fx, fy, fz, d2;
   long count, i, j, index;
   unsigned long seed, this_id;
@@ -240,13 +261,13 @@ static void AddSamples(long xi, long yi, long zi, long max_order,
          F[] list. */
 
       index = max_order;
-      while (index > 0 && d2 < F[index - 1]) index--;
+      while (index > 0 && d2 < F[index - 1])
+        index--;
 
       /* We insert this new point into slot # <index> */
 
       /* Bump down more distant information to make room for this new point. */
-      for (i = max_order - 2; i >= index; i--)
-      {
+      for (i = max_order - 2; i >= index; i--) {
         F[i + 1] = F[i];
         ID[i + 1] = ID[i];
         delta[i + 1][0] = delta[i][0];

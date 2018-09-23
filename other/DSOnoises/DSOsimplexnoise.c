@@ -54,64 +54,56 @@ THE SOFTWARE.
 #define O3z 31.91
 #define O3t 37.48
 
+SHADEOP_TABLE(simplexnoise) = {{"float f_snoiseF (float)", "", ""},
+                               {"float f_snoiseFF (float, float)", "", ""},
+                               {"float f_snoiseP (point)", "", ""},
+                               {"float f_snoisePF (point, float)", "", ""},
+                               {"vector v_snoiseF (float)", "", ""},
+                               {"vector v_snoiseFF (float, float)", "", ""},
+                               {"vector v_snoiseP (point)", "", ""},
+                               {"vector v_snoisePF (point, float)", "", ""},
+                               {"point v_snoiseF (float)", "", ""},
+                               {"point v_snoiseFF (float, float)", "", ""},
+                               {"point v_snoiseP (point)", "", ""},
+                               {"point v_snoisePF (point, float)", "", ""},
+                               {"color v_snoiseF (float)", "", ""},
+                               {"color v_snoiseFF (float, float)", "", ""},
+                               {"color v_snoiseP (point)", "", ""},
+                               {"color v_snoisePF (point, float)", "", ""},
+                               {"", "", ""}};
 
-SHADEOP_TABLE(simplexnoise) =
-{
-  { "float f_snoiseF (float)", "", ""},
-  { "float f_snoiseFF (float, float)", "", ""},
-  { "float f_snoiseP (point)", "", ""},
-  { "float f_snoisePF (point, float)", "", ""},
-  { "vector v_snoiseF (float)", "", ""},
-  { "vector v_snoiseFF (float, float)", "", ""},
-  { "vector v_snoiseP (point)", "", ""},
-  { "vector v_snoisePF (point, float)", "", ""},
-  { "point v_snoiseF (float)", "", ""},
-  { "point v_snoiseFF (float, float)", "", ""},
-  { "point v_snoiseP (point)", "", ""},
-  { "point v_snoisePF (point, float)", "", ""},
-  { "color v_snoiseF (float)", "", ""},
-  { "color v_snoiseFF (float, float)", "", ""},
-  { "color v_snoiseP (point)", "", ""},
-  { "color v_snoisePF (point, float)", "", ""},
-  { "", "", "" }
-};
-
-SHADEOP(f_snoiseF)
-{
+SHADEOP(f_snoiseF) {
   float *result = (float *)argv[0];
-  float *x = (float*) argv[1];
+  float *x = (float *)argv[1];
 
   *result = (1.0f + snoise1(*x)) * 0.5f;
 
   return 0;
 }
 
-SHADEOP(f_snoiseFF)
-{
+SHADEOP(f_snoiseFF) {
   float *result = (float *)argv[0];
-  float *x = (float*) argv[1];
-  float *y = (float*) argv[2];
+  float *x = (float *)argv[1];
+  float *y = (float *)argv[2];
 
   *result = (1.0f + snoise2(*x, *y)) * 0.5f;
 
   return 0;
 }
 
-SHADEOP(f_snoiseP)
-{
+SHADEOP(f_snoiseP) {
   float *result = (float *)argv[0];
-  float *P = (float*) argv[1];
+  float *P = (float *)argv[1];
 
   *result = (1.0f + snoise3(P[0], P[1], P[2])) * 0.5f;
 
   return 0;
 }
 
-SHADEOP(f_snoisePF)
-{
+SHADEOP(f_snoisePF) {
   float *result = (float *)argv[0];
-  float *P = (float*) argv[1];
-  float *t = (float*) argv[2];
+  float *P = (float *)argv[1];
+  float *t = (float *)argv[2];
 
   *result = (1.0f + snoise4(P[0], P[1], P[2], *t)) * 0.5f;
 
@@ -123,10 +115,9 @@ SHADEOP(f_snoisePF)
 // might actually be something else than an RGB triplet, even
 // though it almost never is in current RI implementations.
 
-SHADEOP(v_snoiseF)
-{
+SHADEOP(v_snoiseF) {
   float *result = (float *)argv[0];
-  float *x = (float*) argv[1];
+  float *x = (float *)argv[1];
 
   result[0] = (1.0f + snoise1(*x)) * 0.5f;
   result[1] = (1.0f + snoise1(*x + O1x)) * 0.5f;
@@ -135,11 +126,10 @@ SHADEOP(v_snoiseF)
   return 0;
 }
 
-SHADEOP(v_snoiseFF)
-{
+SHADEOP(v_snoiseFF) {
   float *result = (float *)argv[0];
-  float *x = (float*) argv[1];
-  float *y = (float*) argv[2];
+  float *x = (float *)argv[1];
+  float *y = (float *)argv[2];
 
   result[0] = (1.0f + snoise2(*x, *y)) * 0.5f;
   result[1] = (1.0f + snoise2(*x + O1x, *y + O1y)) * 0.5f;
@@ -148,10 +138,9 @@ SHADEOP(v_snoiseFF)
   return 0;
 }
 
-SHADEOP(v_snoiseP)
-{
+SHADEOP(v_snoiseP) {
   float *result = (float *)argv[0];
-  float *P = (float*) argv[1];
+  float *P = (float *)argv[1];
 
   result[0] = (1.0f + snoise3(P[0], P[1], P[2])) * 0.5f;
   result[1] = (1.0f + snoise3(P[0] + O1x, P[1] + O1y, P[2] + O1z)) * 0.5f;
@@ -160,15 +149,16 @@ SHADEOP(v_snoiseP)
   return 0;
 }
 
-SHADEOP(v_snoisePF)
-{
+SHADEOP(v_snoisePF) {
   float *result = (float *)argv[0];
-  float *P = (float*) argv[1];
-  float *t = (float*) argv[2];
+  float *P = (float *)argv[1];
+  float *t = (float *)argv[2];
 
   result[0] = (1.0f + snoise4(P[0], P[1], P[2], *t)) * 0.5f;
-  result[1] = (1.0f + snoise4(P[0] + O1x, P[1] + O1y, P[2] + O1z, *t + O1t)) * 0.5f;
-  result[2] = (1.0f + snoise4(P[0] + O2x, P[1] + O2y, P[2] + O2z, *t + O2t)) * 0.5f;
+  result[1] =
+      (1.0f + snoise4(P[0] + O1x, P[1] + O1y, P[2] + O1z, *t + O1t)) * 0.5f;
+  result[2] =
+      (1.0f + snoise4(P[0] + O2x, P[1] + O2y, P[2] + O2z, *t + O2t)) * 0.5f;
 
   return 0;
 }

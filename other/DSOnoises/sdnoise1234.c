@@ -61,7 +61,7 @@ THE SOFTWARE.
 
 #include "DSOnoises/sdnoise1234.h" /* We strictly don't need this, but play nice. */
 
-#define FASTFLOOR(x) ( ((x)>0) ? ((int)x) : (((int)x)-1) )
+#define FASTFLOOR(x) (((x) > 0) ? ((int)x) : (((int)x) - 1))
 
 /* Static data ---------------------- */
 
@@ -69,43 +69,50 @@ THE SOFTWARE.
  * Permutation table. This is just a random jumble of all numbers 0-255,
  * repeated twice to avoid wrapping the index at 255 for each lookup.
  */
-unsigned char sd_perm[512] = {151, 160, 137, 91, 90, 15,
-                              131, 13, 201, 95, 96, 53, 194, 233, 7, 225, 140, 36, 103, 30, 69, 142, 8, 99, 37, 240, 21, 10, 23,
-                              190, 6, 148, 247, 120, 234, 75, 0, 26, 197, 62, 94, 252, 219, 203, 117, 35, 11, 32, 57, 177, 33,
-                              88, 237, 149, 56, 87, 174, 20, 125, 136, 171, 168, 68, 175, 74, 165, 71, 134, 139, 48, 27, 166,
-                              77, 146, 158, 231, 83, 111, 229, 122, 60, 211, 133, 230, 220, 105, 92, 41, 55, 46, 245, 40, 244,
-                              102, 143, 54, 65, 25, 63, 161, 1, 216, 80, 73, 209, 76, 132, 187, 208, 89, 18, 169, 200, 196,
-                              135, 130, 116, 188, 159, 86, 164, 100, 109, 198, 173, 186, 3, 64, 52, 217, 226, 250, 124, 123,
-                              5, 202, 38, 147, 118, 126, 255, 82, 85, 212, 207, 206, 59, 227, 47, 16, 58, 17, 182, 189, 28, 42,
-                              223, 183, 170, 213, 119, 248, 152, 2, 44, 154, 163, 70, 221, 153, 101, 155, 167, 43, 172, 9,
-                              129, 22, 39, 253, 19, 98, 108, 110, 79, 113, 224, 232, 178, 185, 112, 104, 218, 246, 97, 228,
-                              251, 34, 242, 193, 238, 210, 144, 12, 191, 179, 162, 241, 81, 51, 145, 235, 249, 14, 239, 107,
-                              49, 192, 214, 31, 181, 199, 106, 157, 184, 84, 204, 176, 115, 121, 50, 45, 127, 4, 150, 254,
-                              138, 236, 205, 93, 222, 114, 67, 29, 24, 72, 243, 141, 128, 195, 78, 66, 215, 61, 156, 180,
-                              151, 160, 137, 91, 90, 15,
-                              131, 13, 201, 95, 96, 53, 194, 233, 7, 225, 140, 36, 103, 30, 69, 142, 8, 99, 37, 240, 21, 10, 23,
-                              190, 6, 148, 247, 120, 234, 75, 0, 26, 197, 62, 94, 252, 219, 203, 117, 35, 11, 32, 57, 177, 33,
-                              88, 237, 149, 56, 87, 174, 20, 125, 136, 171, 168, 68, 175, 74, 165, 71, 134, 139, 48, 27, 166,
-                              77, 146, 158, 231, 83, 111, 229, 122, 60, 211, 133, 230, 220, 105, 92, 41, 55, 46, 245, 40, 244,
-                              102, 143, 54, 65, 25, 63, 161, 1, 216, 80, 73, 209, 76, 132, 187, 208, 89, 18, 169, 200, 196,
-                              135, 130, 116, 188, 159, 86, 164, 100, 109, 198, 173, 186, 3, 64, 52, 217, 226, 250, 124, 123,
-                              5, 202, 38, 147, 118, 126, 255, 82, 85, 212, 207, 206, 59, 227, 47, 16, 58, 17, 182, 189, 28, 42,
-                              223, 183, 170, 213, 119, 248, 152, 2, 44, 154, 163, 70, 221, 153, 101, 155, 167, 43, 172, 9,
-                              129, 22, 39, 253, 19, 98, 108, 110, 79, 113, 224, 232, 178, 185, 112, 104, 218, 246, 97, 228,
-                              251, 34, 242, 193, 238, 210, 144, 12, 191, 179, 162, 241, 81, 51, 145, 235, 249, 14, 239, 107,
-                              49, 192, 214, 31, 181, 199, 106, 157, 184, 84, 204, 176, 115, 121, 50, 45, 127, 4, 150, 254,
-                              138, 236, 205, 93, 222, 114, 67, 29, 24, 72, 243, 141, 128, 195, 78, 66, 215, 61, 156, 180
-                             };
+unsigned char sd_perm[512] = {
+    151, 160, 137, 91,  90,  15,  131, 13,  201, 95,  96,  53,  194, 233, 7,
+    225, 140, 36,  103, 30,  69,  142, 8,   99,  37,  240, 21,  10,  23,  190,
+    6,   148, 247, 120, 234, 75,  0,   26,  197, 62,  94,  252, 219, 203, 117,
+    35,  11,  32,  57,  177, 33,  88,  237, 149, 56,  87,  174, 20,  125, 136,
+    171, 168, 68,  175, 74,  165, 71,  134, 139, 48,  27,  166, 77,  146, 158,
+    231, 83,  111, 229, 122, 60,  211, 133, 230, 220, 105, 92,  41,  55,  46,
+    245, 40,  244, 102, 143, 54,  65,  25,  63,  161, 1,   216, 80,  73,  209,
+    76,  132, 187, 208, 89,  18,  169, 200, 196, 135, 130, 116, 188, 159, 86,
+    164, 100, 109, 198, 173, 186, 3,   64,  52,  217, 226, 250, 124, 123, 5,
+    202, 38,  147, 118, 126, 255, 82,  85,  212, 207, 206, 59,  227, 47,  16,
+    58,  17,  182, 189, 28,  42,  223, 183, 170, 213, 119, 248, 152, 2,   44,
+    154, 163, 70,  221, 153, 101, 155, 167, 43,  172, 9,   129, 22,  39,  253,
+    19,  98,  108, 110, 79,  113, 224, 232, 178, 185, 112, 104, 218, 246, 97,
+    228, 251, 34,  242, 193, 238, 210, 144, 12,  191, 179, 162, 241, 81,  51,
+    145, 235, 249, 14,  239, 107, 49,  192, 214, 31,  181, 199, 106, 157, 184,
+    84,  204, 176, 115, 121, 50,  45,  127, 4,   150, 254, 138, 236, 205, 93,
+    222, 114, 67,  29,  24,  72,  243, 141, 128, 195, 78,  66,  215, 61,  156,
+    180, 151, 160, 137, 91,  90,  15,  131, 13,  201, 95,  96,  53,  194, 233,
+    7,   225, 140, 36,  103, 30,  69,  142, 8,   99,  37,  240, 21,  10,  23,
+    190, 6,   148, 247, 120, 234, 75,  0,   26,  197, 62,  94,  252, 219, 203,
+    117, 35,  11,  32,  57,  177, 33,  88,  237, 149, 56,  87,  174, 20,  125,
+    136, 171, 168, 68,  175, 74,  165, 71,  134, 139, 48,  27,  166, 77,  146,
+    158, 231, 83,  111, 229, 122, 60,  211, 133, 230, 220, 105, 92,  41,  55,
+    46,  245, 40,  244, 102, 143, 54,  65,  25,  63,  161, 1,   216, 80,  73,
+    209, 76,  132, 187, 208, 89,  18,  169, 200, 196, 135, 130, 116, 188, 159,
+    86,  164, 100, 109, 198, 173, 186, 3,   64,  52,  217, 226, 250, 124, 123,
+    5,   202, 38,  147, 118, 126, 255, 82,  85,  212, 207, 206, 59,  227, 47,
+    16,  58,  17,  182, 189, 28,  42,  223, 183, 170, 213, 119, 248, 152, 2,
+    44,  154, 163, 70,  221, 153, 101, 155, 167, 43,  172, 9,   129, 22,  39,
+    253, 19,  98,  108, 110, 79,  113, 224, 232, 178, 185, 112, 104, 218, 246,
+    97,  228, 251, 34,  242, 193, 238, 210, 144, 12,  191, 179, 162, 241, 81,
+    51,  145, 235, 249, 14,  239, 107, 49,  192, 214, 31,  181, 199, 106, 157,
+    184, 84,  204, 176, 115, 121, 50,  45,  127, 4,   150, 254, 138, 236, 205,
+    93,  222, 114, 67,  29,  24,  72,  243, 141, 128, 195, 78,  66,  215, 61,
+    156, 180};
 
 /*
  * Gradient tables. These could be programmed the Ken Perlin way with
  * some clever bit-twiddling, but this is more clear, and not really slower.
  */
-static float grad2lut[8][2] =
-{
-  { -1.0f, -1.0f }, { 1.0f, 0.0f } , { -1.0f, 0.0f } , { 1.0f, 1.0f } ,
-  { -1.0f, 1.0f } , { 0.0f, -1.0f } , { 0.0f, 1.0f } , { 1.0f, -1.0f }
-};
+static float grad2lut[8][2] = {{-1.0f, -1.0f}, {1.0f, 0.0f},  {-1.0f, 0.0f},
+                               {1.0f, 1.0f},   {-1.0f, 1.0f}, {0.0f, -1.0f},
+                               {0.0f, 1.0f},   {1.0f, -1.0f}};
 
 /*
  * Gradient directions for 3D.
@@ -116,44 +123,67 @@ static float grad2lut[8][2] =
  * to represent a small, isotropic set of directions.
  */
 
-static float grad3lut[16][3] =
-{
-  { 1.0f, 0.0f, 1.0f }, { 0.0f, 1.0f, 1.0f }, // 12 cube edges
-  { -1.0f, 0.0f, 1.0f }, { 0.0f, -1.0f, 1.0f },
-  { 1.0f, 0.0f, -1.0f }, { 0.0f, 1.0f, -1.0f },
-  { -1.0f, 0.0f, -1.0f }, { 0.0f, -1.0f, -1.0f },
-  { 1.0f, -1.0f, 0.0f }, { 1.0f, 1.0f, 0.0f },
-  { -1.0f, 1.0f, 0.0f }, { -1.0f, -1.0f, 0.0f },
-  { 1.0f, 0.0f, 1.0f }, { -1.0f, 0.0f, 1.0f }, // 4 repeats to make 16
-  { 0.0f, 1.0f, -1.0f }, { 0.0f, -1.0f, -1.0f }
-};
+static float grad3lut[16][3] = {
+    {1.0f, 0.0f, 1.0f},   {0.0f, 1.0f, 1.0f}, // 12 cube edges
+    {-1.0f, 0.0f, 1.0f},  {0.0f, -1.0f, 1.0f},
+    {1.0f, 0.0f, -1.0f},  {0.0f, 1.0f, -1.0f},
+    {-1.0f, 0.0f, -1.0f}, {0.0f, -1.0f, -1.0f},
+    {1.0f, -1.0f, 0.0f},  {1.0f, 1.0f, 0.0f},
+    {-1.0f, 1.0f, 0.0f},  {-1.0f, -1.0f, 0.0f},
+    {1.0f, 0.0f, 1.0f},   {-1.0f, 0.0f, 1.0f}, // 4 repeats to make 16
+    {0.0f, 1.0f, -1.0f},  {0.0f, -1.0f, -1.0f}};
 
-static float grad4lut[32][4] =
-{
-  { 0.0f, 1.0f, 1.0f, 1.0f }, { 0.0f, 1.0f, 1.0f, -1.0f }, { 0.0f, 1.0f, -1.0f, 1.0f }, { 0.0f, 1.0f, -1.0f, -1.0f }, // 32 tesseract edges
-  { 0.0f, -1.0f, 1.0f, 1.0f }, { 0.0f, -1.0f, 1.0f, -1.0f }, { 0.0f, -1.0f, -1.0f, 1.0f }, { 0.0f, -1.0f, -1.0f, -1.0f },
-  { 1.0f, 0.0f, 1.0f, 1.0f }, { 1.0f, 0.0f, 1.0f, -1.0f }, { 1.0f, 0.0f, -1.0f, 1.0f }, { 1.0f, 0.0f, -1.0f, -1.0f },
-  { -1.0f, 0.0f, 1.0f, 1.0f }, { -1.0f, 0.0f, 1.0f, -1.0f }, { -1.0f, 0.0f, -1.0f, 1.0f }, { -1.0f, 0.0f, -1.0f, -1.0f },
-  { 1.0f, 1.0f, 0.0f, 1.0f }, { 1.0f, 1.0f, 0.0f, -1.0f }, { 1.0f, -1.0f, 0.0f, 1.0f }, { 1.0f, -1.0f, 0.0f, -1.0f },
-  { -1.0f, 1.0f, 0.0f, 1.0f }, { -1.0f, 1.0f, 0.0f, -1.0f }, { -1.0f, -1.0f, 0.0f, 1.0f }, { -1.0f, -1.0f, 0.0f, -1.0f },
-  { 1.0f, 1.0f, 1.0f, 0.0f }, { 1.0f, 1.0f, -1.0f, 0.0f }, { 1.0f, -1.0f, 1.0f, 0.0f }, { 1.0f, -1.0f, -1.0f, 0.0f },
-  { -1.0f, 1.0f, 1.0f, 0.0f }, { -1.0f, 1.0f, -1.0f, 0.0f }, { -1.0f, -1.0f, 1.0f, 0.0f }, { -1.0f, -1.0f, -1.0f, 0.0f }
-};
+static float grad4lut[32][4] = {
+    {0.0f, 1.0f, 1.0f, 1.0f},
+    {0.0f, 1.0f, 1.0f, -1.0f},
+    {0.0f, 1.0f, -1.0f, 1.0f},
+    {0.0f, 1.0f, -1.0f, -1.0f}, // 32 tesseract edges
+    {0.0f, -1.0f, 1.0f, 1.0f},
+    {0.0f, -1.0f, 1.0f, -1.0f},
+    {0.0f, -1.0f, -1.0f, 1.0f},
+    {0.0f, -1.0f, -1.0f, -1.0f},
+    {1.0f, 0.0f, 1.0f, 1.0f},
+    {1.0f, 0.0f, 1.0f, -1.0f},
+    {1.0f, 0.0f, -1.0f, 1.0f},
+    {1.0f, 0.0f, -1.0f, -1.0f},
+    {-1.0f, 0.0f, 1.0f, 1.0f},
+    {-1.0f, 0.0f, 1.0f, -1.0f},
+    {-1.0f, 0.0f, -1.0f, 1.0f},
+    {-1.0f, 0.0f, -1.0f, -1.0f},
+    {1.0f, 1.0f, 0.0f, 1.0f},
+    {1.0f, 1.0f, 0.0f, -1.0f},
+    {1.0f, -1.0f, 0.0f, 1.0f},
+    {1.0f, -1.0f, 0.0f, -1.0f},
+    {-1.0f, 1.0f, 0.0f, 1.0f},
+    {-1.0f, 1.0f, 0.0f, -1.0f},
+    {-1.0f, -1.0f, 0.0f, 1.0f},
+    {-1.0f, -1.0f, 0.0f, -1.0f},
+    {1.0f, 1.0f, 1.0f, 0.0f},
+    {1.0f, 1.0f, -1.0f, 0.0f},
+    {1.0f, -1.0f, 1.0f, 0.0f},
+    {1.0f, -1.0f, -1.0f, 0.0f},
+    {-1.0f, 1.0f, 1.0f, 0.0f},
+    {-1.0f, 1.0f, -1.0f, 0.0f},
+    {-1.0f, -1.0f, 1.0f, 0.0f},
+    {-1.0f, -1.0f, -1.0f, 0.0f}};
 
 // A lookup table to traverse the simplex around a given point in 4D.
 // Details can be found where this table is used, in the 4D noise method.
 /* TODO: This should not be required, backport it from Bill's GLSL code! */
-static unsigned char simplex[64][4] =
-{
-  {0, 1, 2, 3}, {0, 1, 3, 2}, {0, 0, 0, 0}, {0, 2, 3, 1}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {1, 2, 3, 0},
-  {0, 2, 1, 3}, {0, 0, 0, 0}, {0, 3, 1, 2}, {0, 3, 2, 1}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {1, 3, 2, 0},
-  {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0},
-  {1, 2, 0, 3}, {0, 0, 0, 0}, {1, 3, 0, 2}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {2, 3, 0, 1}, {2, 3, 1, 0},
-  {1, 0, 2, 3}, {1, 0, 3, 2}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {2, 0, 3, 1}, {0, 0, 0, 0}, {2, 1, 3, 0},
-  {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0},
-  {2, 0, 1, 3}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {3, 0, 1, 2}, {3, 0, 2, 1}, {0, 0, 0, 0}, {3, 1, 2, 0},
-  {2, 1, 0, 3}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {3, 1, 0, 2}, {0, 0, 0, 0}, {3, 2, 0, 1}, {3, 2, 1, 0}
-};
+static unsigned char simplex[64][4] = {
+    {0, 1, 2, 3}, {0, 1, 3, 2}, {0, 0, 0, 0}, {0, 2, 3, 1}, {0, 0, 0, 0},
+    {0, 0, 0, 0}, {0, 0, 0, 0}, {1, 2, 3, 0}, {0, 2, 1, 3}, {0, 0, 0, 0},
+    {0, 3, 1, 2}, {0, 3, 2, 1}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0},
+    {1, 3, 2, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0},
+    {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {1, 2, 0, 3},
+    {0, 0, 0, 0}, {1, 3, 0, 2}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0},
+    {2, 3, 0, 1}, {2, 3, 1, 0}, {1, 0, 2, 3}, {1, 0, 3, 2}, {0, 0, 0, 0},
+    {0, 0, 0, 0}, {0, 0, 0, 0}, {2, 0, 3, 1}, {0, 0, 0, 0}, {2, 1, 3, 0},
+    {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0},
+    {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {2, 0, 1, 3}, {0, 0, 0, 0},
+    {0, 0, 0, 0}, {0, 0, 0, 0}, {3, 0, 1, 2}, {3, 0, 2, 1}, {0, 0, 0, 0},
+    {3, 1, 2, 0}, {2, 1, 0, 3}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0},
+    {3, 1, 0, 2}, {0, 0, 0, 0}, {3, 2, 0, 1}, {3, 2, 1, 0}};
 
 /* --------------------------------------------------------------------- */
 
@@ -162,24 +192,21 @@ static unsigned char simplex[64][4] =
  * and gradients-dot-residualvectors in 2D to 4D.
  */
 
-
-float sdnoise_grad1(int hash, float *gx)
-{
+float sdnoise_grad1(int hash, float *gx) {
   int h = hash & 15;
-  *gx = 1.0f + (h & 7);   // Gradient value is one of 1.0, 2.0, ..., 8.0
-  if (h & 8) *gx = - *gx; // Make half of the gradients negative
+  *gx = 1.0f + (h & 7); // Gradient value is one of 1.0, 2.0, ..., 8.0
+  if (h & 8)
+    *gx = -*gx; // Make half of the gradients negative
 }
 
-void sdnoise_grad2(int hash, float *gx, float *gy)
-{
+void sdnoise_grad2(int hash, float *gx, float *gy) {
   int h = hash & 7;
   *gx = grad2lut[h][0];
   *gy = grad2lut[h][1];
   return;
 }
 
-void sdnoise_grad3(int hash, float *gx, float *gy, float *gz)
-{
+void sdnoise_grad3(int hash, float *gx, float *gy, float *gz) {
   int h = hash & 15;
   *gx = grad3lut[h][0];
   *gy = grad3lut[h][1];
@@ -187,8 +214,7 @@ void sdnoise_grad3(int hash, float *gx, float *gy, float *gz)
   return;
 }
 
-void sdnoise_grad4(int hash, float *gx, float *gy, float *gz, float *gw)
-{
+void sdnoise_grad4(int hash, float *gx, float *gy, float *gz, float *gw) {
   int h = hash & 31;
   *gx = grad4lut[h][0];
   *gy = grad4lut[h][1];
@@ -197,13 +223,11 @@ void sdnoise_grad4(int hash, float *gx, float *gy, float *gz, float *gw)
   return;
 }
 
-
 /** 1D simplex noise with derivative.
  * If the last argument is not null, the analytic derivative
  * is also calculated.
  */
-float sdnoise1(float x, float *dnoise_dx)
-{
+float sdnoise1(float x, float *dnoise_dx) {
   int i0 = FASTFLOOR(x);
   int i1 = i0 + 1;
   float x0 = x - i0;
@@ -215,7 +239,7 @@ float sdnoise1(float x, float *dnoise_dx)
 
   float x20 = x0 * x0;
   float t0 = 1.0f - x20;
-//  if(t0 < 0.0f) t0 = 0.0f; // Never happens for 1D: x0<=1 always
+  //  if(t0 < 0.0f) t0 = 0.0f; // Never happens for 1D: x0<=1 always
   t20 = t0 * t0;
   t40 = t20 * t20;
   sdnoise_grad1(sd_perm[i0 & 0xff], &gx0);
@@ -223,7 +247,7 @@ float sdnoise1(float x, float *dnoise_dx)
 
   float x21 = x1 * x1;
   float t1 = 1.0f - x21;
-//  if(t1 < 0.0f) t1 = 0.0f; // Never happens for 1D: |x1|<=1 always
+  //  if(t1 < 0.0f) t1 = 0.0f; // Never happens for 1D: |x1|<=1 always
   t21 = t1 * t1;
   t41 = t21 * t21;
   sdnoise_grad1(sd_perm[i1 & 0xff], &gx1);
@@ -256,13 +280,12 @@ float sdnoise1(float x, float *dnoise_dx)
  * If the last two arguments are not null, the analytic derivative
  * (the 2D gradient of the scalar noise field) is also calculated.
  */
-float sdnoise2(float x, float y, float *dnoise_dx, float *dnoise_dy)
-{
+float sdnoise2(float x, float y, float *dnoise_dx, float *dnoise_dy) {
   float n0, n1, n2; /* Noise contributions from the three simplex corners */
   float gx0, gy0, gx1, gy1, gx2, gy2; /* Gradients at simplex corners */
 
   /* Skew the input space to determine which simplex cell we're in */
-  float s = (x + y) * F2;   /* Hairy factor for 2D */
+  float s = (x + y) * F2; /* Hairy factor for 2D */
   float xs = x + s;
   float ys = y + s;
   int i = FASTFLOOR(xs);
@@ -276,36 +299,37 @@ float sdnoise2(float x, float y, float *dnoise_dx, float *dnoise_dy)
 
   /* For the 2D case, the simplex shape is an equilateral triangle.
    * Determine which simplex we are in. */
-  int i1, j1; /* Offsets for second (middle) corner of simplex in (i,j) coords */
-  if (x0 > y0)
-  {
-    i1 = 1;  /* lower triangle, XY order: (0,0)->(1,0)->(1,1) */
+  int i1,
+      j1; /* Offsets for second (middle) corner of simplex in (i,j) coords */
+  if (x0 > y0) {
+    i1 = 1; /* lower triangle, XY order: (0,0)->(1,0)->(1,1) */
     j1 = 0;
-  }
-  else
-  {
-    i1 = 0;  /* upper triangle, YX order: (0,0)->(0,1)->(1,1) */
+  } else {
+    i1 = 0; /* upper triangle, YX order: (0,0)->(0,1)->(1,1) */
     j1 = 1;
   }
 
   /* A step of (1,0) in (i,j) means a step of (1-c,-c) in (x,y), and
    * a step of (0,1) in (i,j) means a step of (-c,1-c) in (x,y), where
    * c = (3-sqrt(3))/6   */
-  float x1 = x0 - i1 + G2; /* Offsets for middle corner in (x,y) unskewed coords */
+  float x1 =
+      x0 - i1 + G2; /* Offsets for middle corner in (x,y) unskewed coords */
   float y1 = y0 - j1 + G2;
-  float x2 = x0 - 1.0f + 2.0f * G2; /* Offsets for last corner in (x,y) unskewed coords */
+  float x2 = x0 - 1.0f +
+             2.0f * G2; /* Offsets for last corner in (x,y) unskewed coords */
   float y2 = y0 - 1.0f + 2.0f * G2;
 
-  /* Wrap the integer indices at 256, to avoid indexing sd_perm[] out of bounds */
+  /* Wrap the integer indices at 256, to avoid indexing sd_perm[] out of bounds
+   */
   int ii = i % 256;
   int jj = j % 256;
 
   /* Calculate the contribution from the three corners */
   float t0 = 0.5f - x0 * x0 - y0 * y0;
   float t20, t40;
-  if (t0 < 0.0f) t40 = t20 = t0 = n0 = gx0 = gy0 = 0.0f;  /* No influence */
-  else
-  {
+  if (t0 < 0.0f)
+    t40 = t20 = t0 = n0 = gx0 = gy0 = 0.0f; /* No influence */
+  else {
     // TODO(lucasw) mostly sure this is the right grad2
     sdnoise_grad2(sd_perm[ii + sd_perm[jj]], &gx0, &gy0);
     t20 = t0 * t0;
@@ -315,9 +339,9 @@ float sdnoise2(float x, float y, float *dnoise_dx, float *dnoise_dy)
 
   float t1 = 0.5f - x1 * x1 - y1 * y1;
   float t21, t41;
-  if (t1 < 0.0f) t21 = t41 = t1 = n1 = gx1 = gy1 = 0.0f;  /* No influence */
-  else
-  {
+  if (t1 < 0.0f)
+    t21 = t41 = t1 = n1 = gx1 = gy1 = 0.0f; /* No influence */
+  else {
     sdnoise_grad2(sd_perm[ii + i1 + sd_perm[jj + j1]], &gx1, &gy1);
     t21 = t1 * t1;
     t41 = t21 * t21;
@@ -326,9 +350,9 @@ float sdnoise2(float x, float y, float *dnoise_dx, float *dnoise_dy)
 
   float t2 = 0.5f - x2 * x2 - y2 * y2;
   float t22, t42;
-  if (t2 < 0.0f) t42 = t22 = t2 = n2 = gx2 = gy2 = 0.0f;  /* No influence */
-  else
-  {
+  if (t2 < 0.0f)
+    t42 = t22 = t2 = n2 = gx2 = gy2 = 0.0f; /* No influence */
+  else {
     sdnoise_grad2(sd_perm[ii + 1 + sd_perm[jj + 1]], &gx2, &gy2);
     t22 = t2 * t2;
     t42 = t22 * t22;
@@ -341,15 +365,15 @@ float sdnoise2(float x, float y, float *dnoise_dx, float *dnoise_dy)
 
   /* Compute derivative, if requested by supplying non-null pointers
    * for the last two arguments */
-  if ((dnoise_dx != 0) && (dnoise_dy != 0))
-  {
+  if ((dnoise_dx != 0) && (dnoise_dy != 0)) {
     /*  A straight, unoptimised calculation would be like:
-       *    *dnoise_dx = -8.0f * t20 * t0 * x0 * ( gx0 * x0 + gy0 * y0 ) + t40 * gx0;
-       *    *dnoise_dy = -8.0f * t20 * t0 * y0 * ( gx0 * x0 + gy0 * y0 ) + t40 * gy0;
-       *    *dnoise_dx += -8.0f * t21 * t1 * x1 * ( gx1 * x1 + gy1 * y1 ) + t41 * gx1;
-       *    *dnoise_dy += -8.0f * t21 * t1 * y1 * ( gx1 * x1 + gy1 * y1 ) + t41 * gy1;
-       *    *dnoise_dx += -8.0f * t22 * t2 * x2 * ( gx2 * x2 + gy2 * y2 ) + t42 * gx2;
-       *    *dnoise_dy += -8.0f * t22 * t2 * y2 * ( gx2 * x2 + gy2 * y2 ) + t42 * gy2;
+     *    *dnoise_dx = -8.0f * t20 * t0 * x0 * ( gx0 * x0 + gy0 * y0 ) + t40 *
+     * gx0; *dnoise_dy = -8.0f * t20 * t0 * y0 * ( gx0 * x0 + gy0 * y0 ) + t40 *
+     * gy0; *dnoise_dx += -8.0f * t21 * t1 * x1 * ( gx1 * x1 + gy1 * y1 ) + t41
+     * * gx1; *dnoise_dy += -8.0f * t21 * t1 * y1 * ( gx1 * x1 + gy1 * y1 ) +
+     * t41 * gy1; *dnoise_dx += -8.0f * t22 * t2 * x2 * ( gx2 * x2 + gy2 * y2 )
+     * + t42 * gx2; *dnoise_dy += -8.0f * t22 * t2 * y2 * ( gx2 * x2 + gy2 * y2
+     * ) + t42 * gy2;
      */
     float temp0 = t20 * t0 * (gx0 * x0 + gy0 * y0);
     *dnoise_dx = temp0 * x0;
@@ -376,14 +400,12 @@ float sdnoise2(float x, float y, float *dnoise_dx, float *dnoise_dy)
 #define F3 0.333333333
 #define G3 0.166666667
 
-
 /** 3D simplex noise with derivatives.
  * If the last tthree arguments are not null, the analytic derivative
  * (the 3D gradient of the scalar noise field) is also calculated.
  */
-float sdnoise3(float x, float y, float z,
-               float *dnoise_dx, float *dnoise_dy, float *dnoise_dz)
-{
+float sdnoise3(float x, float y, float z, float *dnoise_dx, float *dnoise_dy,
+               float *dnoise_dz) {
   float n0, n1, n2, n3; /* Noise contributions from the four simplex corners */
   float noise;          /* Return value */
   float gx0, gy0, gz0, gx1, gy1, gz1; /* Gradients at simplex corners */
@@ -412,59 +434,47 @@ float sdnoise3(float x, float y, float z,
   int i2, j2, k2; /* Offsets for third corner of simplex in (i,j,k) coords */
 
   /* TODO: This code would benefit from a backport from the GLSL version! */
-  if (x0 >= y0)
-  {
-    if (y0 >= z0)
-    {
-      i1 = 1;  /* X Y Z order */
+  if (x0 >= y0) {
+    if (y0 >= z0) {
+      i1 = 1; /* X Y Z order */
       j1 = 0;
       k1 = 0;
       i2 = 1;
       j2 = 1;
       k2 = 0;
-    }
-    else if (x0 >= z0)
-    {
-      i1 = 1;  /* X Z Y order */
+    } else if (x0 >= z0) {
+      i1 = 1; /* X Z Y order */
       j1 = 0;
       k1 = 0;
       i2 = 1;
       j2 = 0;
       k2 = 1;
-    }
-    else
-    {
-      i1 = 0;  /* Z X Y order */
+    } else {
+      i1 = 0; /* Z X Y order */
       j1 = 0;
       k1 = 1;
       i2 = 1;
       j2 = 0;
       k2 = 1;
     }
-  }
-  else   // x0<y0
+  } else // x0<y0
   {
-    if (y0 < z0)
-    {
-      i1 = 0;  /* Z Y X order */
+    if (y0 < z0) {
+      i1 = 0; /* Z Y X order */
       j1 = 0;
       k1 = 1;
       i2 = 0;
       j2 = 1;
       k2 = 1;
-    }
-    else if (x0 < z0)
-    {
-      i1 = 0;  /* Y Z X order */
+    } else if (x0 < z0) {
+      i1 = 0; /* Y Z X order */
       j1 = 1;
       k1 = 0;
       i2 = 0;
       j2 = 1;
       k2 = 1;
-    }
-    else
-    {
-      i1 = 0;  /* Y X Z order */
+    } else {
+      i1 = 0; /* Y X Z order */
       j1 = 1;
       k1 = 0;
       i2 = 1;
@@ -481,14 +491,17 @@ float sdnoise3(float x, float y, float z,
   float x1 = x0 - i1 + G3; /* Offsets for second corner in (x,y,z) coords */
   float y1 = y0 - j1 + G3;
   float z1 = z0 - k1 + G3;
-  float x2 = x0 - i2 + 2.0f * G3; /* Offsets for third corner in (x,y,z) coords */
+  float x2 =
+      x0 - i2 + 2.0f * G3; /* Offsets for third corner in (x,y,z) coords */
   float y2 = y0 - j2 + 2.0f * G3;
   float z2 = z0 - k2 + 2.0f * G3;
-  float x3 = x0 - 1.0f + 3.0f * G3; /* Offsets for last corner in (x,y,z) coords */
+  float x3 =
+      x0 - 1.0f + 3.0f * G3; /* Offsets for last corner in (x,y,z) coords */
   float y3 = y0 - 1.0f + 3.0f * G3;
   float z3 = z0 - 1.0f + 3.0f * G3;
 
-  /* Wrap the integer indices at 256, to avoid indexing sd_perm[] out of bounds */
+  /* Wrap the integer indices at 256, to avoid indexing sd_perm[] out of bounds
+   */
   int ii = i % 256;
   int jj = j % 256;
   int kk = k % 256;
@@ -496,10 +509,11 @@ float sdnoise3(float x, float y, float z,
   /* Calculate the contribution from the four corners */
   float t0 = 0.6f - x0 * x0 - y0 * y0 - z0 * z0;
   float t20, t40;
-  if (t0 < 0.0f) n0 = t0 = t20 = t40 = gx0 = gy0 = gz0 = 0.0f;
-  else
-  {
-    // TODO(lucasw) not sure if this was supposed to be sdnoise_grad3 or grad3 from simplex_noise
+  if (t0 < 0.0f)
+    n0 = t0 = t20 = t40 = gx0 = gy0 = gz0 = 0.0f;
+  else {
+    // TODO(lucasw) not sure if this was supposed to be sdnoise_grad3 or grad3
+    // from simplex_noise
     sdnoise_grad3(sd_perm[ii + sd_perm[jj + sd_perm[kk]]], &gx0, &gy0, &gz0);
     t20 = t0 * t0;
     t40 = t20 * t20;
@@ -508,10 +522,11 @@ float sdnoise3(float x, float y, float z,
 
   float t1 = 0.6f - x1 * x1 - y1 * y1 - z1 * z1;
   float t21, t41;
-  if (t1 < 0.0f) n1 = t1 = t21 = t41 = gx1 = gy1 = gz1 = 0.0f;
-  else
-  {
-    sdnoise_grad3(sd_perm[ii + i1 + sd_perm[jj + j1 + sd_perm[kk + k1]]], &gx1, &gy1, &gz1);
+  if (t1 < 0.0f)
+    n1 = t1 = t21 = t41 = gx1 = gy1 = gz1 = 0.0f;
+  else {
+    sdnoise_grad3(sd_perm[ii + i1 + sd_perm[jj + j1 + sd_perm[kk + k1]]], &gx1,
+                  &gy1, &gz1);
     t21 = t1 * t1;
     t41 = t21 * t21;
     n1 = t41 * (gx1 * x1 + gy1 * y1 + gz1 * z1);
@@ -519,10 +534,11 @@ float sdnoise3(float x, float y, float z,
 
   float t2 = 0.6f - x2 * x2 - y2 * y2 - z2 * z2;
   float t22, t42;
-  if (t2 < 0.0f) n2 = t2 = t22 = t42 = gx2 = gy2 = gz2 = 0.0f;
-  else
-  {
-    sdnoise_grad3(sd_perm[ii + i2 + sd_perm[jj + j2 + sd_perm[kk + k2]]], &gx2, &gy2, &gz2);
+  if (t2 < 0.0f)
+    n2 = t2 = t22 = t42 = gx2 = gy2 = gz2 = 0.0f;
+  else {
+    sdnoise_grad3(sd_perm[ii + i2 + sd_perm[jj + j2 + sd_perm[kk + k2]]], &gx2,
+                  &gy2, &gz2);
     t22 = t2 * t2;
     t42 = t22 * t22;
     n2 = t42 * (gx2 * x2 + gy2 * y2 + gz2 * z2);
@@ -530,10 +546,11 @@ float sdnoise3(float x, float y, float z,
 
   float t3 = 0.6f - x3 * x3 - y3 * y3 - z3 * z3;
   float t23, t43;
-  if (t3 < 0.0f) n3 = t3 = t23 = t43 = gx3 = gy3 = gz3 = 0.0f;
-  else
-  {
-    sdnoise_grad3(sd_perm[ii + 1 + sd_perm[jj + 1 + sd_perm[kk + 1]]], &gx3, &gy3, &gz3);
+  if (t3 < 0.0f)
+    n3 = t3 = t23 = t43 = gx3 = gy3 = gz3 = 0.0f;
+  else {
+    sdnoise_grad3(sd_perm[ii + 1 + sd_perm[jj + 1 + sd_perm[kk + 1]]], &gx3,
+                  &gy3, &gz3);
     t23 = t3 * t3;
     t43 = t23 * t23;
     n3 = t43 * (gx3 * x3 + gy3 * y3 + gz3 * z3);
@@ -545,22 +562,23 @@ float sdnoise3(float x, float y, float z,
 
   /* Compute derivative, if requested by supplying non-null pointers
    * for the last three arguments */
-  if ((dnoise_dx != 0) && (dnoise_dy != 0) && (dnoise_dz != 0))
-  {
+  if ((dnoise_dx != 0) && (dnoise_dy != 0) && (dnoise_dz != 0)) {
     /*  A straight, unoptimised calculation would be like:
-       *     *dnoise_dx = -8.0f * t20 * t0 * x0 * dot(gx0, gy0, gz0, x0, y0, z0) + t40 * gx0;
-       *    *dnoise_dy = -8.0f * t20 * t0 * y0 * dot(gx0, gy0, gz0, x0, y0, z0) + t40 * gy0;
-       *    *dnoise_dz = -8.0f * t20 * t0 * z0 * dot(gx0, gy0, gz0, x0, y0, z0) + t40 * gz0;
-       *    *dnoise_dx += -8.0f * t21 * t1 * x1 * dot(gx1, gy1, gz1, x1, y1, z1) + t41 * gx1;
-       *    *dnoise_dy += -8.0f * t21 * t1 * y1 * dot(gx1, gy1, gz1, x1, y1, z1) + t41 * gy1;
-       *    *dnoise_dz += -8.0f * t21 * t1 * z1 * dot(gx1, gy1, gz1, x1, y1, z1) + t41 * gz1;
-       *    *dnoise_dx += -8.0f * t22 * t2 * x2 * dot(gx2, gy2, gz2, x2, y2, z2) + t42 * gx2;
-       *    *dnoise_dy += -8.0f * t22 * t2 * y2 * dot(gx2, gy2, gz2, x2, y2, z2) + t42 * gy2;
-       *    *dnoise_dz += -8.0f * t22 * t2 * z2 * dot(gx2, gy2, gz2, x2, y2, z2) + t42 * gz2;
-       *    *dnoise_dx += -8.0f * t23 * t3 * x3 * dot(gx3, gy3, gz3, x3, y3, z3) + t43 * gx3;
-       *    *dnoise_dy += -8.0f * t23 * t3 * y3 * dot(gx3, gy3, gz3, x3, y3, z3) + t43 * gy3;
-       *    *dnoise_dz += -8.0f * t23 * t3 * z3 * dot(gx3, gy3, gz3, x3, y3, z3) + t43 * gz3;
-       */
+     *     *dnoise_dx = -8.0f * t20 * t0 * x0 * dot(gx0, gy0, gz0, x0, y0, z0) +
+     * t40 * gx0; *dnoise_dy = -8.0f * t20 * t0 * y0 * dot(gx0, gy0, gz0, x0,
+     * y0, z0) + t40 * gy0; *dnoise_dz = -8.0f * t20 * t0 * z0 * dot(gx0, gy0,
+     * gz0, x0, y0, z0) + t40 * gz0; *dnoise_dx += -8.0f * t21 * t1 * x1 *
+     * dot(gx1, gy1, gz1, x1, y1, z1) + t41 * gx1; *dnoise_dy += -8.0f * t21 *
+     * t1 * y1 * dot(gx1, gy1, gz1, x1, y1, z1) + t41 * gy1; *dnoise_dz += -8.0f
+     * * t21 * t1 * z1 * dot(gx1, gy1, gz1, x1, y1, z1) + t41 * gz1; *dnoise_dx
+     * += -8.0f * t22 * t2 * x2 * dot(gx2, gy2, gz2, x2, y2, z2) + t42 * gx2;
+     *    *dnoise_dy += -8.0f * t22 * t2 * y2 * dot(gx2, gy2, gz2, x2, y2, z2) +
+     * t42 * gy2; *dnoise_dz += -8.0f * t22 * t2 * z2 * dot(gx2, gy2, gz2, x2,
+     * y2, z2) + t42 * gz2; *dnoise_dx += -8.0f * t23 * t3 * x3 * dot(gx3, gy3,
+     * gz3, x3, y3, z3) + t43 * gx3; *dnoise_dy += -8.0f * t23 * t3 * y3 *
+     * dot(gx3, gy3, gz3, x3, y3, z3) + t43 * gy3; *dnoise_dz += -8.0f * t23 *
+     * t3 * z3 * dot(gx3, gy3, gz3, x3, y3, z3) + t43 * gz3;
+     */
     float temp0 = t20 * t0 * (gx0 * x0 + gy0 * y0 + gz0 * z0);
     *dnoise_dx = temp0 * x0;
     *dnoise_dy = temp0 * y0;
@@ -598,13 +616,12 @@ float sdnoise3(float x, float y, float z,
  * If the last four arguments are not null, the analytic derivative
  * (the 4D gradient of the scalar noise field) is also calculated.
  */
-float sdnoise4(float x, float y, float z, float w,
-               float *dnoise_dx, float *dnoise_dy,
-               float *dnoise_dz, float *dnoise_dw)
-{
+float sdnoise4(float x, float y, float z, float w, float *dnoise_dx,
+               float *dnoise_dy, float *dnoise_dz, float *dnoise_dw) {
   float n0, n1, n2, n3, n4; // Noise contributions from the five corners
-  float noise; // Return value
-  float gx0, gy0, gz0, gw0, gx1, gy1, gz1, gw1; /* Gradients at simplex corners */
+  float noise;              // Return value
+  float gx0, gy0, gz0, gw0, gx1, gy1, gz1,
+      gw1; /* Gradients at simplex corners */
   float gx2, gy2, gz2, gw2, gx3, gy3, gz3, gw3, gx4, gy4, gz4, gw4;
   float t20, t21, t22, t23, t24;
   float t40, t41, t42, t43, t44;
@@ -626,7 +643,7 @@ float sdnoise4(float x, float y, float z, float w,
   float Z0 = k - t;
   float W0 = l - t;
 
-  float x0 = x - X0;  // The x,y,z,w distances from the cell origin
+  float x0 = x - X0; // The x,y,z,w distances from the cell origin
   float y0 = y - Y0;
   float z0 = z - Z0;
   float w0 = w - W0;
@@ -652,10 +669,11 @@ float sdnoise4(float x, float y, float z, float w,
   int i3, j3, k3, l3; // The integer offsets for the fourth simplex corner
 
   // simplex[c] is a 4-vector with the numbers 0, 1, 2 and 3 in some order.
-  // Many values of c will never occur, since e.g. x>y>z>w makes x<z, y<w and x<w
-  // impossible. Only the 24 indices which have non-zero entries make any sense.
-  // We use a thresholding to set the coordinates in turn from the largest magnitude.
-  // The number 3 in the "simplex" array is at the position of the largest coordinate.
+  // Many values of c will never occur, since e.g. x>y>z>w makes x<z, y<w and
+  // x<w impossible. Only the 24 indices which have non-zero entries make any
+  // sense. We use a thresholding to set the coordinates in turn from the
+  // largest magnitude. The number 3 in the "simplex" array is at the position
+  // of the largest coordinate.
   i1 = simplex[c][0] >= 3 ? 1 : 0;
   j1 = simplex[c][1] >= 3 ? 1 : 0;
   k1 = simplex[c][2] >= 3 ? 1 : 0;
@@ -670,21 +688,25 @@ float sdnoise4(float x, float y, float z, float w,
   j3 = simplex[c][1] >= 1 ? 1 : 0;
   k3 = simplex[c][2] >= 1 ? 1 : 0;
   l3 = simplex[c][3] >= 1 ? 1 : 0;
-  // The fifth corner has all coordinate offsets = 1, so no need to look that up.
+  // The fifth corner has all coordinate offsets = 1, so no need to look that
+  // up.
 
   float x1 = x0 - i1 + G4; // Offsets for second corner in (x,y,z,w) coords
   float y1 = y0 - j1 + G4;
   float z1 = z0 - k1 + G4;
   float w1 = w0 - l1 + G4;
-  float x2 = x0 - i2 + 2.0f * G4; // Offsets for third corner in (x,y,z,w) coords
+  float x2 =
+      x0 - i2 + 2.0f * G4; // Offsets for third corner in (x,y,z,w) coords
   float y2 = y0 - j2 + 2.0f * G4;
   float z2 = z0 - k2 + 2.0f * G4;
   float w2 = w0 - l2 + 2.0f * G4;
-  float x3 = x0 - i3 + 3.0f * G4; // Offsets for fourth corner in (x,y,z,w) coords
+  float x3 =
+      x0 - i3 + 3.0f * G4; // Offsets for fourth corner in (x,y,z,w) coords
   float y3 = y0 - j3 + 3.0f * G4;
   float z3 = z0 - k3 + 3.0f * G4;
   float w3 = w0 - l3 + 3.0f * G4;
-  float x4 = x0 - 1.0f + 4.0f * G4; // Offsets for last corner in (x,y,z,w) coords
+  float x4 =
+      x0 - 1.0f + 4.0f * G4; // Offsets for last corner in (x,y,z,w) coords
   float y4 = y0 - 1.0f + 4.0f * G4;
   float z4 = z0 - 1.0f + 4.0f * G4;
   float w4 = w0 - 1.0f + 4.0f * G4;
@@ -697,84 +719,103 @@ float sdnoise4(float x, float y, float z, float w,
 
   // Calculate the contribution from the five corners
   float t0 = 0.6f - x0 * x0 - y0 * y0 - z0 * z0 - w0 * w0;
-  if (t0 < 0.0f) n0 = t0 = t20 = t40 = gx0 = gy0 = gz0 = gw0 = 0.0f;
-  else
-  {
+  if (t0 < 0.0f)
+    n0 = t0 = t20 = t40 = gx0 = gy0 = gz0 = gw0 = 0.0f;
+  else {
     t20 = t0 * t0;
     t40 = t20 * t20;
-    sdnoise_grad4(sd_perm[ii + sd_perm[jj + sd_perm[kk + sd_perm[ll]]]], &gx0, &gy0, &gz0, &gw0);
+    sdnoise_grad4(sd_perm[ii + sd_perm[jj + sd_perm[kk + sd_perm[ll]]]], &gx0,
+                  &gy0, &gz0, &gw0);
     n0 = t40 * (gx0 * x0 + gy0 * y0 + gz0 * z0 + gw0 * w0);
   }
 
   float t1 = 0.6f - x1 * x1 - y1 * y1 - z1 * z1 - w1 * w1;
-  if (t1 < 0.0f) n1 = t1 = t21 = t41 = gx1 = gy1 = gz1 = gw1 = 0.0f;
-  else
-  {
+  if (t1 < 0.0f)
+    n1 = t1 = t21 = t41 = gx1 = gy1 = gz1 = gw1 = 0.0f;
+  else {
     t21 = t1 * t1;
     t41 = t21 * t21;
-    sdnoise_grad4(sd_perm[ii + i1 + sd_perm[jj + j1 + sd_perm[kk + k1 + sd_perm[ll + l1]]]], &gx1, &gy1, &gz1, &gw1);
+    sdnoise_grad4(
+        sd_perm[ii + i1 +
+                sd_perm[jj + j1 + sd_perm[kk + k1 + sd_perm[ll + l1]]]],
+        &gx1, &gy1, &gz1, &gw1);
     n1 = t41 * (gx1 * x1 + gy1 * y1 + gz1 * z1 + gw1 * w1);
   }
 
   float t2 = 0.6f - x2 * x2 - y2 * y2 - z2 * z2 - w2 * w2;
-  if (t2 < 0.0f) n2 = t2 = t22 = t42 = gx2 = gy2 = gz2 = gw2 = 0.0f;
-  else
-  {
+  if (t2 < 0.0f)
+    n2 = t2 = t22 = t42 = gx2 = gy2 = gz2 = gw2 = 0.0f;
+  else {
     t22 = t2 * t2;
     t42 = t22 * t22;
-    sdnoise_grad4(sd_perm[ii + i2 + sd_perm[jj + j2 + sd_perm[kk + k2 + sd_perm[ll + l2]]]], &gx2, &gy2, &gz2, &gw2);
+    sdnoise_grad4(
+        sd_perm[ii + i2 +
+                sd_perm[jj + j2 + sd_perm[kk + k2 + sd_perm[ll + l2]]]],
+        &gx2, &gy2, &gz2, &gw2);
     n2 = t42 * (gx2 * x2 + gy2 * y2 + gz2 * z2 + gw2 * w2);
   }
 
   float t3 = 0.6f - x3 * x3 - y3 * y3 - z3 * z3 - w3 * w3;
-  if (t3 < 0.0f) n3 = t3 = t23 = t43 = gx3 = gy3 = gz3 = gw3 = 0.0f;
-  else
-  {
+  if (t3 < 0.0f)
+    n3 = t3 = t23 = t43 = gx3 = gy3 = gz3 = gw3 = 0.0f;
+  else {
     t23 = t3 * t3;
     t43 = t23 * t23;
-    sdnoise_grad4(sd_perm[ii + i3 + sd_perm[jj + j3 + sd_perm[kk + k3 + sd_perm[ll + l3]]]], &gx3, &gy3, &gz3, &gw3);
+    sdnoise_grad4(
+        sd_perm[ii + i3 +
+                sd_perm[jj + j3 + sd_perm[kk + k3 + sd_perm[ll + l3]]]],
+        &gx3, &gy3, &gz3, &gw3);
     n3 = t43 * (gx3 * x3 + gy3 * y3 + gz3 * z3 + gw3 * w3);
   }
 
   float t4 = 0.6f - x4 * x4 - y4 * y4 - z4 * z4 - w4 * w4;
-  if (t4 < 0.0f) n4 = t4 = t24 = t44 = gx4 = gy4 = gz4 = gw4 = 0.0f;
-  else
-  {
+  if (t4 < 0.0f)
+    n4 = t4 = t24 = t44 = gx4 = gy4 = gz4 = gw4 = 0.0f;
+  else {
     t24 = t4 * t4;
     t44 = t24 * t24;
-    sdnoise_grad4(sd_perm[ii + 1 + sd_perm[jj + 1 + sd_perm[kk + 1 + sd_perm[ll + 1]]]], &gx4, &gy4, &gz4, &gw4);
+    sdnoise_grad4(
+        sd_perm[ii + 1 + sd_perm[jj + 1 + sd_perm[kk + 1 + sd_perm[ll + 1]]]],
+        &gx4, &gy4, &gz4, &gw4);
     n4 = t44 * (gx4 * x4 + gy4 * y4 + gz4 * z4 + gw4 * w4);
   }
 
   // Sum up and scale the result to cover the range [-1,1]
-  noise = 27.0f * (n0 + n1 + n2 + n3 + n4); // TODO: The scale factor is preliminary!
+  noise = 27.0f *
+          (n0 + n1 + n2 + n3 + n4); // TODO: The scale factor is preliminary!
 
   /* Compute derivative, if requested by supplying non-null pointers
    * for the last four arguments */
-  if ((dnoise_dx != 0) && (dnoise_dy != 0) && (dnoise_dz != 0) && (dnoise_dw != 0))
-  {
+  if ((dnoise_dx != 0) && (dnoise_dy != 0) && (dnoise_dz != 0) &&
+      (dnoise_dw != 0)) {
     /*  A straight, unoptimised calculation would be like:
-       *     *dnoise_dx = -8.0f * t20 * t0 * x0 * dot(gx0, gy0, gz0, gw0, x0, y0, z0, w0) + t40 * gx0;
-       *    *dnoise_dy = -8.0f * t20 * t0 * y0 * dot(gx0, gy0, gz0, gw0, x0, y0, z0, w0) + t40 * gy0;
-       *    *dnoise_dz = -8.0f * t20 * t0 * z0 * dot(gx0, gy0, gz0, gw0, x0, y0, z0, w0) + t40 * gz0;
-       *    *dnoise_dw = -8.0f * t20 * t0 * w0 * dot(gx0, gy0, gz0, gw0, x0, y0, z0, w0) + t40 * gw0;
-       *    *dnoise_dx += -8.0f * t21 * t1 * x1 * dot(gx1, gy1, gz1, gw1, x1, y1, z1, w1) + t41 * gx1;
-       *    *dnoise_dy += -8.0f * t21 * t1 * y1 * dot(gx1, gy1, gz1, gw1, x1, y1, z1, w1) + t41 * gy1;
-       *    *dnoise_dz += -8.0f * t21 * t1 * z1 * dot(gx1, gy1, gz1, gw1, x1, y1, z1, w1) + t41 * gz1;
-       *    *dnoise_dw = -8.0f * t21 * t1 * w1 * dot(gx1, gy1, gz1, gw1, x1, y1, z1, w1) + t41 * gw1;
-       *    *dnoise_dx += -8.0f * t22 * t2 * x2 * dot(gx2, gy2, gz2, gw2, x2, y2, z2, w2) + t42 * gx2;
-       *    *dnoise_dy += -8.0f * t22 * t2 * y2 * dot(gx2, gy2, gz2, gw2, x2, y2, z2, w2) + t42 * gy2;
-       *    *dnoise_dz += -8.0f * t22 * t2 * z2 * dot(gx2, gy2, gz2, gw2, x2, y2, z2, w2) + t42 * gz2;
-       *    *dnoise_dw += -8.0f * t22 * t2 * w2 * dot(gx2, gy2, gz2, gw2, x2, y2, z2, w2) + t42 * gw2;
-       *    *dnoise_dx += -8.0f * t23 * t3 * x3 * dot(gx3, gy3, gz3, gw3, x3, y3, z3, w3) + t43 * gx3;
-       *    *dnoise_dy += -8.0f * t23 * t3 * y3 * dot(gx3, gy3, gz3, gw3, x3, y3, z3, w3) + t43 * gy3;
-       *    *dnoise_dz += -8.0f * t23 * t3 * z3 * dot(gx3, gy3, gz3, gw3, x3, y3, z3, w3) + t43 * gz3;
-       *    *dnoise_dw += -8.0f * t23 * t3 * w3 * dot(gx3, gy3, gz3, gw3, x3, y3, z3, w3) + t43 * gw3;
-       *    *dnoise_dx += -8.0f * t24 * t4 * x4 * dot(gx4, gy4, gz4, gw4, x4, y4, z4, w4) + t44 * gx4;
-       *    *dnoise_dy += -8.0f * t24 * t4 * y4 * dot(gx4, gy4, gz4, gw4, x4, y4, z4, w4) + t44 * gy4;
-       *    *dnoise_dz += -8.0f * t24 * t4 * z4 * dot(gx4, gy4, gz4, gw4, x4, y4, z4, w4) + t44 * gz4;
-       *    *dnoise_dw += -8.0f * t24 * t4 * w4 * dot(gx4, gy4, gz4, gw4, x4, y4, z4, w4) + t44 * gw4;
-       */
+     *     *dnoise_dx = -8.0f * t20 * t0 * x0 * dot(gx0, gy0, gz0, gw0, x0, y0,
+     * z0, w0) + t40 * gx0; *dnoise_dy = -8.0f * t20 * t0 * y0 * dot(gx0, gy0,
+     * gz0, gw0, x0, y0, z0, w0) + t40 * gy0; *dnoise_dz = -8.0f * t20 * t0 * z0
+     * * dot(gx0, gy0, gz0, gw0, x0, y0, z0, w0) + t40 * gz0; *dnoise_dw = -8.0f
+     * * t20 * t0 * w0 * dot(gx0, gy0, gz0, gw0, x0, y0, z0, w0) + t40 * gw0;
+     *    *dnoise_dx += -8.0f * t21 * t1 * x1 * dot(gx1, gy1, gz1, gw1, x1, y1,
+     * z1, w1) + t41 * gx1; *dnoise_dy += -8.0f * t21 * t1 * y1 * dot(gx1, gy1,
+     * gz1, gw1, x1, y1, z1, w1) + t41 * gy1; *dnoise_dz += -8.0f * t21 * t1 *
+     * z1 * dot(gx1, gy1, gz1, gw1, x1, y1, z1, w1) + t41 * gz1; *dnoise_dw =
+     * -8.0f * t21 * t1 * w1 * dot(gx1, gy1, gz1, gw1, x1, y1, z1, w1) + t41 *
+     * gw1; *dnoise_dx += -8.0f * t22 * t2 * x2 * dot(gx2, gy2, gz2, gw2, x2,
+     * y2, z2, w2) + t42 * gx2; *dnoise_dy += -8.0f * t22 * t2 * y2 * dot(gx2,
+     * gy2, gz2, gw2, x2, y2, z2, w2) + t42 * gy2; *dnoise_dz += -8.0f * t22 *
+     * t2 * z2 * dot(gx2, gy2, gz2, gw2, x2, y2, z2, w2) + t42 * gz2; *dnoise_dw
+     * += -8.0f * t22 * t2 * w2 * dot(gx2, gy2, gz2, gw2, x2, y2, z2, w2) + t42
+     * * gw2; *dnoise_dx += -8.0f * t23 * t3 * x3 * dot(gx3, gy3, gz3, gw3, x3,
+     * y3, z3, w3) + t43 * gx3; *dnoise_dy += -8.0f * t23 * t3 * y3 * dot(gx3,
+     * gy3, gz3, gw3, x3, y3, z3, w3) + t43 * gy3; *dnoise_dz += -8.0f * t23 *
+     * t3 * z3 * dot(gx3, gy3, gz3, gw3, x3, y3, z3, w3) + t43 * gz3; *dnoise_dw
+     * += -8.0f * t23 * t3 * w3 * dot(gx3, gy3, gz3, gw3, x3, y3, z3, w3) + t43
+     * * gw3; *dnoise_dx += -8.0f * t24 * t4 * x4 * dot(gx4, gy4, gz4, gw4, x4,
+     * y4, z4, w4) + t44 * gx4; *dnoise_dy += -8.0f * t24 * t4 * y4 * dot(gx4,
+     * gy4, gz4, gw4, x4, y4, z4, w4) + t44 * gy4; *dnoise_dz += -8.0f * t24 *
+     * t4 * z4 * dot(gx4, gy4, gz4, gw4, x4, y4, z4, w4) + t44 * gz4; *dnoise_dw
+     * += -8.0f * t24 * t4 * w4 * dot(gx4, gy4, gz4, gw4, x4, y4, z4, w4) + t44
+     * * gw4;
+     */
     float temp0 = t20 * t0 * (gx0 * x0 + gy0 * y0 + gz0 * z0 + gw0 * w0);
     *dnoise_dx = temp0 * x0;
     *dnoise_dy = temp0 * y0;

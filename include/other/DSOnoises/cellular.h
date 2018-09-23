@@ -13,8 +13,6 @@
    If you do find interesting uses for this tool, and especially if
    you enhance it, please drop me an email at steve@worley.com. */
 
-
-
 /* Worley()
 
    An implementation of the key cellular texturing basis
@@ -43,5 +41,5 @@
    density in the source code, at the expense of slower
    computation. The book lists the details of this tuning.  */
 
-void Worley(double at[3], long max_order,
-            double F[2], double delta[2][3], unsigned long ID[2]);
+void Worley(double at[3], long max_order, double F[2], double delta[2][3],
+            unsigned long ID[2]);

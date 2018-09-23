@@ -75,13 +75,12 @@ float sdnoise2(float x, float y, float *dnoise_dx, float *dnoise_dy);
  * If the last tthree arguments are not null, the analytic derivative
  * (the 3D gradient of the scalar noise field) is also calculated.
  */
-float sdnoise3(float x, float y, float z,
-               float *dnoise_dx, float *dnoise_dy, float *dnoise_dz);
+float sdnoise3(float x, float y, float z, float *dnoise_dx, float *dnoise_dy,
+               float *dnoise_dz);
 
 /** 4D simplex noise with derivatives.
  * If the last four arguments are not null, the analytic derivative
  * (the 4D gradient of the scalar noise field) is also calculated.
  */
-float sdnoise4(float x, float y, float z, float w,
-               float *dnoise_dx, float *dnoise_dy,
-               float *dnoise_dz, float *dnoise_dw);
+float sdnoise4(float x, float y, float z, float w, float *dnoise_dx,
+               float *dnoise_dy, float *dnoise_dz, float *dnoise_dw);
