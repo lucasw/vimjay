@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<launch>
+  <node name="usb_cam" pkg="usb_cam" type="usb_cam_node"
+      output="screen" >
+  </node>
+
+  <group ns="usb_cam" >
+    <node name="v4l2ucp" pkg="v4l2ucp" type="v4l2ucp" >
+    </node>
+    <!-- TODO(lucasw) Need to delay launch of this until the v4l2ucp node above
+      has complete creating all the parameters- maybe it should publish an 'update'
+      signal? -->
+    <node name="dr_topics" pkg="dynamic_reconfigure_tools" type="dr_topics.py" >
+    </node>
+  </group>
+</launch>
