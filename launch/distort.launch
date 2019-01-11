@@ -66,6 +66,57 @@
     <remap from="image_2" to="/distort/image_rect" />
     <remap from="filtered_image" to="diff_image" />
   </node>
+
+  <!-- http://answers.ros.org/question/255970/how-to-deactivate-image_transport-plugins/ -->
+  <group ns="gray" >
+    <rosparam param="disable_pub_plugins">
+      - 'image_transport/compressed'
+      - 'image_transport/compressedDepth'
+      - 'image_transport/theora'
+    </rosparam>
+  </group>
+  <group ns="diff_image" >
+    <rosparam param="disable_pub_plugins">
+      - 'image_transport/compressed'
+      - 'image_transport/compressedDepth'
+      - 'image_transport/theora'
+    </rosparam>
+  </group>
+  <group ns="distorted/image" >
+    <rosparam param="disable_pub_plugins">
+      - 'image_transport/compressed'
+      - 'image_transport/compressedDepth'
+      - 'image_transport/theora'
+    </rosparam>
+  </group>
+  <group ns="image_color" >
+    <rosparam param="disable_pub_plugins">
+      - 'image_transport/compressed'
+      - 'image_transport/compressedDepth'
+      - 'image_transport/theora'
+    </rosparam>
+  </group>
+  <group ns="image_rect" >
+    <rosparam param="disable_pub_plugins">
+      - 'image_transport/compressed'
+      - 'image_transport/compressedDepth'
+      - 'image_transport/theora'
+    </rosparam>
+  </group>
+  <group ns="image_mono" >
+    <rosparam param="disable_pub_plugins">
+      - 'image_transport/compressed'
+      - 'image_transport/compressedDepth'
+      - 'image_transport/theora'
+    </rosparam>
+  </group>
+  <group ns="image_rect_color" >
+    <rosparam param="disable_pub_plugins">
+      - 'image_transport/compressed'
+      - 'image_transport/compressedDepth'
+      - 'image_transport/theora'
+    </rosparam>
+  </group>
   </group>  <!-- if distort_then_rectify -->
 
   <node name="rqt_generic" pkg="rqt_gui" type="rqt_gui" 
@@ -73,5 +124,4 @@
       output="screen"
       if="$(arg use_rqt)" >
   </node>
-
 </launch>
