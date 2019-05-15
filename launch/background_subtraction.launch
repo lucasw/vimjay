@@ -1,0 +1,118 @@
+<?xml version="1.0"?>
+<launch>
+  <!--
+  <arg name="device" default="0" />
+  <arg name="width" default="1280" />
+  <arg name="height" default="720" />
+  -->
+  <arg name="device" default="1" />
+  <arg name="width" default="1920" />
+  <arg name="height" default="1080" />
+  <!-- The above values need to be width/decimation and height/decimation -->
+  <arg name="decimation" default="4" />
+
+  <arg name="frame_rate" default="5" />
+
+  <arg name="use_usb_cam" default="true" />
+  <arg name="use_libuvc_camera" default="false" />
+
+  <group if="$(arg use_usb_cam)">
+  <node name="usb_cam" pkg="usb_cam" type="usb_cam_node"
+      output="screen" >
+    <param name="image_width" value="$(arg width)" />
+    <param name="image_height" value="$(arg height)" />
+    <param name="framerate" value="$(arg frame_rate)" />
+    <param name="video_device" value="/dev/video$(arg device)" />
+  </node>
+  </group>
+
+  <group if="$(arg use_libuvc_camera)" ns="usb_cam" >
+  <node name="uvc_camera" pkg="libuvc_camera" type="camera_node" 
+      output="screen">
+    <!-- Parameters used to find the camera -->
+    <param name="vendor" value="0x0"/>
+    <param name="product" value="0x0"/>
+    <param name="serial" value=""/>
+    <!-- If the above parameters aren't unique, choose the first match: -->
+    <param name="index" value="$(arg device)"/>
+
+    <!--param name="scanning_mode" value="1" /-->
+    <!-- Image size and type -->
+    <param name="width" value="$(arg width)"/>
+    <param name="height" value="$(arg height)"/>
+    <!-- choose whichever uncompressed format the camera supports: -->
+    <param name="video_mode" value="uncompressed"/>  <!-- or yuyv/nv12/jpeg -->
+    <param name="frame_rate" value="$(arg frame_rate)"/>
+
+    <param name="timestamp_method" value="start"/>  <!-- start of frame -->
+    <!--param name="camera_info_url" value="file:///tmp/cam.yaml"/-->
+
+    <param name="auto_exposure" value="0"/>  <!-- use aperture_priority auto exposure -->
+    <param name="auto_white_balance" value="false"/>
+  </node>
+  </group>  <!-- use_libuvc_camera -->
+
+  <group ns="usb_cam" >
+
+  <!-- TODO(lucasw) 
+    the save and the deque when triggered may not save the same frame to disk
+    and the queue -->
+  <!--
+  <node name="save_image" pkg="vimjay" type="save_image"
+      output="screen" >
+    <remap from="image" to="image_raw" />
+    <remap from="single" to="captured_image_trigger" />
+  </node>
+  -->
+
+  <!-- resize the image down for faster processing -->
+  <node name="live_decimate" pkg="nodelet" type="nodelet" 
+      args="standalone image_proc/crop_decimate" >
+    <remap from="camera/image_raw" to="image_raw" />
+    <remap from="camera/camera_info" to="camera_info" />
+    <param name="decimation_x" value="$(arg decimation)" />
+    <param name="decimation_y" value="$(arg decimation)" />
+    <remap from="camera_out/image_raw" to="live_image_small" />
+    <remap from="camera_out/camera_info" to="camera_info_small" />
+  </node>
+
+  <node name="background_subtraction" pkg="vimjay" type="background_subtraction" 
+      output="screen" >
+    <remap from="image" to="live_image_small" />
+  </node>
+
+  <!-- 
+  <node name="saved_decimate" pkg="nodelet" type="nodelet" 
+      args="standalone image_proc/crop_decimate" >
+    <remap from="camera/image_raw" to="saved_image" />
+    <param name="decimation_x" value="$(arg decimation)" />
+    <param name="decimation_y" value="$(arg decimation)" />
+    <remap from="camera_out/image_raw" to="saved_image_small" />
+  </node>
+  -->
+
+  <!-- rqt_image_view doesn't support arg yet
+  <node name="raw_image_view" pkg="rqt_image_view" type="rqt_image_view"
+      args="image_raw" />
+  -->
+  <node name="rqt_generic" pkg="rqt_gui" type="rqt_gui" 
+      args="--perspective-file $(find vimjay)/config/background_subtraction.perspective" 
+      output="screen" >
+  </node>
+
+  <node name="rqt_dr" pkg="rqt_gui" type="rqt_gui"
+      args="--perspective-file $(find vimjay)/config/dr.perspective"
+      output="screen" >
+  </node>
+
+  <node name="v4l2ucp" pkg="v4l2ucp" type="v4l2ucp" >
+    <param name="device" value="/dev/video$(arg device)" />
+  </node>
+  <!-- TODO(lucasw) Need to delay launch of this until the v4l2ucp node above
+    has complete creating all the parameters- maybe it should publish an 'update'
+    signal? -->
+  <node name="v4l2ucp_ddr" pkg="rqt_v4l2ucp" type="dr_topics.py" >
+  </node>
+
+  </group>
+</launch>
