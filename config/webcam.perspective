@@ -1,0 +1,819 @@
+{
+  "keys": {},
+  "groups": {
+    "pluginmanager": {
+      "keys": {
+        "running-plugins": {
+          "type": "repr",
+          "repr": "{u'rqt_image_view/ImageView': [1], u'rqt_dr_single/dr_single': [1, 2]}"
+        }
+      },
+      "groups": {
+        "plugin__rqt_dr_single__dr_single__1": {
+          "keys": {},
+          "groups": {
+            "dock_widget__DrSingleUi": {
+              "keys": {
+                "dockable": {
+                  "type": "repr",
+                  "repr": "True"
+                },
+                "parent": {
+                  "type": "repr",
+                  "repr": "None"
+                },
+                "dock_widget_title": {
+                  "type": "repr",
+                  "repr": "u'Dynamic Reconfigure Single'"
+                }
+              },
+              "groups": {}
+            },
+            "plugin": {
+              "keys": {
+                "hide_dropdown": {
+                  "type": "repr",
+                  "repr": "False"
+                },
+                "server_name": {
+                  "type": "repr",
+                  "repr": "u'/usb_cam/dr_topics'"
+                }
+              },
+              "groups": {}
+            }
+          }
+        },
+        "plugin__rqt_dr_single__dr_single__2": {
+          "keys": {},
+          "groups": {
+            "dock_widget__DrSingleUi": {
+              "keys": {
+                "dockable": {
+                  "type": "repr",
+                  "repr": "True"
+                },
+                "parent": {
+                  "type": "repr",
+                  "repr": "None"
+                },
+                "dock_widget_title": {
+                  "type": "repr",
+                  "repr": "u'Dynamic Reconfigure Single (2)'"
+                }
+              },
+              "groups": {}
+            },
+            "plugin": {
+              "keys": {
+                "hide_dropdown": {
+                  "type": "repr",
+                  "repr": "False"
+                },
+                "server_name": {
+                  "type": "repr",
+                  "repr": "u'/usb_cam/image_deque'"
+                }
+              },
+              "groups": {}
+            }
+          }
+        },
+        "plugin__rqt_image_view__ImageView__3": {
+          "keys": {},
+          "groups": {
+            "dock_widget__ImageViewWidget": {
+              "keys": {
+                "dockable": {
+                  "type": "repr",
+                  "repr": "u'true'"
+                },
+                "parent": {
+                  "type": "repr",
+                  "repr": "None"
+                },
+                "dock_widget_title": {
+                  "type": "repr",
+                  "repr": "u'Image View (3)'"
+                }
+              },
+              "groups": {}
+            },
+            "plugin": {
+              "keys": {
+                "max_range": {
+                  "type": "repr",
+                  "repr": "u'10'"
+                },
+                "topic": {
+                  "type": "repr",
+                  "repr": "u'/usb_cam/filtered_image'"
+                },
+                "mouse_pub_topic": {
+                  "type": "repr",
+                  "repr": "u''"
+                },
+                "zoom1": {
+                  "type": "repr",
+                  "repr": "u'false'"
+                },
+                "dynamic_range": {
+                  "type": "repr",
+                  "repr": "u'false'"
+                },
+                "controls_hidden": {
+                  "type": "repr",
+                  "repr": "u'true'"
+                },
+                "publish_click_location": {
+                  "type": "repr",
+                  "repr": "u'false'"
+                }
+              },
+              "groups": {}
+            }
+          }
+        },
+        "plugin__rqt_configure_duron__My Plugin__2": {
+          "keys": {},
+          "groups": {
+            "dock_widget__MyPluginUi": {
+              "keys": {
+                "dockable": {
+                  "type": "repr",
+                  "repr": "u'true'"
+                },
+                "parent": {
+                  "type": "repr",
+                  "repr": "None"
+                }
+              },
+              "groups": {}
+            }
+          }
+        },
+        "plugin__rqt_configure_duron__My Plugin__1": {
+          "keys": {},
+          "groups": {
+            "dock_widget__MyPluginUi": {
+              "keys": {
+                "dockable": {
+                  "type": "repr",
+                  "repr": "u'true'"
+                },
+                "parent": {
+                  "type": "repr",
+                  "repr": "None"
+                }
+              },
+              "groups": {}
+            }
+          }
+        },
+        "plugin__rqt_topic__TopicPlugin__1": {
+          "keys": {},
+          "groups": {
+            "dock_widget__TopicWidget": {
+              "keys": {
+                "dockable": {
+                  "type": "repr",
+                  "repr": "u'true'"
+                },
+                "parent": {
+                  "type": "repr",
+                  "repr": "None"
+                }
+              },
+              "groups": {}
+            }
+          }
+        },
+        "plugin__rqt_tf_tree__RosTfTree__1": {
+          "keys": {},
+          "groups": {
+            "dock_widget__RosTfTreeUi": {
+              "keys": {
+                "dockable": {
+                  "type": "repr",
+                  "repr": "u'true'"
+                },
+                "parent": {
+                  "type": "repr",
+                  "repr": "None"
+                }
+              },
+              "groups": {}
+            },
+            "plugin": {
+              "keys": {
+                "highlight_connections_check_box_state": {
+                  "type": "repr",
+                  "repr": "u'true'"
+                },
+                "auto_fit_graph_check_box_state": {
+                  "type": "repr",
+                  "repr": "u'true'"
+                }
+              },
+              "groups": {}
+            }
+          }
+        },
+        "plugin__rqt_nlview__NL view__1": {
+          "keys": {},
+          "groups": {
+            "dock_widget__NLviewUi": {
+              "keys": {
+                "dockable": {
+                  "type": "repr",
+                  "repr": "u'true'"
+                },
+                "parent": {
+                  "type": "repr",
+                  "repr": "None"
+                }
+              },
+              "groups": {}
+            }
+          }
+        },
+        "plugin__rqt_synth__My Plugin__1": {
+          "keys": {},
+          "groups": {
+            "dock_widget__MyPluginUi": {
+              "keys": {
+                "dockable": {
+                  "type": "repr",
+                  "repr": "u'true'"
+                },
+                "parent": {
+                  "type": "repr",
+                  "repr": "None"
+                }
+              },
+              "groups": {}
+            }
+          }
+        },
+        "plugin__rqt_image_view__ImageView__4": {
+          "keys": {},
+          "groups": {
+            "dock_widget__ImageViewWidget": {
+              "keys": {
+                "dockable": {
+                  "type": "repr",
+                  "repr": "u'true'"
+                },
+                "parent": {
+                  "type": "repr",
+                  "repr": "None"
+                },
+                "dock_widget_title": {
+                  "type": "repr",
+                  "repr": "u'Image View (4)'"
+                }
+              },
+              "groups": {}
+            },
+            "plugin": {
+              "keys": {
+                "max_range": {
+                  "type": "repr",
+                  "repr": "u'10'"
+                },
+                "topic": {
+                  "type": "repr",
+                  "repr": "u'/usb_cam/anim'"
+                },
+                "mouse_pub_topic": {
+                  "type": "repr",
+                  "repr": "u''"
+                },
+                "zoom1": {
+                  "type": "repr",
+                  "repr": "u'false'"
+                },
+                "dynamic_range": {
+                  "type": "repr",
+                  "repr": "u'false'"
+                },
+                "controls_hidden": {
+                  "type": "repr",
+                  "repr": "u'true'"
+                },
+                "publish_click_location": {
+                  "type": "repr",
+                  "repr": "u'false'"
+                }
+              },
+              "groups": {}
+            }
+          }
+        },
+        "plugin__rqt_image_view__ImageView__5": {
+          "keys": {},
+          "groups": {
+            "dock_widget__ImageViewWidget": {
+              "keys": {
+                "dockable": {
+                  "type": "repr",
+                  "repr": "u'true'"
+                },
+                "parent": {
+                  "type": "repr",
+                  "repr": "None"
+                },
+                "dock_widget_title": {
+                  "type": "repr",
+                  "repr": "u'Image View (5)'"
+                }
+              },
+              "groups": {}
+            },
+            "plugin": {
+              "keys": {
+                "max_range": {
+                  "type": "repr",
+                  "repr": "u'10'"
+                },
+                "topic": {
+                  "type": "repr",
+                  "repr": "u'/usb_cam/diff_image'"
+                },
+                "mouse_pub_topic": {
+                  "type": "repr",
+                  "repr": "u''"
+                },
+                "zoom1": {
+                  "type": "repr",
+                  "repr": "u'false'"
+                },
+                "dynamic_range": {
+                  "type": "repr",
+                  "repr": "u'false'"
+                },
+                "controls_hidden": {
+                  "type": "repr",
+                  "repr": "u'true'"
+                },
+                "publish_click_location": {
+                  "type": "repr",
+                  "repr": "u'false'"
+                }
+              },
+              "groups": {}
+            }
+          }
+        },
+        "plugin__rqt_image_view__ImageView__2": {
+          "keys": {},
+          "groups": {
+            "dock_widget__ImageViewWidget": {
+              "keys": {
+                "dockable": {
+                  "type": "repr",
+                  "repr": "u'true'"
+                },
+                "parent": {
+                  "type": "repr",
+                  "repr": "None"
+                },
+                "dock_widget_title": {
+                  "type": "repr",
+                  "repr": "u'Image View (2)'"
+                }
+              },
+              "groups": {}
+            },
+            "plugin": {
+              "keys": {
+                "max_range": {
+                  "type": "repr",
+                  "repr": "u'10'"
+                },
+                "topic": {
+                  "type": "repr",
+                  "repr": "u'/usb_cam/saved_image'"
+                },
+                "mouse_pub_topic": {
+                  "type": "repr",
+                  "repr": "u''"
+                },
+                "zoom1": {
+                  "type": "repr",
+                  "repr": "u'false'"
+                },
+                "dynamic_range": {
+                  "type": "repr",
+                  "repr": "u'false'"
+                },
+                "controls_hidden": {
+                  "type": "repr",
+                  "repr": "u'true'"
+                },
+                "publish_click_location": {
+                  "type": "repr",
+                  "repr": "u'false'"
+                }
+              },
+              "groups": {}
+            }
+          }
+        },
+        "plugin__rqt_reconfigure__Param__1": {
+          "keys": {},
+          "groups": {
+            "dock_widget___plugincontainer_top_widget": {
+              "keys": {
+                "dockable": {
+                  "type": "repr",
+                  "repr": "True"
+                },
+                "parent": {
+                  "type": "repr",
+                  "repr": "None"
+                }
+              },
+              "groups": {}
+            },
+            "plugin": {
+              "keys": {
+                "splitter": {
+                  "type": "repr(QByteArray.hex)",
+                  "repr(QByteArray.hex)": "QtCore.QByteArray('000000ff0000000100000002000000ae000000640100000006010000000101')",
+                  "pretty-print": "         d     "
+                },
+                "_splitter": {
+                  "type": "repr(QByteArray.hex)",
+                  "repr(QByteArray.hex)": "QtCore.QByteArray('000000ff00000001000000020000012c000000640100000009010000000201')",
+                  "pretty-print": "       , d     "
+                }
+              },
+              "groups": {}
+            }
+          }
+        },
+        "plugin__rqt_image_view__ImageView__1": {
+          "keys": {},
+          "groups": {
+            "dock_widget__ImageViewWidget": {
+              "keys": {
+                "dockable": {
+                  "type": "repr",
+                  "repr": "True"
+                },
+                "parent": {
+                  "type": "repr",
+                  "repr": "None"
+                },
+                "dock_widget_title": {
+                  "type": "repr",
+                  "repr": "u'Image View'"
+                }
+              },
+              "groups": {}
+            },
+            "plugin": {
+              "keys": {
+                "max_range": {
+                  "type": "repr",
+                  "repr": "10.0"
+                },
+                "rotate": {
+                  "type": "repr",
+                  "repr": "0"
+                },
+                "smooth_image": {
+                  "type": "repr",
+                  "repr": "False"
+                },
+                "topic": {
+                  "type": "repr",
+                  "repr": "u'/usb_cam/image_raw'"
+                },
+                "mouse_pub_topic": {
+                  "type": "repr",
+                  "repr": "u''"
+                },
+                "num_gridlines": {
+                  "type": "repr",
+                  "repr": "0"
+                },
+                "toolbar_hidden": {
+                  "type": "repr",
+                  "repr": "False"
+                },
+                "zoom1": {
+                  "type": "repr",
+                  "repr": "False"
+                },
+                "dynamic_range": {
+                  "type": "repr",
+                  "repr": "False"
+                },
+                "controls_hidden": {
+                  "type": "repr",
+                  "repr": "u'true'"
+                },
+                "publish_click_location": {
+                  "type": "repr",
+                  "repr": "False"
+                }
+              },
+              "groups": {}
+            }
+          }
+        },
+        "plugin__rqt_plot__Plot__1": {
+          "keys": {},
+          "groups": {
+            "dock_widget__DataPlotWidget": {
+              "keys": {
+                "dockable": {
+                  "type": "repr",
+                  "repr": "u'true'"
+                },
+                "parent": {
+                  "type": "repr",
+                  "repr": "None"
+                }
+              },
+              "groups": {}
+            },
+            "plugin": {
+              "keys": {
+                "autoscroll": {
+                  "type": "repr",
+                  "repr": "u'true'"
+                },
+                "plot_type": {
+                  "type": "repr",
+                  "repr": "u'1'"
+                },
+                "topics": {
+                  "type": "repr",
+                  "repr": "u'/encoders/odom1/data'"
+                },
+                "y_limits": {
+                  "type": "repr",
+                  "repr": "[u'-1211', u'8774.3308965387']"
+                },
+                "x_limits": {
+                  "type": "repr",
+                  "repr": "[u'-19.3539400936857', u'49.6092779636383']"
+                }
+              },
+              "groups": {}
+            }
+          }
+        },
+        "plugin__rqt_plot__Plot__2": {
+          "keys": {},
+          "groups": {
+            "dock_widget__DataPlotWidget": {
+              "keys": {
+                "dockable": {
+                  "type": "repr",
+                  "repr": "u'true'"
+                },
+                "parent": {
+                  "type": "repr",
+                  "repr": "None"
+                }
+              },
+              "groups": {}
+            },
+            "plugin": {
+              "keys": {
+                "autoscroll": {
+                  "type": "repr",
+                  "repr": "u'true'"
+                },
+                "plot_type": {
+                  "type": "repr",
+                  "repr": "u'1'"
+                },
+                "topics": {
+                  "type": "repr",
+                  "repr": "u'/tilt/data'"
+                },
+                "y_limits": {
+                  "type": "repr",
+                  "repr": "[u'-2655.33538165024', u'2047']"
+                },
+                "x_limits": {
+                  "type": "repr",
+                  "repr": "[u'36.6027067029817', u'49.1220331192017']"
+                }
+              },
+              "groups": {}
+            }
+          }
+        },
+        "plugin__rqt_pose_ctrl__Pose Control__1": {
+          "keys": {},
+          "groups": {
+            "dock_widget__MyPluginUi": {
+              "keys": {
+                "dockable": {
+                  "type": "repr",
+                  "repr": "u'true'"
+                },
+                "parent": {
+                  "type": "repr",
+                  "repr": "None"
+                }
+              },
+              "groups": {}
+            }
+          }
+        },
+        "plugin__rqt_mypkg__My Plugin__1": {
+          "keys": {},
+          "groups": {
+            "dock_widget__MyPluginUi": {
+              "keys": {
+                "dockable": {
+                  "type": "repr",
+                  "repr": "u'true'"
+                },
+                "parent": {
+                  "type": "repr",
+                  "repr": "None"
+                }
+              },
+              "groups": {}
+            }
+          }
+        },
+        "plugin__rqt_inspector_ctrls__rqt_inspector_ctrls__1": {
+          "keys": {},
+          "groups": {
+            "dock_widget__rqt_inspector_ctrlsUI": {
+              "keys": {
+                "dockable": {
+                  "type": "repr",
+                  "repr": "u'true'"
+                },
+                "parent": {
+                  "type": "repr",
+                  "repr": "None"
+                }
+              },
+              "groups": {}
+            }
+          }
+        },
+        "plugin__misc_ctrls__misc_ctrls__1": {
+          "keys": {},
+          "groups": {
+            "dock_widget__misc_ctrlsUI": {
+              "keys": {
+                "dockable": {
+                  "type": "repr",
+                  "repr": "u'true'"
+                },
+                "parent": {
+                  "type": "repr",
+                  "repr": "None"
+                }
+              },
+              "groups": {}
+            }
+          }
+        },
+        "plugin__gui_misc__GUI Misc__1": {
+          "keys": {},
+          "groups": {
+            "dock_widget__gui_miscUi": {
+              "keys": {
+                "dockable": {
+                  "type": "repr",
+                  "repr": "u'true'"
+                },
+                "parent": {
+                  "type": "repr",
+                  "repr": "None"
+                }
+              },
+              "groups": {}
+            }
+          }
+        },
+        "plugin__rqt_console__Console__1": {
+          "keys": {},
+          "groups": {
+            "dock_widget__ConsoleWidget": {
+              "keys": {
+                "dockable": {
+                  "type": "repr",
+                  "repr": "u'true'"
+                },
+                "parent": {
+                  "type": "repr",
+                  "repr": "None"
+                }
+              },
+              "groups": {}
+            },
+            "plugin": {
+              "keys": {
+                "show_highlighted_only": {
+                  "type": "repr",
+                  "repr": "u'false'"
+                },
+                "message_limit": {
+                  "type": "repr",
+                  "repr": "u'20000'"
+                },
+                "exclude_filters": {
+                  "type": "repr",
+                  "repr": "u'severity'"
+                },
+                "table_splitter": {
+                  "type": "repr(QByteArray.hex)",
+                  "repr(QByteArray.hex)": "QtCore.QByteArray('000000ff0000000000000002000001460000017501000000090100000002')",
+                  "pretty-print": "       F u     "
+                },
+                "highlight_filters": {
+                  "type": "repr",
+                  "repr": "u'message'"
+                },
+                "paused": {
+                  "type": "repr",
+                  "repr": "u'false'"
+                },
+                "settings_exist": {
+                  "type": "repr",
+                  "repr": "u'true'"
+                },
+                "filter_splitter": {
+                  "type": "repr(QByteArray.hex)",
+                  "repr(QByteArray.hex)": "QtCore.QByteArray('000000ff00000000000000020000006f0000006f01000000090100000002')",
+                  "pretty-print": "       o o     "
+                }
+              },
+              "groups": {
+                "exclude_filter_0": {
+                  "keys": {
+                    "enabled": {
+                      "type": "repr",
+                      "repr": "u'true'"
+                    },
+                    "itemlist": {
+                      "type": "repr",
+                      "repr": "u''"
+                    }
+                  },
+                  "groups": {}
+                },
+                "highlight_filter_0": {
+                  "keys": {
+                    "regex": {
+                      "type": "repr",
+                      "repr": "u'false'"
+                    },
+                    "text": {
+                      "type": "repr",
+                      "repr": "u''"
+                    },
+                    "enabled": {
+                      "type": "repr",
+                      "repr": "u'true'"
+                    }
+                  },
+                  "groups": {}
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "mainwindow": {
+      "keys": {
+        "geometry": {
+          "type": "repr(QByteArray.hex)",
+          "repr(QByteArray.hex)": "QtCore.QByteArray('01d9d0cb000200000000009c00000018000005340000041f0000009c00000042000005340000041f00000000000000000780')",
+          "pretty-print": "         4     B 4       "
+        },
+        "state": {
+          "type": "repr(QByteArray.hex)",
+          "repr(QByteArray.hex)": "QtCore.QByteArray('000000ff00000000fd000000010000000300000499000003b2fc0100000003fb00000046007200710074005f006d00790070006b0067005f005f004d007900200050006c007500670069006e005f005f0031005f005f004d00790050006c007500670069006e0055006901000000000000014b0000000000000000fc000000000000014c0000014c00fffffffc0200000003fb0000006c007200710074005f007200650063006f006e006600690067007500720065005f005f0050006100720061006d005f005f0031005f005f005f0070006c007500670069006e0063006f006e007400610069006e00650072005f0074006f0070005f00770069006400670065007401000000190000010f0000000000000000fb0000004e007200710074005f00640072005f00730069006e0067006c0065005f005f00640072005f00730069006e0067006c0065005f005f0032005f005f0044007200530069006e0067006c0065005500690100000016000001180000008000fffffffb0000004e007200710074005f00640072005f00730069006e0067006c0065005f005f00640072005f00730069006e0067006c0065005f005f0031005f005f0044007200530069006e0067006c0065005500690100000134000002940000008000fffffffb0000005a007200710074005f0069006d006100670065005f0076006900650077005f005f0049006d0061006700650056006900650077005f005f0031005f005f0049006d00610067006500560069006500770057006900640067006500740100000152000003470000017800ffffff000004990000000000000004000000040000000800000008fc00000001000000030000000100000036004d0069006e0069006d0069007a006500640044006f0063006b00570069006400670065007400730054006f006f006c0062006100720000000000ffffffff0000000000000000')",
+          "pretty-print": "                 Frqt_mypkg__My Plugin__1__MyPluginUi            L L                                                                                                                                                                   4                                                       R G x                                                          "
+        }
+      },
+      "groups": {
+        "toolbar_areas": {
+          "keys": {
+            "MinimizedDockWidgetsToolbar": {
+              "type": "repr",
+              "repr": "8"
+            }
+          },
+          "groups": {}
+        }
+      }
+    }
+  }
+}
