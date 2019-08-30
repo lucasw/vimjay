@@ -318,10 +318,10 @@ install(TARGETS vimjay_node
 #############
 
 ## Add gtest based cpp test target and link libraries
-catkin_add_gtest(image_distort_test test/image_distort_test.cpp)
-if(TARGET image_distort_test)
-  target_link_libraries(image_distort_test ${catkin_LIBRARIES})
-endif()
+# catkin_add_gtest(image_distort_test test/image_distort_test.cpp)
+# if(TARGET image_distort_test)
+#   target_link_libraries(image_distort_test ${catkin_LIBRARIES})
+# endif()
 
 ## Add folders to be run by python nosetests
 # catkin_add_nosetests(test)
