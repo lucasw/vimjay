@@ -18,6 +18,7 @@ class DrCameraInfo:
     def dr_callback(self, config, level):
         ci = CameraInfo()
         ci.header.stamp = rospy.Time.now()
+        ci.header.frame_id = config['frame_id']
         ci.width = config['width']
         ci.height = config['height']
         ci.distortion_model = config['distortion_model']
