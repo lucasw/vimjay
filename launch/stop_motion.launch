@@ -33,7 +33,7 @@
   </group>
 
   <group if="$(arg use_libuvc_camera)" ns="usb_cam" >
-  <node name="uvc_camera" pkg="libuvc_camera" type="camera_node" 
+  <node name="uvc_camera" pkg="libuvc_camera" type="camera_node"
       output="screen">
     <!-- Parameters used to find the camera -->
     <param name="vendor" value="0x0"/>
@@ -144,7 +144,7 @@
     <remap from="trigger" to="single" />
   </node-->
 
-  <!-- TODO(lucasw) 
+  <!-- TODO(lucasw)
     the save and the deque when triggered may not save the same frame to disk
     and the queue -->
   <node name="save_image" pkg="vimjay" type="save_image"
@@ -153,13 +153,13 @@
     <remap from="single" to="captured_image_trigger" />
   </node>
 
-  <node name="image_deque" pkg="vimjay" type="image_deque" 
+  <node name="image_deque" pkg="vimjay" type="image_deque"
       output="screen" >
     <remap from="image" to="live_image_small" />
   </node>
 
   <!-- resize the image down for faster processing -->
-  <node name="live_decimate" pkg="nodelet" type="nodelet" 
+  <node name="live_decimate" pkg="nodelet" type="nodelet"
       args="standalone image_proc/crop_decimate" >
     <remap from="camera/image_raw" to="image_raw" />
     <remap from="camera/camera_info" to="camera_info" />
@@ -169,7 +169,7 @@
     <remap from="camera_out/camera_info" to="camera_info_small" />
   </node>
 
-  <node name="saved_decimate" pkg="nodelet" type="nodelet" 
+  <node name="saved_decimate" pkg="nodelet" type="nodelet"
       args="standalone image_proc/crop_decimate" >
     <remap from="camera/image_raw" to="saved_image" />
     <!--remap from="camera/camera_info" to="camera_info" /-->
@@ -178,7 +178,7 @@
     <remap from="camera_out/image_raw" to="saved_image_small" />
   </node>
 
-  <node name="blur_image" pkg="vimjay" type="iir_imagev" 
+  <node name="blur_image" pkg="vimjay" type="iir_imagev"
       output="screen" >
     <rosparam param="b_coeffs">[0.5, 0.5]</rosparam>
     <remap from="image_0" to="saved_image_small" />
@@ -193,7 +193,7 @@
     <remap from="image" to="gray" />
   </node>
 
-  <node name="diff_image" pkg="vimjay" type="iir_imagev" 
+  <node name="diff_image" pkg="vimjay" type="iir_imagev"
       output="screen" >
     <rosparam param="b_coeffs">[1.0, 0.5, -0.5]</rosparam>
     <remap from="image_0" to="gray" />
@@ -216,10 +216,10 @@
     self._remove_perspective(perspective_name)
   File "/opt/ros/kinetic/lib/python2.7/dist-packages/qt_gui/perspective_manager.py", line 305, in _remove_perspective
     self._menu_manager.remove_item(name)
-AttributeError: 'NoneType' object has no attribute 'remove_ite 
+AttributeError: 'NoneType' object has no attribute 'remove_ite
   -->
-  <node name="rqt_generic" pkg="rqt_gui" type="rqt_gui" 
-      args="--perspective-file $(find vimjay)/config/stop_motion.perspective" 
+  <node name="rqt_generic" pkg="rqt_gui" type="rqt_gui"
+      args="--perspective-file $(find vimjay)/config/stop_motion.perspective"
       output="screen"
       required="true" >
   </node>
@@ -244,11 +244,6 @@ AttributeError: 'NoneType' object has no attribute 'remove_ite
 
   <node name="v4l2ucp" pkg="v4l2ucp" type="v4l2ucp" >
     <param name="device" value="/dev/video$(arg device)" />
-  </node>
-  <!-- TODO(lucasw) Need to delay launch of this until the v4l2ucp node above
-    has complete creating all the parameters- maybe it should publish an 'update'
-    signal? -->
-  <node name="dr_topics" pkg="dynamic_reconfigure_tools" type="dr_topics.py" >
   </node>
 
   </group>
