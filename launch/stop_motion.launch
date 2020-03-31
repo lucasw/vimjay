@@ -1,5 +1,11 @@
 <?xml version="1.0"?>
 <launch>
+  <!--
+    Use command line to determine potential video settings:
+(remove backslashes https://stackoverflow.com/questions/10842131/xml-comments-and)
+    v4l2-ctl \-\-list-formats-ext
+    v4l2-ctl -d /dev/video0 \-\-list-framesizes=YUYV
+  -->
   <arg name="device" default="1" />
   <arg name="width" default="1920" />
   <arg name="height" default="1080" />

@@ -10,6 +10,12 @@ Originally hosted on http://code.google.com/p/binarymillenium/source/browse/trun
 
 # Image processing nodes
 
+https://github.com/lucasw/image_manip
+
+https://github.com/lucasw/frei0r_image
+
+https://github.com/lucasw/gephex
+
 image_proc
 
 Need to check these nodes out:

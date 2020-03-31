@@ -129,9 +129,51 @@ void ImageDeque::callback(
   if (level & 4)
   {
     // TODO(lucasw) update config on every pubImage with latest index_?
-    index_ = config_.index;
+    index_ = config.index;
   }
+  if (level & 8)
+  {
+    if (config.start_index_to_end)
+    {
+      config.start_index = frames_.size();
+      config.start_index_to_end = false;
+    }
+
+    if (config.pause)
+    {
+      if (config.next)
+      {
+        index_++;
+      }
+      if (config.prev)
+      {
+        ROS_INFO_STREAM("prev  " << index_);
+        if (index_ > config.start_index)
+        {
+          index_--;
+        }
+        else if (frames_.size() > 0)
+        {
+          index_ = frames_.size() - 1;
+        }
+      }
+      if (config.remove)
+      {
+        // TODO(lucasw) somehow need to move the saved frame from the save_image node also
+        ROS_INFO_STREAM("remove " << index_ << " " << frames_.size());
+        if (index_ < frames_.size())
+        {
+          frames_.erase(frames_.begin() + index_, frames_.begin() + index_ + 1);
+        }
+      }
+    }
+    config.next = false;
+    config.prev = false;
+    config.remove = false;
+  }
+
   config_ = config;
+  config.index = index_;
 }
 
 void ImageDeque::maxSizeCallback(const std_msgs::UInt16::ConstPtr& msg)
@@ -218,7 +260,11 @@ void ImageDeque::pubImage(const ros::TimerEvent& e)
       cv_image.image = live_frame_;
     cv_image.encoding = "rgb8";
     anim_pub_.publish(cv_image.toImageMsg());
-    index_++;
+
+    if (!config_.pause)
+    {
+      index_++;
+    }
   }
 
   // ROS_INFO_STREAM(frames_.size() << " " << index_);
