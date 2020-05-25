@@ -421,6 +421,7 @@ public:
 
     // dangling reference to input_node
     // input_node   = boost::shared_ptr<Mouse>();
+    return true;
   }
 
   void clearAllNodeUpdates()
@@ -1945,6 +1946,7 @@ public:
     Output::draw(ui_offset);
 
     ROS_DEBUG_STREAM_COND(log_level > 4, "full draw time" << t1.elapsed());
+    return true;
   }  // VimJay::draw
 
   // cause all the nodes to repel each other so the display isn't too

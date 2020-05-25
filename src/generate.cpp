@@ -83,7 +83,7 @@ bool Bezier::update()
 
   for (int i = 1; i < bezier_points.size(); i++)
   {
-    cv::line(out, bezier_points[i - 1], bezier_points[i], cv::Scalar(255, 255, 255), 2, CV_AA);
+    cv::line(out, bezier_points[i - 1], bezier_points[i], cv::Scalar(255, 255, 255), 2, cv::LINE_AA);
   }
 
   setImage("out", out);
@@ -147,6 +147,7 @@ bool Circle::update()
   const bool id2 = isDirty(this, 30);
   const bool id3 = isDirty(this, 30);
   // ROS_INFO_STREAM(id2 << " " << id3);
+  return true;
 }
 
 //////////////////////////////////////////////////

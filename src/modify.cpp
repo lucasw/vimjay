@@ -30,7 +30,8 @@
 #include <boost/lexical_cast.hpp>
 
 #include <opencv2/highgui/highgui.hpp>
-#include <opencv2/imgproc/imgproc.hpp>
+#include <opencv2/imgproc.hpp>
+#include <opencv2/opencv.hpp>
 
 #include <ros/console.h>
 
@@ -64,7 +65,7 @@ cv::Mat chan4to3(const cv::Mat& in_4)
 cv::Mat chan1to4(const cv::Mat& in_1)
 {
   cv::Mat out_3;
-  cv::cvtColor(in_1, out_3, CV_GRAY2BGR);
+  cv::cvtColor(in_1, out_3, cv::COLOR_GRAY2BGR);
   return chan3to4(out_3);
 }
 
@@ -634,8 +635,8 @@ bool Remap::update()
   cv::Mat out;
 #if 1
   cv::Mat offx8, offy8;
-  cv::cvtColor(offx, offx8, CV_RGB2GRAY);
-  cv::cvtColor(offy, offy8, CV_RGB2GRAY);
+  cv::cvtColor(offx, offx8, cv::COLOR_RGB2GRAY);
+  cv::cvtColor(offy, offy8, cv::COLOR_RGB2GRAY);
 
   // this may be more intuitive with flipped sign,
   // currently offx is where the source pixel comes from,
@@ -708,7 +709,7 @@ bool Tap::update()
 
 bool Tap::draw(cv::Point2f ui_offset)
 {
-  ImageNode::draw(ui_offset);
+  return ImageNode::draw(ui_offset);
 }
 /////////////////////////////////////////
 
@@ -1405,7 +1406,7 @@ bool EqualizeHist::update()
   {
     cv::Mat mask = cv::Mat(mask4.size(), CV_8UC1);
 
-    cv::cvtColor(mask4, mask, CV_BGR2GRAY);
+    cv::cvtColor(mask4, mask, cv::COLOR_BGR2GRAY);
     cv::Scalar masked_mean = cv::mean(in, mask);  // [0];
     setSignal("m_b", masked_mean[0]);
     setSignal("m_g", masked_mean[1]);
@@ -1423,7 +1424,7 @@ bool EqualizeHist::update()
   // change to CV_8UC1 and then equalize on the value channel
   cv::Mat hsv;
   // the fourth channel is lost in this conversion, hsv will be 3 channels
-  cv::cvtColor(in, hsv, CV_BGR2HSV);
+  cv::cvtColor(in, hsv, cv::COLOR_BGR2HSV);
 
   cv::Mat in_v = cv::Mat(in.size(), CV_8UC1);
   const int ind = getSignal("hsv_ind");
@@ -1437,7 +1438,7 @@ bool EqualizeHist::update()
   mixChannels(&out_v, 1, &hsv, 1, ch2, 1);
 
   cv::Mat out_3;
-  cv::cvtColor(hsv, out_3, CV_HSV2BGR);
+  cv::cvtColor(hsv, out_3, cv::COLOR_HSV2BGR);
 
   cv::Mat out = chan3to4(out_3);
 
@@ -1496,7 +1497,7 @@ bool Normalize::update()
   if (!mask4.empty())
   {
     mask = cv::Mat(mask4.size(), CV_8UC1);
-    cv::cvtColor(mask4, mask, CV_BGR2GRAY);
+    cv::cvtColor(mask4, mask, cv::COLOR_BGR2GRAY);
   }
 
   int type = getSignal("type");
@@ -1558,13 +1559,13 @@ bool Distance::update()
   }
 
   cv::Mat mask;
-  cv::cvtColor(in > getSignal("threshold"), mask, CV_BGR2GRAY);
+  cv::cvtColor(in > getSignal("threshold"), mask, cv::COLOR_BGR2GRAY);
 
   int type = getSignal("type");
 
-  int distance_type = CV_DIST_L1;
-  if (type == 1) distance_type = CV_DIST_L2;
-  if (type == 2) distance_type = CV_DIST_C;
+  int distance_type = cv::DIST_L1;
+  if (type == 1) distance_type = cv::DIST_L2;
+  if (type == 2) distance_type = cv::DIST_C;
 
   cv::Mat out32;
   if (!getBool("make_labels"))
@@ -1653,13 +1654,13 @@ bool DistanceFlip::update()
   cv::Mat flipped = cv::Mat(to_flip.size(), CV_8UC4, cv::Scalar(128, 0, 64, 0));
 
   cv::Mat mask;
-  cv::cvtColor(to_threshold > getSignal("threshold"), mask, CV_BGR2GRAY);
+  cv::cvtColor(to_threshold > getSignal("threshold"), mask, cv::COLOR_BGR2GRAY);
 
   int type = getSignal("type");
 
-  int distance_type = CV_DIST_L1;
-  if (type == 1) distance_type = CV_DIST_L2;
-  if (type == 2) distance_type = CV_DIST_C;
+  int distance_type = cv::DIST_L1;
+  if (type == 1) distance_type = cv::DIST_L2;
+  if (type == 2) distance_type = cv::DIST_C;
 
   cv::Mat dist32;
   cv::Mat labels32;
@@ -1825,7 +1826,7 @@ bool FloodFill::update()
   const int newMaskVal = 255;
   const int flags = connectivity +
                     (newMaskVal << 8) +
-                    (ffillMode == 1 ? CV_FLOODFILL_FIXED_RANGE : 0);
+                    (ffillMode == 1 ? cv::FLOODFILL_FIXED_RANGE : 0);
 
   cv::Rect ccomp;
   // TBD clone may not be necessary

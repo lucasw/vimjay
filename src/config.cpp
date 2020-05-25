@@ -88,6 +88,7 @@ bool Config::load(const std::string config_file)
   key_map["VAL_UP2"] = ',';
   key_map["VAL_DOWN2"] = 'm';
   key_map["VAL_ZERO"] = 'n';
+  return true;
 }
 
 

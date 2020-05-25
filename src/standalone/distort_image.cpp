@@ -124,7 +124,7 @@ void DistortImage::imageCallback(const sensor_msgs::ImageConstPtr& msg)
   // Don't ever call distort() directly because it is more efficient to
   // reuse maps.
   // TODO(lucasw) make the interpolation controllable
-  cv::remap(cv_ptr->image, distorted_cv_image, map_1_, map_2_, CV_INTER_LINEAR);
+  cv::remap(cv_ptr->image, distorted_cv_image, map_1_, map_2_, cv::INTER_LINEAR);
 
   cv_bridge::CvImage distorted_image;
   distorted_image.header = msg->header;

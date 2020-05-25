@@ -64,7 +64,7 @@ bool Contour::update()
 
   std::vector<std::vector<cv::Point> > contours_orig;
   cv::Mat in8;
-  cv::cvtColor(in, in8, CV_RGB2GRAY);
+  cv::cvtColor(in, in8, cv::COLOR_RGB2GRAY);
   cv::findContours(in8, contours_orig, hierarchy, cv::RETR_TREE, cv::CHAIN_APPROX_SIMPLE);
 
   const float eps = getSignal("epsilon"); // max error of approx

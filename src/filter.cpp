@@ -487,7 +487,6 @@ bool MorphologyEx::update()
   cv::Mat in = getImage("in");
   if (in.empty()) return false;
 
-
   int element_shape_ind = getSignal("element");
   int element_shape = cv::MORPH_RECT;
   if (element_shape_ind == 1) element_shape = cv::MORPH_CROSS;
@@ -537,6 +536,8 @@ bool MorphologyEx::update()
   }
 #endif
   setImage("out", out);
+
+  return true;
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -619,8 +620,8 @@ bool OpticalFlow::update()
 
   cv::Mat prevm, nextm;
 
-  cv::cvtColor(prev, prevm, CV_BGR2GRAY);
-  cv::cvtColor(next, nextm, CV_BGR2GRAY);
+  cv::cvtColor(prev, prevm, cv::COLOR_BGR2GRAY);
+  cv::cvtColor(next, nextm, cv::COLOR_BGR2GRAY);
 
   cv::calcOpticalFlowFarneback(prevm, nextm, flow,
                                pyr_scale, levels, winsize,

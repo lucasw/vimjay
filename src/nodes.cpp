@@ -136,7 +136,7 @@ bool Elem::setDirty()
       it2->second = true;
     }
   }
-
+  return true;
 }
 
 bool Elem::update()
@@ -343,7 +343,7 @@ void Connector::preDraw(cv::Mat graph_ui, cv::Point2f ui_offset)
       cv::line(graph_ui,
                connector_points[i - 1] + ui_offset,
                connector_points[i] + ui_offset,
-               outline_col, 4, CV_AA);
+               outline_col, 4, cv::LINE_AA);
     }
 
     // now draw a colored interior curve
@@ -376,7 +376,7 @@ void Connector::preDraw(cv::Mat graph_ui, cv::Point2f ui_offset)
       cv::line(graph_ui,
                connector_points[i - 1] + ui_offset,
                connector_points[i] + ui_offset,
-               col, 2, CV_AA);
+               col, 2, cv::LINE_AA);
     }
   }
 
@@ -405,7 +405,7 @@ void Connector::draw(cv::Mat graph_ui, cv::Point2f ui_offset)
                 ploc + loc + ui_offset,
                 ploc + loc + ui_offset + cv::Point2f(name.size() * 10, -10),
                 rect_col,
-                CV_FILLED);
+                cv::FILLED);
 
   cv::rectangle(graph_ui,
                 ploc + loc + ui_offset,
@@ -418,7 +418,7 @@ void Connector::draw(cv::Mat graph_ui, cv::Point2f ui_offset)
                   ploc + loc + ui_offset,
                   ploc + loc + ui_offset - cv::Point2f(5, 5),
                   cv::Scalar(255, 255, 255),
-                  CV_FILLED);
+                  cv::FILLED);
   }
 
 
@@ -1525,7 +1525,7 @@ bool ImageNode::draw(cv::Point2f ui_offset)
 
         cv::Point2f border_off  = cv::Point2f(2, 2);
         cv::rectangle(graph_ui,
-                      pth - border_off, pth + border_off, col, CV_FILLED);
+                      pth - border_off, pth + border_off, col, cv::FILLED);
 
         cv::Mat graph_roi = graph_ui(cv::Rect(xth, yth, sz.width, sz.height));
         graph_roi = cv::Scalar(0, 0, 255);
@@ -1779,7 +1779,7 @@ bool Signal::draw(cv::Point2f ui_offset)
   {
     cv::rectangle(graph_ui, loc,
                   loc + cv::Point2f(x * 50.0 , 5) + ui_offset,
-                  cv::Scalar(255, 255, 100), CV_FILLED);
+                  cv::Scalar(255, 255, 100), cv::FILLED);
   }
 #endif
 

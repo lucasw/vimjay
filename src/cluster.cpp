@@ -310,6 +310,7 @@ bool Cluster::update()
   clusters = nc;
 
   // setSignal("time", t1.elapsed());
+  return true;
 }
 
 
@@ -359,12 +360,14 @@ bool PyrMean::update()
   cv::pyrMeanShiftFiltering(in_3, out_3,
                             getSignal("sp"), getSignal("sr"),
                             max_level,
-                            cv::TermCriteria(CV_TERMCRIT_ITER + CV_TERMCRIT_EPS, getSignal("term"), 5)
+                            cv::TermCriteria(cv::TermCriteria::MAX_ITER + cv::TermCriteria::EPS,
+                                             getSignal("term"), 5)
                            );
 
   cv::Mat out = cv::Mat(out_3.size(), CV_8UC4, cv::Scalar(0));
   cv::mixChannels(&out_3, 1, &out, 1, ch, 3);
 
   setImage("out", out);
+  return true;
 }
 }  // namspace bm

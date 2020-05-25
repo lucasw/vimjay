@@ -60,5 +60,5 @@ void distort(const cv::Mat& src, cv::Mat& image_dst,
   // TODO(lucasw) will passing in a different size work as expected?
   // or will it require adjustment of cx/cy?
   initDistortMap(cameraMatrix, distCoeffs, src.size(), map1, map2);
-  cv::remap(src, image_dst, map1, map2, CV_INTER_LINEAR);
+  cv::remap(src, image_dst, map1, map2, cv::INTER_LINEAR);
 }

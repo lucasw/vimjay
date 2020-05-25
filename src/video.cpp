@@ -145,17 +145,17 @@ bool Video::spinOnce()
     if (is_valid && is_dirty)
     {
       ROS_INFO_STREAM(set_avi_ratio);
-      video.set(CV_CAP_PROP_POS_AVI_RATIO, set_avi_ratio);
+      video.set(cv::CAP_PROP_POS_AVI_RATIO, set_avi_ratio);
     }
   }
 
-  setSignal("pos_msec",     video.get(CV_CAP_PROP_POS_MSEC));
-  setSignal("pos_frames",   video.get(CV_CAP_PROP_POS_FRAMES));
-  setSignal("avi_ratio",    video.get(CV_CAP_PROP_POS_AVI_RATIO));
-  setSignal("frame_width",  video.get(CV_CAP_PROP_FRAME_WIDTH));
-  setSignal("frame_height", video.get(CV_CAP_PROP_FRAME_HEIGHT));
-  setSignal("fps",          video.get(CV_CAP_PROP_FPS));
-  setSignal("frame_count",  video.get(CV_CAP_PROP_FRAME_COUNT));
+  setSignal("pos_msec",     video.get(cv::CAP_PROP_POS_MSEC));
+  setSignal("pos_frames",   video.get(cv::CAP_PROP_POS_FRAMES));
+  setSignal("avi_ratio",    video.get(cv::CAP_PROP_POS_AVI_RATIO));
+  setSignal("frame_width",  video.get(cv::CAP_PROP_FRAME_WIDTH));
+  setSignal("frame_height", video.get(cv::CAP_PROP_FRAME_HEIGHT));
+  setSignal("fps",          video.get(cv::CAP_PROP_FPS));
+  setSignal("frame_count",  video.get(cv::CAP_PROP_FRAME_COUNT));
 
 
 
@@ -244,7 +244,7 @@ bool VideoCapture::spinOnce()
 void Webcam::runThread()
 {
   run_thread = true;
-  // cv::namedWindow("webcam", CV_GUI_NORMAL);
+  // cv::namedWindow("webcam", cv::GUI_NORMAL);
 
   video.open(0);
 
