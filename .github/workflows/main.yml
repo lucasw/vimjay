@@ -25,6 +25,8 @@ jobs:
             sudo apt-get install dpkg
             sudo apt-get install -y python-catkin-tools python-catkin-pkg python-rosdep python-wstool ros-$ROS_DISTRO-cv-bridge ros-$ROS_DISTRO-image-transport ros-$ROS_DISTRO-roslint
             sudo apt-get install -y ros-$ROS_DISTRO-camera-info-manager
+            sudo apt-get install -y ros-cmake-modules
+            sudo apt-get install -y libeigen3-dev
             sudo apt-get install -y ros-$ROS_DISTRO-nodelet-core ros-$ROS_DISTRO-ddynamic-reconfigure ros-$ROS_DISTRO-sensor-msgs
             source /opt/ros/$ROS_DISTRO/setup.bash
             # Prepare rosdep to install dependencies.
