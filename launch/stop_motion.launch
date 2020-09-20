@@ -227,7 +227,7 @@ AttributeError: 'NoneType' object has no attribute 'remove_ite
   <node name="rqt_generic" pkg="rqt_gui" type="rqt_gui"
       args="--perspective-file $(find vimjay)/config/stop_motion.perspective"
       output="screen"
-      required="true" >
+      required="false" >
   </node>
 
 
