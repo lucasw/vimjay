@@ -1,190 +1,68 @@
 {
   "keys": {},
   "groups": {
-    "pluginmanager": {
+    "mainwindow": {
       "keys": {
-        "running-plugins": {
-          "type": "repr",
-          "repr": "{u'rqt_image_view/ImageView': [4, 3, 2, 1], u'rqt_dr_single/dr_single': [1]}"
+        "geometry": {
+          "repr(QByteArray.hex)": "QtCore.QByteArray(b'01d9d0cb00030000000000640000006400000983000006450000006400000064000009830000064500000000000000000f0000000064000000640000098300000645')",
+          "type": "repr(QByteArray.hex)",
+          "pretty-print": "     d d   E d d   E      d d   E"
+        },
+        "state": {
+          "repr(QByteArray.hex)": "QtCore.QByteArray(b'000000ff00000000fd00000001000000030000092000000598fc0100000003fb0000004e007200710074005f00640072005f00730069006e0067006c0065005f005f00640072005f00730069006e0067006c0065005f005f0031005f005f0044007200530069006e0067006c0065005500690100000000000002b9000001ce00fffffffc000002c5000003100000012d00fffffffc0200000002fb0000005a007200710074005f0069006d006100670065005f0076006900650077005f005f0049006d0061006700650056006900650077005f005f0031005f005f0049006d00610067006500560069006500770057006900640067006500740100000025000002cf0000006000fffffffb0000005a007200710074005f0069006d006100670065005f0076006900650077005f005f0049006d0061006700650056006900650077005f005f0033005f005f0049006d00610067006500560069006500770057006900640067006500740100000300000002bd0000006000fffffffc000005e10000033f0000012d00fffffffc0200000002fb0000005a007200710074005f0069006d006100670065005f0076006900650077005f005f0049006d0061006700650056006900650077005f005f0032005f005f0049006d00610067006500560069006500770057006900640067006500740100000025000002cf0000006000fffffffb0000005a007200710074005f0069006d006100670065005f0076006900650077005f005f0049006d0061006700650056006900650077005f005f0034005f005f0049006d00610067006500560069006500770057006900640067006500740100000300000002bd0000006000ffffff000009200000000000000004000000040000000800000008fc00000001000000030000000100000036004d0069006e0069006d0069007a006500640044006f0063006b00570069006400670065007400730054006f006f006c0062006100720000000000ffffffff0000000000000000')",
+          "type": "repr(QByteArray.hex)",
+          "pretty-print": "                 Nrqt_dr_single__dr_single__1__DrSingleUi              -                                                      %   `                                                       `               Zrqt_image_view__ImageView__2__ImageViewWidget          Zrqt_image_view__ImageView__4__ImageViewWidget                            6MinimizedDockWidgetsToolbar        "
         }
       },
       "groups": {
-        "plugin__rqt_image_view__ImageView__4": {
-          "keys": {},
-          "groups": {
-            "dock_widget__ImageViewWidget": {
-              "keys": {
-                "dockable": {
-                  "type": "repr",
-                  "repr": "True"
-                },
-                "parent": {
-                  "type": "repr",
-                  "repr": "None"
-                },
-                "dock_widget_title": {
-                  "type": "repr",
-                  "repr": "u'Image View (4)'"
-                }
-              },
-              "groups": {}
-            },
-            "plugin": {
-              "keys": {
-                "max_range": {
-                  "type": "repr",
-                  "repr": "10.0"
-                },
-                "mouse_pub_topic": {
-                  "type": "repr",
-                  "repr": "u''"
-                },
-                "num_gridlines": {
-                  "type": "repr",
-                  "repr": "0"
-                },
-                "toolbar_hidden": {
-                  "type": "repr",
-                  "repr": "False"
-                },
-                "zoom1": {
-                  "type": "repr",
-                  "repr": "False"
-                },
-                "dynamic_range": {
-                  "type": "repr",
-                  "repr": "False"
-                },
-                "topic": {
-                  "type": "repr",
-                  "repr": "u'/distort/diff_image'"
-                },
-                "publish_click_location": {
-                  "type": "repr",
-                  "repr": "False"
-                }
-              },
-              "groups": {}
+        "toolbar_areas": {
+          "keys": {
+            "MinimizedDockWidgetsToolbar": {
+              "repr": "8",
+              "type": "repr"
             }
-          }
-        },
-        "plugin__rqt_image_view__ImageView__2": {
-          "keys": {},
-          "groups": {
-            "dock_widget__ImageViewWidget": {
-              "keys": {
-                "dockable": {
-                  "type": "repr",
-                  "repr": "True"
-                },
-                "parent": {
-                  "type": "repr",
-                  "repr": "None"
-                },
-                "dock_widget_title": {
-                  "type": "repr",
-                  "repr": "u'Image View (2)'"
-                }
-              },
-              "groups": {}
-            },
-            "plugin": {
-              "keys": {
-                "max_range": {
-                  "type": "repr",
-                  "repr": "10.0"
-                },
-                "mouse_pub_topic": {
-                  "type": "repr",
-                  "repr": "u''"
-                },
-                "num_gridlines": {
-                  "type": "repr",
-                  "repr": "0"
-                },
-                "toolbar_hidden": {
-                  "type": "repr",
-                  "repr": "False"
-                },
-                "zoom1": {
-                  "type": "repr",
-                  "repr": "False"
-                },
-                "dynamic_range": {
-                  "type": "repr",
-                  "repr": "False"
-                },
-                "topic": {
-                  "type": "repr",
-                  "repr": "u'/distort/distorted/image'"
-                },
-                "publish_click_location": {
-                  "type": "repr",
-                  "repr": "False"
-                }
-              },
-              "groups": {}
-            }
-          }
-        },
+          },
+          "groups": {}
+        }
+      }
+    },
+    "pluginmanager": {
+      "keys": {
+        "running-plugins": {
+          "repr": "{'rqt_dr_single/dr_single': [1], 'rqt_image_view/ImageView': [1, 2, 3, 4]}",
+          "type": "repr"
+        }
+      },
+      "groups": {
         "plugin__rqt_dr_single__dr_single__1": {
           "keys": {},
           "groups": {
             "dock_widget__DrSingleUi": {
               "keys": {
-                "dockable": {
-                  "type": "repr",
-                  "repr": "True"
-                },
-                "parent": {
-                  "type": "repr",
-                  "repr": "None"
-                },
                 "dock_widget_title": {
-                  "type": "repr",
-                  "repr": "u'Dynamic Reconfigure Single'"
-                }
-              },
-              "groups": {}
-            },
-            "plugin": {
-              "keys": {
-                "server_name": {
-                  "type": "repr",
-                  "repr": "u'/dr_camera_info'"
-                }
-              },
-              "groups": {}
-            }
-          }
-        },
-        "plugin__rqt_reconfigure__Param__2": {
-          "keys": {},
-          "groups": {
-            "dock_widget___plugincontainer_top_widget": {
-              "keys": {
+                  "repr": "'Dynamic Reconfigure Single'",
+                  "type": "repr"
+                },
                 "dockable": {
-                  "type": "repr",
-                  "repr": "u'true'"
+                  "repr": "True",
+                  "type": "repr"
                 },
                 "parent": {
-                  "type": "repr",
-                  "repr": "None"
+                  "repr": "None",
+                  "type": "repr"
                 }
               },
               "groups": {}
             },
             "plugin": {
               "keys": {
-                "splitter": {
-                  "type": "repr(QByteArray.hex)",
-                  "repr(QByteArray.hex)": "QtCore.QByteArray('000000ff0000000000000002000000ae0000006401000000060100000001')",
-                  "pretty-print": "         d     "
+                "hide_dropdown": {
+                  "repr": "False",
+                  "type": "repr"
                 },
-                "_splitter": {
-                  "type": "repr(QByteArray.hex)",
-                  "repr(QByteArray.hex)": "QtCore.QByteArray('000000ff00000000000000020000012c0000006401000000090100000002')",
-                  "pretty-print": "       , d     "
+                "server_name": {
+                  "repr": "'/dr_camera_info'",
+                  "type": "repr"
                 }
               },
               "groups": {}
@@ -196,159 +74,129 @@
           "groups": {
             "dock_widget__ImageViewWidget": {
               "keys": {
+                "dock_widget_title": {
+                  "repr": "'Image View'",
+                  "type": "repr"
+                },
                 "dockable": {
-                  "type": "repr",
-                  "repr": "True"
+                  "repr": "True",
+                  "type": "repr"
                 },
                 "parent": {
-                  "type": "repr",
-                  "repr": "None"
-                },
-                "dock_widget_title": {
-                  "type": "repr",
-                  "repr": "u'Image View'"
+                  "repr": "None",
+                  "type": "repr"
                 }
               },
               "groups": {}
             },
             "plugin": {
               "keys": {
+                "dynamic_range": {
+                  "repr": "False",
+                  "type": "repr"
+                },
                 "max_range": {
-                  "type": "repr",
-                  "repr": "10.0"
+                  "repr": "10.0",
+                  "type": "repr"
                 },
                 "mouse_pub_topic": {
-                  "type": "repr",
-                  "repr": "u''"
+                  "repr": "'/image_mouse_left'",
+                  "type": "repr"
                 },
                 "num_gridlines": {
-                  "type": "repr",
-                  "repr": "0"
-                },
-                "toolbar_hidden": {
-                  "type": "repr",
-                  "repr": "False"
-                },
-                "zoom1": {
-                  "type": "repr",
-                  "repr": "False"
-                },
-                "dynamic_range": {
-                  "type": "repr",
-                  "repr": "False"
-                },
-                "topic": {
-                  "type": "repr",
-                  "repr": "u'/image'"
+                  "repr": "0",
+                  "type": "repr"
                 },
                 "publish_click_location": {
-                  "type": "repr",
-                  "repr": "False"
+                  "repr": "False",
+                  "type": "repr"
+                },
+                "rotate": {
+                  "repr": "0",
+                  "type": "repr"
+                },
+                "smooth_image": {
+                  "repr": "False",
+                  "type": "repr"
+                },
+                "toolbar_hidden": {
+                  "repr": "False",
+                  "type": "repr"
+                },
+                "topic": {
+                  "repr": "'/image'",
+                  "type": "repr"
+                },
+                "zoom1": {
+                  "repr": "False",
+                  "type": "repr"
                 }
               },
               "groups": {}
             }
           }
         },
-        "plugin__rqt_mypkg__My Plugin__1": {
+        "plugin__rqt_image_view__ImageView__2": {
           "keys": {},
           "groups": {
-            "dock_widget__MyPluginUi": {
+            "dock_widget__ImageViewWidget": {
               "keys": {
+                "dock_widget_title": {
+                  "repr": "'Image View (2)'",
+                  "type": "repr"
+                },
                 "dockable": {
-                  "type": "repr",
-                  "repr": "u'true'"
+                  "repr": "True",
+                  "type": "repr"
                 },
                 "parent": {
-                  "type": "repr",
-                  "repr": "None"
-                }
-              },
-              "groups": {}
-            }
-          }
-        },
-        "plugin__rqt_example_cpp__MyPlugin__1": {
-          "keys": {},
-          "groups": {
-            "dock_widget__MyPluginWidget": {
-              "keys": {
-                "dockable": {
-                  "type": "repr",
-                  "repr": "u'true'"
-                },
-                "parent": {
-                  "type": "repr",
-                  "repr": "None"
-                }
-              },
-              "groups": {}
-            }
-          }
-        },
-        "plugin__rqt_v4l2ucp__v4l2ucp__1": {
-          "keys": {},
-          "groups": {
-            "dock_widget__MyPluginUi": {
-              "keys": {
-                "dockable": {
-                  "type": "repr",
-                  "repr": "True"
-                },
-                "parent": {
-                  "type": "repr",
-                  "repr": "None"
-                }
-              },
-              "groups": {}
-            }
-          }
-        },
-        "plugin__rqt_v4l2ucp__v4l2ucp__2": {
-          "keys": {},
-          "groups": {
-            "dock_widget__MyPluginUi": {
-              "keys": {
-                "dockable": {
-                  "type": "repr",
-                  "repr": "u'true'"
-                },
-                "parent": {
-                  "type": "repr",
-                  "repr": "None"
-                }
-              },
-              "groups": {}
-            }
-          }
-        },
-        "plugin__rqt_reconfigure__Param__1": {
-          "keys": {},
-          "groups": {
-            "dock_widget___plugincontainer_top_widget": {
-              "keys": {
-                "dockable": {
-                  "type": "repr",
-                  "repr": "True"
-                },
-                "parent": {
-                  "type": "repr",
-                  "repr": "None"
+                  "repr": "None",
+                  "type": "repr"
                 }
               },
               "groups": {}
             },
             "plugin": {
               "keys": {
-                "splitter": {
-                  "type": "repr(QByteArray.hex)",
-                  "repr(QByteArray.hex)": "QtCore.QByteArray('000000ff0000000100000002000001020000034c0100000006010000000101')",
-                  "pretty-print": "         L     "
+                "dynamic_range": {
+                  "repr": "False",
+                  "type": "repr"
                 },
-                "_splitter": {
-                  "type": "repr(QByteArray.hex)",
-                  "repr(QByteArray.hex)": "QtCore.QByteArray('000000ff00000001000000020000012c000000640100000009010000000201')",
-                  "pretty-print": "       , d     "
+                "max_range": {
+                  "repr": "10.0",
+                  "type": "repr"
+                },
+                "mouse_pub_topic": {
+                  "repr": "'/distort/distorted/image_mouse_left'",
+                  "type": "repr"
+                },
+                "num_gridlines": {
+                  "repr": "0",
+                  "type": "repr"
+                },
+                "publish_click_location": {
+                  "repr": "False",
+                  "type": "repr"
+                },
+                "rotate": {
+                  "repr": "0",
+                  "type": "repr"
+                },
+                "smooth_image": {
+                  "repr": "False",
+                  "type": "repr"
+                },
+                "toolbar_hidden": {
+                  "repr": "False",
+                  "type": "repr"
+                },
+                "topic": {
+                  "repr": "'/distort/distorted/image'",
+                  "type": "repr"
+                },
+                "zoom1": {
+                  "repr": "False",
+                  "type": "repr"
                 }
               },
               "groups": {}
@@ -360,84 +208,134 @@
           "groups": {
             "dock_widget__ImageViewWidget": {
               "keys": {
+                "dock_widget_title": {
+                  "repr": "'Image View (3)'",
+                  "type": "repr"
+                },
                 "dockable": {
-                  "type": "repr",
-                  "repr": "True"
+                  "repr": "True",
+                  "type": "repr"
                 },
                 "parent": {
-                  "type": "repr",
-                  "repr": "None"
-                },
-                "dock_widget_title": {
-                  "type": "repr",
-                  "repr": "u'Image View (3)'"
+                  "repr": "None",
+                  "type": "repr"
                 }
               },
               "groups": {}
             },
             "plugin": {
               "keys": {
+                "dynamic_range": {
+                  "repr": "False",
+                  "type": "repr"
+                },
                 "max_range": {
-                  "type": "repr",
-                  "repr": "10.0"
+                  "repr": "10.0",
+                  "type": "repr"
                 },
                 "mouse_pub_topic": {
-                  "type": "repr",
-                  "repr": "u''"
+                  "repr": "'/distort/image_rect_mouse_left'",
+                  "type": "repr"
                 },
                 "num_gridlines": {
-                  "type": "repr",
-                  "repr": "0"
-                },
-                "toolbar_hidden": {
-                  "type": "repr",
-                  "repr": "False"
-                },
-                "zoom1": {
-                  "type": "repr",
-                  "repr": "False"
-                },
-                "dynamic_range": {
-                  "type": "repr",
-                  "repr": "False"
-                },
-                "topic": {
-                  "type": "repr",
-                  "repr": "u'/distort/image_rect'"
+                  "repr": "0",
+                  "type": "repr"
                 },
                 "publish_click_location": {
-                  "type": "repr",
-                  "repr": "False"
+                  "repr": "False",
+                  "type": "repr"
+                },
+                "rotate": {
+                  "repr": "0",
+                  "type": "repr"
+                },
+                "smooth_image": {
+                  "repr": "False",
+                  "type": "repr"
+                },
+                "toolbar_hidden": {
+                  "repr": "False",
+                  "type": "repr"
+                },
+                "topic": {
+                  "repr": "'/distort/image_rect'",
+                  "type": "repr"
+                },
+                "zoom1": {
+                  "repr": "False",
+                  "type": "repr"
                 }
               },
               "groups": {}
             }
           }
-        }
-      }
-    },
-    "mainwindow": {
-      "keys": {
-        "geometry": {
-          "type": "repr(QByteArray.hex)",
-          "repr(QByteArray.hex)": "QtCore.QByteArray('01d9d0cb0002000000000003000000260000070e0000040000000004000000420000070d000003ff00000000000000000780')",
-          "pretty-print": "       &       B         "
         },
-        "state": {
-          "type": "repr(QByteArray.hex)",
-          "repr(QByteArray.hex)": "QtCore.QByteArray('000000ff00000000fd000000020000000200000454000000ebfc0100000001fb00000046007200710074005f00760034006c0032007500630070005f005f00760034006c0032007500630070005f005f0032005f005f004d00790050006c007500670069006e005500690100000000000004540000000000000000000000030000070a0000038ffc0100000005fb00000058007200710074005f006500780061006d0070006c0065005f006300700070005f005f004d00790050006c007500670069006e005f005f0031005f005f004d00790050006c007500670069006e0057006900640067006500740100000000000001b20000000000000000fb00000046007200710074005f006d00790070006b0067005f005f004d007900200050006c007500670069006e005f005f0031005f005f004d00790050006c007500670069006e0055006901000000000000034c0000000000000000fb00000046007200710074005f00760034006c0032007500630070005f005f00760034006c0032007500630070005f005f0031005f005f004d00790050006c007500670069006e005500690000000000ffffffff0000000000000000fb0000006c007200710074005f007200650063006f006e006600690067007500720065005f005f0050006100720061006d005f005f0032005f005f005f0070006c007500670069006e0063006f006e007400610069006e00650072005f0074006f0070005f00770069006400670065007401000003390000011b0000000000000000fc000000000000070a000002fc00fffffffc0200000002fc000000190000038f000000a800fffffffc0100000003fb0000004e007200710074005f00640072005f00730069006e0067006c0065005f005f00640072005f00730069006e0067006c0065005f005f0031005f005f0044007200530069006e0067006c0065005500690100000000000001f60000013600fffffffc000001fc000002a2000000dd00fffffffc0200000002fb0000005a007200710074005f0069006d006100670065005f0076006900650077005f005f0049006d0061006700650056006900650077005f005f0031005f005f0049006d00610067006500560069006500770057006900640067006500740100000019000001b60000005100fffffffb0000005a007200710074005f0069006d006100670065005f0076006900650077005f005f0049006d0061006700650056006900650077005f005f0033005f005f0049006d006100670065005600690065007700570069006400670065007401000001d5000001d30000005100fffffffc000004a400000266000000dd00fffffffc0200000002fb0000005a007200710074005f0069006d006100670065005f0076006900650077005f005f0049006d0061006700650056006900650077005f005f0032005f005f0049006d00610067006500560069006500770057006900640067006500740100000019000001b20000005100fffffffb0000005a007200710074005f0069006d006100670065005f0076006900650077005f005f0049006d0061006700650056006900650077005f005f0034005f005f0049006d006100670065005600690065007700570069006400670065007401000001d1000001d70000005100fffffffb0000006c007200710074005f007200650063006f006e006600690067007500720065005f005f0050006100720061006d005f005f0031005f005f005f0070006c007500670069006e0063006f006e007400610069006e00650072005f0074006f0070005f007700690064006700650074010000014a0000024000000000000000000000070a0000000000000004000000040000000800000008fc00000001000000030000000100000036004d0069006e0069006d0069007a006500640044006f0063006b00570069006400670065007400730054006f006f006c0062006100720000000000ffffffff0000000000000000')",
-          "pretty-print": "                 Frqt_v4l2ucp__v4l2ucp__2__MyPluginUi                   Xrqt_example_cpp__MyPlugin__1__MyPluginWidget          Frqt_mypkg__My Plugin__1__MyPluginUi          Frqt_v4l2ucp__v4l2ucp__1__MyPluginUi          lrqt_reconfigure__Param__2___plugincontainer_top_widget                                 Nrqt_dr_single__dr_single__1__DrSingleUi                                                                         Q                                                       Q               Zrqt_image_view__ImageView__2__ImageViewWidget          Zrqt_image_view__ImageView__4__ImageViewWidget          lrqt_reconfigure__Param__1___plugincontainer_top_widget                            6MinimizedDockWidgetsToolbar        "
-        }
-      },
-      "groups": {
-        "toolbar_areas": {
-          "keys": {
-            "MinimizedDockWidgetsToolbar": {
-              "type": "repr",
-              "repr": "8"
+        "plugin__rqt_image_view__ImageView__4": {
+          "keys": {},
+          "groups": {
+            "dock_widget__ImageViewWidget": {
+              "keys": {
+                "dock_widget_title": {
+                  "repr": "'Image View (4)'",
+                  "type": "repr"
+                },
+                "dockable": {
+                  "repr": "True",
+                  "type": "repr"
+                },
+                "parent": {
+                  "repr": "None",
+                  "type": "repr"
+                }
+              },
+              "groups": {}
+            },
+            "plugin": {
+              "keys": {
+                "dynamic_range": {
+                  "repr": "False",
+                  "type": "repr"
+                },
+                "max_range": {
+                  "repr": "10.0",
+                  "type": "repr"
+                },
+                "mouse_pub_topic": {
+                  "repr": "'/distort/diff_image_mouse_left'",
+                  "type": "repr"
+                },
+                "num_gridlines": {
+                  "repr": "0",
+                  "type": "repr"
+                },
+                "publish_click_location": {
+                  "repr": "False",
+                  "type": "repr"
+                },
+                "rotate": {
+                  "repr": "0",
+                  "type": "repr"
+                },
+                "smooth_image": {
+                  "repr": "False",
+                  "type": "repr"
+                },
+                "toolbar_hidden": {
+                  "repr": "False",
+                  "type": "repr"
+                },
+                "topic": {
+                  "repr": "'/distort/diff_image'",
+                  "type": "repr"
+                },
+                "zoom1": {
+                  "repr": "False",
+                  "type": "repr"
+                }
+              },
+              "groups": {}
             }
-          },
-          "groups": {}
+          }
         }
       }
     }
