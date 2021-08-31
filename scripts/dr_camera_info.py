@@ -14,10 +14,13 @@ class DrCameraInfo:
         self.camera_info = None
         self.pub = rospy.Publisher("camera_info", CameraInfo, queue_size=1, latch=True)
         self.server = Server(DrCameraInfoConfig, self.dr_callback)
+        # reset=True makes this node survive jumps back in time (why not make that the default?)
+        # https://github.com/ros-visualization/interactive_markers/pull/47/
+        # TODO(lucasw) make this update if the callback changes update rate
+        self.timer = rospy.Timer(rospy.Duration(0.2), self.update, reset=True)
 
     def dr_callback(self, config, level):
         ci = CameraInfo()
-        ci.header.stamp = rospy.Time.now()
         ci.header.frame_id = config['frame_id']
         ci.width = config['width']
         ci.height = config['height']
@@ -37,8 +40,12 @@ class DrCameraInfo:
         ci.R[4] = 1
         ci.R[8] = 1
         self.camera_info = ci
-        self.pub.publish(ci)
         return config
+
+    def update(self, event):
+        self.camera_info.header.stamp = rospy.Time.now()
+        self.pub.publish(self.camera_info)
+
 
 if __name__ == '__main__':
     dr_camera_info = DrCameraInfo()
