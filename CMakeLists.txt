@@ -167,6 +167,7 @@ target_link_libraries(vimjay_node
 boost_thread
 boost_filesystem
 boost_system
+boost_timer
   ${OpenCV_LIBRARIES}
 )
 

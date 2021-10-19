@@ -27,7 +27,7 @@
 #include <boost/thread.hpp>
 #include <boost/filesystem/operations.hpp>
 #include <boost/lexical_cast.hpp>
-#include <boost/timer.hpp>
+#include <boost/timer/timer.hpp>
 
 #include <ros/console.h>
 
@@ -72,7 +72,7 @@ bool ImageDir::loadImages()
 {
   // TBD this needs to go in separate thread
 
-  boost::timer t1;
+  boost::timer::cpu_timer t1;
   std::string dir = getString("dir");
   ROS_INFO_STREAM(name << " loading " << dir);
 
@@ -138,7 +138,7 @@ bool ImageDir::loadImages()
     return false;
   }
 
-  ROS_INFO_STREAM(name << " " << frames_orig.size() << " image loaded " << t1.elapsed());
+  ROS_INFO_STREAM(name << " " << frames_orig.size() << " image loaded " << t1.format());
   setSignal("ind", getSignal("ind"), false, ROLL, 0, frames_orig.size() - 1);
   // max_size = frames.size() + 1;
   setDirty();

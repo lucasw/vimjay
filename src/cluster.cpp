@@ -21,7 +21,7 @@
 #include <assert.h>
 #include <math.h>
 
-#include <boost/timer.hpp>
+#include <boost/timer/timer.hpp>
 #include <stdio.h>
 #include <boost/lexical_cast.hpp>
 #include <ros/console.h>
@@ -142,7 +142,7 @@ bool Cluster::update()
 
   if (!isDirty(this, 40)) return true;
 
-  boost::timer t1;
+  boost::timer::cpu_timer t1;
 
   cv::Mat in = getImage("in");
   if (in.empty()) return false;
@@ -309,7 +309,7 @@ bool Cluster::update()
 
   clusters = nc;
 
-  // setSignal("time", t1.elapsed());
+  // setSignal("time", t1.format());
   return true;
 }
 
