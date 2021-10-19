@@ -219,7 +219,7 @@ nodes:
       typeid: "bm::ImageDir"
       name: image_dir
       loc: [ 220., 50. ]
-      dir: /home/lucasw/catkin_ws/src/vimjay/data
+      dir: /home/lucasw/catkin_ws/src/lucasw/vimjay/data
       inputs:
          -
             type: 1
