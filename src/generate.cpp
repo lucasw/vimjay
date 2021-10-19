@@ -182,7 +182,7 @@ bool Noise::update()
     cv::randn(out, cv::Scalar(mean, mean, mean, mean), cv::Scalar(stddev, stddev, stddev, stddev));
 
   }
-  setImage("out", out);
+  return setImage("out", out);
 }
 
 
@@ -366,6 +366,8 @@ bool SimplexNoise::update()
     setImage("dy", dy_im);
     setImage("dz", dz_im);
   }
+
+  return true;
 }
 
 } // namespace bm

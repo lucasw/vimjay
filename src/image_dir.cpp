@@ -195,6 +195,8 @@ bool ImageDir::load(cv::FileNodeIterator nd)
 
   loadImages();
   resizeImages();
+
+  return true;
 }
 
 bool ImageDir::save(cv::FileStorage& fs)
@@ -202,6 +204,8 @@ bool ImageDir::save(cv::FileStorage& fs)
   Buffer::save(fs);
 
   fs << "dir" << getString("dir");
+
+  return true;
 }
 
 bool ImageDir::update()
