@@ -130,7 +130,7 @@ include_directories(
 # )
 
 ## Declare a cpp executable
-add_executable(vimjay_node
+add_executable(${PROJECT_NAME}_node
 other/DSOnoises/cellular.c
 other/DSOnoises/noise1234.c
 other/DSOnoises/sdnoise1234.c
@@ -166,7 +166,7 @@ src/vimjay.cpp
 ## as an example, message headers may need to be generated before nodes
 
 ## Specify libraries to link a library or executable target against
-target_link_libraries(vimjay_node
+target_link_libraries(${PROJECT_NAME}_node
    ${catkin_LIBRARIES}
   ${OpenCV_LIBRARIES}
 boost_thread
@@ -199,7 +199,7 @@ roslint_cpp(
   src/standalone/image_deque.cpp
   src/standalone/iir_image.cpp
   src/nngen/nn_im.cpp
-  src/vimjay.cpp
+  src/${PROJECT_NAME}.cpp
   src/input.cpp
 )
 
@@ -275,12 +275,12 @@ target_link_libraries(distort_image
 )
 
 if (false)
-add_executable(nn_im
-  src/nngen/nn_im.cpp
-)
-target_link_libraries(nn_im
-  ${catkin_LIBRARIES}
-)
+  add_executable(nn_im
+    src/nngen/nn_im.cpp
+  )
+  target_link_libraries(nn_im
+    ${catkin_LIBRARIES}
+  )
 endif()
 
 
@@ -293,13 +293,32 @@ endif()
 
 ## Mark executable scripts (Python etc.) for installation
 ## in contrast to setup.py, you can choose the destination
-# install(PROGRAMS
-#   scripts/my_python_script
-#   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-# )
+install(PROGRAMS
+  scripts/display.py
+  scripts/dr_camera_info.py
+  scripts/grep_msgs.sh
+  scripts/image.py
+  scripts/key_input.py
+  scripts/subdiv.py
+  scripts/test_key.py
+  scripts/webcam.html
+  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
 
 ## Mark executables and/or libraries for installation
-install(TARGETS vimjay_node
+install(TARGETS
+  background_subtraction
+  cam_sub
+  color
+  cv_distort_image
+  distort_image
+  iir_imagev
+  image_deque
+  key_trigger
+  # nn_im
+  noise_image
+  save_image
+  ${PROJECT_NAME}_node
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
