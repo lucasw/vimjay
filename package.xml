@@ -2,7 +2,7 @@
 <package>
   <name>vimjay</name>
   <version>0.0.1</version>
-  <description>The vimjay package</description>
+  <description>Manipulate video live in a graph, also some ros nodes for video processing</description>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag --> 
   <!-- Example:  -->
@@ -39,6 +39,7 @@
   <!-- Use test_depend for packages you need only for testing: -->
   <!--   <test_depend>gtest</test_depend> -->
   <buildtool_depend>catkin</buildtool_depend>
+  <build_depend>cmake_modules</build_depend>
   <build_depend>roscpp</build_depend>
   <build_depend>roslint</build_depend>
   <build_depend>rospy</build_depend>
@@ -50,10 +51,18 @@
   <build_depend>image_transport</build_depend>
   <run_depend>camera_info_manager</run_depend>
   <run_depend>dynamic_reconfigure</run_depend>
+  <run_depend>dynamic_reconfigure_tools</run_depend>
+  <run_depend>image_proc</run_depend>
+  <run_depend>libuvc_camera</run_depend>
+  <run_depend>nodelet</run_depend>
   <run_depend>roscpp</run_depend>
   <run_depend>rospy</run_depend>
+  <run_depend>rqt_gui</run_depend>
+  <run_depend>rqt_image_view</run_depend>
   <run_depend>sensor_msgs</run_depend>
   <run_depend>std_msgs</run_depend>
+  <run_depend>usb_cam</run_depend>
+  <run_depend>v4l2ucp</run_depend>
 
   <!-- The export tag contains other, unspecified, tags -->
   <export>

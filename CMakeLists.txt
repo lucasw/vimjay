@@ -5,8 +5,8 @@ project(vimjay)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
-  cv_bridge
   camera_info_manager
+  cv_bridge
   dynamic_reconfigure
   image_transport
   roscpp
@@ -99,9 +99,14 @@ generate_dynamic_reconfigure_options(
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-  INCLUDE_DIRS include
-#  LIBRARIES vimjay
-  CATKIN_DEPENDS roscpp rospy std_msgs
+  #  INCLUDE_DIRS include
+  #  LIBRARIES vimjay
+  CATKIN_DEPENDS
+  dynamic_reconfigure
+  roscpp
+  rospy
+  sensor_msgs
+  std_msgs
   DEPENDS OpenCV
 #  DEPENDS glog gflags
 )
@@ -125,28 +130,28 @@ include_directories(
 # )
 
 ## Declare a cpp executable
-add_executable(vimjay_node 
+add_executable(vimjay_node
 other/DSOnoises/cellular.c
 other/DSOnoises/noise1234.c
 other/DSOnoises/sdnoise1234.c
 other/DSOnoises/simplexnoise1234.c
 other/DSOnoises/srdnoise23.c
-src/config.cpp
-src/vimjay.cpp
-src/nodes.cpp
-src/misc_nodes.cpp
-src/image_dir.cpp
-src/modify.cpp
-src/signals.cpp
-src/filter.cpp
-src/cluster.cpp
-src/generate.cpp
-src/structure.cpp
-src/utility.cpp
-src/output.cpp
-src/video.cpp
 other/simplexnoise.cpp
 other/simplextextures.cpp
+src/cluster.cpp
+src/config.cpp
+src/filter.cpp
+src/generate.cpp
+src/image_dir.cpp
+src/misc_nodes.cpp
+src/modify.cpp
+src/nodes.cpp
+src/output.cpp
+src/signals.cpp
+src/structure.cpp
+src/utility.cpp
+src/video.cpp
+src/vimjay.cpp
 )
 
 # This is handled by external screencap node
