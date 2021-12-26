@@ -120,7 +120,6 @@ catkin_package(
 # include_directories(include)
 include_directories(
   include
-  include/other
   ${catkin_INCLUDE_DIRS}
 )
 
@@ -131,11 +130,11 @@ include_directories(
 
 ## Declare a cpp executable
 add_executable(${PROJECT_NAME}_node
-other/DSOnoises/cellular.c
-other/DSOnoises/noise1234.c
-other/DSOnoises/sdnoise1234.c
-other/DSOnoises/simplexnoise1234.c
-other/DSOnoises/srdnoise23.c
+other/dso_noises/cellular.c
+other/dso_noises/noise1234.c
+other/dso_noises/sdnoise1234.c
+other/dso_noises/simplexnoise1234.c
+other/dso_noises/srdnoise23.c
 other/simplexnoise.cpp
 other/simplextextures.cpp
 src/cluster.cpp
@@ -274,7 +273,7 @@ target_link_libraries(distort_image
   ${catkin_LIBRARIES}
 )
 
-if (false)
+if (true)
   add_executable(nn_im
     src/nngen/nn_im.cpp
   )
@@ -315,7 +314,7 @@ install(TARGETS
   iir_imagev
   image_deque
   key_trigger
-  # nn_im
+  nn_im
   noise_image
   save_image
   ${PROJECT_NAME}_node

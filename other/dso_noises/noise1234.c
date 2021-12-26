@@ -55,7 +55,7 @@ THE SOFTWARE.
  *
  */
 
-#include "DSOnoises/noise1234.h"
+#include "dso_noises/noise1234.h"
 
 // This is the new and improved, C(2) continuous interpolant
 #define FADE(t) (t * t * t * (t * (t * 6 - 15) + 10))
