@@ -17,6 +17,18 @@ jobs:
         with:
           path: catkin_ws/src/vimjay
 
+      - name: get v4lucp
+        uses: actions/checkout@v2
+        with:
+          repository: lucasw/v4l2ucp
+          path: catkin_ws/src/v4l2ucp
+
+      - name: get dynamic_reconfigure_tools
+        uses: actions/checkout@v2
+        with:
+          repository: lucasw/dynamic_reconfigure_tools
+          path: catkin_ws/src/dynamic_reconfigure_tools
+
       - name: Install ROS
         run: |
             sudo sh -c "echo \"deb http://packages.ros.org/ros/ubuntu $ROS_CI_DESKTOP main\" > /etc/apt/sources.list.d/ros-latest.list"
@@ -45,6 +57,7 @@ jobs:
         run: |
           source /opt/ros/$ROS_DISTRO/setup.bash
           cd catkin_ws
+          catkin config --cmake-args -Wno-deprecated
           catkin build --no-status
           source devel/setup.bash
 

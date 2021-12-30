@@ -274,10 +274,14 @@ target_link_libraries(distort_image
 )
 
 if (true)
+  # Melodic in 18.04 needs this
+  find_package(OpenCV REQUIRED)
+
   add_executable(nn_im
     src/nngen/nn_im.cpp
   )
   target_link_libraries(nn_im
+    ${OpenCV_LIBRARIES}
     ${catkin_LIBRARIES}
   )
 endif()
