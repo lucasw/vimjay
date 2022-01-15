@@ -4,18 +4,18 @@
 # Load an image from disk and publish it repeatedly
 
 import cv2
-import numpy as np
 import rospy
 import sys
 from sensor_msgs.msg import CameraInfo, Image
+
 
 class ImagePub:
     def __init__(self):
         rospy.init_node('image_publish')
         name = sys.argv[1]
         image = cv2.imread(name)
-        #cv2.imshow("im", image)
-        #cv2.waitKey(5)
+        # cv2.imshow("im", image)
+        # cv2.waitKey(5)
 
         hz = rospy.get_param("~rate", 1)
         frame_id = rospy.get_param("~frame_id", "map")
@@ -23,8 +23,8 @@ class ImagePub:
         rate = rospy.Rate(hz)
 
         self.ci_in = None
-        ci_sub = rospy.Subscriber('camera_info_in', CameraInfo,
-                                  self.camera_info_callback, queue_size=1)
+        self.ci_sub = rospy.Subscriber('camera_info_in', CameraInfo,
+                                       self.camera_info_callback, queue_size=1)
 
         if use_image:
             pub = rospy.Publisher('image', Image, queue_size=1)
@@ -45,13 +45,13 @@ class ImagePub:
         ci.header = msg.header
         ci.height = msg.height
         ci.width = msg.width
-        ci.distortion_model ="plumb_bob"
+        ci.distortion_model = "plumb_bob"
         # TODO(lucasw) need a way to set these values- have this node
         # subscribe to an input CameraInfo?
         ci.D = [0.0, 0.0, 0.0, 0, 0]
-        ci.K = [500.0, 0.0, msg.width/2, 0.0, 500.0, msg.height/2, 0.0, 0.0, 1.0]
+        ci.K = [500.0, 0.0, msg.width / 2, 0.0, 500.0, msg.height / 2, 0.0, 0.0, 1.0]
         ci.R = [1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0]
-        ci.P = [500.0, 0.0, msg.width/2, 0.0, 0.0, 500.0, msg.height/2, 0.0,  0.0, 0.0, 1.0, 0.0]
+        ci.P = [500.0, 0.0, msg.width / 2, 0.0, 0.0, 500.0, msg.height / 2, 0.0, 0.0, 0.0, 1.0, 0.0]
         # ci_pub.publish(ci)
 
         # TODO(lwalter) only run this is hz is positive,
@@ -73,6 +73,7 @@ class ImagePub:
 
     def camera_info_callback(self, msg):
         self.ci_in = msg
+
 
 if __name__ == '__main__':
     image_pub = ImagePub()

@@ -201,6 +201,8 @@ roslint_cpp(
   src/${PROJECT_NAME}.cpp
   src/input.cpp
 )
+set(ROSLINT_PYTHON_OPTS "--ignore=''" "1>&2")
+roslint_python()
 
 add_executable(noise_image
   src/standalone/noise.cpp

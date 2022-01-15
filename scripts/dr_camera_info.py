@@ -8,6 +8,7 @@ from dynamic_reconfigure.server import Server
 from sensor_msgs.msg import CameraInfo
 from vimjay.cfg import DrCameraInfoConfig
 
+
 class DrCameraInfo:
     def __init__(self):
         rospy.init_node('dr_camera_info')
