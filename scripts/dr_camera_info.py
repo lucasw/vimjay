@@ -18,7 +18,15 @@ class DrCameraInfo:
         # reset=True makes this node survive jumps back in time (why not make that the default?)
         # https://github.com/ros-visualization/interactive_markers/pull/47/
         # TODO(lucasw) make this update if the callback changes update rate
-        self.timer = rospy.Timer(rospy.Duration(0.2), self.update, reset=True)
+
+        follow_topic = rospy.get_param("~follow", "")
+        if follow_topic == "":
+            self.timer = rospy.Timer(rospy.Duration(0.2), self.update, reset=True)
+        else:
+            # TODO(lucasw) Use AnyMsg, something like
+            # https://answers.ros.org/question/230676/equivalent-of-rospyanymsg-but-only-for-messages-with-a-header/
+            rospy.loginfo(f"following topic {follow_topic}")
+            self.follow_sub = rospy.Subscriber(follow_topic, CameraInfo, self.follow_callback)
 
     def dr_callback(self, config, level):
         ci = CameraInfo()
@@ -43,8 +51,14 @@ class DrCameraInfo:
         self.camera_info = ci
         return config
 
+    def follow_callback(self, msg):
+        cur = msg.header.stamp
+        # TODO(lucasw) only first arg current_real matters
+        event = rospy.timer.TimerEvent(cur, cur, cur, cur, rospy.Duration(0.1))
+        self.update(event)
+
     def update(self, event):
-        self.camera_info.header.stamp = rospy.Time.now()
+        self.camera_info.header.stamp = event.current_real
         self.pub.publish(self.camera_info)
 
 
