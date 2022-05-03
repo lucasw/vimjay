@@ -21,8 +21,6 @@ find_package(OpenCV REQUIRED)
 # http://answers.ros.org/question/152276/is-there-a-way-to-enable-c11-support-for-catkin-packages/
 # if this is eliminated get  error: ‘dynamic_pointer_cast’ was not declared in this scope
 
-#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++0x")
-
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
 

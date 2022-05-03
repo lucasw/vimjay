@@ -74,7 +74,7 @@ IirImage::IirImage() :
     ss << "image_" << i;
     ROS_INFO_STREAM("subscribe " << ss.str() << " " << b_coeffs_[i]);
     image_subs_.push_back(it_.subscribe(ss.str(), 1,
-                                        boost::bind(&IirImage::imageCallback, this, _1, i)));
+                                        boost::bind(&IirImage::imageCallback, this, boost::placeholders::_1, i)));
   }
 
   timer_ = nh_.createTimer(ros::Duration(0.1), &IirImage::pubImage, this);
