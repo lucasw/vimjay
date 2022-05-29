@@ -21,7 +21,8 @@ class DrCameraInfo:
 
         follow_topic = rospy.get_param("~follow", "")
         if follow_topic == "":
-            self.timer = rospy.Timer(rospy.Duration(0.2), self.update, reset=True)
+            update_period = rospy.get_param("~update_period", 0.2)
+            self.timer = rospy.Timer(rospy.Duration(update_period), self.update, reset=True)
         else:
             # TODO(lucasw) Use AnyMsg, something like
             # https://answers.ros.org/question/230676/equivalent-of-rospyanymsg-but-only-for-messages-with-a-header/
