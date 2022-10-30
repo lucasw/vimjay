@@ -56,6 +56,7 @@
   <run_depend>libuvc_camera</run_depend>
   <run_depend>nodelet</run_depend>
   <run_depend>roscpp</run_depend>
+  <run_depend>roslib</run_depend>
   <run_depend>rospy</run_depend>
   <run_depend>rqt_gui</run_depend>
   <run_depend>rqt_image_view</run_depend>

@@ -5,6 +5,7 @@
 import rospy
 
 from dynamic_reconfigure.server import Server
+from roslib.message import get_message_class
 from sensor_msgs.msg import CameraInfo
 from vimjay.cfg import DrCameraInfoConfig
 
@@ -19,15 +20,13 @@ class DrCameraInfo:
         # https://github.com/ros-visualization/interactive_markers/pull/47/
         # TODO(lucasw) make this update if the callback changes update rate
 
-        follow_topic = rospy.get_param("~follow", "")
-        if follow_topic == "":
+        self.follow_topic = rospy.get_param("~follow", "")
+        if self.follow_topic == "":
             update_period = rospy.get_param("~update_period", 0.2)
             self.timer = rospy.Timer(rospy.Duration(update_period), self.update, reset=True)
         else:
-            # TODO(lucasw) Use AnyMsg, something like
-            # https://answers.ros.org/question/230676/equivalent-of-rospyanymsg-but-only-for-messages-with-a-header/
-            rospy.loginfo(f"following topic {follow_topic}")
-            self.follow_sub = rospy.Subscriber(follow_topic, CameraInfo, self.follow_callback)
+            rospy.loginfo(f"following topic {self.follow_topic}")
+            self.follow_sub = rospy.Subscriber(self.follow_topic, rospy.AnyMsg, self.init_callback)
 
     def dr_callback(self, config, level):
         ci = CameraInfo()
@@ -51,6 +50,19 @@ class DrCameraInfo:
         ci.R[8] = 1
         self.camera_info = ci
         return config
+
+    def init_callback(self, msg):
+        topic_type = msg._connection_header['type']
+        self.topic_types = topic_type
+        self.follow_sub.unregister()
+
+        # TODO(lucasw) reject if message doesn't have a header, but will see an exception
+        # below soon anyhow
+        topic_class = get_message_class(topic_type)
+        rospy.loginfo(f"found class for '{topic_type}': {topic_class}")
+        self.follow_sub = rospy.Subscriber(self.follow_topic, topic_class,
+                                           self.follow_callback,
+                                           queue_size=10)
 
     def follow_callback(self, msg):
         cur = msg.header.stamp
