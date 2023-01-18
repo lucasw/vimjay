@@ -37,7 +37,7 @@ class ImagePub:
         msg.height = image.shape[0]
         msg.width = image.shape[1]
         msg.step = image.shape[1] * 3
-        msg.data = image.tostring()
+        msg.data = image.tobytes()
         if use_image:
             pub.publish(msg)
 
