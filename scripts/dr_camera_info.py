@@ -20,6 +20,8 @@ class DrCameraInfo:
         # https://github.com/ros-visualization/interactive_markers/pull/47/
         # TODO(lucasw) make this update if the callback changes update rate
 
+        self.time_offset = rospy.get_param("~time_offset", 0.0)
+
         self.follow_topic = rospy.get_param("~follow", "")
         if self.follow_topic == "":
             update_period = rospy.get_param("~update_period", 0.2)
@@ -71,7 +73,7 @@ class DrCameraInfo:
         self.update(event)
 
     def update(self, event):
-        self.camera_info.header.stamp = event.current_real
+        self.camera_info.header.stamp = event.current_real + rospy.Duration(self.time_offset)
         self.pub.publish(self.camera_info)
 
 
