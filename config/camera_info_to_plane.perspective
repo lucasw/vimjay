@@ -1,0 +1,110 @@
+{
+  "keys": {},
+  "groups": {
+    "mainwindow": {
+      "keys": {
+        "geometry": {
+          "repr(QByteArray.hex)": "QtCore.QByteArray(b'01d9d0cb000300000000000f0000006800000362000007d90000000f000000b200000362000007d900000000000000000f000000000f000000b200000362000007d9')",
+          "type": "repr(QByteArray.hex)",
+          "pretty-print": "       h b       b            b  "
+        },
+        "state": {
+          "repr(QByteArray.hex)": "QtCore.QByteArray(b'000000ff00000000fd000000010000000300000354000006dafc0100000001fc00000000000003540000011700fffffffc0200000002fb0000004e007200710074005f00640072005f00730069006e0067006c0065005f005f00640072005f00730069006e0067006c0065005f005f0031005f005f0044007200530069006e0067006c0065005500690100000027000006da000000ee00fffffffb0000004e007200710074005f00640072005f00730069006e0067006c0065005f005f00640072005f00730069006e0067006c0065005f005f0032005f005f0044007200530069006e0067006c0065005500690100000370000003910000000000000000000003540000000000000004000000040000000800000008fc00000001000000030000000100000036004d0069006e0069006d0069007a006500640044006f0063006b00570069006400670065007400730054006f006f006c0062006100720000000000ffffffff0000000000000000')",
+          "type": "repr(QByteArray.hex)",
+          "pretty-print": "                   T                                                  '                                                 p       T                                                      "
+        }
+      },
+      "groups": {
+        "toolbar_areas": {
+          "keys": {
+            "MinimizedDockWidgetsToolbar": {
+              "repr": "8",
+              "type": "repr"
+            }
+          },
+          "groups": {}
+        }
+      }
+    },
+    "pluginmanager": {
+      "keys": {
+        "running-plugins": {
+          "repr": "{'rqt_dr_single/dr_single': [1]}",
+          "type": "repr"
+        }
+      },
+      "groups": {
+        "plugin__rqt_dr_single__dr_single__1": {
+          "keys": {},
+          "groups": {
+            "dock_widget__DrSingleUi": {
+              "keys": {
+                "dock_widget_title": {
+                  "repr": "'Camera Info'",
+                  "type": "repr"
+                },
+                "dockable": {
+                  "repr": "True",
+                  "type": "repr"
+                },
+                "parent": {
+                  "repr": "None",
+                  "type": "repr"
+                }
+              },
+              "groups": {}
+            },
+            "plugin": {
+              "keys": {
+                "hide_dropdown": {
+                  "repr": "False",
+                  "type": "repr"
+                },
+                "server_name": {
+                  "repr": "'/dr_camera_info'",
+                  "type": "repr"
+                }
+              },
+              "groups": {}
+            }
+          }
+        },
+        "plugin__rqt_dr_single__dr_single__2": {
+          "keys": {},
+          "groups": {
+            "dock_widget__DrSingleUi": {
+              "keys": {
+                "dock_widget_title": {
+                  "repr": "'Camera Info To Plane'",
+                  "type": "repr"
+                },
+                "dockable": {
+                  "repr": "'true'",
+                  "type": "repr"
+                },
+                "parent": {
+                  "repr": "None",
+                  "type": "repr"
+                }
+              },
+              "groups": {}
+            },
+            "plugin": {
+              "keys": {
+                "hide_dropdown": {
+                  "repr": "False",
+                  "type": "repr"
+                },
+                "server_name": {
+                  "repr": "'/dr_camera_info'",
+                  "type": "repr"
+                }
+              },
+              "groups": {}
+            }
+          }
+        }
+      }
+    }
+  }
+}
