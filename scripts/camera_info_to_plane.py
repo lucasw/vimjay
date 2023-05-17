@@ -40,7 +40,8 @@ class CameraInfoToPlane:
         self.tf_buffer = tf2_ros.Buffer()
         self.tf_listener = tf2_ros.TransformListener(self.tf_buffer)
 
-        self.target_frame = rospy.get_param("target_frame", "odom")
+        self.marker_id = rospy.get_param("~marker_id", 0)
+        self.target_frame = rospy.get_param("~target_frame", "odom")
         self.marker_pub = rospy.Publisher("marker_array", MarkerArray, queue_size=3)
         self.camera_info_sub = rospy.Subscriber("camera_info", CameraInfo, self.camera_info_callback, queue_size=20)
 
@@ -54,7 +55,7 @@ class CameraInfoToPlane:
 
         camera_matrix, dist_coeff, rvec, tvec = camera_info_to_cv2(msg)
 
-        num_per_edge = 2
+        num_per_edge = 8
         num_points = num_per_edge * 4 + 1
 
         points2d = np.zeros((num_points, 2))
@@ -122,17 +123,43 @@ class CameraInfoToPlane:
         marker.header.stamp = msg.header.stamp
         marker.header.frame_id = self.target_frame
         marker.ns = "camera_info"
+        marker.id = self.marker_id
         marker.type = Marker.LINE_STRIP
         marker.pose.orientation.w = 1.0
         marker.lifetime = rospy.Duration(0.0)
-        marker.frame_locked = True
+        marker.frame_locked = False
         marker.scale.x = 0.05
         marker.color.r = 0.7
         marker.color.g = 1.0
         marker.color.a = 1.0
 
-        for pt_tuple in pc2_points:
-            pt = Point(pt_tuple[0], pt_tuple[1], pt_tuple[2])
+        # convert from generator to list
+        pc2_points = [pt for pt in pc2_points]
+
+        # the camera origin in the target frame
+        pt0 = pc2_points[-1]
+        x0 = pt0[0]
+        y0 = pt0[1]
+        z0 = pt0[2]
+
+        for pt1 in pc2_points[:-1]:
+            x1 = pt1[0]
+            y1 = pt1[1]
+            z1 = pt1[2]
+            # is the ray facing away from the plane, or parallel, and will never intersect?
+            if z1 >= z0 and z0 >= 0.0:
+                continue
+            elif z1 >= z0 and z0 <= 0.0:
+                continue
+
+            scale = z0 / (z0 - z1)
+            x2 = x0 + (x1 - x0) * scale
+            y2 = y0 + (y1 - y0) * scale
+            # this should be 0.0
+            z2 = z0 + (z1 - z0) * scale
+
+            pt = Point(x2, y2, z2)
+            # pt = Point(x1, y1, z1)
             marker.points.append(pt)
 
         marker_array = MarkerArray()
