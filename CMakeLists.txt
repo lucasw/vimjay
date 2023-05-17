@@ -297,6 +297,7 @@ endif()
 ## Mark executable scripts (Python etc.) for installation
 ## in contrast to setup.py, you can choose the destination
 install(PROGRAMS
+  scripts/camera_info_to_plane.py
   scripts/display.py
   scripts/dr_camera_info.py
   scripts/grep_msgs.sh
