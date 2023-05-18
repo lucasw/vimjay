@@ -305,6 +305,11 @@ catkin_install_python(PROGRAMS
   scripts/key_input.py
   scripts/subdiv.py
   scripts/test_key.py
+  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
+
+install(PROGRAMS
+  # TODO(lucasw) maybe this should be in scripts
   scripts/webcam.html
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
