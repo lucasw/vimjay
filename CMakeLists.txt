@@ -300,7 +300,6 @@ catkin_install_python(PROGRAMS
   scripts/camera_info_to_plane.py
   scripts/display.py
   scripts/dr_camera_info.py
-  scripts/grep_msgs.sh
   scripts/image.py
   scripts/key_input.py
   scripts/subdiv.py
@@ -309,7 +308,8 @@ catkin_install_python(PROGRAMS
 )
 
 install(PROGRAMS
-  # TODO(lucasw) maybe this should be in scripts
+  scripts/grep_msgs.sh
+  # TODO(lucasw) maybe this shouldn't be in scripts
   scripts/webcam.html
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
