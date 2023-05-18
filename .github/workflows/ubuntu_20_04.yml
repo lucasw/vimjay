@@ -26,6 +26,12 @@ jobs:
           repository: lucasw/dynamic_reconfigure_tools
           path: catkin_ws/src/dynamic_reconfigure_tools
 
+      - name: get rviz_interactive_tf
+        uses: actions/checkout@v2
+        with:
+          repository: lucasw/rviz_interactive_tf
+          path: catkin_ws/src/rviz_interactive_tf
+
       - name: Install ROS
         run: |
             sudo sh -c "echo \"deb http://packages.ros.org/ros/ubuntu $ROS_CI_DESKTOP main\" > /etc/apt/sources.list.d/ros-latest.list"
