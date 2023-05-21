@@ -2,23 +2,23 @@
 # Lucas Walter
 # Project the border of an image onto a plane using a camera info and tf
 
+import copy
+
 import cv2
 import numpy as np
 import rospy
 import tf2_ros
-from geometry_msgs.msg import Point
+from geometry_msgs.msg import TransformStamped
 from sensor_msgs.msg import (
     CameraInfo,
-    PointField,
 )
-from sensor_msgs import point_cloud2
-from tf2_sensor_msgs.tf2_sensor_msgs import do_transform_cloud
+from tf import transformations
+from tf2_msgs.msg import TFMessage
 from vimjay import (
     camera_info_to_plane,
     points_to_marker,
 )
 from visualization_msgs.msg import (
-    Marker,
     MarkerArray,
 )
 
@@ -28,18 +28,113 @@ class CameraInfoToPlane:
         self.tf_buffer = tf2_ros.Buffer()
         self.tf_listener = tf2_ros.TransformListener(self.tf_buffer)
 
+        self.do_plane_pubs = rospy.get_param("~do_plane_pubs", True)
+
         self.marker_id = rospy.get_param("~marker_id", 0)
         self.target_frame = rospy.get_param("~target_frame", "odom")
         self.marker_pub = rospy.Publisher("marker_array", MarkerArray, queue_size=3)
+
+        self.plane_camera_frame = rospy.get_param("~plane_camera_frame", "plane_camera")
+        self.plane_camera_z = rospy.get_param("~plane_camera_z", 4.0)
+        self.plane_camera_info_pub = rospy.Publisher("plane/camera_info", CameraInfo, queue_size=2)
+        self.tf_pub = rospy.Publisher("/tf", TFMessage, queue_size=5)
+
         self.camera_info_sub = rospy.Subscriber("camera_info", CameraInfo, self.camera_info_callback, queue_size=20)
 
     def camera_info_callback(self, msg: CameraInfo):
-        points = camera_info_to_plane(self.tf_buffer, msg, self.target_frame)
+        points, _, is_full = camera_info_to_plane(self.tf_buffer, msg, self.target_frame)
         marker = points_to_marker(msg.header.stamp, self.target_frame, points, marker_id=self.marker_id)
+
+        marker.color.r -= self.marker_id / 5.0
+        marker.color.b += self.marker_id / 8.0
 
         marker_array = MarkerArray()
         marker_array.markers.append(marker)
         self.marker_pub.publish(marker_array)
+
+        if is_full and self.do_plane_pubs:
+            # just get corners
+            points, points2d, _ = camera_info_to_plane(self.tf_buffer, msg, self.target_frame, num_per_edge=1)
+
+            # corners of image in pixel coordinates
+            input_pts = np.float32([[points2d[0, 0], points2d[0, 1]],
+                                    [points2d[1, 0], points2d[1, 1]],
+                                    [points2d[2, 0], points2d[2, 1]],
+                                    [points2d[3, 0], points2d[3, 1]],
+                                    ])
+
+            output_pts = np.float32([[points[0].x, points[0].y],
+                                     [points[1].x, points[1].y],
+                                     [points[2].x, points[2].y],
+                                     [points[3].x, points[3].y],
+                                     ])
+
+            plane_x_min = np.min(output_pts[:, 0])
+            plane_x_max = np.max(output_pts[:, 0])
+            plane_y_min = np.min(output_pts[:, 1])
+            plane_y_max = np.max(output_pts[:, 1])
+
+            plane_x_range = plane_x_max - plane_x_min
+            plane_y_range = plane_y_max - plane_y_min
+
+            # TODO(lucasw) dynamic reconfigure
+            scale = 800.0 / plane_x_range
+            output_pts[:, 0] -= plane_x_min
+            output_pts[:, 0] *= scale
+
+            output_pts[:, 1] -= plane_y_min
+            output_pts[:, 1] *= scale
+
+            rospy.loginfo_throttle(2.0, f"\n{input_pts} ->\n{output_pts}")
+            perspective_transform = cv2.getPerspectiveTransform(input_pts, output_pts)
+            rospy.loginfo_throttle(2.0, f"{perspective_transform}")
+
+            wd = np.max(output_pts[:, 0])
+            ht = np.max(output_pts[:, 1])
+
+            # publish a transform of where the virtual plane camera is looking from
+            tfm = TFMessage()
+            tfs = TransformStamped()
+            tfs.header.stamp = msg.header.stamp
+
+            tfs0 = copy.deepcopy(tfs)
+            tfs0.header.frame_id = self.target_frame
+            tfs0.child_frame_id = self.plane_camera_frame + "_xy"
+            tfs0.transform.translation.x = plane_x_min + plane_x_range * 0.5
+            tfs0.transform.translation.y = plane_y_min + plane_y_range * 0.5
+            tfs0.transform.rotation.w = 1.0
+            tfm.transforms.append(tfs0)
+
+            tfs.header.frame_id = self.plane_camera_frame + "_xy"
+            tfs.child_frame_id = self.plane_camera_frame
+            tfs.transform.translation.z = self.plane_camera_z
+            quat = transformations.quaternion_from_euler(0.0, np.pi, np.pi * 0.5)
+            tfs.transform.rotation.x = quat[0]
+            tfs.transform.rotation.y = quat[1]
+            tfs.transform.rotation.z = quat[2]
+            tfs.transform.rotation.w = quat[3]
+            tfm.transforms.append(tfs)
+
+            self.tf_pub.publish(tfm)
+
+            ci = CameraInfo()
+            ci.header.stamp = msg.header.stamp
+            ci.header.frame_id = self.plane_camera_frame
+            ci.width = int(wd)
+            ci.height = int(ht)
+            ci.distortion_model = "plumb_bob"
+
+            # TODO(lucasw) need a way to set these values- have this node
+            # subscribe to an input CameraInfo?
+            cx = wd / 2.0
+            cy = ht / 2.0
+            fx = cx * self.plane_camera_z / (plane_y_range * 0.5)
+            fy = cy * self.plane_camera_z / (plane_x_range * 0.5)
+            ci.D = [0.0, 0.0, 0.0, 0, 0]
+            ci.K = [fx, 0.0, cx, 0.0, fy, cy, 0.0, 0.0, 1.0]
+            ci.R = [1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0]
+            ci.P = [fx, 0.0, cx, 0.0, 0.0, fy, cy, 0.0, 0.0, 0.0, 1.0, 0.0]
+            self.plane_camera_info_pub.publish(ci)
 
 
 if __name__ == "__main__":

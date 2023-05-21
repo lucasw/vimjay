@@ -35,6 +35,14 @@
     <param name="marker_id" value="0" />
   </node>
 
+  <node name="top_camera_info_to_plane" pkg="vimjay" type="camera_info_to_plane.py"
+      output="screen">
+    <remap from="camera_info" to="plane/camera_info" />
+    <param name="target_frame" value="map" />
+    <param name="marker_id" value="1" />
+    <param name="do_plane_pubs" value="false" />
+  </node>
+
   <node name="rqt_generic" pkg="rqt_gui" type="rqt_gui"
       args="--perspective-file $(find vimjay)/config/camera_info_to_plane.perspective"
       output="screen"

@@ -36,17 +36,18 @@ def camera_info_to_cv2(camera_info: CameraInfo) -> Tuple[np.ndarray, np.ndarray,
     return camera_matrix, dist_coeff, rvec, tvec
 
 
-def camera_info_to_plane(tf_buffer: tf2_ros.Buffer, camera_info: CameraInfo, target_frame: str) -> List[Point]:
+def camera_info_to_plane(tf_buffer: tf2_ros.Buffer, camera_info: CameraInfo, target_frame: str,
+                         num_per_edge=8,
+                         ) -> List[Point]:
     try:
         tfs = tf_buffer.lookup_transform(target_frame, camera_info.header.frame_id,
                                          camera_info.header.stamp, rospy.Duration(0.3))
-    except (tf2_ros.LookupException, tf2_ros.ExtrapolationException) as ex:
+    except (tf2_ros.ConnectivityException, tf2_ros.LookupException, tf2_ros.ExtrapolationException) as ex:
         rospy.logwarn_throttle(4.0, ex)
         return
 
     camera_matrix, dist_coeff, rvec, tvec = camera_info_to_cv2(camera_info)
 
-    num_per_edge = 8
     num_points = num_per_edge * 4 + 1
 
     points2d = np.zeros((num_points, 2))
@@ -119,6 +120,7 @@ def camera_info_to_plane(tf_buffer: tf2_ros.Buffer, camera_info: CameraInfo, tar
     y0 = pt0[1]
     z0 = pt0[2]
 
+    is_full = True
     points = []
     for pt1 in pc2_points[:-1]:
         x1 = pt1[0]
@@ -126,8 +128,10 @@ def camera_info_to_plane(tf_buffer: tf2_ros.Buffer, camera_info: CameraInfo, tar
         z1 = pt1[2]
         # is the ray facing away from the plane, or parallel, and will never intersect?
         if z1 >= z0 and z0 >= 0.0:
+            is_full = False
             continue
         elif z1 >= z0 and z0 <= 0.0:
+            is_full = False
             continue
 
         scale = z0 / (z0 - z1)
@@ -140,11 +144,12 @@ def camera_info_to_plane(tf_buffer: tf2_ros.Buffer, camera_info: CameraInfo, tar
         # pt = Point(x1, y1, z1)
         points.append(pt)
 
-    return points
+    # TODO(lucasw) return only points2d that are in points, that didn't fail the intersection test above
+    return points, points2d, is_full
 
 
 def points_to_marker(stamp: rospy.Time, frame: str, points: List[Point],
-                     num_per_edge=8, marker_id=0) -> Marker:
+                     marker_id=0) -> Marker:
     marker = Marker()
     marker.header.stamp = stamp
     marker.header.frame_id = frame
