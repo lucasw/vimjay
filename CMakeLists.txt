@@ -1,9 +1,6 @@
 cmake_minimum_required(VERSION 3.0.2)
 project(vimjay)
 
-## Find catkin macros and libraries
-## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
-## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
   camera_info_manager
   cv_bridge
@@ -17,69 +14,6 @@ find_package(catkin REQUIRED COMPONENTS
 )
 
 find_package(OpenCV REQUIRED)
-# this may be a bad idea given linkage of ROS stuff
-# http://answers.ros.org/question/152276/is-there-a-way-to-enable-c11-support-for-catkin-packages/
-# if this is eliminated get  error: ‘dynamic_pointer_cast’ was not declared in this scope
-
-## System dependencies are found with CMake's conventions
-# find_package(Boost REQUIRED COMPONENTS system)
-
-
-## Uncomment this if the package has a setup.py. This macro ensures
-## modules and global scripts declared therein get installed
-## See http://ros.org/doc/api/catkin/html/user_guide/setup_dot_py.html
-# catkin_python_setup()
-
-################################################
-## Declare ROS messages, services and actions ##
-################################################
-
-## To declare and build messages, services or actions from within this
-## package, follow these steps:
-## * Let MSG_DEP_SET be the set of packages whose message types you use in
-##   your messages/services/actions (e.g. std_msgs, actionlib_msgs, ...).
-## * In the file package.xml:
-##   * add a build_depend and a run_depend tag for each package in MSG_DEP_SET
-##   * If MSG_DEP_SET isn't empty the following dependencies might have been
-##     pulled in transitively but can be declared for certainty nonetheless:
-##     * add a build_depend tag for "message_generation"
-##     * add a run_depend tag for "message_runtime"
-## * In this file (CMakeLists.txt):
-##   * add "message_generation" and every package in MSG_DEP_SET to
-##     find_package(catkin REQUIRED COMPONENTS ...)
-##   * add "message_runtime" and every package in MSG_DEP_SET to
-##     catkin_package(CATKIN_DEPENDS ...)
-##   * uncomment the add_*_files sections below as needed
-##     and list every .msg/.srv/.action file to be processed
-##   * uncomment the generate_messages entry below
-##   * add every package in MSG_DEP_SET to generate_messages(DEPENDENCIES ...)
-
-## Generate messages in the 'msg' folder
-# add_message_files(
-#   FILES
-#   Message1.msg
-#   Message2.msg
-# )
-
-## Generate services in the 'srv' folder
-# add_service_files(
-#   FILES
-#   Service1.srv
-#   Service2.srv
-# )
-
-## Generate actions in the 'action' folder
-# add_action_files(
-#   FILES
-#   Action1.action
-#   Action2.action
-# )
-
-## Generate added messages and services with any dependencies listed here
-# generate_messages(
-#   DEPENDENCIES
-#   std_msgs
-# )
 
 generate_dynamic_reconfigure_options(
   cfg/BackgroundSubtraction.cfg
@@ -87,18 +21,7 @@ generate_dynamic_reconfigure_options(
   cfg/ImageDeque.cfg
 )
 
-###################################
-## catkin specific configuration ##
-###################################
-## The catkin_package macro generates cmake config files for your package
-## Declare things to be passed to dependent projects
-## INCLUDE_DIRS: uncomment this if you package contains header files
-## LIBRARIES: libraries you create in this project that dependent projects also need
-## CATKIN_DEPENDS: catkin_packages dependent projects also need
-## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-  #  INCLUDE_DIRS include
-  #  LIBRARIES vimjay
   CATKIN_DEPENDS
   dynamic_reconfigure
   roscpp
@@ -106,78 +29,49 @@ catkin_package(
   sensor_msgs
   std_msgs
   DEPENDS OpenCV
-#  DEPENDS glog gflags
 )
 
-###########
-## Build ##
-###########
+set(ROSLINT_PYTHON_OPTS "--ignore=''" "1>&2")
+roslint_python()
 
-## Specify additional locations of header files
-## Your package locations should be listed before other locations
-# include_directories(include)
 include_directories(
   include
   ${catkin_INCLUDE_DIRS}
 )
 
-## Declare a cpp library
-# add_library(vimjay
-#   src/${PROJECT_NAME}/vimjay.cpp
-# )
-
-## Declare a cpp executable
 add_executable(${PROJECT_NAME}_node
-other/dso_noises/cellular.c
-other/dso_noises/noise1234.c
-other/dso_noises/sdnoise1234.c
-other/dso_noises/simplexnoise1234.c
-other/dso_noises/srdnoise23.c
-other/simplexnoise.cpp
-other/simplextextures.cpp
-src/cluster.cpp
-src/config.cpp
-src/filter.cpp
-src/generate.cpp
-src/image_dir.cpp
-src/misc_nodes.cpp
-src/modify.cpp
-src/nodes.cpp
-src/output.cpp
-src/signals.cpp
-src/structure.cpp
-src/utility.cpp
-src/video.cpp
-src/vimjay.cpp
+  other/dso_noises/cellular.c
+  other/dso_noises/noise1234.c
+  other/dso_noises/sdnoise1234.c
+  other/dso_noises/simplexnoise1234.c
+  other/dso_noises/srdnoise23.c
+  other/simplexnoise.cpp
+  other/simplextextures.cpp
+  src/cluster.cpp
+  src/config.cpp
+  src/filter.cpp
+  src/generate.cpp
+  src/image_dir.cpp
+  src/misc_nodes.cpp
+  src/modify.cpp
+  src/nodes.cpp
+  src/output.cpp
+  src/signals.cpp
+  src/structure.cpp
+  src/utility.cpp
+  src/video.cpp
+  src/vimjay.cpp
 )
 
-# This is handled by external screencap node
-#src/screencap.cpp
-# TBD update to use ros joystick node, and TBD mouse input node
-#src/input.cpp
-
-#src/opengl.cpp
-
-
-## Add cmake target dependencies of the executable/library
-## as an example, message headers may need to be generated before nodes
-
-## Specify libraries to link a library or executable target against
 target_link_libraries(${PROJECT_NAME}_node
-   ${catkin_LIBRARIES}
+  ${catkin_LIBRARIES}
   ${OpenCV_LIBRARIES}
-boost_thread
-boost_filesystem
-boost_system
-boost_timer
+  boost_thread
+  boost_filesystem
+  boost_system
+  boost_timer
   ${OpenCV_LIBRARIES}
 )
-
-#Xi
-#X11
-#glut
-#GLEW
-#GL
 
 find_package(cmake_modules REQUIRED)
 find_package(Eigen3 REQUIRED)
@@ -199,8 +93,6 @@ roslint_cpp(
   src/${PROJECT_NAME}.cpp
   src/input.cpp
 )
-set(ROSLINT_PYTHON_OPTS "--ignore=''" "1>&2")
-roslint_python()
 
 add_executable(noise_image
   src/standalone/noise.cpp
@@ -286,16 +178,6 @@ if (true)
   )
 endif()
 
-
-#############
-## Install ##
-#############
-
-# all install targets should use catkin DESTINATION variables
-# See http://ros.org/doc/api/catkin/html/adv_user_guide/variables.html
-
-## Mark executable scripts (Python etc.) for installation
-## in contrast to setup.py, you can choose the destination
 catkin_install_python(PROGRAMS
   scripts/camera_info_to_plane.py
   scripts/display.py
@@ -314,7 +196,6 @@ install(PROGRAMS
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
-## Mark executables and/or libraries for installation
 install(TARGETS
   background_subtraction
   cam_sub
@@ -332,30 +213,3 @@ install(TARGETS
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
-
-## Mark cpp header files for installation
-# install(DIRECTORY include/${PROJECT_NAME}/
-#   DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
-#   FILES_MATCHING PATTERN "*.h"
-#   PATTERN ".svn" EXCLUDE
-# )
-
-## Mark other files for installation (e.g. launch and bag files, etc.)
-# install(FILES
-#   # myfile1
-#   # myfile2
-#   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
-# )
-
-#############
-## Testing ##
-#############
-
-## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(image_distort_test test/image_distort_test.cpp)
-# if(TARGET image_distort_test)
-#   target_link_libraries(image_distort_test ${catkin_LIBRARIES})
-# endif()
-
-## Add folders to be run by python nosetests
-# catkin_add_nosetests(test)
