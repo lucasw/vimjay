@@ -13,6 +13,8 @@ find_package(catkin REQUIRED COMPONENTS
   std_msgs
 )
 
+catkin_python_setup()
+
 find_package(OpenCV REQUIRED)
 
 generate_dynamic_reconfigure_options(
