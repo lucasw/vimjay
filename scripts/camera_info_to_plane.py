@@ -15,7 +15,8 @@ from sensor_msgs.msg import (
 from tf import transformations
 from tf2_msgs.msg import TFMessage
 from vimjay import (
-    camera_info_to_plane,
+    points_in_camera_to_plane,
+    get_camera_edge_points,
     points_to_marker,
 )
 from visualization_msgs.msg import (
@@ -41,9 +42,10 @@ class CameraInfoToPlane:
 
         self.camera_info_sub = rospy.Subscriber("camera_info", CameraInfo, self.camera_info_callback, queue_size=20)
 
-    def camera_info_callback(self, msg: CameraInfo):
-        points, _, is_full = camera_info_to_plane(self.tf_buffer, msg, self.target_frame)
-        marker = points_to_marker(msg.header.stamp, self.target_frame, points, marker_id=self.marker_id)
+    def camera_info_callback(self, camera_info: CameraInfo):
+        edge_points = get_camera_edge_points(camera_info, num_per_edge=8)
+        points, _, is_full = points_in_camera_to_plane(edge_points, self.tf_buffer, camera_info, self.target_frame)
+        marker = points_to_marker(camera_info.header.stamp, self.target_frame, points, marker_id=self.marker_id)
 
         marker.color.r -= self.marker_id / 5.0
         marker.color.b += self.marker_id / 8.0
@@ -54,13 +56,15 @@ class CameraInfoToPlane:
 
         if is_full and self.do_plane_pubs:
             # just get corners
-            points, points2d, _ = camera_info_to_plane(self.tf_buffer, msg, self.target_frame, num_per_edge=1)
+            corner_points = get_camera_edge_points(camera_info, num_per_edge=1)
+            points, points2d, _ = points_in_camera_to_plane(corner_points, self.tf_buffer,
+                                                            camera_info, self.target_frame)
 
             # corners of image in pixel coordinates
-            input_pts = np.float32([[points2d[0, 0], points2d[0, 1]],
-                                    [points2d[1, 0], points2d[1, 1]],
-                                    [points2d[2, 0], points2d[2, 1]],
-                                    [points2d[3, 0], points2d[3, 1]],
+            input_pts = np.float32([[points2d[0][0], points2d[0][1]],
+                                    [points2d[1][0], points2d[1][1]],
+                                    [points2d[2][0], points2d[2][1]],
+                                    [points2d[3][0], points2d[3][1]],
                                     ])
 
             output_pts = np.float32([[points[0].x, points[0].y],
@@ -85,9 +89,9 @@ class CameraInfoToPlane:
             output_pts[:, 1] -= plane_y_min
             output_pts[:, 1] *= scale
 
-            rospy.loginfo_throttle(2.0, f"\n{input_pts} ->\n{output_pts}")
+            rospy.logdebug_throttle(2.0, f"\n{input_pts} ->\n{output_pts}")
             perspective_transform = cv2.getPerspectiveTransform(input_pts, output_pts)
-            rospy.loginfo_throttle(2.0, f"{perspective_transform}")
+            rospy.logdebug_throttle(2.0, f"{perspective_transform}")
 
             wd = np.max(output_pts[:, 0])
             ht = np.max(output_pts[:, 1])
@@ -95,7 +99,7 @@ class CameraInfoToPlane:
             # publish a transform of where the virtual plane camera is looking from
             tfm = TFMessage()
             tfs = TransformStamped()
-            tfs.header.stamp = msg.header.stamp
+            tfs.header.stamp = camera_info.header.stamp
 
             tfs0 = copy.deepcopy(tfs)
             tfs0.header.frame_id = self.target_frame
@@ -118,7 +122,7 @@ class CameraInfoToPlane:
             self.tf_pub.publish(tfm)
 
             ci = CameraInfo()
-            ci.header.stamp = msg.header.stamp
+            ci.header.stamp = camera_info.header.stamp
             ci.header.frame_id = self.plane_camera_frame
             ci.width = int(wd)
             ci.height = int(ht)
