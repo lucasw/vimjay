@@ -112,6 +112,22 @@ def transform_points(points3d: np.ndarray, transform: TransformStamped) -> np.nd
     return transformed_points3d
 
 
+def points_list_to_array(points: List[Point]) -> np.ndarray:
+    points_np = np.zeros((len(points), 3))
+    for ind, pt in enumerate(points):
+        points_np[ind, 0] = pt.x
+        points_np[ind, 1] = pt.y
+        points_np[ind, 2] = pt.z
+    return points_np
+
+
+def points_array_to_list(points_np: np.ndarray) -> List[Point]:
+    points = []
+    for ind in range(points_np.shape[0]):
+        points.append(Point(points_np[ind, 0], points_np[ind, 1], points_np[ind, 2]))
+    return points
+
+
 # TODO(lucasw) it doesn't add a whole lot of value to have this be separate from camera_points
 def points_in_camera_transform_to_plane(camera_to_target_transform: TransformStamped,
                                         points2d_in_camera: np.ndarray,

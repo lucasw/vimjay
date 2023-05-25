@@ -19,6 +19,9 @@ from vimjay import (
     points_in_camera_transform_to_plane,
     get_camera_edge_points,
     points_to_marker,
+    points_list_to_array,
+    points_array_to_list,
+    transform_points,
 )
 from visualization_msgs.msg import (
     MarkerArray,
@@ -58,8 +61,23 @@ class CameraInfoToPlane:
         rv = points_in_camera_transform_to_plane(tfs, edge_points, camera_matrix, dist_coeff)
         points_in_plane, _, is_full = rv
 
-        marker = points_to_marker(camera_info.header.stamp, self.target_frame,
-                                  points_in_plane, marker_id=self.marker_id)
+        marker_in_camera_frame = True
+        if marker_in_camera_frame:
+            try:
+                tfs_inv = self.tf_buffer.lookup_transform(camera_info.header.frame_id, self.target_frame,
+                                                          tfs.header.stamp, rospy.Duration(0.0))
+            except (tf2_ros.ConnectivityException, tf2_ros.LookupException, tf2_ros.ExtrapolationException) as ex:
+                rospy.logwarn_throttle(4.0, ex)
+                return
+
+            points_in_plane_np = points_list_to_array(points_in_plane)
+            points_in_plane_in_camera_np = transform_points(points_in_plane_np, tfs_inv)
+            points_in_plane_in_camera = points_array_to_list(points_in_plane_in_camera_np)
+            marker = points_to_marker(camera_info.header.stamp, camera_info.header.frame_id,
+                                      points_in_plane_in_camera, marker_id=self.marker_id)
+        else:
+            marker = points_to_marker(camera_info.header.stamp, self.target_frame,
+                                      points_in_plane, marker_id=self.marker_id)
 
         marker.color.r -= self.marker_id / 5.0
         marker.color.b += self.marker_id / 8.0
