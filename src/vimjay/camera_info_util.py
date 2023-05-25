@@ -72,25 +72,49 @@ def get_camera_edge_points(camera_info: CameraInfo, num_per_edge=8) -> np.ndarra
     return points2d
 
 
-def points_in_camera_to_plane(points2d_in_camera: np.ndarray,
-                              tf_buffer: tf2_ros.Buffer, camera_info: CameraInfo, target_frame: str,
-                              ) -> Tuple[List[Point], List[np.ndarray], bool]:
-    try:
-        tfs = tf_buffer.lookup_transform(target_frame, camera_info.header.frame_id,
-                                         camera_info.header.stamp, rospy.Duration(0.3))
-    except (tf2_ros.ConnectivityException, tf2_ros.LookupException, tf2_ros.ExtrapolationException) as ex:
-        rospy.logwarn_throttle(4.0, ex)
-        return
+# TODO(lucasw) is there a an off-the-shelf function that does this?
+def transform_points(points3d: np.ndarray, transform: TransformStamped) -> np.ndarray:
+    """
+    points3d is n x 3 in the src_header.frame_id frame
+    transform child frame id should match src_header frame id
+    transform header frame id is the destination frame
+    """
+    # put numpy/cv2 points into a point cloud
+    field_points = []
+    for ind in range(points3d.shape[0]):
+        x = points3d[ind, 0]
+        y = points3d[ind, 1]
+        z = points3d[ind, 2]
+        pt = [x, y, z]
+        field_points.append(pt)
 
-    camera_matrix, dist_coeff, rvec, tvec = camera_info_to_cv2(camera_info)
+    fields = [PointField('x', 0, PointField.FLOAT32, 1),
+              PointField('y', 4, PointField.FLOAT32, 1),
+              PointField('z', 8, PointField.FLOAT32, 1),
+              ]
 
-    return points_in_camera_transform_to_plane(tfs, points2d_in_camera, camera_info.header, camera_matrix, dist_coeff)
+    src_header = Header()
+    src_header.frame_id = transform.child_frame_id
+    src_header.stamp = transform.header.stamp
+    pc2_in = point_cloud2.create_cloud(src_header, fields, field_points)
+    # pc2_in.header.stamp = camera_info.header.stamp
+    # TODO(lucasw) probably a more efficient transform on a Point array than converting to PointCloud2
+    pc2_out = do_transform_cloud(pc2_in, transform)
+    pc2_points = point_cloud2.read_points(pc2_out, field_names=("x", "y", "z"), skip_nans=True)
+
+    # convert from generator to list
+    pc2_points = [pt for pt in pc2_points]
+    transformed_points3d = np.zeros((len(pc2_points), 3))
+
+    for ind, pt in enumerate(pc2_points):
+        transformed_points3d[ind, :] = pt
+
+    return transformed_points3d
 
 
 # TODO(lucasw) it doesn't add a whole lot of value to have this be separate from camera_points
 def points_in_camera_transform_to_plane(camera_to_target_transform: TransformStamped,
                                         points2d_in_camera: np.ndarray,
-                                        camera_header: Header,
                                         camera_matrix: np.ndarray,
                                         dist_coeff: np.ndarray) -> Tuple[List[Point], List[np.ndarray], bool]:
     # idealized points all at range 1.0
@@ -110,31 +134,10 @@ def points_in_camera_transform_to_plane(camera_to_target_transform: TransformSta
     # rospy.loginfo_throttle(6.0, f"\n{points2d_in_camera}")
     # rospy.loginfo_throttle(6.0, f"\n{points3d_in_camera}")
 
-    # put numpy/cv2 points into a point cloud
-    field_points_in_camera = []
-    for ind in range(points3d_in_camera.shape[0]):
-        x = points3d_in_camera[ind, 0]
-        y = points3d_in_camera[ind, 1]
-        z = points3d_in_camera[ind, 2]
-        pt = [x, y, z]
-        field_points_in_camera.append(pt)
-
-    fields = [PointField('x', 0, PointField.FLOAT32, 1),
-              PointField('y', 4, PointField.FLOAT32, 1),
-              PointField('z', 8, PointField.FLOAT32, 1),
-              ]
-
-    pc2_in = point_cloud2.create_cloud(camera_header, fields, field_points_in_camera)
-    # pc2_in.header.stamp = camera_info.header.stamp
-    # TODO(lucasw) probably a more efficient transform on a Point array than converting to PointCloud2
-    pc2_out = do_transform_cloud(pc2_in, camera_to_target_transform)
-    pc2_points = point_cloud2.read_points(pc2_out, field_names=("x", "y", "z"), skip_nans=True)
-
-    # convert from generator to list
-    pc2_points = [pt for pt in pc2_points]
+    pc2_points = transform_points(points3d_in_camera, camera_to_target_transform)
 
     # the camera origin in the target frame
-    pt0 = pc2_points[-1]
+    pt0 = pc2_points[-1, :]
     x0 = pt0[0]
     y0 = pt0[1]
     z0 = pt0[2]
@@ -143,15 +146,13 @@ def points_in_camera_transform_to_plane(camera_to_target_transform: TransformSta
     points_in_plane = []
     # points2d_in_camera that intersected with the plane
     used_points2d_in_camera = []
-    for ind, pt1 in enumerate(pc2_points[:-1]):
-        x1 = pt1[0]
-        y1 = pt1[1]
-        z1 = pt1[2]
+    for ind in range(pc2_points.shape[0] - 1):
+        x1 = pc2_points[ind, 0]
+        y1 = pc2_points[ind, 1]
+        z1 = pc2_points[ind, 2]
         # is the ray facing away from the plane, or parallel, and will never intersect?
-        if z1 >= z0 and z0 >= 0.0:
-            is_full = False
-            continue
-        elif z1 >= z0 and z0 <= 0.0:
+        non_intersecting = (z1 >= z0 and z0 >= 0.0) or (z1 >= z0 and z0 <= 0.0)
+        if non_intersecting:
             is_full = False
             continue
 
@@ -169,8 +170,22 @@ def points_in_camera_transform_to_plane(camera_to_target_transform: TransformSta
     return points_in_plane, used_points2d_in_camera, is_full
 
 
-def points_to_marker(stamp: rospy.Time, frame: str, points: List[Point],
-                     marker_id=0) -> Marker:
+def points_in_camera_to_plane(points2d_in_camera: np.ndarray,
+                              tf_buffer: tf2_ros.Buffer, camera_info: CameraInfo, target_frame: str,
+                              ) -> Tuple[List[Point], List[np.ndarray], bool]:
+    try:
+        tfs = tf_buffer.lookup_transform(target_frame, camera_info.header.frame_id,
+                                         camera_info.header.stamp, rospy.Duration(0.3))
+    except (tf2_ros.ConnectivityException, tf2_ros.LookupException, tf2_ros.ExtrapolationException) as ex:
+        rospy.logwarn_throttle(4.0, ex)
+        return None
+
+    camera_matrix, dist_coeff, rvec, tvec = camera_info_to_cv2(camera_info)
+
+    return points_in_camera_transform_to_plane(tfs, points2d_in_camera, camera_matrix, dist_coeff)
+
+
+def points_to_marker(stamp: rospy.Time, frame: str, points: List[Point], marker_id=0) -> Marker:
     marker = Marker()
     marker.header.stamp = stamp
     marker.header.frame_id = frame
