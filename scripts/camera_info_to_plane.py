@@ -39,7 +39,7 @@ class CameraInfoToPlane:
         self.target_frame = rospy.get_param("~target_frame", "odom")
         self.marker_pub = rospy.Publisher("marker_array", MarkerArray, queue_size=3)
 
-        self.plane_camera_frame = rospy.get_param("~plane_camera_frame", "plane_camera")
+        self.plane_camera_frame = rospy.get_param("~plane_camera_frame", "")
         self.plane_camera_z = rospy.get_param("~plane_camera_z", 4.0)
         self.plane_camera_info_pub = rospy.Publisher("plane/camera_info", CameraInfo, queue_size=2)
         self.tf_pub = rospy.Publisher("/tf", TFMessage, queue_size=5)
@@ -134,16 +134,20 @@ class CameraInfoToPlane:
         tfs = TransformStamped()
         tfs.header.stamp = camera_info.header.stamp
 
+        plane_camera_frame = self.plane_camera_frame
+        if plane_camera_frame == "":
+            plane_camera_frame = self.target_frame + "_" + camera_info.header.frame_id
+
         tfs0 = copy.deepcopy(tfs)
         tfs0.header.frame_id = self.target_frame
-        tfs0.child_frame_id = self.plane_camera_frame + "_xy"
+        tfs0.child_frame_id = plane_camera_frame + "_xy"
         tfs0.transform.translation.x = plane_x_min + plane_x_range * 0.5
         tfs0.transform.translation.y = plane_y_min + plane_y_range * 0.5
         tfs0.transform.rotation.w = 1.0
         tfm.transforms.append(tfs0)
 
-        tfs.header.frame_id = self.plane_camera_frame + "_xy"
-        tfs.child_frame_id = self.plane_camera_frame
+        tfs.header.frame_id = plane_camera_frame + "_xy"
+        tfs.child_frame_id = plane_camera_frame
         tfs.transform.translation.z = self.plane_camera_z
         quat = transformations.quaternion_from_euler(0.0, np.pi, np.pi * 0.5)
         tfs.transform.rotation.x = quat[0]
@@ -156,7 +160,7 @@ class CameraInfoToPlane:
 
         ci = CameraInfo()
         ci.header.stamp = camera_info.header.stamp
-        ci.header.frame_id = self.plane_camera_frame
+        ci.header.frame_id = plane_camera_frame
         ci.width = int(wd)
         ci.height = int(ht)
         ci.distortion_model = "plumb_bob"
