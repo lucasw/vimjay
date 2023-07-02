@@ -8,6 +8,24 @@ The current model is to only update nodes that are input ancestors to an active 
 
 Originally hosted on http://code.google.com/p/binarymillenium/source/browse/trunk/opencv/camthing on svn.
 
+# image distortion
+
+distort an image using a generated camera info, then undistort and compare to original:
+
+  roslaunch vimjay distort.launch
+
+https://www.youtube.com/watch?v=otVW4UzSK8w
+
+rectify an image loaded from disk using dynamic reconfigurable camera info distortion coefficients:
+
+  roslaunch vimjay image_rect.launch
+
+# camera info intersection with plane
+
+  roslaunch vimjay camera_info_to_plane.launch
+
+https://www.youtube.com/watch?v=VOY64AK3-N0
+
 # Image processing nodes
 
 https://github.com/lucasw/image_manip
