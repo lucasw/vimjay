@@ -9,7 +9,7 @@
   <node name="image" pkg="vimjay" type="image.py"
       args="$(arg image)"
       output="screen" >
-    <remap from="camera_info" to="camera_info_unused" />
+    <remap from="camera_info_in" to="camera_info" />
     <param name="rate" value="10" />
   </node>
 
