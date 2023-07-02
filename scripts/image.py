@@ -24,11 +24,11 @@ class ImagePub:
         image = Image()
         image.header = camera_info.header
         image.encoding = "bgr8"
-        image = cv2.resize(self.image, (camera_info.width, camera_info.height))
-        image.height = image.shape[0]
-        image.width = image.shape[1]
-        image.step = image.shape[1] * 3
-        image.data = image.tobytes()
+        image_np = cv2.resize(self.image, (camera_info.width, camera_info.height))
+        image.height = image_np.shape[0]
+        image.width = image_np.shape[1]
+        image.step = image_np.shape[1] * 3
+        image.data = image_np.tobytes()
         self.image_pub.publish(image)
 
 
