@@ -12,6 +12,8 @@ import rospy
 import tf2_ros
 from geometry_msgs.msg import (
     Point,
+    Point32,
+    PolygonStamped,
     TransformStamped,
 )
 from sensor_msgs.msg import (
@@ -217,3 +219,13 @@ def points_to_marker(stamp: rospy.Time, frame: str, points: List[Point], marker_
     marker.color.a = 1.0
     marker.points.extend(points)
     return marker
+
+
+def points_to_polygon(stamp: rospy.Time, frame: str, points: List[Point]) -> PolygonStamped:
+    polygon = PolygonStamped()
+    polygon.header.stamp = stamp
+    polygon.header.frame_id = frame
+    for point in points:
+        point32 = Point32(x=point.x, y=point.y, z=point.z)
+        polygon.polygon.points.append(point32)
+    return polygon

@@ -8,7 +8,10 @@ import cv2
 import numpy as np
 import rospy
 import tf2_ros
-from geometry_msgs.msg import TransformStamped
+from geometry_msgs.msg import (
+    PolygonStamped,
+    TransformStamped,
+)
 from sensor_msgs.msg import (
     CameraInfo,
 )
@@ -19,6 +22,7 @@ from vimjay import (
     points_in_camera_transform_to_plane,
     get_camera_edge_points,
     points_to_marker,
+    points_to_polygon,
     points_list_to_array,
     points_array_to_list,
     transform_points,
@@ -38,6 +42,7 @@ class CameraInfoToPlane:
         self.marker_id = rospy.get_param("~marker_id", 0)
         self.target_frame = rospy.get_param("~target_frame", "odom")
         self.marker_pub = rospy.Publisher("marker_array", MarkerArray, queue_size=3)
+        self.polygon_pub = rospy.Publisher("footprint", PolygonStamped, queue_size=3)
 
         self.plane_camera_frame = rospy.get_param("~plane_camera_frame", "")
         self.plane_camera_z = rospy.get_param("~plane_camera_z", 4.0)
@@ -92,6 +97,9 @@ class CameraInfoToPlane:
         # just get corners
         corner_points = get_camera_edge_points(camera_info, num_per_edge=1)
         points, points2d, _ = points_in_camera_transform_to_plane(tfs, corner_points, camera_matrix, dist_coeff)
+
+        polygon = points_to_polygon(camera_info.header.stamp, self.target_frame, points)
+        self.polygon_pub.publish(polygon)
 
         # corners of image in pixel coordinates
         input_pts = np.float32([[points2d[0][0], points2d[0][1]],
