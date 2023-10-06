@@ -41,6 +41,7 @@ class CameraInfoToPlane:
 
         self.marker_id = rospy.get_param("~marker_id", 0)
         self.target_frame = rospy.get_param("~target_frame", "odom")
+        self.camera_frame_override = rospy.get_param("~camera_frame_override", "")
         self.marker_pub = rospy.Publisher("marker_array", MarkerArray, queue_size=3)
         self.polygon_pub = rospy.Publisher("footprint", PolygonStamped, queue_size=3)
 
@@ -52,6 +53,10 @@ class CameraInfoToPlane:
         self.camera_info_sub = rospy.Subscriber("camera_info", CameraInfo, self.camera_info_callback, queue_size=20)
 
     def camera_info_callback(self, camera_info: CameraInfo):
+        if self.camera_frame_override not in ["", None]:
+            rospy.logwarn_once(f"overriding '{camera_info.header.frame_id}' with {self.camera_frame_override}")
+            camera_info.header.frame_id = self.camera_frame_override
+
         try:
             tfs = self.tf_buffer.lookup_transform(self.target_frame, camera_info.header.frame_id,
                                                   camera_info.header.stamp, rospy.Duration(0.3))
