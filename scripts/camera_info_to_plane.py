@@ -50,9 +50,19 @@ class CameraInfoToPlane:
         self.plane_camera_info_pub = rospy.Publisher("plane/camera_info", CameraInfo, queue_size=2)
         self.tf_pub = rospy.Publisher("/tf", TFMessage, queue_size=5)
 
+        self.last_update = rospy.Time.now()
         self.camera_info_sub = rospy.Subscriber("camera_info", CameraInfo, self.camera_info_callback, queue_size=20)
 
     def camera_info_callback(self, camera_info: CameraInfo):
+        # https://github.com/ros/geometry2/issues/43#issuecomment-487223454
+        last_update = self.last_update
+        cur_update = rospy.Time.now()
+        self.last_update = cur_update
+        if cur_update < last_update:
+            rospy.logwarn("looping time, resetting tf buffer")
+            self.tf_buffer.clear()
+            return
+
         if self.camera_frame_override not in ["", None]:
             rospy.logwarn_once(f"overriding '{camera_info.header.frame_id}' with {self.camera_frame_override}")
             camera_info.header.frame_id = self.camera_frame_override
