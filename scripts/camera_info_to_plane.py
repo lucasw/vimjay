@@ -86,7 +86,8 @@ class CameraInfoToPlane:
             try:
                 tfs_inv = self.tf_buffer.lookup_transform(camera_info.header.frame_id, self.target_frame,
                                                           tfs.header.stamp, rospy.Duration(0.0))
-            except (tf2_ros.ConnectivityException, tf2_ros.LookupException, tf2_ros.ExtrapolationException) as ex:
+            except (tf2_ros.ConnectivityException, tf2_ros.LookupException, tf2_ros.ExtrapolationException,
+                    rospy.exceptions.ROSTimeMovedBackwardsException) as ex:
                 rospy.logwarn_throttle(4.0, ex)
                 return
 
