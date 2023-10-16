@@ -23,8 +23,6 @@ from vimjay import (
     get_camera_edge_points,
     points_to_marker,
     points_to_polygon,
-    points_list_to_array,
-    points_array_to_list,
     transform_points,
 )
 from visualization_msgs.msg import (
@@ -40,7 +38,10 @@ class CameraInfoToPlane:
         self.do_plane_pubs = rospy.get_param("~do_plane_pubs", True)
 
         self.marker_id = rospy.get_param("~marker_id", 0)
+        # the frame to intersect the camera info with
         self.target_frame = rospy.get_param("~target_frame", "odom")
+        # the frame to convert the intersection points into
+        self.output_frame = rospy.get_param("~output_frame", "odom")
         self.camera_frame_override = rospy.get_param("~camera_frame_override", "")
         self.marker_pub = rospy.Publisher("marker_array", MarkerArray, queue_size=3)
         self.polygon_pub = rospy.Publisher("footprint", PolygonStamped, queue_size=3)
@@ -68,8 +69,12 @@ class CameraInfoToPlane:
             camera_info.header.frame_id = self.camera_frame_override
 
         try:
-            tfs = self.tf_buffer.lookup_transform(self.target_frame, camera_info.header.frame_id,
-                                                  camera_info.header.stamp, rospy.Duration(0.3))
+            tfs0 = self.tf_buffer.lookup_transform(self.target_frame, camera_info.header.frame_id,
+                                                   camera_info.header.stamp, rospy.Duration(0.3))
+            camera_frame_to_target_plane_tfs = tfs0
+            tfs1 = self.tf_buffer.lookup_transform(self.output_frame, self.target_frame,
+                                                   camera_info.header.stamp, rospy.Duration(0.3))
+            target_to_output_tfs = tfs1
         except (tf2_ros.ConnectivityException, tf2_ros.LookupException, tf2_ros.ExtrapolationException,
                 rospy.exceptions.ROSTimeMovedBackwardsException) as ex:
             rospy.logwarn_throttle(4.0, ex)
@@ -79,22 +84,23 @@ class CameraInfoToPlane:
 
         edge_points = get_camera_edge_points(camera_info, num_per_edge=8)
 
-        rv = points_in_camera_transform_to_plane(tfs, edge_points, camera_matrix, dist_coeff)
+        rv = points_in_camera_transform_to_plane(camera_frame_to_target_plane_tfs,
+                                                 edge_points, camera_matrix, dist_coeff)
         points_in_plane, _, is_full = rv
 
         marker_in_camera_frame = True
         if marker_in_camera_frame:
             try:
                 tfs_inv = self.tf_buffer.lookup_transform(camera_info.header.frame_id, self.target_frame,
-                                                          tfs.header.stamp, rospy.Duration(0.0))
+                                                          camera_frame_to_target_plane_tfs.header.stamp,
+                                                          rospy.Duration(0.0))
             except (tf2_ros.ConnectivityException, tf2_ros.LookupException, tf2_ros.ExtrapolationException,
                     rospy.exceptions.ROSTimeMovedBackwardsException) as ex:
                 rospy.logwarn_throttle(4.0, ex)
                 return
 
-            points_in_plane_np = points_list_to_array(points_in_plane)
-            points_in_plane_in_camera_np = transform_points(points_in_plane_np, tfs_inv)
-            points_in_plane_in_camera = points_array_to_list(points_in_plane_in_camera_np)
+            points_in_plane_in_camera = transform_points(points_in_plane, tfs_inv)
+
             marker = points_to_marker(camera_info.header.stamp, camera_info.header.frame_id,
                                       points_in_plane_in_camera, marker_id=self.marker_id)
         else:
@@ -113,9 +119,11 @@ class CameraInfoToPlane:
 
         # just get corners
         corner_points = get_camera_edge_points(camera_info, num_per_edge=1)
-        points, points2d, _ = points_in_camera_transform_to_plane(tfs, corner_points, camera_matrix, dist_coeff)
+        points, points2d, _ = points_in_camera_transform_to_plane(camera_frame_to_target_plane_tfs, corner_points,
+                                                                  camera_matrix, dist_coeff)
 
-        polygon = points_to_polygon(camera_info.header.stamp, self.target_frame, points)
+        points_in_output = transform_points(points, target_to_output_tfs)
+        polygon = points_to_polygon(camera_info.header.stamp, self.output_frame, points_in_output)
         self.polygon_pub.publish(polygon)
 
         # corners of image in pixel coordinates

@@ -75,7 +75,7 @@ def get_camera_edge_points(camera_info: CameraInfo, num_per_edge=8) -> np.ndarra
 
 
 # TODO(lucasw) is there a an off-the-shelf function that does this?
-def transform_points(points3d: np.ndarray, transform: TransformStamped) -> np.ndarray:
+def transform_points_np(points3d: np.ndarray, transform: TransformStamped) -> np.ndarray:
     """
     points3d is n x 3 in the src_header.frame_id frame
     transform child frame id should match src_header frame id
@@ -112,6 +112,13 @@ def transform_points(points3d: np.ndarray, transform: TransformStamped) -> np.nd
         transformed_points3d[ind, :] = pt
 
     return transformed_points3d
+
+
+def transform_points(points_in_src: list[Point], tfs: TransformStamped) -> list[Point]:
+    points_in_src_np = points_list_to_array(points_in_src)
+    points_in_dst_np = transform_points_np(points_in_src_np, tfs)
+    points_in_dst = points_array_to_list(points_in_dst_np)
+    return points_in_dst
 
 
 def points_list_to_array(points: List[Point]) -> np.ndarray:
@@ -152,7 +159,7 @@ def points_in_camera_transform_to_plane(camera_to_target_transform: TransformSta
     # rospy.loginfo_throttle(6.0, f"\n{points2d_in_camera}")
     # rospy.loginfo_throttle(6.0, f"\n{points3d_in_camera}")
 
-    pc2_points = transform_points(points3d_in_camera, camera_to_target_transform)
+    pc2_points = transform_points_np(points3d_in_camera, camera_to_target_transform)
 
     # the camera origin in the target frame
     pt0 = pc2_points[-1, :]
