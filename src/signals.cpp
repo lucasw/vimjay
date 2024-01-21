@@ -38,10 +38,10 @@
 #include "vimjay/config.h"
 
 extern "C" {
-#include "DSOnoises/noise1234.h"
-#include "DSOnoises/simplexnoise1234.h"
-#include "DSOnoises/sdnoise1234.h"
-// #include "other/DSOnoises/srdnoise23.h"
+#include <dso_noises/noise1234.h>
+#include <dso_noises/simplexnoise1234.h>
+#include <dso_noises/sdnoise1234.h>
+// #include <dso_noises/srdnoise23.h>
 }
 
 using namespace cv;

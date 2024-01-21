@@ -18,8 +18,8 @@
 
 #include <math.h>
 
-#include "other/simplexnoise.h"
-#include "other/simplextextures.h"
+#include <simplex/simplexnoise.h>
+#include <simplex/simplextextures.h>
 
 namespace bm
 {

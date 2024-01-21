@@ -3,12 +3,13 @@
 # output them as an image, or rviz marker, or leave that
 # to other node.
 
-import numpy
+# import numpy
 import rospy
 
 from geometry_msgs.msg import Point
 from opencv_apps.msg import Point2D, Point2DArray
 from visualization_msgs.msg import Marker
+
 
 class SubDiv:
     def __init__(self):
@@ -79,6 +80,7 @@ class SubDiv:
             marker.points.append(gpt)
         marker.points.append(marker.points[0])
         self.marker_pub.publish(marker)
+
 
 if __name__ == '__main__':
     rospy.init_node('sub_div')

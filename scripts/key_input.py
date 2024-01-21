@@ -29,13 +29,15 @@
 
 # adapted from https://github.com/turtlebot/turtlebot_apps/blob/hydro/turtlebot_teleop/scripts/turtlebot_teleop_key
 
-#import roslib
-#roslib.load_manifest('turtlebot_teleop')
+import select
+import sys
+import termios
+import tty
+
+# import roslib
+# roslib.load_manifest('turtlebot_teleop')
 import rospy
-
 from std_msgs.msg import String
-
-import sys, select, termios, tty
 
 """
 CTRL-C to quit
@@ -43,9 +45,10 @@ CTRL-C to quit
 There is an sdl key input node on the web, may want to try that
 """
 
+
 def getKey():
     tty.setraw(sys.stdin.fileno())
-    rlist, _, _ = select.select([sys.stdin], [], []) #, 0.1)
+    rlist, _, _ = select.select([sys.stdin], [], [])  # , 0.1)
     if rlist:
         key = sys.stdin.read(1)
     else:
@@ -54,9 +57,10 @@ def getKey():
     termios.tcsetattr(sys.stdin, termios.TCSADRAIN, settings)
     return key
 
-if __name__=="__main__":
+
+if __name__ == "__main__":
     settings = termios.tcgetattr(sys.stdin)
-    
+
     rospy.init_node('key_input')
 
     # could send Char, but then keycodes wouldn't work (if they are working now?)
@@ -66,18 +70,16 @@ if __name__=="__main__":
         while not rospy.is_shutdown():
             key = getKey()
             if key:
-                #print ord(key)
+                # print(ord(key))
                 # Not sure if this is universal
                 if ord(key) == 3:
                     rospy.loginfo("exiting key input")
                     sys.exit(0)
 
                 pub.publish(String(key))
-                #sys.stdout.write(key)
-
-    except:
-        rospy.loginfo( "exception")
+                # sys.stdout.write(key)
+    except Exception as ex:
+        rospy.loginfo(ex)
         pass
 
     termios.tcsetattr(sys.stdin, termios.TCSADRAIN, settings)
-

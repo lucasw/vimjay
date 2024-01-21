@@ -56,7 +56,7 @@ CamSub::CamSub() :
   sub_1_ = it_.subscribeCamera(
       "image",
       queue_size,
-      boost::bind(&CamSub::imageCallback1, this, _1, _2, ind));
+      boost::bind(&CamSub::imageCallback1, this, boost::placeholders::_1, boost::placeholders::_2, ind));
   sub_2_ = it_.subscribeCamera(
       "image",
       queue_size,
@@ -65,7 +65,7 @@ CamSub::CamSub() :
   sub_3_ = it_.subscribe(
       "image",
       queue_size,
-      boost::bind(&CamSub::imageCallback3, this, _1, ind));
+      boost::bind(&CamSub::imageCallback3, this, boost::placeholders::_1, ind));
 }
 
 void CamSub::imageCallback1(const sensor_msgs::ImageConstPtr& msg,

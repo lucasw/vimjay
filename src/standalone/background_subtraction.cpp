@@ -83,7 +83,7 @@ BackgroundSubtraction::BackgroundSubtraction():
 
   server_.reset(new ReconfigureServer(dr_mutex_, ros::NodeHandle(ros::this_node::getName())));
   dynamic_reconfigure::Server<vimjay::BackgroundSubtractionConfig>::CallbackType cbt =
-    boost::bind(&BackgroundSubtraction::callback, this, _1, _2);
+    boost::bind(&BackgroundSubtraction::callback, this, boost::placeholders::_1, boost::placeholders::_2);
   server_->setCallback(cbt);
 
   // timer_ = nh_.createTimer(ros::Duration(0.2), &BackgroundSubtraction::pubImage, this);

@@ -27,7 +27,7 @@
 
 #include "vimjay/config.h"
 
-#include <boost/timer.hpp>
+#include <boost/timer/timer.hpp>
 #include <ros/console.h>
 
 #include <typeinfo>
@@ -646,7 +646,7 @@ bool matToXImage(cv::Mat& im, XImage* ximage, Window& win, Display& display, Scr
                          << ", rshift " << rshift << " rbits " << rbits
                         );
 
-    ROS_DEBUG_STREAM_COND(log_level > 4, "matToXImage setup time " << t1.elapsed());
+    ROS_DEBUG_STREAM_COND(log_level > 4, "matToXImage setup time " << t1.format());
 
     // boost::timer t2;
     const int wd = ximage->width;
@@ -692,7 +692,7 @@ bool matToXImage(cv::Mat& im, XImage* ximage, Window& win, Display& display, Scr
     // ximage->data = (char*) im.data;
     memcpy(ximage->data, im.data, wd * ht * 4);
 #endif
-    ROS_DEBUG_STREAM_COND(log_level > 4, "matToXImage put pixel time " << t1.elapsed());
+    ROS_DEBUG_STREAM_COND(log_level > 4, "matToXImage put pixel time " << t1.format());
     ROS_INFO_ONCE("done copying mat");
   }
   else     // Extremly slow alternative for non 24bit-depth

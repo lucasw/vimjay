@@ -2,7 +2,7 @@
 <launch>
   <!--arg name="graph_file" default="none" /--> <!--$(find vimjay)/config/default_graph.yml" /-->
   <arg name="graph_file" default="$(find vimjay)/config/temp_graph.yml" />
-  <arg name="log_level" default="1" />
+  <arg name="log_level" default="3" />
   <arg name="paused" default="false" />
 
   <group ns="vimjay" >
