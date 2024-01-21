@@ -1,10 +1,7 @@
 # Lucas Walter
 # Project the border of an image onto a plane using a camera info and tf
 
-from typing import (
-    List,
-    Tuple,
-)
+from __future__ import annotations
 
 import cv2
 import numpy as np
@@ -28,7 +25,7 @@ from visualization_msgs.msg import Marker
 
 # TODO(lucasw) move into src and make an importable function of it
 # from https://github.com/lucasw/sdl2_ros sdl2_ros/scripts/sprites.py
-def camera_info_to_cv2(camera_info: CameraInfo) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+def camera_info_to_cv2(camera_info: CameraInfo) -> (np.ndarray, np.ndarray, np.ndarray, np.ndarray):
     rvec = np.zeros((1, 3))
     tvec = np.zeros((1, 3))
     camera_matrix = np.zeros((3, 3))
@@ -121,7 +118,7 @@ def transform_points(points_in_src: list[Point], tfs: TransformStamped) -> list[
     return points_in_dst
 
 
-def points_list_to_array(points: List[Point]) -> np.ndarray:
+def points_list_to_array(points: [Point]) -> np.ndarray:
     points_np = np.zeros((len(points), 3))
     for ind, pt in enumerate(points):
         points_np[ind, 0] = pt.x
@@ -130,7 +127,7 @@ def points_list_to_array(points: List[Point]) -> np.ndarray:
     return points_np
 
 
-def points_array_to_list(points_np: np.ndarray) -> List[Point]:
+def points_array_to_list(points_np: np.ndarray) -> [Point]:
     points = []
     for ind in range(points_np.shape[0]):
         points.append(Point(points_np[ind, 0], points_np[ind, 1], points_np[ind, 2]))
@@ -141,7 +138,7 @@ def points_array_to_list(points_np: np.ndarray) -> List[Point]:
 def points_in_camera_transform_to_plane(camera_to_target_transform: TransformStamped,
                                         points2d_in_camera: np.ndarray,
                                         camera_matrix: np.ndarray,
-                                        dist_coeff: np.ndarray) -> Tuple[List[Point], List[np.ndarray], bool]:
+                                        dist_coeff: np.ndarray) -> ([Point], [np.ndarray], bool):
     # idealized points all at range 1.0
     ideal_points = cv2.undistortPoints(points2d_in_camera, camera_matrix, dist_coeff)
 
@@ -197,7 +194,7 @@ def points_in_camera_transform_to_plane(camera_to_target_transform: TransformSta
 
 def points_in_camera_to_plane(points2d_in_camera: np.ndarray,
                               tf_buffer: tf2_ros.Buffer, camera_info: CameraInfo, target_frame: str,
-                              ) -> Tuple[List[Point], List[np.ndarray], bool]:
+                              ) -> ([Point], [np.ndarray], bool):
     try:
         tfs = tf_buffer.lookup_transform(target_frame, camera_info.header.frame_id,
                                          camera_info.header.stamp, rospy.Duration(0.3))
@@ -210,7 +207,7 @@ def points_in_camera_to_plane(points2d_in_camera: np.ndarray,
     return points_in_camera_transform_to_plane(tfs, points2d_in_camera, camera_matrix, dist_coeff)
 
 
-def points_to_marker(stamp: rospy.Time, frame: str, points: List[Point], marker_id=0) -> Marker:
+def points_to_marker(stamp: rospy.Time, frame: str, points: [Point], marker_id=0) -> Marker:
     marker = Marker()
     marker.header.stamp = stamp
     marker.header.frame_id = frame
@@ -228,7 +225,7 @@ def points_to_marker(stamp: rospy.Time, frame: str, points: List[Point], marker_
     return marker
 
 
-def points_to_polygon(stamp: rospy.Time, frame: str, points: List[Point]) -> PolygonStamped:
+def points_to_polygon(stamp: rospy.Time, frame: str, points: [Point]) -> PolygonStamped:
     polygon = PolygonStamped()
     polygon.header.stamp = stamp
     polygon.header.frame_id = frame
