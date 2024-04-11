@@ -41,7 +41,7 @@ class CameraInfoToPlane:
         # the frame to intersect the camera info with
         self.target_frame = rospy.get_param("~target_frame", "odom")
         # the frame to convert the intersection points into
-        self.output_frame = rospy.get_param("~output_frame", "odom")
+        self.output_frame = rospy.get_param("~output_frame", self.target_frame)
         self.camera_frame_override = rospy.get_param("~camera_frame_override", "")
         self.marker_pub = rospy.Publisher("marker_array", MarkerArray, queue_size=3)
         self.polygon_pub = rospy.Publisher("footprint", PolygonStamped, queue_size=3)
