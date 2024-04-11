@@ -191,6 +191,11 @@ catkin_install_python(PROGRAMS
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
+foreach(dir config data launch)
+  install(DIRECTORY ${dir}/
+    DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/${dir})
+endforeach()
+
 install(PROGRAMS
   scripts/grep_msgs.sh
   # TODO(lucasw) maybe this shouldn't be in scripts
