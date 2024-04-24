@@ -3,11 +3,13 @@
 # Project the border of an image onto a plane using a camera info and tf
 
 import copy
+from threading import Lock
 
 import cv2
 import numpy as np
 import rospy
 import tf2_ros
+from ddynamic_reconfigure_python.ddynamic_reconfigure import DDynamicReconfigure
 from geometry_msgs.msg import (
     PolygonStamped,
     TransformStamped,
@@ -32,29 +34,42 @@ from visualization_msgs.msg import (
 
 class CameraInfoToPlane:
     def __init__(self):
+        self.lock = Lock()
+
         self.tf_buffer = tf2_ros.Buffer()
         self.tf_listener = tf2_ros.TransformListener(self.tf_buffer)
 
-        self.do_plane_pubs = rospy.get_param("~do_plane_pubs", True)
+        self.config = None
+        ddr = DDynamicReconfigure("")
+        ddr.add_variable("do_plane_pubs", "publish additional tf frames", True)
+        ddr.add_variable("marker_in_camera_frame", "publish the marker in teh camera frame or target frame", True)
+        ddr.add_variable("marker_id", "marker id", 0, 0, 100000)
+        ddr.add_variable("target_frame", "the frame (xy plane) to intersect the camera info with", "odom")
+        ddr.add_variable("output_frame", "the frame to convert the intersection points into", "odom")
+        ddr.add_variable("camera_frame_override", "replace incoming camera frame id with this", "")
+        ddr.add_variable("plane_camera_frame", "plane_camera_frame", "")
+        ddr.add_variable("plane_camera_z", "plane_camera_z", 4.0, 0.1, 100.0)
+        self.ddr = ddr
+        self.ddr.start(self.config_callback)
 
-        self.marker_id = rospy.get_param("~marker_id", 0)
-        # the frame to intersect the camera info with
-        self.target_frame = rospy.get_param("~target_frame", "odom")
-        # the frame to convert the intersection points into
-        self.output_frame = rospy.get_param("~output_frame", self.target_frame)
-        self.camera_frame_override = rospy.get_param("~camera_frame_override", "")
         self.marker_pub = rospy.Publisher("marker_array", MarkerArray, queue_size=3)
         self.polygon_pub = rospy.Publisher("footprint", PolygonStamped, queue_size=3)
 
-        self.plane_camera_frame = rospy.get_param("~plane_camera_frame", "")
-        self.plane_camera_z = rospy.get_param("~plane_camera_z", 4.0)
         self.plane_camera_info_pub = rospy.Publisher("plane/camera_info", CameraInfo, queue_size=2)
         self.tf_pub = rospy.Publisher("/tf", TFMessage, queue_size=5)
 
         self.last_update = rospy.Time.now()
         self.camera_info_sub = rospy.Subscriber("camera_info", CameraInfo, self.camera_info_callback, queue_size=20)
 
+    def config_callback(self, config, level):
+        with self.lock:
+            self.config = config
+        return config
+
     def camera_info_callback(self, camera_info: CameraInfo):
+        with self.lock:
+            config = copy.deepcopy(self.config)
+
         # https://github.com/ros/geometry2/issues/43#issuecomment-487223454
         last_update = self.last_update
         cur_update = rospy.Time.now()
@@ -64,15 +79,15 @@ class CameraInfoToPlane:
             self.tf_buffer.clear()
             return
 
-        if self.camera_frame_override not in ["", None]:
-            rospy.logwarn_once(f"overriding '{camera_info.header.frame_id}' with {self.camera_frame_override}")
-            camera_info.header.frame_id = self.camera_frame_override
+        if config.camera_frame_override not in ["", None]:
+            rospy.logwarn_once(f"overriding '{camera_info.header.frame_id}' with {config.camera_frame_override}")
+            camera_info.header.frame_id = config.camera_frame_override
 
         try:
-            tfs0 = self.tf_buffer.lookup_transform(self.target_frame, camera_info.header.frame_id,
+            tfs0 = self.tf_buffer.lookup_transform(config.target_frame, camera_info.header.frame_id,
                                                    camera_info.header.stamp, rospy.Duration(0.3))
             camera_frame_to_target_plane_tfs = tfs0
-            tfs1 = self.tf_buffer.lookup_transform(self.output_frame, self.target_frame,
+            tfs1 = self.tf_buffer.lookup_transform(config.output_frame, config.target_frame,
                                                    camera_info.header.stamp, rospy.Duration(0.3))
             target_to_output_tfs = tfs1
         except (tf2_ros.ConnectivityException, tf2_ros.LookupException, tf2_ros.ExtrapolationException,
@@ -88,10 +103,9 @@ class CameraInfoToPlane:
                                                  edge_points, camera_matrix, dist_coeff)
         points_in_plane, _, is_full = rv
 
-        marker_in_camera_frame = True
-        if marker_in_camera_frame:
+        if config.marker_in_camera_frame:
             try:
-                tfs_inv = self.tf_buffer.lookup_transform(camera_info.header.frame_id, self.target_frame,
+                tfs_inv = self.tf_buffer.lookup_transform(camera_info.header.frame_id, config.target_frame,
                                                           camera_frame_to_target_plane_tfs.header.stamp,
                                                           rospy.Duration(0.0))
             except (tf2_ros.ConnectivityException, tf2_ros.LookupException, tf2_ros.ExtrapolationException,
@@ -102,19 +116,19 @@ class CameraInfoToPlane:
             points_in_plane_in_camera = transform_points(points_in_plane, tfs_inv)
 
             marker = points_to_marker(camera_info.header.stamp, camera_info.header.frame_id,
-                                      points_in_plane_in_camera, marker_id=self.marker_id)
+                                      points_in_plane_in_camera, marker_id=config.marker_id)
         else:
-            marker = points_to_marker(camera_info.header.stamp, self.target_frame,
-                                      points_in_plane, marker_id=self.marker_id)
+            marker = points_to_marker(camera_info.header.stamp, config.target_frame,
+                                      points_in_plane, marker_id=config.marker_id)
 
-        marker.color.r -= self.marker_id / 5.0
-        marker.color.b += self.marker_id / 8.0
+        marker.color.r -= config.marker_id / 5.0
+        marker.color.b += config.marker_id / 8.0
 
         marker_array = MarkerArray()
         marker_array.markers.append(marker)
         self.marker_pub.publish(marker_array)
 
-        if not (is_full and self.do_plane_pubs):
+        if not (is_full and config.do_plane_pubs):
             return
 
         # just get corners
@@ -123,7 +137,7 @@ class CameraInfoToPlane:
                                                                   camera_matrix, dist_coeff)
 
         points_in_output = transform_points(points, target_to_output_tfs)
-        polygon = points_to_polygon(camera_info.header.stamp, self.output_frame, points_in_output)
+        polygon = points_to_polygon(camera_info.header.stamp, config.output_frame, points_in_output)
         self.polygon_pub.publish(polygon)
 
         # corners of image in pixel coordinates
@@ -167,12 +181,12 @@ class CameraInfoToPlane:
         tfs = TransformStamped()
         tfs.header.stamp = camera_info.header.stamp
 
-        plane_camera_frame = self.plane_camera_frame
+        plane_camera_frame = config.plane_camera_frame
         if plane_camera_frame == "":
-            plane_camera_frame = self.target_frame + "_" + camera_info.header.frame_id
+            plane_camera_frame = config.target_frame + "_" + camera_info.header.frame_id
 
         tfs0 = copy.deepcopy(tfs)
-        tfs0.header.frame_id = self.target_frame
+        tfs0.header.frame_id = config.target_frame
         tfs0.child_frame_id = plane_camera_frame + "_xy"
         tfs0.transform.translation.x = plane_x_min + plane_x_range * 0.5
         tfs0.transform.translation.y = plane_y_min + plane_y_range * 0.5
@@ -181,7 +195,7 @@ class CameraInfoToPlane:
 
         tfs.header.frame_id = plane_camera_frame + "_xy"
         tfs.child_frame_id = plane_camera_frame
-        tfs.transform.translation.z = self.plane_camera_z
+        tfs.transform.translation.z = config.plane_camera_z
         quat = transformations.quaternion_from_euler(0.0, np.pi, np.pi * 0.5)
         tfs.transform.rotation.x = quat[0]
         tfs.transform.rotation.y = quat[1]
@@ -202,8 +216,8 @@ class CameraInfoToPlane:
         # subscribe to an input CameraInfo?
         cx = wd / 2.0
         cy = ht / 2.0
-        fx = cx * self.plane_camera_z / (plane_y_range * 0.5)
-        fy = cy * self.plane_camera_z / (plane_x_range * 0.5)
+        fx = cx * config.plane_camera_z / (plane_y_range * 0.5)
+        fy = cy * config.plane_camera_z / (plane_x_range * 0.5)
         ci.D = [0.0, 0.0, 0.0, 0, 0]
         ci.K = [fx, 0.0, cx, 0.0, fy, cy, 0.0, 0.0, 1.0]
         ci.R = [1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0]
