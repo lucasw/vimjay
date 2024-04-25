@@ -21,9 +21,9 @@ from tf import transformations
 from tf2_msgs.msg import TFMessage
 from vimjay import (
     camera_info_to_cv2,
+    camera_info_to_plane,
     points_in_camera_transform_to_plane,
     get_camera_edge_points,
-    points_to_marker,
     points_to_polygon,
     transform_points,
 )
@@ -39,16 +39,21 @@ class CameraInfoToPlane:
         self.tf_buffer = tf2_ros.Buffer()
         self.tf_listener = tf2_ros.TransformListener(self.tf_buffer)
 
+        self.count = 0
+
         self.config = None
         ddr = DDynamicReconfigure("")
         ddr.add_variable("do_plane_pubs", "publish additional tf frames", True)
         ddr.add_variable("marker_in_camera_frame", "publish the marker in teh camera frame or target frame", True)
         ddr.add_variable("marker_id", "marker id", 0, 0, 100000)
+        ddr.add_variable("lifetime", "marker lifetime", 0.0, 0.0, 60.0)
+        ddr.add_variable("increment_marker_id", "increment marker id", False)
         ddr.add_variable("target_frame", "the frame (xy plane) to intersect the camera info with", "odom")
         ddr.add_variable("output_frame", "the frame to convert the intersection points into", "")
         ddr.add_variable("camera_frame_override", "replace incoming camera frame id with this", "")
         ddr.add_variable("plane_camera_frame", "plane_camera_frame", "")
         ddr.add_variable("plane_camera_z", "plane_camera_z", 4.0, 0.1, 100.0)
+        ddr.add_variable("num_per_edge", "number of points per boundary edge", 8, 1, 32)
         self.ddr = ddr
         self.ddr.start(self.config_callback)
 
@@ -83,50 +88,19 @@ class CameraInfoToPlane:
         if output_frame == "":
             output_frame = config.target_frame
 
-        if config.camera_frame_override not in ["", None]:
-            rospy.logwarn_once(f"overriding '{camera_info.header.frame_id}' with {config.camera_frame_override}")
-            camera_info.header.frame_id = config.camera_frame_override
-
-        try:
-            tfs0 = self.tf_buffer.lookup_transform(config.target_frame, camera_info.header.frame_id,
-                                                   camera_info.header.stamp, rospy.Duration(0.3))
-            camera_frame_to_target_plane_tfs = tfs0
-            tfs1 = self.tf_buffer.lookup_transform(output_frame, config.target_frame,
-                                                   camera_info.header.stamp, rospy.Duration(0.3))
-            target_to_output_tfs = tfs1
-        except (tf2_ros.ConnectivityException, tf2_ros.LookupException, tf2_ros.ExtrapolationException,
-                rospy.exceptions.ROSTimeMovedBackwardsException) as ex:
-            rospy.logwarn_throttle(4.0, ex)
-            return
-
-        camera_matrix, dist_coeff, rvec, tvec = camera_info_to_cv2(camera_info)
-
-        edge_points = get_camera_edge_points(camera_info, num_per_edge=8)
-
-        rv = points_in_camera_transform_to_plane(camera_frame_to_target_plane_tfs,
-                                                 edge_points, camera_matrix, dist_coeff)
-        points_in_plane, _, is_full = rv
-
-        if config.marker_in_camera_frame:
-            try:
-                tfs_inv = self.tf_buffer.lookup_transform(camera_info.header.frame_id, config.target_frame,
-                                                          camera_frame_to_target_plane_tfs.header.stamp,
-                                                          rospy.Duration(0.0))
-            except (tf2_ros.ConnectivityException, tf2_ros.LookupException, tf2_ros.ExtrapolationException,
-                    rospy.exceptions.ROSTimeMovedBackwardsException) as ex:
-                rospy.logwarn_throttle(4.0, ex)
-                return
-
-            points_in_plane_in_camera = transform_points(points_in_plane, tfs_inv)
-
-            marker = points_to_marker(camera_info.header.stamp, camera_info.header.frame_id,
-                                      points_in_plane_in_camera, marker_id=config.marker_id)
-        else:
-            marker = points_to_marker(camera_info.header.stamp, config.target_frame,
-                                      points_in_plane, marker_id=config.marker_id)
-
-        marker.color.r -= config.marker_id / 5.0
-        marker.color.b += config.marker_id / 8.0
+        rv = camera_info_to_plane(tf_buffer=self.tf_buffer,
+                                  camera_info=camera_info,
+                                  target_frame=config.target_frame,
+                                  output_frame=output_frame,
+                                  camera_frame_override=config.camera_frame_override,
+                                  marker_in_camera_frame=config.marker_in_camera_frame,
+                                  marker_id=config.marker_id + self.count,
+                                  num_per_edge=config.num_per_edge,
+                                  )
+        if config.increment_marker_id:
+            self.count += 1
+        marker, camera_frame_to_target_plane_tfs, target_to_output_tfs, is_full = rv
+        marker.lifetime = rospy.Duration(config.lifetime)
 
         marker_array = MarkerArray()
         marker_array.markers.append(marker)
@@ -134,6 +108,10 @@ class CameraInfoToPlane:
 
         if not (is_full and config.do_plane_pubs):
             return
+
+        # TODO(lucasw) the rest of this is mostly getting ready to project the image onto the plane
+        # but that isn't working yet
+        camera_matrix, dist_coeff, rvec, tvec = camera_info_to_cv2(camera_info)
 
         # just get corners
         corner_points = get_camera_edge_points(camera_info, num_per_edge=1)

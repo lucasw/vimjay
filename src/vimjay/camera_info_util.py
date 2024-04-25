@@ -233,3 +233,60 @@ def points_to_polygon(stamp: rospy.Time, frame: str, points: [Point]) -> Polygon
         point32 = Point32(x=point.x, y=point.y, z=point.z)
         polygon.polygon.points.append(point32)
     return polygon
+
+
+def camera_info_to_plane(tf_buffer: tf2_ros.BufferCore,
+                         camera_info: CameraInfo,
+                         target_frame: str,
+                         output_frame: str,
+                         camera_frame_override=None,
+                         marker_in_camera_frame=True,
+                         marker_id=0,
+                         num_per_edge=8,
+                         ) -> (Marker, TransformStamped, TransformStamped, bool):
+    if camera_frame_override not in ["", None]:
+        rospy.logwarn_once(f"overriding '{camera_info.header.frame_id}' with {camera_frame_override}")
+        camera_info.header.frame_id = camera_frame_override
+
+    try:
+        tfs0 = tf_buffer.lookup_transform(target_frame, camera_info.header.frame_id,
+                                          camera_info.header.stamp, rospy.Duration(0.3))
+        camera_frame_to_target_plane_tfs = tfs0
+        tfs1 = tf_buffer.lookup_transform(output_frame, target_frame,
+                                          camera_info.header.stamp, rospy.Duration(0.3))
+        target_to_output_tfs = tfs1
+    except (tf2_ros.ConnectivityException, tf2_ros.LookupException, tf2_ros.ExtrapolationException,
+            rospy.exceptions.ROSTimeMovedBackwardsException) as ex:
+        rospy.logwarn_throttle(4.0, ex)
+        return
+
+    camera_matrix, dist_coeff, rvec, tvec = camera_info_to_cv2(camera_info)
+
+    edge_points = get_camera_edge_points(camera_info, num_per_edge=num_per_edge)
+
+    rv = points_in_camera_transform_to_plane(camera_frame_to_target_plane_tfs,
+                                             edge_points, camera_matrix, dist_coeff)
+    points_in_plane, _, is_full = rv
+
+    if marker_in_camera_frame:
+        try:
+            tfs_inv = tf_buffer.lookup_transform(camera_info.header.frame_id, target_frame,
+                                                 camera_frame_to_target_plane_tfs.header.stamp,
+                                                 rospy.Duration(0.0))
+        except (tf2_ros.ConnectivityException, tf2_ros.LookupException, tf2_ros.ExtrapolationException,
+                rospy.exceptions.ROSTimeMovedBackwardsException) as ex:
+            rospy.logwarn_throttle(4.0, ex)
+            return
+
+        points_in_plane_in_camera = transform_points(points_in_plane, tfs_inv)
+
+        marker = points_to_marker(camera_info.header.stamp, camera_info.header.frame_id,
+                                  points_in_plane_in_camera, marker_id=marker_id)
+    else:
+        marker = points_to_marker(camera_info.header.stamp, target_frame,
+                                  points_in_plane, marker_id=marker_id)
+
+    marker.color.r -= marker_id / 5.0
+    marker.color.b += marker_id / 8.0
+
+    return marker, camera_frame_to_target_plane_tfs, target_to_output_tfs, is_full
