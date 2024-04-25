@@ -97,6 +97,8 @@ class CameraInfoToPlane:
                                   marker_id=config.marker_id + self.count,
                                   num_per_edge=config.num_per_edge,
                                   )
+        if rv is None:
+            return
         if config.increment_marker_id:
             self.count += 1
         marker, camera_frame_to_target_plane_tfs, target_to_output_tfs, is_full = rv
