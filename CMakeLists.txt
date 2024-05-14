@@ -167,6 +167,13 @@ target_link_libraries(distort_image
   ${catkin_LIBRARIES}
 )
 
+add_executable(camera_info_to_plane
+  src/standalone/camera_info_to_plane.cpp
+)
+target_link_libraries(camera_info_to_plane
+  ${catkin_LIBRARIES}
+)
+
 if (true)
   # Melodic in 18.04 needs this
   # find_package(OpenCV REQUIRED)
