@@ -16,7 +16,7 @@
 #include <tf2_ros/transform_listener.h>
 #include <tf2_sensor_msgs/tf2_sensor_msgs.h>
 #include <visualization_msgs/Marker.h>
-
+#include <visualization_msgs/MarkerArray.h>
 
 // originally adapted from https://github.com/ros-perception/vision_opencv/blob/noetic/image_geometry/src/
 // pinhole_camera_model.cpp fromCameraInfo
@@ -131,6 +131,7 @@ std::vector<cv::Point2f> get_camera_edge_points(const sensor_msgs::CameraInfo& c
     points2d[ind].y = fr * camera_info.height;
     ind += 1;
   }
+
   return points2d;
 }
 
@@ -155,7 +156,6 @@ std::vector<cv::Point3f> transform_points(
     const geometry_msgs::TransformStamped& tfs)
 {
   sensor_msgs::PointCloud cloud_in;
-  cloud_in.points.resize(points_in.size());
   for (const auto& pt : points_in) {
     geometry_msgs::Point32 gpt;
     gpt.x = pt.x;
@@ -184,12 +184,13 @@ bool points_in_camera_transform_to_plane(
     const cv::Matx33d& camera_matrix,
     const cv::Mat_<double>& dist_coeff,
     std::vector<cv::Point3f>& points_in_plane,
-    std::vector<cv::Point2f>& used_points2d_in_camera)
+    std::vector<cv::Point2f>& used_points2d_in_camera,
+    sensor_msgs::PointCloud& pc_points)
 {
   // idealized points all at range 1.0
   const size_t num_points = points2d_in_camera.size();
   // cv::Mat ideal_points = cv::Mat(num_points, CV_32FC2);
-  std::vector<cv::Point3f> ideal_points;
+  std::vector<cv::Point2f> ideal_points;
   cv::undistortPoints(points2d_in_camera, ideal_points, camera_matrix, dist_coeff);
 
   sensor_msgs::PointCloud cloud_in_camera;
@@ -208,7 +209,8 @@ bool points_in_camera_transform_to_plane(
   // rospy.loginfo_throttle(6.0, f"\n{points2d_in_camera}")
   // rospy.loginfo_throttle(6.0, f"\n{cloud_in_camera}")
 
-  const auto pc_points = transform_points(cloud_in_camera, camera_to_target_transform);
+  // const auto
+  pc_points = transform_points(cloud_in_camera, camera_to_target_transform);
 
   // the camera origin in the target frame
   const auto pt0 = pc_points.points[num_points];
@@ -219,14 +221,15 @@ bool points_in_camera_transform_to_plane(
   bool is_full = true;
 
   // TODO(lucasw) replace for loop with matrix operation
-  for (size_t ind = 0; ind < pc_points.points.size(); ++ind) {
+  for (size_t ind = 0; ind < num_points; ++ind) {
     const double x1 = pc_points.points[ind].x;
-    const double y1 = pc_points.points[ind].z;
+    const double y1 = pc_points.points[ind].y;
     const double z1 = pc_points.points[ind].z;
     // is the ray facing away from the plane, or parallel, and will never intersect?
     const bool non_intersecting = (z1 >= z0 and z0 >= 0.0) or (z1 >= z0 and z0 <= 0.0);
     if (non_intersecting) {
       is_full = false;
+      ROS_WARN_STREAM_THROTTLE(8.0, "non intersecting points");
       continue;
     }
 
@@ -249,7 +252,8 @@ bool points_in_camera_to_plane(const std::vector<cv::Point2f>& points2d_in_camer
                                const sensor_msgs::CameraInfo& camera_info,
                                const std::string& target_frame,
                                std::vector<cv::Point3f>& points_in_plane,
-                               std::vector<cv::Point2f>& used_points2d_in_camera)
+                               std::vector<cv::Point2f>& used_points2d_in_camera,
+                               sensor_msgs::PointCloud& point_cloud)
 {
   geometry_msgs::TransformStamped tfs;
   try {
@@ -268,7 +272,8 @@ bool points_in_camera_to_plane(const std::vector<cv::Point2f>& points2d_in_camer
       tfs, points2d_in_camera,
       camera_matrix, dist_coeff,
       points_in_plane,
-      used_points2d_in_camera);
+      used_points2d_in_camera,
+      point_cloud);
 }
 
 visualization_msgs::Marker points_to_marker(const ros::Time& stamp, const std::string& frame,
@@ -303,6 +308,8 @@ bool camera_info_to_plane(const tf2_ros::Buffer& tf_buffer,
                           const std::string& output_frame,
                           visualization_msgs::Marker& marker,
                           geometry_msgs::TransformStamped& camera_frame_to_target_plane_tfs,
+                          bool& is_full,
+                          sensor_msgs::PointCloud& point_cloud,
                           const std::string camera_frame_override="",
                           const bool marker_in_camera_frame=true,
                           const int marker_id=0,
@@ -335,9 +342,15 @@ bool camera_info_to_plane(const tf2_ros::Buffer& tf_buffer,
 
   std::vector<cv::Point3f> points_in_plane;
   std::vector<cv::Point2f> used_points2d_in_camera;
-  const bool is_full = points_in_camera_transform_to_plane(camera_frame_to_target_plane_tfs,
-                                                           edge_points, camera_matrix, dist_coeff,
-                                                           points_in_plane, used_points2d_in_camera);
+  try {
+    is_full = points_in_camera_transform_to_plane(camera_frame_to_target_plane_tfs,
+                                                  edge_points, camera_matrix, dist_coeff,
+                                                  points_in_plane, used_points2d_in_camera,
+                                                  point_cloud);
+  } catch (cv::Exception& ex) {
+    ROS_WARN_STREAM(ex.what());
+    return false;
+  }
 
   if (marker_in_camera_frame) {
     geometry_msgs::TransformStamped tfs_inv;
@@ -362,10 +375,84 @@ bool camera_info_to_plane(const tf2_ros::Buffer& tf_buffer,
     marker.color.b += marker_id / 8.0;
   }
 
-  return is_full;
+  return true;
 }
 
-int main()
+class CameraInfoToPlane
 {
+  ros::NodeHandle nh_;
+  tf2_ros::Buffer tf_buffer_;
+  tf2_ros::TransformListener tf_listener_;
+  ros::Publisher marker_pub_;
+  ros::Publisher point_cloud_pub_;
+  ros::Subscriber ci_sub_;
+
+  std::string target_frame_;
+  std::string output_frame_ = "";
+
+  std::string camera_frame_override_ = "";
+  bool marker_in_camera_frame_ = true;
+  int marker_id_ = 0;
+  std::string marker_ns_ = "camera_info";
+  int num_per_edge_ = 8;
+
+  void cameraInfoCallback(const sensor_msgs::CameraInfo::ConstPtr& msg)
+  {
+    visualization_msgs::Marker marker;
+    geometry_msgs::TransformStamped camera_frame_to_target_plane_tfs;
+    bool is_full;
+    sensor_msgs::PointCloud point_cloud;
+    const bool rv = camera_info_to_plane(
+        tf_buffer_,
+        *msg,
+        target_frame_,
+        output_frame_,
+        marker,
+        camera_frame_to_target_plane_tfs,
+        is_full,
+        point_cloud,
+        camera_frame_override_,
+        marker_in_camera_frame_,
+        marker_id_,
+        num_per_edge_);
+    if (!rv) {
+      return;
+    }
+
+    marker.ns = marker_ns_;
+    visualization_msgs::MarkerArray marker_array;
+    marker_array.markers.push_back(marker);
+    marker_pub_.publish(marker_array);
+    point_cloud_pub_.publish(point_cloud);
+  }
+
+public:
+  CameraInfoToPlane() :
+      tf_buffer_(ros::Duration(20.0)),
+      tf_listener_(tf_buffer_)
+  {
+    ros::param::get("~target_frame", target_frame_);
+    ros::param::get("~output_frame", output_frame_);
+    if (output_frame_ == "") {
+      output_frame_ = target_frame_;
+    }
+    ROS_WARN_STREAM("target frame " << target_frame_ << ", output frame " << output_frame_);
+
+    ros::param::get("~marker_id", marker_id_);
+    ros::param::get("~marker_ns", marker_ns_);
+    ros::param::get("~marker_in_camera_frame", marker_in_camera_frame_);
+    ros::param::get("~num_per_edge", num_per_edge_);
+    ros::param::get("~camera_frame_override", camera_frame_override_);
+    marker_pub_ = nh_.advertise<visualization_msgs::MarkerArray>("marker_array", 3);
+    point_cloud_pub_ = nh_.advertise<sensor_msgs::PointCloud>("point_cloud", 3);
+    ci_sub_ = nh_.subscribe("camera_info", 2, &CameraInfoToPlane::cameraInfoCallback, this);
+  }
+};
+
+int main(int argc, char** argv)
+{
+  ros::init(argc, argv, "camera_info_to_plane");
+  CameraInfoToPlane camera_info_to_plane;
+  ros::spin();
   return 0;
 }

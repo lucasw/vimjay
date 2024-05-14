@@ -29,10 +29,18 @@
     <param name="d0" value="0.1" />
   </node>
 
-  <node name="camera_info_to_plane" pkg="vimjay" type="camera_info_to_plane.py"
+  <node name="camera_info_to_plane_py" pkg="vimjay" type="camera_info_to_plane"
       output="screen">
     <param name="target_frame" value="map" />
     <param name="marker_id" value="0" />
+    <param name="marker_ns" value="camera_info_cpp" />
+  </node>
+
+  <node name="camera_info_to_plane_cpp" pkg="vimjay" type="camera_info_to_plane.py"
+      output="screen">
+    <param name="target_frame" value="map" />
+    <param name="marker_id" value="11" />
+    <param name="marker_ns" value="camera_info_py" />
   </node>
 
   <node name="top_camera_info_to_plane" pkg="vimjay" type="camera_info_to_plane.py"

@@ -46,6 +46,7 @@ class CameraInfoToPlane:
         ddr.add_variable("do_plane_pubs", "publish additional tf frames", True)
         ddr.add_variable("marker_in_camera_frame", "publish the marker in teh camera frame or target frame", True)
         ddr.add_variable("marker_id", "marker id", 0, 0, 100000)
+        ddr.add_variable("marker_ns", "marker ns", "camera_info")
         ddr.add_variable("lifetime", "marker lifetime", 0.0, 0.0, 60.0)
         ddr.add_variable("increment_marker_id", "increment marker id", False)
         ddr.add_variable("target_frame", "the frame (xy plane) to intersect the camera info with", "odom")
@@ -103,6 +104,7 @@ class CameraInfoToPlane:
             self.count += 1
         marker, camera_frame_to_target_plane_tfs, target_to_output_tfs, is_full = rv
         marker.lifetime = rospy.Duration(config.lifetime)
+        marker.ns = config.marker_ns
 
         marker_array = MarkerArray()
         marker_array.markers.append(marker)
