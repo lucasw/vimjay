@@ -215,6 +215,7 @@ install(PROGRAMS
 install(TARGETS
   background_subtraction
   cam_sub
+  camera_info_to_plane
   color
   cv_distort_image
   distort_image
