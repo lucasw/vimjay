@@ -6,6 +6,7 @@
 
 #include <geometry_msgs/Point.h>
 #include <geometry_msgs/Point32.h>
+#include <geometry_msgs/PolygonStamped.h>
 #include <geometry_msgs/TransformStamped.h>
 #include <opencv2/opencv.hpp>
 #include <ros/ros.h>
@@ -306,6 +307,7 @@ bool camera_info_to_plane(const tf2_ros::Buffer& tf_buffer,
                           sensor_msgs::CameraInfo camera_info,
                           const std::string& target_frame,
                           const std::string& output_frame,
+                          geometry_msgs::PolygonStamped& polygon,
                           visualization_msgs::Marker& marker,
                           geometry_msgs::TransformStamped& camera_frame_to_target_plane_tfs,
                           bool& is_full,
@@ -352,6 +354,16 @@ bool camera_info_to_plane(const tf2_ros::Buffer& tf_buffer,
     return false;
   }
 
+  polygon.header.stamp = camera_info.header.stamp;
+  polygon.header.frame_id = output_frame;
+  for (const auto& pt : points_in_plane) {
+    geometry_msgs::Point32 pt32;
+    pt32.x = pt.x;
+    pt32.y = pt.y;
+    pt32.z = pt.z;
+    polygon.polygon.points.push_back(pt32);
+  }
+
   if (marker_in_camera_frame) {
     geometry_msgs::TransformStamped tfs_inv;
     try {
@@ -383,6 +395,7 @@ class CameraInfoToPlane
   ros::NodeHandle nh_;
   tf2_ros::Buffer tf_buffer_;
   tf2_ros::TransformListener tf_listener_;
+  ros::Publisher polygon_pub_;
   ros::Publisher marker_pub_;
   ros::Publisher point_cloud_pub_;
   ros::Subscriber ci_sub_;
@@ -399,6 +412,7 @@ class CameraInfoToPlane
   void cameraInfoCallback(const sensor_msgs::CameraInfo::ConstPtr& msg)
   {
     visualization_msgs::Marker marker;
+    geometry_msgs::PolygonStamped polygon;
     geometry_msgs::TransformStamped camera_frame_to_target_plane_tfs;
     bool is_full;
     sensor_msgs::PointCloud point_cloud;
@@ -407,6 +421,7 @@ class CameraInfoToPlane
         *msg,
         target_frame_,
         output_frame_,
+        polygon,
         marker,
         camera_frame_to_target_plane_tfs,
         is_full,
@@ -422,6 +437,7 @@ class CameraInfoToPlane
     marker.ns = marker_ns_;
     visualization_msgs::MarkerArray marker_array;
     marker_array.markers.push_back(marker);
+    polygon_pub_.publish(polygon);
     marker_pub_.publish(marker_array);
     point_cloud_pub_.publish(point_cloud);
   }
@@ -443,6 +459,7 @@ public:
     ros::param::get("~marker_in_camera_frame", marker_in_camera_frame_);
     ros::param::get("~num_per_edge", num_per_edge_);
     ros::param::get("~camera_frame_override", camera_frame_override_);
+    polygon_pub_ = nh_.advertise<geometry_msgs::PolygonStamped>("footprint", 3);
     marker_pub_ = nh_.advertise<visualization_msgs::MarkerArray>("marker_array", 3);
     point_cloud_pub_ = nh_.advertise<sensor_msgs::PointCloud>("point_cloud", 3);
     ci_sub_ = nh_.subscribe("camera_info", 2, &CameraInfoToPlane::cameraInfoCallback, this);
