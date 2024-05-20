@@ -15,6 +15,7 @@ from geometry_msgs.msg import (
 )
 from sensor_msgs.msg import (
     CameraInfo,
+    PointCloud2,
     PointField,
 )
 from sensor_msgs import point_cloud2
@@ -71,14 +72,7 @@ def get_camera_edge_points(camera_info: CameraInfo, num_per_edge=8) -> np.ndarra
     return points2d
 
 
-# TODO(lucasw) is there a an off-the-shelf function that does this?
-def transform_points_np(points3d: np.ndarray, transform: TransformStamped) -> np.ndarray:
-    """
-    points3d is n x 3 in the src_header.frame_id frame
-    transform child frame id should match src_header frame id
-    transform header frame id is the destination frame
-    """
-    # put numpy/cv2 points into a point cloud
+def points3d_np_to_pointcloud2(points3d: np.ndarray, header: Header) -> PointCloud2:
     field_points = []
     for ind in range(points3d.shape[0]):
         x = points3d[ind, 0]
@@ -92,15 +86,63 @@ def transform_points_np(points3d: np.ndarray, transform: TransformStamped) -> np
               PointField('z', 8, PointField.FLOAT32, 1),
               ]
 
+    pc2 = point_cloud2.create_cloud(header, fields, field_points)
+    return pc2
+
+
+def points3d_to_pointcloud2(points3d: [Point], header: Header) -> PointCloud2:
+    field_points = []
+    for pt in points3d:
+        pt = [pt.x, pt.y, pt.z]
+        field_points.append(pt)
+
+    fields = [PointField('x', 0, PointField.FLOAT32, 1),
+              PointField('y', 4, PointField.FLOAT32, 1),
+              PointField('z', 8, PointField.FLOAT32, 1),
+              ]
+
+    pc2 = point_cloud2.create_cloud(header, fields, field_points)
+    return pc2
+
+
+# TODO(lucasw) is there a an off-the-shelf function that does this?
+def transform_points_pc2(points3d: np.ndarray, transform: TransformStamped) -> PointCloud2:
+    """
+    points3d is n x 3 in the src_header.frame_id frame
+    transform child frame id should match src_header frame id
+    transform header frame id is the destination frame
+    """
     src_header = Header()
     src_header.frame_id = transform.child_frame_id
     src_header.stamp = transform.header.stamp
-    pc2_in = point_cloud2.create_cloud(src_header, fields, field_points)
+    pc2_in = points3d_to_pointcloud2(points3d, src_header)
+
     # pc2_in.header.stamp = camera_info.header.stamp
     # TODO(lucasw) probably a more efficient transform on a Point array than converting to PointCloud2
     pc2_out = do_transform_cloud(pc2_in, transform)
-    pc2_points = point_cloud2.read_points(pc2_out, field_names=("x", "y", "z"), skip_nans=True)
+    return pc2_out
 
+
+def transform_points_np_pc2(points3d: np.ndarray, transform: TransformStamped) -> PointCloud2:
+    """
+    points3d is n x 3 in the src_header.frame_id frame
+    transform child frame id should match src_header frame id
+    transform header frame id is the destination frame
+    """
+    src_header = Header()
+    src_header.frame_id = transform.child_frame_id
+    src_header.stamp = transform.header.stamp
+    pc2_in = points3d_np_to_pointcloud2(points3d, src_header)
+
+    # pc2_in.header.stamp = camera_info.header.stamp
+    # TODO(lucasw) probably a more efficient transform on a Point array than converting to PointCloud2
+    pc2_out = do_transform_cloud(pc2_in, transform)
+    return pc2_out
+
+
+def transform_points_np(points3d: np.ndarray, transform: TransformStamped) -> np.ndarray:
+    pc2_out = transform_points_np_pc2(points3d, transform)
+    pc2_points = point_cloud2.read_points(pc2_out, field_names=("x", "y", "z"), skip_nans=True)
     # convert from generator to list
     pc2_points = [pt for pt in pc2_points]
     transformed_points3d = np.zeros((len(pc2_points), 3))
@@ -156,6 +198,17 @@ def points_in_camera_transform_to_plane(camera_to_target_transform: TransformSta
     # rospy.loginfo_throttle(6.0, f"\n{points2d_in_camera}")
     # rospy.loginfo_throttle(6.0, f"\n{points3d_in_camera}")
 
+    return points3d_to_plane(camera_to_target_transform,
+                             points3d_in_camera,
+                             points2d_in_camera)
+
+
+def points3d_to_plane(camera_to_target_transform: TransformStamped,
+                      points3d_in_camera: np.ndarray,
+                      points2d_in_camera: np.ndarray | None = None) -> ([Point], [np.ndarray], bool):
+    """
+    The final point in the input 3d array needs to be the sensor origin
+    """
     pc2_points = transform_points_np(points3d_in_camera, camera_to_target_transform)
 
     # the camera origin in the target frame
@@ -163,6 +216,7 @@ def points_in_camera_transform_to_plane(camera_to_target_transform: TransformSta
     x0 = pt0[0]
     y0 = pt0[1]
     z0 = pt0[2]
+    # rospy.loginfo(f"sensor origin {pt0} {pc2_points[-2, :]}")
 
     is_full = True
     points_in_plane = []
@@ -187,7 +241,8 @@ def points_in_camera_transform_to_plane(camera_to_target_transform: TransformSta
         pt = Point(x2, y2, z2)
         # pt = Point(x1, y1, z1)
         points_in_plane.append(pt)
-        used_points2d_in_camera.append(points2d_in_camera[ind, :])
+        if points2d_in_camera is not None:
+            used_points2d_in_camera.append(points2d_in_camera[ind, :])
 
     return points_in_plane, used_points2d_in_camera, is_full
 
