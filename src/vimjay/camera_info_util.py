@@ -76,17 +76,35 @@ def get_camera_edge_points(camera_info: CameraInfo, num_per_edge=8) -> np.ndarra
 
 def points3d_np_to_pointcloud2(points3d: np.ndarray, header: Header) -> PointCloud2:
     field_points = []
-    for ind in range(points3d.shape[0]):
-        x = points3d[ind, 0]
-        y = points3d[ind, 1]
-        z = points3d[ind, 2]
-        pt = [x, y, z]
-        field_points.append(pt)
+    if points3d.shape[1] == 3:
+        rospy.loginfo_once("xyz")
+        for ind in range(points3d.shape[0]):
+            x = points3d[ind, 0]
+            y = points3d[ind, 1]
+            z = points3d[ind, 2]
+            pt = [x, y, z]
+            field_points.append(pt)
 
-    fields = [PointField('x', 0, PointField.FLOAT32, 1),
-              PointField('y', 4, PointField.FLOAT32, 1),
-              PointField('z', 8, PointField.FLOAT32, 1),
-              ]
+        fields = [PointField('x', 0, PointField.FLOAT32, 1),
+                  PointField('y', 4, PointField.FLOAT32, 1),
+                  PointField('z', 8, PointField.FLOAT32, 1),
+                  ]
+    elif points3d.shape[1] == 4:
+        rospy.loginfo_once("xyz intensity")
+        # assume fourth entry is intensity
+        for ind in range(points3d.shape[0]):
+            x = points3d[ind, 0]
+            y = points3d[ind, 1]
+            z = points3d[ind, 2]
+            i = points3d[ind, 3]
+            pt = [x, y, z, i]
+            field_points.append(pt)
+
+        fields = [PointField('x', 0, PointField.FLOAT32, 1),
+                  PointField('y', 4, PointField.FLOAT32, 1),
+                  PointField('z', 8, PointField.FLOAT32, 1),
+                  PointField('i', 12, PointField.FLOAT32, 1),
+                  ]
 
     pc2 = point_cloud2.create_cloud(header, fields, field_points)
     return pc2
@@ -144,10 +162,18 @@ def transform_points_np_pc2(points3d: np.ndarray, transform: TransformStamped) -
 
 def transform_points_np(points3d: np.ndarray, transform: TransformStamped) -> np.ndarray:
     pc2_out = transform_points_np_pc2(points3d, transform)
-    pc2_points = point_cloud2.read_points(pc2_out, field_names=("x", "y", "z"), skip_nans=True)
+
+    if points3d.shape[1] == 3:
+        field_names = ("x", "y", "z")
+    elif points3d.shape[1] == 4:
+        field_names = ("x", "y", "z", "i")
+    else:
+        rospy.logwarn(f"can't handle {points3d.shape}")
+        return
+    pc2_points = point_cloud2.read_points(pc2_out, field_names=field_names, skip_nans=True)
     # convert from generator to list
     pc2_points = [pt for pt in pc2_points]
-    transformed_points3d = np.zeros((len(pc2_points), 3))
+    transformed_points3d = np.zeros((len(pc2_points), points3d.shape[1]), points3d.dtype)
 
     for ind, pt in enumerate(pc2_points):
         transformed_points3d[ind, :] = pt
@@ -187,7 +213,7 @@ def points_in_camera_transform_to_plane(camera_to_target_transform: TransformSta
     ideal_points = cv2.undistortPoints(points2d_in_camera, camera_matrix, dist_coeff)
 
     num_points = points2d_in_camera.shape[0]
-    points3d_in_camera = np.ones((num_points + 1, 3))
+    points3d_in_camera = np.ones((num_points + 1, 3), np.float32)
 
     points3d_in_camera[:-1, 0] = ideal_points[:, 0, 0]
     points3d_in_camera[:-1, 1] = ideal_points[:, 0, 1]
@@ -226,9 +252,10 @@ def points3d_to_plane_np(camera_to_target_transform: TransformStamped,
         bad_mask = pts[:, 2] >= z0
     else:
         bad_mask = pts[:, 2] <= z0
-    z_scale = z0 / (z0 - pts[:, 2])
-    pts[:, 0] = x0 + np.multiply(pts[:, 0] - x0, z_scale)
-    pts[:, 1] = y0 + np.multiply(pts[:, 1] - y0, z_scale)
+    good_mask = np.logical_not(bad_mask)
+    z_scale = np.divide(z0, z0 - pts[:, 2], where=good_mask)
+    pts[:, 0] = x0 + np.multiply(pts[:, 0] - x0, z_scale, where=good_mask)
+    pts[:, 1] = y0 + np.multiply(pts[:, 1] - y0, z_scale, where=good_mask)
     pts[:, 2] = 0.0  # np.multiply(pts[:, 2] - z0, scale)
     # print(f"np {(rospy.Time.now() - t0).to_sec():0.6f}s")
 
