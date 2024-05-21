@@ -227,7 +227,7 @@ bool points_in_camera_transform_to_plane(
     const double y1 = pc_points.points[ind].y;
     const double z1 = pc_points.points[ind].z;
     // is the ray facing away from the plane, or parallel, and will never intersect?
-    const bool non_intersecting = (z1 >= z0 and z0 >= 0.0) or (z1 >= z0 and z0 <= 0.0);
+    const bool non_intersecting = (z1 >= z0 and z0 >= 0.0) or (z1 <= z0 and z0 <= 0.0);
     if (non_intersecting) {
       is_full = false;
       ROS_WARN_STREAM_THROTTLE(8.0, "non intersecting points");
