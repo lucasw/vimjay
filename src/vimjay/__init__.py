@@ -5,11 +5,13 @@ from .camera_info_util import (
     points_in_camera_to_plane,
     points_in_camera_transform_to_plane,
     points3d_to_plane,
+    points3d_to_plane_np,
     points3d_to_pointcloud2,
     points_to_marker,
     points_to_polygon,
     points_list_to_array,
     points_array_to_list,
     transform_points,
+    transform_points_np_pc2,
     transform_points_pc2,
 )

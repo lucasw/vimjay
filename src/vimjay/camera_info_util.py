@@ -3,6 +3,8 @@
 
 from __future__ import annotations
 
+import copy
+
 import cv2
 import numpy as np
 import rospy
@@ -203,14 +205,14 @@ def points_in_camera_transform_to_plane(camera_to_target_transform: TransformSta
                              points2d_in_camera)
 
 
-def points3d_to_plane(camera_to_target_transform: TransformStamped,
-                      points3d_in_camera: np.ndarray,
-                      points2d_in_camera: np.ndarray | None = None) -> ([Point], [np.ndarray], bool):
+def points3d_to_plane_np(camera_to_target_transform: TransformStamped,
+                         points3d_in_camera: np.ndarray) -> (np.ndarray, np.ndarray):
     """
     The final point in the input 3d array needs to be the sensor origin
     """
     pc2_points = transform_points_np(points3d_in_camera, camera_to_target_transform)
 
+    # t0 = rospy.Time.now()
     # the camera origin in the target frame
     pt0 = pc2_points[-1, :]
     x0 = pt0[0]
@@ -218,25 +220,45 @@ def points3d_to_plane(camera_to_target_transform: TransformStamped,
     z0 = pt0[2]
     # rospy.loginfo(f"sensor origin {pt0} {pc2_points[-2, :]}")
 
+    # t0 = rospy.Time.now()
+    pts = copy.deepcopy(pc2_points)
+    if z0 >= 0:
+        bad_mask = pts[:, 2] >= z0
+    else:
+        bad_mask = pts[:, 2] <= z0
+    z_scale = z0 / (z0 - pts[:, 2])
+    pts[:, 0] = x0 + np.multiply(pts[:, 0] - x0, z_scale)
+    pts[:, 1] = y0 + np.multiply(pts[:, 1] - y0, z_scale)
+    pts[:, 2] = 0.0  # np.multiply(pts[:, 2] - z0, scale)
+    # print(f"np {(rospy.Time.now() - t0).to_sec():0.6f}s")
+
+    return pts, bad_mask
+
+
+def points3d_to_plane(camera_to_target_transform: TransformStamped,
+                      points3d_in_camera: np.ndarray,
+                      points2d_in_camera: np.ndarray | None = None) -> ([Point], [np.ndarray], bool):
+    """
+    The final point in the input 3d array needs to be the sensor origin
+    """
+    # the camera origin in the target frame
+    # rospy.loginfo(f"sensor origin {pt0} {pc2_points[-2, :]}")
+
     is_full = True
     points_in_plane = []
     # points2d_in_camera that intersected with the plane
     used_points2d_in_camera = []
-    for ind in range(pc2_points.shape[0] - 1):
-        x1 = pc2_points[ind, 0]
-        y1 = pc2_points[ind, 1]
-        z1 = pc2_points[ind, 2]
-        # is the ray facing away from the plane, or parallel, and will never intersect?
-        non_intersecting = (z1 >= z0 and z0 >= 0.0) or (z1 >= z0 and z0 <= 0.0)
-        if non_intersecting:
+
+    pts, bad_mask = points3d_to_plane_np(camera_to_target_transform, points3d_in_camera)
+    # print(bad_mask)
+    # TODO(lucasw) conversion to list of Point is slow
+    for ind in range(pts.shape[0] - 1):
+        if bad_mask[ind]:
             is_full = False
             continue
-
-        scale = z0 / (z0 - z1)
-        x2 = x0 + (x1 - x0) * scale
-        y2 = y0 + (y1 - y0) * scale
-        # this should be 0.0
-        z2 = z0 + (z1 - z0) * scale
+        x2 = pts[ind, 0]
+        y2 = pts[ind, 1]
+        z2 = pts[ind, 2]
 
         pt = Point(x2, y2, z2)
         # pt = Point(x1, y1, z1)
