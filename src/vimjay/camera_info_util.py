@@ -232,7 +232,8 @@ def points_in_camera_transform_to_plane(camera_to_target_transform: TransformSta
 
 
 def points3d_to_plane_np(camera_to_target_transform: TransformStamped,
-                         points3d_in_camera: np.ndarray) -> (np.ndarray, np.ndarray):
+                         points3d_in_camera: np.ndarray,
+                         max_range=1000.0) -> (np.ndarray, np.ndarray):
     """
     The final point in the input 3d array needs to be the sensor origin
     """
@@ -257,6 +258,12 @@ def points3d_to_plane_np(camera_to_target_transform: TransformStamped,
     pts[:, 0] = x0 + np.multiply(pts[:, 0] - x0, z_scale, where=good_mask)
     pts[:, 1] = y0 + np.multiply(pts[:, 1] - y0, z_scale, where=good_mask)
     pts[:, 2] = 0.0  # np.multiply(pts[:, 2] - z0, scale)
+
+    if max_range is not None:
+        # cut off square around sensor origin
+        in_range_points = ((np.abs(pts[:, 0] - x0) < max_range)
+                           * (np.abs(pts[:, 1] - y0) < max_range)).astype(bool)
+        pts = pts[in_range_points, :]
     # print(f"np {(rospy.Time.now() - t0).to_sec():0.6f}s")
 
     return pts, bad_mask
