@@ -35,7 +35,7 @@ catkin_package(
   DEPENDS OpenCV
 )
 
-set(ROSLINT_PYTHON_OPTS "--ignore=''" "1>&2")
+set(ROSLINT_PYTHON_OPTS "--ignore=W503" "1>&2")
 roslint_python()
 
 include_directories(
