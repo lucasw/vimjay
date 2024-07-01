@@ -354,17 +354,24 @@ def camera_info_to_plane(tf_buffer: tf2_ros.BufferCore,
                          marker_in_camera_frame=True,
                          marker_id=0,
                          num_per_edge=8,
+                         use_lookup_core=False,
                          ) -> (Marker, TransformStamped, TransformStamped, bool):
     if camera_frame_override not in ["", None]:
         rospy.logwarn_once(f"overriding '{camera_info.header.frame_id}' with {camera_frame_override}")
         camera_info.header.frame_id = camera_frame_override
 
     try:
-        tfs0 = tf_buffer.lookup_transform(target_frame, camera_info.header.frame_id,
-                                          camera_info.header.stamp, rospy.Duration(0.3))
+        if use_lookup_core:
+            tfs0 = tf_buffer.lookup_transform_core(target_frame, camera_info.header.frame_id,
+                                                   camera_info.header.stamp)
+            tfs1 = tf_buffer.lookup_transform_core(output_frame, target_frame,
+                                                   camera_info.header.stamp)
+        else:
+            tfs0 = tf_buffer.lookup_transform(target_frame, camera_info.header.frame_id,
+                                              camera_info.header.stamp, rospy.Duration(0.3))
+            tfs1 = tf_buffer.lookup_transform(output_frame, target_frame,
+                                              camera_info.header.stamp, rospy.Duration(0.3))
         camera_frame_to_target_plane_tfs = tfs0
-        tfs1 = tf_buffer.lookup_transform(output_frame, target_frame,
-                                          camera_info.header.stamp, rospy.Duration(0.3))
         target_to_output_tfs = tfs1
     except (tf2_ros.ConnectivityException, tf2_ros.LookupException, tf2_ros.ExtrapolationException,
             rospy.exceptions.ROSTimeMovedBackwardsException) as ex:
@@ -381,9 +388,13 @@ def camera_info_to_plane(tf_buffer: tf2_ros.BufferCore,
 
     if marker_in_camera_frame:
         try:
-            tfs_inv = tf_buffer.lookup_transform(camera_info.header.frame_id, target_frame,
-                                                 camera_frame_to_target_plane_tfs.header.stamp,
-                                                 rospy.Duration(0.0))
+            if use_lookup_core:
+                tfs_inv = tf_buffer.lookup_transform_core(camera_info.header.frame_id, target_frame,
+                                                          camera_frame_to_target_plane_tfs.header.stamp)
+            else:
+                tfs_inv = tf_buffer.lookup_transform(camera_info.header.frame_id, target_frame,
+                                                     camera_frame_to_target_plane_tfs.header.stamp,
+                                                     rospy.Duration(0.0))
         except (tf2_ros.ConnectivityException, tf2_ros.LookupException, tf2_ros.ExtrapolationException,
                 rospy.exceptions.ROSTimeMovedBackwardsException) as ex:
             rospy.logwarn_throttle(4.0, ex)
@@ -394,8 +405,9 @@ def camera_info_to_plane(tf_buffer: tf2_ros.BufferCore,
         marker = points_to_marker(camera_info.header.stamp, camera_info.header.frame_id,
                                   points_in_plane_in_camera, marker_id=marker_id)
     else:
-        marker = points_to_marker(camera_info.header.stamp, target_frame,
-                                  points_in_plane, marker_id=marker_id)
+        points_in_output = transform_points(points_in_plane, target_to_output_tfs)
+        marker = points_to_marker(camera_info.header.stamp, output_frame,
+                                  points_in_output, marker_id=marker_id)
 
     marker.color.r -= marker_id / 5.0
     marker.color.b += marker_id / 8.0
