@@ -303,26 +303,20 @@ visualization_msgs::Marker points_to_marker(const ros::Time& stamp, const std::s
   return marker;
 }
 
+// returns true if all transforms succeeded, outputs are valid
 bool camera_info_to_plane(const tf2_ros::Buffer& tf_buffer,
-                          sensor_msgs::CameraInfo camera_info,
+                          const sensor_msgs::CameraInfo& camera_info,
                           const std::string& target_frame,
                           const std::string& output_frame,
+                          sensor_msgs::PointCloud& point_cloud_in_output,
                           geometry_msgs::PolygonStamped& polygon,
                           visualization_msgs::Marker& marker,
                           geometry_msgs::TransformStamped& camera_frame_to_target_plane_tfs,
+                          geometry_msgs::TransformStamped& target_to_output_tfs,
                           bool& is_full,
-                          sensor_msgs::PointCloud& point_cloud,
-                          const std::string camera_frame_override="",
-                          const bool marker_in_camera_frame=true,
                           const int marker_id=0,
                           const size_t num_per_edge=8)
 {
-  if (camera_frame_override != "") {
-    ROS_WARN_STREAM_ONCE("overriding " << camera_info.header.frame_id << " with " << camera_frame_override);
-    camera_info.header.frame_id = camera_frame_override;
-  }
-
-  geometry_msgs::TransformStamped target_to_output_tfs;
   try {
     auto tfs0 = tf_buffer.lookupTransform(target_frame, camera_info.header.frame_id,
                                           camera_info.header.stamp, ros::Duration(0.3));
@@ -342,49 +336,36 @@ bool camera_info_to_plane(const tf2_ros::Buffer& tf_buffer,
 
   auto edge_points = get_camera_edge_points(camera_info, num_per_edge);
 
-  std::vector<cv::Point3f> points_in_plane;
+  std::vector<cv::Point3f> points_in_target_plane;
   std::vector<cv::Point2f> used_points2d_in_camera;
+  sensor_msgs::PointCloud point_cloud_in_target_plane;
   try {
     is_full = points_in_camera_transform_to_plane(camera_frame_to_target_plane_tfs,
                                                   edge_points, camera_matrix, dist_coeff,
-                                                  points_in_plane, used_points2d_in_camera,
-                                                  point_cloud);
+                                                  points_in_target_plane, used_points2d_in_camera,
+                                                  point_cloud_in_target_plane);
   } catch (cv::Exception& ex) {
     ROS_WARN_STREAM(ex.what());
     return false;
   }
 
+  std::vector<cv::Point3f> points_in_output;
+
+  points_in_output = transform_points(points_in_target_plane, target_to_output_tfs);
+  marker = points_to_marker(camera_info.header.stamp, target_frame,
+                            points_in_output, marker_id);
+
+  marker.color.r -= marker_id / 5.0;
+  marker.color.b += marker_id / 8.0;
+
   polygon.header.stamp = camera_info.header.stamp;
   polygon.header.frame_id = output_frame;
-  for (const auto& pt : points_in_plane) {
+  for (const auto& pt : points_in_output) {
     geometry_msgs::Point32 pt32;
     pt32.x = pt.x;
     pt32.y = pt.y;
     pt32.z = pt.z;
     polygon.polygon.points.push_back(pt32);
-  }
-
-  if (marker_in_camera_frame) {
-    geometry_msgs::TransformStamped tfs_inv;
-    try {
-      tfs_inv = tf_buffer.lookupTransform(camera_info.header.frame_id, target_frame,
-                                          camera_frame_to_target_plane_tfs.header.stamp,
-                                          ros::Duration(0.0));
-    } catch (tf2::TransformException& ex) {
-      ROS_WARN_STREAM_THROTTLE(4.0, ex.what());
-      return false;
-    }
-
-    const auto points_in_plane_in_camera = transform_points(points_in_plane, tfs_inv);
-
-    marker = points_to_marker(camera_info.header.stamp, camera_info.header.frame_id,
-                              points_in_plane_in_camera, marker_id);
-  } else {
-    marker = points_to_marker(camera_info.header.stamp, target_frame,
-                              points_in_plane, marker_id);
-
-    marker.color.r -= marker_id / 5.0;
-    marker.color.b += marker_id / 8.0;
   }
 
   return true;
@@ -404,7 +385,7 @@ class CameraInfoToPlane
   std::string output_frame_ = "";
 
   std::string camera_frame_override_ = "";
-  bool marker_in_camera_frame_ = true;
+  bool marker_in_camera_frame_ = false;
   int marker_id_ = 0;
   std::string marker_ns_ = "camera_info";
   int num_per_edge_ = 8;
@@ -414,20 +395,30 @@ class CameraInfoToPlane
     visualization_msgs::Marker marker;
     geometry_msgs::PolygonStamped polygon;
     geometry_msgs::TransformStamped camera_frame_to_target_plane_tfs;
+    geometry_msgs::TransformStamped target_to_output_tfs;
     bool is_full;
-    sensor_msgs::PointCloud point_cloud;
+    sensor_msgs::PointCloud point_cloud_in_output;
+
+    auto camera_info = *msg;
+    if (camera_frame_override_ != "") {
+      ROS_WARN_STREAM_ONCE("overriding " << camera_info.header.frame_id << " with " << camera_frame_override_);
+      camera_info.header.frame_id = camera_frame_override_;
+    }
+
+    // TODO(lucaw) was there a desire to have the marker in a different frame than the other output?
+    const auto output_frame = marker_in_camera_frame_ ? camera_info.header.frame_id : output_frame_;
+
     const bool rv = camera_info_to_plane(
         tf_buffer_,
-        *msg,
+        camera_info,
         target_frame_,
-        output_frame_,
+        output_frame,
+        point_cloud_in_output,
         polygon,
         marker,
         camera_frame_to_target_plane_tfs,
+        target_to_output_tfs,
         is_full,
-        point_cloud,
-        camera_frame_override_,
-        marker_in_camera_frame_,
         marker_id_,
         num_per_edge_);
     if (!rv) {
@@ -439,7 +430,7 @@ class CameraInfoToPlane
     marker_array.markers.push_back(marker);
     polygon_pub_.publish(polygon);
     marker_pub_.publish(marker_array);
-    point_cloud_pub_.publish(point_cloud);
+    point_cloud_pub_.publish(point_cloud_in_output);
   }
 
 public:
