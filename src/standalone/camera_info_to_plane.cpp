@@ -352,7 +352,7 @@ bool camera_info_to_plane(const tf2_ros::Buffer& tf_buffer,
   std::vector<cv::Point3f> points_in_output;
 
   points_in_output = transform_points(points_in_target_plane, target_to_output_tfs);
-  marker = points_to_marker(camera_info.header.stamp, target_frame,
+  marker = points_to_marker(camera_info.header.stamp, output_frame,
                             points_in_output, marker_id);
 
   marker.color.r -= marker_id / 5.0;
