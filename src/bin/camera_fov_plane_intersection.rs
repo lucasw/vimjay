@@ -75,6 +75,10 @@ async fn main() -> Result<(), anyhow::Error> {
 
     let mut listener = TfListener::new(&nh).await;
 
+    // TODO(lucasw) make this a queue
+    let mut camera_info_q = None;
+    let mut update_interval = tokio::time::interval(Duration::from_millis(50));
+
     loop {
         tokio::select! {
             _ = tokio::signal::ctrl_c() => {
@@ -111,53 +115,58 @@ async fn main() -> Result<(), anyhow::Error> {
                 }
             }
             rv = camera_info_sub.next() => {
-                print!("[");
+                print!("c");
                 let t0 = tf_util::duration_now();
                 let mut t1 = t0.clone();
                 match rv {
-                    Some(Ok(camera_info)) => {
-                        // println!("{camera_info:?}");
-                        // need to loop and tokio sleep until this transform is available
-                        for i in 0..10 {
-                            let res = listener.lookup_transform(
-                                &param_str["target_frame"],
-                                camera_info.header.frame_id.as_str(),
-                                Some(camera_info.header.stamp.clone()),
-                            );
-                            t1 = tf_util::duration_now();
-                            match res {
-                                Ok(tf) => {
-                                    println!("have tf {i} {tf:?}");
-                                    break;
-                                },
-                                Err(err) => match err {
-                                    TfError::AttemptedLookUpInFuture(_, _) => {
-                                        print!("-");
-                                        // TODO(lucaw) this doesn't allow more tf messages to
-                                        // arrive
-                                        tokio::time::sleep(Duration::from_millis(50)).await;
-                                    },
-                                    _ => {
-                                        println!("lookup error {t1:?} {t0:?} {err:?}");
-                                        break;
-                                    },
-                                },
-                            }
-                        }  // loop until lookup works or times out or fails
+                    Some(Ok(new_camera_info)) => {
+                        if camera_info_q.is_none() {
+                            camera_info_q = Some(new_camera_info);
+                        } else {
+                            println!("dropping new camera info");
+                        }
                     },
                     Some(Err(error)) => {
                         panic!("{error}");
                     },
-                    // TODO(lucasw) should this ever happen?
                     None => (),
                 }
-                let t2 = tf_util::duration_now();
-                print!("]");
-                println!("lookup: {:?}s, publish: {:?}s",
-                    tf_util::duration_to_f64(t1 - t0),
-                    tf_util::duration_to_f64(t2 - t1),
-                );
             }
+            _ = update_interval.tick() => {
+                if let Some(camera_info) = camera_info_q.clone() {
+                    let t0 = tf_util::duration_now();
+                    let res = listener.lookup_transform(
+                        &param_str["target_frame"],
+                        camera_info.header.frame_id.as_str(),
+                        Some(camera_info.header.stamp.clone()),
+                    );
+                    let t1 = tf_util::duration_now();
+                    match res {
+                        Ok(tf) => {
+                            // TODO(lucasw) print age of tf
+                            println!("have tf {tf:?}");
+                            camera_info_q = None;
+                            let t2 = tf_util::duration_now();
+                            print!("]");
+                            println!("lookup: {:?}s, publish: {:?}s",
+                                tf_util::duration_to_f64(t1 - t0),
+                                tf_util::duration_to_f64(t2 - t1),
+                            );
+                        },
+                        Err(err) => match err {
+                            TfError::AttemptedLookUpInFuture(_, _) => {
+                                print!("-");
+                                // TODO(lucaw) this doesn't allow more tf messages to
+                                // arrive
+                            },
+                            _ => {
+                                println!("lookup error {t1:?} {t0:?} {err:?}");
+                                camera_info_q = None;
+                            },
+                        },
+                    }
+                }
+            },  // update
         }  // tokio select loop
     }
 
