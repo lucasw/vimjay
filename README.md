@@ -146,3 +146,9 @@ Replace errors:
 :s/LOG(ERROR) << \(.*\);/ROS_ERROR_STREAM(\1);/
 :s/LOG(INFO) << \(.*\);/ROS_INFO_STREAM(\1);/
 ```
+
+# rust node
+
+```
+ROS_PACKAGE_PATH=`rospack find geometry_msgs`:`rospack find tf2_msgs`:`rospack find sensor_msgs`:`rospack find std_msgs`:`rospack find actionlib_msgs`:`rospack find visualization_msgs` cargo build --release
+```
