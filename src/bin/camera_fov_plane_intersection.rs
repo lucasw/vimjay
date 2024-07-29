@@ -2,6 +2,7 @@
 /// of the camera fov and the xy plane in the target frame, publish out as a marker and polygon
 /// based on camera_info_to_plane.py/.cpp and renamed to avoid rosrun confusion with the C++ node
 
+// use nalgebra::base::Vector3;
 use roslibrust::ros1::{NodeHandle, Publisher};
 use std::collections::HashMap;
 use tf_roslibrust::{
@@ -12,6 +13,37 @@ use tf_roslibrust::{
 use tokio::time::Duration;
 
 roslibrust_codegen_macro::find_and_generate_ros_messages!();
+
+/// adapted from https://github.com/opencv/opencv/blob/4.x/modules/calib3d/src/undistort.dispatch.cpp
+fn undistort_points(
+    camera_info: &sensor_msgs::CameraInfo,
+    points_in_camera: Vec<(f64, f64)>,
+) -> Vec<(f64, f64)> {
+
+    let mut points2d = Vec::new();
+    points2d.resize(points_in_camera.len(), (0.0, 0.0));
+
+    let fx = camera_info.K[0];
+    let fy = camera_info.K[4];
+    let ifx = 1.0 / fx;
+    let ify = 1.0 / fy;
+    let cx = camera_info.K[2];
+    let cy = camera_info.K[5];
+
+    for (ind, (xo, yo)) in points_in_camera.iter().enumerate() {
+        // let u = xo;
+        // let v = yo;
+        let x = (xo - cx) * ifx;
+        let y = (yo - cy) * ify;
+
+        // TODO(lucasw) apply distortion
+
+        points2d[ind].0 = x;
+        points2d[ind].1 = x;
+    }
+
+    points2d
+}
 
 fn get_camera_edge_points(
     camera_info: &sensor_msgs::CameraInfo,
@@ -97,7 +129,12 @@ fn update(
     println!("have tf {:.3}s old",
         tf_util::duration_to_f64(t1 - tf_util::stamp_to_duration(&camera_info.header.stamp)));
 
-    let edge_points = get_camera_edge_points(camera_info, num_per_edge);
+    let edge_points_in_camera = get_camera_edge_points(camera_info, num_per_edge);
+    let edge_points_ideal = undistort_points(&camera_info, edge_points_in_camera);
+    println!("{edge_points_ideal:?}");
+
+    // let points3d =
+    // points3d.resize(num_points.into(), (0.0, 0.0));
 
     let mut marker_array = visualization_msgs::MarkerArray::default();
     let mut marker = visualization_msgs::Marker::default();
