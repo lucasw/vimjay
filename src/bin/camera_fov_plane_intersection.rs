@@ -13,6 +13,110 @@ use tokio::time::Duration;
 
 roslibrust_codegen_macro::find_and_generate_ros_messages!();
 
+fn get_camera_edge_points(
+    camera_info: &sensor_msgs::CameraInfo,
+    num_per_edge: &u8,
+) -> Vec<(f64, f64)> {
+    let num_per_edge = *num_per_edge;
+
+    let num_points = num_per_edge * 4 + 1;
+
+    let mut points2d = Vec::new();
+    points2d.resize(num_points.into(), (0.0, 0.0));
+    let mut ind = 0;
+
+    // create points in a loop around the edge of the image
+    for i in 0..num_per_edge {
+        let fr = i as f64 / num_per_edge as f64;
+        points2d[ind].0 = fr * camera_info.width as f64;
+        ind += 1;
+    }
+
+    for i in 0..num_per_edge {
+        let fr = i as f64 / num_per_edge as f64;
+        points2d[ind].0 = camera_info.width.into();
+        points2d[ind].1 = fr * camera_info.height as f64;
+        ind += 1;
+    }
+
+    for i in 0..num_per_edge {
+        let fr = 1.0 - i as f64 / num_per_edge as f64;
+        points2d[ind].0 = fr * camera_info.width as f64;
+        points2d[ind].1 = camera_info.height.into();
+        ind += 1;
+    }
+
+    // complete the loop with the + 1
+    for i in 0..(num_per_edge + 1) {
+        let fr = 1.0 - i as f64 / num_per_edge as f64;
+        points2d[ind].1 = fr * camera_info.height as f64;
+        ind += 1;
+    }
+
+    points2d
+}
+
+/*
+fn camera_info_to_plane(
+    // tf: &geometry_msgs::TransformStamped,
+    tf: &tf_roslibrust::TransformStamped,
+    camera_info: &sensor_msgs::CameraInfo,
+    num_per_edge: &u8,
+    target_frame: &str,
+    output_frame: &str,
+) {
+    println!("{edge_points:?}");
+}
+*/
+
+fn update(
+    listener: &TfListener,
+    camera_info: &sensor_msgs::CameraInfo,
+    num_per_edge: &u8,
+    target_frame: &str,
+    output_frame: &str,
+) -> Result<visualization_msgs::MarkerArray, TfError> {
+    let t0 = tf_util::duration_now();
+
+    let res0 = listener.lookup_transform(
+        &target_frame,
+        camera_info.header.frame_id.as_str(),
+        Some(camera_info.header.stamp.clone()),
+    );
+    let camera_frame_to_target_plane_tfs = res0?;
+
+    let res1 = listener.lookup_transform(
+        &output_frame,
+        &target_frame,
+        Some(camera_info.header.stamp.clone()),
+    );
+    let target_to_output_tfs = res1?;
+
+    let t1 = tf_util::duration_now();
+
+    println!("have tf {:.3}s old",
+        tf_util::duration_to_f64(t1 - tf_util::stamp_to_duration(&camera_info.header.stamp)));
+
+    let edge_points = get_camera_edge_points(camera_info, num_per_edge);
+
+    let mut marker_array = visualization_msgs::MarkerArray::default();
+    let mut marker = visualization_msgs::Marker::default();
+    {
+        marker.header = camera_info.header.clone();
+        marker.ns = "camera_fov".to_string();
+        marker_array.markers.push(marker);
+    }
+
+    // let t2 = tf_util::duration_now();
+    print!("]");
+    // println!("lookup: {:?}s, publish: {:?}s",
+    //     tf_util::duration_to_f64(t1 - t0),
+    //     tf_util::duration_to_f64(t2 - t1),
+    // );
+
+    Ok(marker_array)
+}
+
 #[tokio::main]
 async fn main() -> Result<(), anyhow::Error> {
 
@@ -24,7 +128,7 @@ async fn main() -> Result<(), anyhow::Error> {
     param_str.insert("target_frame".to_string(), "map".to_string());
     param_str.insert("output_frame".to_string(), "map".to_string());
     // need extra leading _ for name and ns
-    param_str.insert("_name".to_string(), "camera_info_to_plane".to_string());
+    param_str.insert("_name".to_string(), "camera_fov_plane_intersection".to_string());
     param_str.insert("_ns".to_string(), "".to_string());
 
     // TODO(lucasw) can an existing rust arg handling library handle the ':=' ros cli args?
@@ -54,9 +158,11 @@ async fn main() -> Result<(), anyhow::Error> {
     println!("{param_str:?}");
 
     let ns = param_str.remove("_ns").unwrap();
+    let target_frame = param_str.remove("target_frame").unwrap();
+    let output_frame = param_str.remove("output_frame").unwrap();
 
     // TODO(lucasw) add support for ints via command line args
-    let num_per_edge = 1;
+    let num_per_edge: u8 = 1;
 
     // TODO(lucasw) look for a '__name:=' argument
     let full_node_name = &format!(
@@ -69,7 +175,7 @@ async fn main() -> Result<(), anyhow::Error> {
     let nh = NodeHandle::new(&std::env::var("ROS_MASTER_URI")?, full_node_name)
         .await?;
 
-    let tf_pub: Publisher<visualization_msgs::MarkerArray> = nh.advertise("marker_array", 3).await?;
+    let marker_pub: Publisher<visualization_msgs::MarkerArray> = nh.advertise("marker_array", 3).await?;
 
     let mut camera_info_sub = nh.subscribe::<sensor_msgs::CameraInfo>(&format!("{}/camera_info", ns.as_str()), 10).await?;
 
@@ -134,33 +240,20 @@ async fn main() -> Result<(), anyhow::Error> {
             }
             _ = update_interval.tick() => {
                 if let Some(camera_info) = camera_info_q.clone() {
-                    let t0 = tf_util::duration_now();
-                    let res = listener.lookup_transform(
-                        &param_str["target_frame"],
-                        camera_info.header.frame_id.as_str(),
-                        Some(camera_info.header.stamp.clone()),
-                    );
-                    let t1 = tf_util::duration_now();
-                    match res {
-                        Ok(tf) => {
-                            // TODO(lucasw) print age of tf
-                            println!("have tf {tf:?}");
+                    let update_rv = update(&listener, &camera_info,
+                        &num_per_edge, &target_frame, &output_frame);
+                    match update_rv {
+                        Ok(marker_array) => {
+                            marker_pub.publish(&marker_array).await?;
                             camera_info_q = None;
-                            let t2 = tf_util::duration_now();
-                            print!("]");
-                            println!("lookup: {:?}s, publish: {:?}s",
-                                tf_util::duration_to_f64(t1 - t0),
-                                tf_util::duration_to_f64(t2 - t1),
-                            );
                         },
                         Err(err) => match err {
+                            // expect the tf to arrive soon
                             TfError::AttemptedLookUpInFuture(_, _) => {
                                 print!("-");
-                                // TODO(lucaw) this doesn't allow more tf messages to
-                                // arrive
                             },
                             _ => {
-                                println!("lookup error {t1:?} {t0:?} {err:?}");
+                                println!("lookup error {err:?}");
                                 camera_info_q = None;
                             },
                         },
