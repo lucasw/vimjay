@@ -147,9 +147,40 @@ fn update(
     }
 
     let mut edge_points_in_target = Vec::new();
-    for v3 in edge_points_in_camera_3d {  // .iter().enumerate() {
-        let v3_in_target = camera_frame_to_target_plane * v3;
-        edge_points_in_target.push(v3_in_target);
+    for pt3 in edge_points_in_camera_3d {  // .iter().enumerate() {
+        let pt3_in_target = camera_frame_to_target_plane * pt3;
+        edge_points_in_target.push(pt3_in_target);
+    }
+
+    // now find plane intersection
+    let pt0 = edge_points_in_target.last().unwrap();
+    let x0 = pt0.x;
+    let y0 = pt0.y;
+    let z0 = pt0.z;
+
+    let mut points_in_plane = Vec::new();
+
+    let mut is_full = true;
+    for (ind, pt) in edge_points_in_target.iter().enumerate() {
+        let x1 = pt.x;
+        let y1 = pt.y;
+        let z1 = pt.z;
+        let non_intersecting = (z1 >= z0 && z0 >= 0.0) || (z1 <= z0 && z0 <= 0.0);
+        if non_intersecting {
+            is_full = false;
+            // ROS_WARN_STREAM_THROTTLE(8.0, "non intersecting points");
+            continue;
+        }
+
+        let intersect_distance = z0 / (z0 - z1);
+        // the point intersecting the plane
+        let x2 = x0 + (x1 - x0) * intersect_distance;
+        let y2 = y0 + (y1 - y0) * intersect_distance;
+        // this should be 0.0
+        let z2 = z0 + (z1 - z0) * intersect_distance;
+
+        points_in_plane.push(Point3::new(x2, y2, z2));
+        // used_points2d_in_camera.push_back(points2d_in_camera[ind]);
     }
 
     let mut marker_array = visualization_msgs::MarkerArray::default();
@@ -165,12 +196,12 @@ fn update(
         marker.color.b = 0.2;
         marker.color.a = 1.0;
         marker.scale.x = 0.07;
-        marker.points.resize(edge_points_in_target.len(),
+        marker.points.resize(points_in_plane.len(),
             geometry_msgs::Point::default());
-        for (ind, v3) in edge_points_in_target.iter().enumerate() {
-            marker.points[ind].x = v3.x;
-            marker.points[ind].y = v3.y;
-            marker.points[ind].z = v3.z;
+        for (ind, pt3) in points_in_plane.iter().enumerate() {
+            marker.points[ind].x = pt3.x;
+            marker.points[ind].y = pt3.y;
+            marker.points[ind].z = pt3.z;
         }
         marker_array.markers.push(marker);
     }
