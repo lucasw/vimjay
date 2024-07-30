@@ -132,9 +132,9 @@ fn update(
     let edge_points_in_camera_2d = get_camera_edge_points(camera_info, num_per_edge);
     // TODO(lucasw) would be simpler to have undistort_points output into 3d
     let edge_points_ideal = undistort_points(&camera_info, edge_points_in_camera_2d);
-    println!("{edge_points_ideal:?}");
+    // println!("{edge_points_ideal:?}");
 
-    let mut edge_points_in_camera_3d = Vec::new();  // <(f64, f64, f64)>::new();
+    let mut edge_points_in_camera_3d = Vec::new();
     // the extra +1 point is 0, 0, 0 and is the origin of the camera
     edge_points_in_camera_3d.resize(edge_points_ideal.len() + 1, (0.0, 0.0, 0.0));
     for (ind, (xo, yo)) in edge_points_ideal.iter().enumerate() {
@@ -142,14 +142,19 @@ fn update(
     }
 
     let mut marker_array = visualization_msgs::MarkerArray::default();
-    let mut marker = visualization_msgs::Marker::default();
     {
+        let mut marker = visualization_msgs::Marker::default();
         marker.header = camera_info.header.clone();
         marker.ns = "camera_fov".to_string();
         marker.r#type = 4;  // LINE_STRIP - TODO(lucasw) are those enums?
         marker.points.resize(edge_points_in_camera_3d.len(),
             geometry_msgs::Point::default());  // { x: 0.0, y: 0.0, z: 0.0, };
         marker.pose.orientation.w = 1.0;
+        marker.color.r = 0.3;
+        marker.color.g = 0.5;
+        marker.color.b = 0.2;
+        marker.color.a = 1.0;
+        marker.scale.x = 0.07;
         for (ind, (xo, yo, zo)) in edge_points_in_camera_3d.iter().enumerate() {
             marker.points[ind].x = *xo;
             marker.points[ind].y = *yo;
@@ -226,7 +231,8 @@ async fn main() -> Result<(), anyhow::Error> {
     let nh = NodeHandle::new(&std::env::var("ROS_MASTER_URI")?, full_node_name)
         .await?;
 
-    let marker_pub: Publisher<visualization_msgs::MarkerArray> = nh.advertise("marker_array2", 3).await?;
+    // TODO(lucasw) remember leading ns or the message won't transmit
+    let marker_pub: Publisher<visualization_msgs::MarkerArray> = nh.advertise(&format!("{}/marker_array", ns.as_str()), 3).await?;
 
     let mut camera_info_sub = nh.subscribe::<sensor_msgs::CameraInfo>(&format!("{}/camera_info", ns.as_str()), 10).await?;
 
@@ -295,8 +301,11 @@ async fn main() -> Result<(), anyhow::Error> {
                         &num_per_edge, &target_frame, &output_frame);
                     match update_rv {
                         Ok(marker_array) => {
-                            println!("{marker_array:?}");
-                            marker_pub.publish(&marker_array).await?;
+                            let pub_rv = marker_pub.publish(&marker_array).await;
+                            match pub_rv {
+                                Ok(()) => {},
+                                Err(e) => { println!("{e}"); },
+                            }
                             camera_info_q = None;
                         },
                         Err(err) => match err {
