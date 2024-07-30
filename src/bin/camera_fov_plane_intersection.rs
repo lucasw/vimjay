@@ -39,7 +39,7 @@ fn undistort_points(
         // TODO(lucasw) apply distortion
 
         points2d[ind].0 = x;
-        points2d[ind].1 = x;
+        points2d[ind].1 = y;
     }
 
     points2d
@@ -129,18 +129,32 @@ fn update(
     println!("have tf {:.3}s old",
         tf_util::duration_to_f64(t1 - tf_util::stamp_to_duration(&camera_info.header.stamp)));
 
-    let edge_points_in_camera = get_camera_edge_points(camera_info, num_per_edge);
-    let edge_points_ideal = undistort_points(&camera_info, edge_points_in_camera);
+    let edge_points_in_camera_2d = get_camera_edge_points(camera_info, num_per_edge);
+    // TODO(lucasw) would be simpler to have undistort_points output into 3d
+    let edge_points_ideal = undistort_points(&camera_info, edge_points_in_camera_2d);
     println!("{edge_points_ideal:?}");
 
-    // let points3d =
-    // points3d.resize(num_points.into(), (0.0, 0.0));
+    let mut edge_points_in_camera_3d = Vec::new();  // <(f64, f64, f64)>::new();
+    // the extra +1 point is 0, 0, 0 and is the origin of the camera
+    edge_points_in_camera_3d.resize(edge_points_ideal.len() + 1, (0.0, 0.0, 0.0));
+    for (ind, (xo, yo)) in edge_points_ideal.iter().enumerate() {
+        edge_points_in_camera_3d[ind] = (*xo, *yo, 1.0);
+    }
 
     let mut marker_array = visualization_msgs::MarkerArray::default();
     let mut marker = visualization_msgs::Marker::default();
     {
         marker.header = camera_info.header.clone();
         marker.ns = "camera_fov".to_string();
+        marker.r#type = 4;  // LINE_STRIP - TODO(lucasw) are those enums?
+        marker.points.resize(edge_points_in_camera_3d.len(),
+            geometry_msgs::Point::default());  // { x: 0.0, y: 0.0, z: 0.0, };
+        marker.pose.orientation.w = 1.0;
+        for (ind, (xo, yo, zo)) in edge_points_in_camera_3d.iter().enumerate() {
+            marker.points[ind].x = *xo;
+            marker.points[ind].y = *yo;
+            marker.points[ind].z = *zo;
+        }
         marker_array.markers.push(marker);
     }
 
@@ -212,7 +226,7 @@ async fn main() -> Result<(), anyhow::Error> {
     let nh = NodeHandle::new(&std::env::var("ROS_MASTER_URI")?, full_node_name)
         .await?;
 
-    let marker_pub: Publisher<visualization_msgs::MarkerArray> = nh.advertise("marker_array", 3).await?;
+    let marker_pub: Publisher<visualization_msgs::MarkerArray> = nh.advertise("marker_array2", 3).await?;
 
     let mut camera_info_sub = nh.subscribe::<sensor_msgs::CameraInfo>(&format!("{}/camera_info", ns.as_str()), 10).await?;
 
@@ -281,6 +295,7 @@ async fn main() -> Result<(), anyhow::Error> {
                         &num_per_edge, &target_frame, &output_frame);
                     match update_rv {
                         Ok(marker_array) => {
+                            println!("{marker_array:?}");
                             marker_pub.publish(&marker_array).await?;
                             camera_info_q = None;
                         },
