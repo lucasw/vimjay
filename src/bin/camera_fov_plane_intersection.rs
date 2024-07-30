@@ -2,13 +2,14 @@
 /// of the camera fov and the xy plane in the target frame, publish out as a marker and polygon
 /// based on camera_info_to_plane.py/.cpp and renamed to avoid rosrun confusion with the C++ node
 
-// use nalgebra::base::Vector3;
+use nalgebra::Point3;
 use roslibrust::ros1::{NodeHandle, Publisher};
 use std::collections::HashMap;
 use tf_roslibrust::{
     TfError,
     TfListener,
     tf_util,
+    transforms::isometry_from_transform,
 };
 use tokio::time::Duration;
 
@@ -116,6 +117,8 @@ fn update(
         Some(camera_info.header.stamp.clone()),
     );
     let camera_frame_to_target_plane_tfs = res0?;
+    let camera_frame_to_target_plane = isometry_from_transform(&camera_frame_to_target_plane_tfs.transform);
+    // println!("{camera_frame_to_target_plane}");
 
     let res1 = listener.lookup_transform(
         &output_frame,
@@ -123,6 +126,7 @@ fn update(
         Some(camera_info.header.stamp.clone()),
     );
     let target_to_output_tfs = res1?;
+    let target_to_output = isometry_from_transform(&camera_frame_to_target_plane_tfs.transform);
 
     let t1 = tf_util::duration_now();
 
@@ -136,29 +140,37 @@ fn update(
 
     let mut edge_points_in_camera_3d = Vec::new();
     // the extra +1 point is 0, 0, 0 and is the origin of the camera
-    edge_points_in_camera_3d.resize(edge_points_ideal.len() + 1, (0.0, 0.0, 0.0));
+    edge_points_in_camera_3d.resize(edge_points_ideal.len() + 1,
+        Point3::new(0.0, 0.0, 0.0));
     for (ind, (xo, yo)) in edge_points_ideal.iter().enumerate() {
-        edge_points_in_camera_3d[ind] = (*xo, *yo, 1.0);
+        edge_points_in_camera_3d[ind] = Point3::new(*xo, *yo, 1.0);
+    }
+
+    let mut edge_points_in_target = Vec::new();
+    for v3 in edge_points_in_camera_3d {  // .iter().enumerate() {
+        let v3_in_target = camera_frame_to_target_plane * v3;
+        edge_points_in_target.push(v3_in_target);
     }
 
     let mut marker_array = visualization_msgs::MarkerArray::default();
     {
         let mut marker = visualization_msgs::Marker::default();
         marker.header = camera_info.header.clone();
+        marker.header.frame_id = target_frame.to_string();
         marker.ns = "camera_fov".to_string();
         marker.r#type = 4;  // LINE_STRIP - TODO(lucasw) are those enums?
-        marker.points.resize(edge_points_in_camera_3d.len(),
-            geometry_msgs::Point::default());  // { x: 0.0, y: 0.0, z: 0.0, };
         marker.pose.orientation.w = 1.0;
         marker.color.r = 0.3;
         marker.color.g = 0.5;
         marker.color.b = 0.2;
         marker.color.a = 1.0;
         marker.scale.x = 0.07;
-        for (ind, (xo, yo, zo)) in edge_points_in_camera_3d.iter().enumerate() {
-            marker.points[ind].x = *xo;
-            marker.points[ind].y = *yo;
-            marker.points[ind].z = *zo;
+        marker.points.resize(edge_points_in_target.len(),
+            geometry_msgs::Point::default());
+        for (ind, v3) in edge_points_in_target.iter().enumerate() {
+            marker.points[ind].x = v3.x;
+            marker.points[ind].y = v3.y;
+            marker.points[ind].z = v3.z;
         }
         marker_array.markers.push(marker);
     }

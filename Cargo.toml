@@ -15,6 +15,7 @@ to prevent conflicts if the child already exists)
 
 [dependencies]
 anyhow = "1.0.86"
+nalgebra = "0.30"
 # opencv = "0.92.1"
 tokio = "1.38.0"
 
