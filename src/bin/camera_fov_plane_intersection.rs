@@ -2,7 +2,7 @@
 /// of the camera fov and the xy plane in the target frame, publish out as a marker and polygon
 /// based on camera_info_to_plane.py/.cpp and renamed to avoid rosrun confusion with the C++ node
 
-use nalgebra::Point3;
+use nalgebra::{Point3, Rotation, Rotation3};
 use roslibrust::ros1::{NodeHandle, Publisher};
 use std::collections::HashMap;
 use tf_roslibrust::{
@@ -19,29 +19,112 @@ roslibrust_codegen_macro::find_and_generate_ros_messages!();
 fn undistort_points(
     camera_info: &sensor_msgs::CameraInfo,
     points_in_camera: Vec<(f64, f64)>,
+    max_count: u32,
 ) -> Vec<(f64, f64)> {
 
     let mut points2d = Vec::new();
     points2d.resize(points_in_camera.len(), (0.0, 0.0));
 
-    let fx = camera_info.K[0];
-    let fy = camera_info.K[4];
+    // TODO(lucasw) tilt only used with large distortion matrices, support later
+    // let inv_mat_tilt = Rotation3::identity();
+    let mat_tilt: Rotation<f64, 3> = Rotation3::identity();
+
+    let m = camera_info.K;
+
+    let fx = m[0];
+    let fy = m[4];
     let ifx = 1.0 / fx;
     let ify = 1.0 / fy;
-    let cx = camera_info.K[2];
-    let cy = camera_info.K[5];
+    let cx = m[2];
+    let cy = m[5];
+
+    // distortion values are stored in a vector called 'k', not to be confused with camera_info.K
+    // above
+    const NUM: usize = 14;
+    // TODO(lucasw) single line way to do this?
+    let k = {
+        let mut k: [f64; NUM] = [0.0; NUM];
+        for i in 0..NUM {
+            if i >= camera_info.D.len() {
+                break;
+            }
+            k[i] = camera_info.D[i];
+        }
+        k
+    };
+
+    // TODO(lucasw) pass this in optionally
+    let epsilon = 0.0;  // 1e-9;
 
     for (ind, (xo, yo)) in points_in_camera.iter().enumerate() {
-        // let u = xo;
-        // let v = yo;
-        let x = (xo - cx) * ifx;
-        let y = (yo - cy) * ify;
+        let u = xo;
+        let v = yo;
+        let mut x = (xo - cx) * ifx;
+        let mut y = (yo - cy) * ify;
 
-        // TODO(lucasw) apply distortion
+        // apply distortion
+        if true {
+            /*
+            let vec_untilt = inv_mat_tilt * Point3::new(x, y, 1.0);
+            let inv_proj = { if vec_untilt.z != 0.0 { 1. / vec_untilt.z } else { 1.0 } };
+            x = inv_proj * vec_untilt.x;
+            y = inv_proj * vec_untilt.y;
+            */
+            let x0 = x;
+            let y0 = y;
+
+            for j in 0..max_count {
+                let r2 = x*x + y*y;
+                let icdist = (1.0 + ((k[7]*r2 + k[6])*r2 + k[5])*r2) / (1.0 + ((k[4]*r2 + k[1])*r2 + k[0])*r2);
+                if icdist < 0.0 { // test: undistortPoints.regression_14583
+                    x = (u - cx)*ifx;
+                    y = (v - cy)*ify;
+                    print!("x");
+                    break;
+                }
+                let delta_x = 2.0*k[2]*x*y + k[3] * (r2 + 2.0*x*x)+ k[8]*r2 +k[9]*r2*r2;
+                let delta_y = k[2]*(r2 + 2.0*y*y) + 2.0*k[3]*x*y + k[10]*r2 + k[11]*r2*r2;
+                x = (x0 - delta_x)*icdist;
+                y = (y0 - delta_y)*icdist;
+
+                if epsilon > 0.0 { // (criteria.type & cv::TermCriteria::EPS) {
+                    let r2 = x*x + y*y;
+                    let r4 = r2*r2;
+                    let r6 = r4*r2;
+                    let a1 = 2.0*x*y;
+                    let a2 = r2 + 2.0*x*x;
+                    let a3 = r2 + 2.0*y*y;
+                    let cdist = 1.0 + k[0]*r2 + k[1]*r4 + k[4]*r6;
+                    let icdist2 = 1.0 / (1.0 + k[5]*r2 + k[6]*r4 + k[7]*r6);
+
+                    let xd0 = x*cdist*icdist2 + k[2]*a1 + k[3]*a2 + k[8]*r2 + k[9]*r4;
+                    let yd0 = y*cdist*icdist2 + k[2]*a3 + k[3]*a1 + k[10]*r2 + k[11]*r4;
+
+                    let vec_tilt = mat_tilt * Point3::new(xd0, yd0, 1.0);
+                    let inv_proj = { if vec_tilt.z != 0.0 { 1.0 / vec_tilt.z } else { 1.0 } };
+                    let xd = inv_proj * vec_tilt.x;
+                    let yd = inv_proj * vec_tilt.y;
+
+                    let x_proj = xd*fx + cx;
+                    let y_proj = yd*fy + cy;
+
+                    let error = ((x_proj - u).powi(2) + (y_proj - v).powi(2)).sqrt();
+                    if error < epsilon { println!("{j} error {error:.12}"); break; }
+                }
+            }  // iterate until error is small
+        }  // apply distortion
+
+        /*
+        let xx = RR[0][0]*x + RR[0][1]*y + RR[0][2];
+        let yy = RR[1][0]*x + RR[1][1]*y + RR[1][2];
+        let ww = 1./(RR[2][0]*x + RR[2][1]*y + RR[2][2]);
+        x = xx*ww;
+        y = yy*ww;
+        */
 
         points2d[ind].0 = x;
         points2d[ind].1 = y;
-    }
+    }  // iterate through all points
 
     points2d
 }
@@ -102,12 +185,13 @@ fn camera_info_to_plane(
 }
 */
 
-fn update(
+fn camera_info_edge_points_plane_intersection(
     listener: &TfListener,
     camera_info: &sensor_msgs::CameraInfo,
     num_per_edge: &u8,
     target_frame: &str,
     output_frame: &str,
+    max_count: u32,
 ) -> Result<visualization_msgs::MarkerArray, TfError> {
     let t0 = tf_util::duration_now();
 
@@ -135,7 +219,7 @@ fn update(
 
     let edge_points_in_camera_2d = get_camera_edge_points(camera_info, num_per_edge);
     // TODO(lucasw) would be simpler to have undistort_points output into 3d
-    let edge_points_ideal = undistort_points(&camera_info, edge_points_in_camera_2d);
+    let edge_points_ideal = undistort_points(&camera_info, edge_points_in_camera_2d, max_count);
     // println!("{edge_points_ideal:?}");
 
     let mut edge_points_in_camera_3d = Vec::new();
@@ -226,6 +310,7 @@ async fn main() -> Result<(), anyhow::Error> {
     let mut param_str = HashMap::<String, String>::new();
     param_str.insert("target_frame".to_string(), "map".to_string());
     param_str.insert("output_frame".to_string(), "map".to_string());
+    param_str.insert("max_count".to_string(), "8".to_string());
     // need extra leading _ for name and ns
     param_str.insert("_name".to_string(), "camera_fov_plane_intersection".to_string());
     param_str.insert("_ns".to_string(), "".to_string());
@@ -259,6 +344,9 @@ async fn main() -> Result<(), anyhow::Error> {
     let ns = param_str.remove("_ns").unwrap();
     let target_frame = param_str.remove("target_frame").unwrap();
     let output_frame = param_str.remove("output_frame").unwrap();
+    let max_count = param_str.remove("max_count").unwrap();
+    let max_count = max_count.parse::<u32>().unwrap();
+    println!("max count {max_count}");
 
     // TODO(lucasw) add support for ints via command line args
     let num_per_edge: u8 = 1;
@@ -340,8 +428,11 @@ async fn main() -> Result<(), anyhow::Error> {
             }
             _ = update_interval.tick() => {
                 if let Some(camera_info) = camera_info_q.clone() {
-                    let update_rv = update(&listener, &camera_info,
-                        &num_per_edge, &target_frame, &output_frame);
+                    let update_rv = camera_info_edge_points_plane_intersection(
+                        &listener, &camera_info,
+                        &num_per_edge, &target_frame, &output_frame,
+                        max_count,
+                    );
                     match update_rv {
                         Ok(marker_array) => {
                             let pub_rv = marker_pub.publish(&marker_array).await;
