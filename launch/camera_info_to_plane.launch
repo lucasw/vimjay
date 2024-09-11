@@ -1,0 +1,65 @@
+<?xml version="1.0"?>
+<launch>
+
+  <!-- use generated camera info on a dynamic reconfigure controlled tf and project
+      the contour of the camera field of view onto a plane
+  -->
+
+  <arg name="use_gui" default="true" />
+
+  <arg name="half_pi" value="1.57079632679" />
+
+  <node name="camera0_base_frame" pkg="tf2_ros" type="static_transform_publisher"
+      args="0.0 0.0 3.0 0.0 1.0 0.0 map camera_base"
+      output="screen" />
+
+  <node name="camera_tf" pkg="rviz_interactive_tf" type="interactive_tf">
+    <param name="parent_frame" value="camera_base" />
+    <param name="frame" value="camera" />
+  </node>
+
+  <node name="camera1_optical_frame" pkg="tf2_ros" type="static_transform_publisher"
+      args="0.0 0.0 0.0 -$(arg half_pi) 0.0 -$(arg half_pi) camera camera_optical"
+      output="screen" />
+
+  <node name="dr_camera_info" pkg="vimjay" type="dr_camera_info.py"
+      output="screen">
+    <param name="frame_id" value="camera_optical" />
+    <param name="update_rate" value="8" />
+    <param name="d0" value="0.1" />
+  </node>
+
+  <node name="camera_info_to_plane_py" pkg="vimjay" type="camera_info_to_plane"
+      output="screen">
+    <param name="target_frame" value="map" />
+    <param name="marker_id" value="0" />
+    <param name="marker_ns" value="camera_info_cpp" />
+  </node>
+
+  <node name="camera_info_to_plane_cpp" pkg="vimjay" type="camera_info_to_plane.py"
+      output="screen">
+    <param name="target_frame" value="map" />
+    <param name="marker_id" value="11" />
+    <param name="marker_ns" value="camera_info_py" />
+  </node>
+
+  <node name="top_camera_info_to_plane" pkg="vimjay" type="camera_info_to_plane.py"
+      output="screen">
+    <remap from="camera_info" to="plane/camera_info" />
+    <param name="target_frame" value="map" />
+    <param name="marker_id" value="1" />
+    <param name="do_plane_pubs" value="false" />
+  </node>
+
+  <node name="rqt_generic" pkg="rqt_gui" type="rqt_gui"
+      args="--perspective-file $(find vimjay)/config/camera_info_to_plane.perspective"
+      output="screen"
+      if="$(arg use_gui)">
+  </node>
+
+  <node name="rviz" pkg="rviz" type="rviz"
+      args="-d $(find vimjay)/config/camera_info_to_plane.rviz"
+      if="$(arg use_gui)">
+  </node>
+
+</launch>

@@ -24,7 +24,7 @@
 
 #include "vimjay/opengl.h"
 
-#include <boost/timer.hpp>
+#include <boost/timer/timer.hpp>
 #include <ros/console.h>
 
 // TODO consider replacing this with a wrapper around Ogre or OSG

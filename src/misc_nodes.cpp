@@ -27,7 +27,7 @@
 #include <boost/thread.hpp>
 #include <boost/filesystem/operations.hpp>
 #include <boost/lexical_cast.hpp>
-#include <boost/timer.hpp>
+#include <boost/timer/timer.hpp>
 
 #include <ros/console.h>
 

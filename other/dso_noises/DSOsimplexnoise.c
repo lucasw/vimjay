@@ -33,8 +33,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#include "DSOnoises/shadeop.h"
-#include "DSOnoises/simplexnoise1234.h"
+#include <dso_noises/shadeop.h>
+#include <dso_noises/simplexnoise1234.h>
 
 // Carefully chosen but somewhat arbitrary x, y, z, t offsets
 // for repeated evaluation for vector return types.

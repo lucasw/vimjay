@@ -102,7 +102,7 @@ ImageDeque::ImageDeque() :
 
   server_.reset(new ReconfigureServer(dr_mutex_, ros::NodeHandle(ros::this_node::getName())));
   dynamic_reconfigure::Server<vimjay::ImageDequeConfig>::CallbackType cbt =
-    boost::bind(&ImageDeque::callback, this, _1, _2);
+    boost::bind(&ImageDeque::callback, this, boost::placeholders::_1, boost::placeholders::_2);
   server_->setCallback(cbt);
 
   timer_ = nh_.createTimer(ros::Duration(0.2), &ImageDeque::pubImage, this);

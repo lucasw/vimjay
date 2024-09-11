@@ -1,10 +1,13 @@
 <?xml version="1.0"?>
 <launch>
 
+  <arg name="use_rqt" default="true" />
+
   <group ns="camera">
 
-  <node name="rqt_generic" pkg="rqt_gui" type="rqt_gui" 
-      args="--perspective-file $(find vimjay)/config/image_rect.perspective" 
+  <node name="rqt_generic" pkg="rqt_gui" type="rqt_gui"
+      args="--perspective-file $(find vimjay)/config/image_rect.perspective"
+      if="$(arg use_rqt)"
       output="screen" >
   </node>
 
@@ -35,6 +38,7 @@
   <node name="image_proc" pkg="image_proc" type="image_proc"
       output="screen" >
     <remap from="image_raw" to="image" />
+    <remap from="camera_info" to="camera_info_in" />
   </node>
 
   </group>  <!-- camera -->

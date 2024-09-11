@@ -20,7 +20,7 @@
 
 #include "vimjay/output.h"
 
-#include <boost/timer.hpp>
+#include <boost/timer/timer.hpp>
 #include <ros/console.h>
 
 #include "vimjay/config.h"
@@ -112,7 +112,7 @@ bool Output::update()
 
 bool Output::draw(cv::Point2f ui_offset)
 {
-  boost::timer t1;
+  boost::timer::cpu_timer t1;
 
   bool is_valid = false;
   bool is_dirty = false;
@@ -139,7 +139,7 @@ bool Output::draw(cv::Point2f ui_offset)
   */
   pub_.publish(msg);  //, camera_info);
 
-  ROS_DEBUG_STREAM_COND(log_level > 4, "decor draw time" << t1.elapsed());
+  ROS_DEBUG_STREAM_COND(log_level > 4, "decor draw time" << t1.format());
 
 #if 0
   XWindowAttributes xwAttr, xwAttr2;
@@ -300,7 +300,7 @@ bool Output::draw(cv::Point2f ui_offset)
     setSignal("im_w", Config::inst()->im_width);
     setSignal("im_h", Config::inst()->im_height);
 
-    ROS_DEBUG_STREAM_COND(log_level > 5, "attr time" << t1.elapsed());
+    ROS_DEBUG_STREAM_COND(log_level > 5, "attr time" << t1.format());
 
     // TBD is this necessary or does X do it for me if the window is resized?
     const cv::Size sz = cv::Size(w, h);
@@ -310,18 +310,18 @@ bool Output::draw(cv::Point2f ui_offset)
     else
       cv::resize(in, scaled, sz, 0, 0, getModeType());
 
-    ROS_DEBUG_STREAM_COND(log_level > 6, "resize time" << t1.elapsed());
+    ROS_DEBUG_STREAM_COND(log_level > 6, "resize time" << t1.format());
 
     XDestroyImage(ximage);
     ximage = XGetImage(display, DefaultRootWindow(display), 0, 0, w, h, AllPlanes, ZPixmap);
 
-    ROS_DEBUG_STREAM_COND(log_level > 5, "get im time" << t1.elapsed());
+    ROS_DEBUG_STREAM_COND(log_level > 5, "get im time" << t1.format());
     // this is slow
     bm::matToXImage(scaled, ximage, win, *display, *screen);
-    ROS_DEBUG_STREAM_COND(log_level > 5, "matToXImage time" << t1.elapsed());
+    ROS_DEBUG_STREAM_COND(log_level > 5, "matToXImage time" << t1.format());
 
     XPutImage(display, win,  gc, ximage, 0, 0, 0, 0, ximage->width, ximage->height);
-    ROS_DEBUG_STREAM_COND(log_level > 4, "put image time" << t1.elapsed());
+    ROS_DEBUG_STREAM_COND(log_level > 4, "put image time" << t1.format());
   } // ximage and input image is valid
 #endif
 

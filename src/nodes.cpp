@@ -226,6 +226,7 @@ bool Connector::setDirty()
 {
   Elem::setDirty();
   if (!internally_set && parent.lock()) parent.lock()->setDirty();
+  return true;
 }
 
 std::string typeToString(const conType type)
@@ -621,6 +622,7 @@ bool Node::posUpdate()
     vel.y = -abs(vel.y) * 0.5;
   }
 #endif
+  return true;
 }
 
 bool Node::preDraw(cv::Point2f ui_offset)
@@ -656,6 +658,7 @@ bool Node::preDraw(cv::Point2f ui_offset)
     }
     ports[i]->preDraw(graph_ui, ui_offset);
   }
+  return true;
 }
 
 bool Node::draw(cv::Point2f ui_offset)
@@ -763,6 +766,7 @@ bool Node::load(cv::FileNodeIterator nd)
     */
   }
 #endif
+  return true;
 }
 
 bool Node::save(cv::FileStorage& fs)
@@ -1573,6 +1577,8 @@ bool ImageNode::writeImage()
   ROS_INFO_STREAM(name << " wrote " << CLTXT << file_name.str() << CLNRM);
   // TBD register that these frames have been saved somewhere so it is easy to load
   // them up again?
+  //
+  return true;
 }
 
 bool ImageNode::handleKey(int key)
@@ -1789,11 +1795,12 @@ bool Signal::draw(cv::Point2f ui_offset)
 bool Signal::load(cv::FileNodeIterator nd)
 {
   Node::load(nd);
+  return true;
 }
 
 bool Signal::save(cv::FileStorage& fs)
 {
-  Node::save(fs);
+  return Node::save(fs);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -2077,14 +2084,16 @@ bool Buffer::writeImage()
 
 bool Buffer::load(cv::FileNodeIterator nd)
 {
-  ImageNode::load(nd);
+  return ImageNode::load(nd);
 }
 
 bool Buffer::save(cv::FileStorage& fs)
 {
-  ImageNode::save(fs);
+  const bool rv = ImageNode::save(fs);
 
   // fs << "max_size" << max_size;
+
+  return rv;
 }
 
 /////////////////////////////////////////////////////////////////////////////

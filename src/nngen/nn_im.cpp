@@ -690,7 +690,7 @@ int main(int argn, char** argv)
   // std::string image_file = "test_pattern.png";
   // std::string image_file = "lena.png";  // "beach_128.png";
   std::string image_file = "beach_128.png";
-  cv::Mat im = cv::imread(image_file, CV_LOAD_IMAGE_GRAYSCALE);
+  cv::Mat im = cv::imread(image_file, cv::IMREAD_GRAYSCALE);
 
   if (im.empty())
   {

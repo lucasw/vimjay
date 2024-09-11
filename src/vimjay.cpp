@@ -26,7 +26,7 @@
 */
 
 #include <boost/lexical_cast.hpp>
-#include <boost/timer.hpp>
+#include <boost/timer/timer.hpp>
 #include <deque>
 #include <iostream>
 #include <memory>
@@ -562,6 +562,8 @@ public:
         y += tht;
       }
     }
+
+    return true;
   }  // gridGraph
 
   int count;
@@ -1130,6 +1132,7 @@ public:
       // source_port = "";
       ROS_DEBUG_STREAM_COND(log_level > 1, "cleared source node");
     }
+    return true;
   }
 
   // make a connection
@@ -1196,6 +1199,8 @@ public:
     {
       selected_node->setInputPort(selected_node->selected_type, selected_node->selected_port);  //, NULL, "");
     }
+
+    return true;
   }
 
   void selectNextNode()
@@ -1778,6 +1783,8 @@ public:
     }
 
     clearAllNodeUpdates();
+
+    return true;
   }
 
   bool updateThread()
@@ -1837,7 +1844,7 @@ public:
 
   virtual bool draw(cv::Point2f ui_offset)
   {
-    boost::timer t1;
+    boost::timer::cpu_timer t1;
 
     autoScroll();
 
@@ -1858,7 +1865,7 @@ public:
     else
       graph_ui = cv::Scalar(0, 0, 0);
 
-    ROS_DEBUG_STREAM_COND(log_level > 4, "bg draw time" << t1.elapsed());
+    ROS_DEBUG_STREAM_COND(log_level > 4, "bg draw time" << t1.format());
 
     if (draw_nodes)
     {
@@ -1904,7 +1911,7 @@ public:
         cv::circle(graph_ui, source_node->loc + ui_offset, 23, cv::Scalar(29, 51, 11), -1);
         cv::circle(graph_ui, source_node->loc + ui_offset, 22, cv::Scalar(229, 151, 51), -1);
       }
-      ROS_DEBUG_STREAM_COND(log_level > 4, "cv draw time" << t1.elapsed());
+      ROS_DEBUG_STREAM_COND(log_level > 4, "cv draw time" << t1.format());
 
       // draw input and outputs
       /*
@@ -1936,16 +1943,16 @@ public:
         }
       }
 
-      ROS_DEBUG_STREAM_COND(log_level > 4, "node draw time " << t1.elapsed());
+      ROS_DEBUG_STREAM_COND(log_level > 4, "node draw time " << t1.format());
     }
 
     // commenting this out breaks the drawing, not sure why
     setImage("in", graph_ui);
-    ROS_DEBUG_STREAM_COND(log_level > 4, "ui draw time" << t1.elapsed());
+    ROS_DEBUG_STREAM_COND(log_level > 4, "ui draw time" << t1.format());
 
     Output::draw(ui_offset);
 
-    ROS_DEBUG_STREAM_COND(log_level > 4, "full draw time" << t1.elapsed());
+    ROS_DEBUG_STREAM_COND(log_level > 4, "full draw time" << t1.format());
     return true;
   }  // VimJay::draw
 
@@ -2003,6 +2010,7 @@ public:
         }
       }
     }
+    return true;
   }  // node repell
 
   virtual bool handleKey(int key)
