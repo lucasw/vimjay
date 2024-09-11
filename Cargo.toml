@@ -20,28 +20,25 @@ nalgebra = "0.30"
 tokio = "1.38.0"
 
 [dependencies.roslibrust]
-git = "https://github.com/lucasw/roslibrust.git"
-branch = "master"
-# tag v0.10.1 on github is confirmed to work
-# version="0.9.0"
-# rev = "a1eb5a875906a26aa172a7465dd018858d191665"
-# branch = "time_ops"
+git = "https://github.com/lucasw/roslibrust"
+branch = "subscribe_any"
+# path = "../../roslibrust/roslibrust"
+# version="0.10.2"
 features = ["ros1"]
 
 [dependencies.roslibrust_codegen]
-git = "https://github.com/lucasw/roslibrust.git"
-branch = "master"
-# rev = "a1eb5a875906a26aa172a7465dd018858d191665"
-# branch = "time_ops"
+git = "https://github.com/lucasw/roslibrust"
+branch = "subscribe_any"
+# path = "../../roslibrust/roslibrust_codegen"
+# version="0.10"
 
 [dependencies.roslibrust_codegen_macro]
-git = "https://github.com/lucasw/roslibrust.git"
-branch = "master"
-# git = "https://github.com/lucasw/roslibrust.git"
-# rev = "a1eb5a875906a26aa172a7465dd018858d191665"
-# branch = "time_ops"
+git = "https://github.com/lucasw/roslibrust"
+branch = "subscribe_any"
+# path = "../../roslibrust/roslibrust_codegen_macro"
+# version="0.10"
 
 # cargo update tf_roslibrust to get latest version in this branch
 [dependencies.tf_roslibrust]
-git = "https://github.com/lucasw/rustros_tf.git"
+git = "https://github.com/lucasw/tf_roslibrust.git"
 branch = "roslibrust"
