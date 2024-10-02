@@ -212,8 +212,8 @@ pub fn camera_info_edge_points_plane_intersection(
 
     let t1 = tf_util::duration_now();
 
-    println!("have tf {:.3}s old",
-        tf_util::duration_to_f64(t1 - tf_util::stamp_to_duration(&camera_info.header.stamp)));
+    // println!("have tf {:.3}s old",
+    //     tf_util::duration_to_f64(t1 - tf_util::stamp_to_duration(&camera_info.header.stamp)));
 
     let edge_points_in_camera_2d = get_camera_edge_points(camera_info, num_per_edge);
     // TODO(lucasw) would be simpler to have undistort_points output into 3d
@@ -290,7 +290,7 @@ pub fn camera_info_edge_points_plane_intersection(
     }
 
     // let t2 = tf_util::duration_now();
-    print!("]");
+    // print!("]");
     // println!("lookup: {:?}s, publish: {:?}s",
     //     tf_util::duration_to_f64(t1 - t0),
     //     tf_util::duration_to_f64(t2 - t1),
