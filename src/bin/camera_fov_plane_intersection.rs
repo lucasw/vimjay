@@ -10,7 +10,8 @@ use tf_roslibrust::{
     tf_util,
 };
 use tokio::time::Duration;
-use vimjay::{camera_info_edge_points_plane_intersection, sensor_msgs, visualization_msgs};
+use vimjay::camera_info_edge_points_plane_intersection;
+use tf_roslibrust::transforms::{sensor_msgs, visualization_msgs};
 
 #[tokio::main]
 async fn main() -> Result<(), anyhow::Error> {

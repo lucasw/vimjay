@@ -1,6 +1,6 @@
 [package]
 name = "vimjay"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
 rust-version = "1.75"
 license = "BSD 3-Clause"
@@ -21,22 +21,16 @@ tokio = "1.38.0"
 
 [dependencies.roslibrust]
 git = "https://github.com/lucasw/roslibrust"
-branch = "subscribe_any"
-# path = "../../roslibrust/roslibrust"
-# version="0.10.2"
+branch = "get_rx_msg_def"
 features = ["ros1"]
 
 [dependencies.roslibrust_codegen]
 git = "https://github.com/lucasw/roslibrust"
-branch = "subscribe_any"
-# path = "../../roslibrust/roslibrust_codegen"
-# version="0.10"
+branch = "get_rx_msg_def"
 
 [dependencies.roslibrust_codegen_macro]
 git = "https://github.com/lucasw/roslibrust"
-branch = "subscribe_any"
-# path = "../../roslibrust/roslibrust_codegen_macro"
-# version="0.10"
+branch = "get_rx_msg_def"
 
 # cargo update tf_roslibrust to get latest version in this branch
 [dependencies.tf_roslibrust]

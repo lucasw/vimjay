@@ -9,8 +9,7 @@ use tf_roslibrust::{
     tf_util,
     transforms::isometry_from_transform,
 };
-
-roslibrust_codegen_macro::find_and_generate_ros_messages!();
+use tf_roslibrust::transforms::{geometry_msgs, sensor_msgs, visualization_msgs};
 
 /// adapted from https://github.com/opencv/opencv/blob/4.x/modules/calib3d/src/undistort.dispatch.cpp
 pub fn undistort_points(
