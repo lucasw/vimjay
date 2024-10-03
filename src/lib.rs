@@ -1,15 +1,9 @@
 /// Take in a camera info and target frame and find the intersection of the boundary
 /// of the camera fov and the xy plane in the target frame, publish out as a marker and polygon
 /// based on camera_info_to_plane.py/.cpp and renamed to avoid rosrun confusion with the C++ node
-
 use nalgebra::{Point3, Rotation, Rotation3};
-use tf_roslibrust::{
-    TfError,
-    TfListener,
-    tf_util,
-    transforms::isometry_from_transform,
-};
 use tf_roslibrust::transforms::{geometry_msgs, sensor_msgs, visualization_msgs};
+use tf_roslibrust::{tf_util, transforms::isometry_from_transform, TfError, TfListener};
 
 /// adapted from https://github.com/opencv/opencv/blob/4.x/modules/calib3d/src/undistort.dispatch.cpp
 pub fn undistort_points(
@@ -17,7 +11,6 @@ pub fn undistort_points(
     points_in_camera: Vec<(f64, f64)>,
     max_count: u32,
 ) -> Vec<(f64, f64)> {
-
     let mut points2d = Vec::new();
     points2d.resize(points_in_camera.len(), (0.0, 0.0));
 
@@ -50,7 +43,7 @@ pub fn undistort_points(
     };
 
     // TODO(lucasw) pass this in optionally
-    let epsilon = 0.0;  // 1e-9;
+    let epsilon = 0.0; // 1e-9;
 
     for (ind, (xo, yo)) in points_in_camera.iter().enumerate() {
         let u = xo;
@@ -70,45 +63,59 @@ pub fn undistort_points(
             let y0 = y;
 
             for j in 0..max_count {
-                let r2 = x*x + y*y;
-                let icdist = (1.0 + ((k[7]*r2 + k[6])*r2 + k[5])*r2) / (1.0 + ((k[4]*r2 + k[1])*r2 + k[0])*r2);
-                if icdist < 0.0 { // test: undistortPoints.regression_14583
-                    x = (u - cx)*ifx;
-                    y = (v - cy)*ify;
+                let r2 = x * x + y * y;
+                let icdist = (1.0 + ((k[7] * r2 + k[6]) * r2 + k[5]) * r2)
+                    / (1.0 + ((k[4] * r2 + k[1]) * r2 + k[0]) * r2);
+                if icdist < 0.0 {
+                    // test: undistortPoints.regression_14583
+                    x = (u - cx) * ifx;
+                    y = (v - cy) * ify;
                     print!("x");
                     break;
                 }
-                let delta_x = 2.0*k[2]*x*y + k[3] * (r2 + 2.0*x*x)+ k[8]*r2 +k[9]*r2*r2;
-                let delta_y = k[2]*(r2 + 2.0*y*y) + 2.0*k[3]*x*y + k[10]*r2 + k[11]*r2*r2;
-                x = (x0 - delta_x)*icdist;
-                y = (y0 - delta_y)*icdist;
+                let delta_x =
+                    2.0 * k[2] * x * y + k[3] * (r2 + 2.0 * x * x) + k[8] * r2 + k[9] * r2 * r2;
+                let delta_y =
+                    k[2] * (r2 + 2.0 * y * y) + 2.0 * k[3] * x * y + k[10] * r2 + k[11] * r2 * r2;
+                x = (x0 - delta_x) * icdist;
+                y = (y0 - delta_y) * icdist;
 
-                if epsilon > 0.0 { // (criteria.type & cv::TermCriteria::EPS) {
-                    let r2 = x*x + y*y;
-                    let r4 = r2*r2;
-                    let r6 = r4*r2;
-                    let a1 = 2.0*x*y;
-                    let a2 = r2 + 2.0*x*x;
-                    let a3 = r2 + 2.0*y*y;
-                    let cdist = 1.0 + k[0]*r2 + k[1]*r4 + k[4]*r6;
-                    let icdist2 = 1.0 / (1.0 + k[5]*r2 + k[6]*r4 + k[7]*r6);
+                if epsilon > 0.0 {
+                    // (criteria.type & cv::TermCriteria::EPS) {
+                    let r2 = x * x + y * y;
+                    let r4 = r2 * r2;
+                    let r6 = r4 * r2;
+                    let a1 = 2.0 * x * y;
+                    let a2 = r2 + 2.0 * x * x;
+                    let a3 = r2 + 2.0 * y * y;
+                    let cdist = 1.0 + k[0] * r2 + k[1] * r4 + k[4] * r6;
+                    let icdist2 = 1.0 / (1.0 + k[5] * r2 + k[6] * r4 + k[7] * r6);
 
-                    let xd0 = x*cdist*icdist2 + k[2]*a1 + k[3]*a2 + k[8]*r2 + k[9]*r4;
-                    let yd0 = y*cdist*icdist2 + k[2]*a3 + k[3]*a1 + k[10]*r2 + k[11]*r4;
+                    let xd0 = x * cdist * icdist2 + k[2] * a1 + k[3] * a2 + k[8] * r2 + k[9] * r4;
+                    let yd0 = y * cdist * icdist2 + k[2] * a3 + k[3] * a1 + k[10] * r2 + k[11] * r4;
 
                     let vec_tilt = mat_tilt * Point3::new(xd0, yd0, 1.0);
-                    let inv_proj = { if vec_tilt.z != 0.0 { 1.0 / vec_tilt.z } else { 1.0 } };
+                    let inv_proj = {
+                        if vec_tilt.z != 0.0 {
+                            1.0 / vec_tilt.z
+                        } else {
+                            1.0
+                        }
+                    };
                     let xd = inv_proj * vec_tilt.x;
                     let yd = inv_proj * vec_tilt.y;
 
-                    let x_proj = xd*fx + cx;
-                    let y_proj = yd*fy + cy;
+                    let x_proj = xd * fx + cx;
+                    let y_proj = yd * fy + cy;
 
                     let error = ((x_proj - u).powi(2) + (y_proj - v).powi(2)).sqrt();
-                    if error < epsilon { println!("{j} error {error:.12}"); break; }
+                    if error < epsilon {
+                        println!("{j} error {error:.12}");
+                        break;
+                    }
                 }
-            }  // iterate until error is small
-        }  // apply distortion
+            } // iterate until error is small
+        } // apply distortion
 
         /*
         let xx = RR[0][0]*x + RR[0][1]*y + RR[0][2];
@@ -120,7 +127,7 @@ pub fn undistort_points(
 
         points2d[ind].0 = x;
         points2d[ind].1 = y;
-    }  // iterate through all points
+    } // iterate through all points
 
     points2d
 }
@@ -190,7 +197,13 @@ pub fn camera_info_edge_points_plane_intersection(
     target_frame: &str,
     output_frame: &str,
     max_count: u32,
-) -> Result<(geometry_msgs::PolygonStamped, visualization_msgs::MarkerArray), TfError> {
+) -> Result<
+    (
+        geometry_msgs::PolygonStamped,
+        visualization_msgs::MarkerArray,
+    ),
+    TfError,
+> {
     // let t0 = tf_util::duration_now();
 
     let res0 = listener.lookup_transform(
@@ -199,7 +212,8 @@ pub fn camera_info_edge_points_plane_intersection(
         Some(camera_info.header.stamp.clone()),
     );
     let camera_frame_to_target_plane_tfs = res0?;
-    let camera_frame_to_target_plane = isometry_from_transform(&camera_frame_to_target_plane_tfs.transform);
+    let camera_frame_to_target_plane =
+        isometry_from_transform(&camera_frame_to_target_plane_tfs.transform);
     // println!("{camera_frame_to_target_plane}");
 
     let res1 = listener.lookup_transform(
@@ -222,14 +236,14 @@ pub fn camera_info_edge_points_plane_intersection(
 
     let mut edge_points_in_camera_3d = Vec::new();
     // the extra +1 point is 0, 0, 0 and is the origin of the camera
-    edge_points_in_camera_3d.resize(edge_points_ideal.len() + 1,
-        Point3::new(0.0, 0.0, 0.0));
+    edge_points_in_camera_3d.resize(edge_points_ideal.len() + 1, Point3::new(0.0, 0.0, 0.0));
     for (ind, (xo, yo)) in edge_points_ideal.iter().enumerate() {
         edge_points_in_camera_3d[ind] = Point3::new(*xo, *yo, 1.0);
     }
 
     let mut edge_points_in_target = Vec::new();
-    for pt3 in edge_points_in_camera_3d {  // .iter().enumerate() {
+    for pt3 in edge_points_in_camera_3d {
+        // .iter().enumerate() {
         let pt3_in_target = camera_frame_to_target_plane * pt3;
         edge_points_in_target.push(pt3_in_target);
     }
@@ -289,15 +303,16 @@ pub fn camera_info_edge_points_plane_intersection(
         marker.header = camera_info.header.clone();
         marker.header.frame_id = target_frame.to_string();
         marker.ns = "camera_fov".to_string();
-        marker.r#type = 4;  // LINE_STRIP - TODO(lucasw) are those enums?
+        marker.r#type = 4; // LINE_STRIP - TODO(lucasw) are those enums?
         marker.pose.orientation.w = 1.0;
         marker.color.r = 0.3;
         marker.color.g = 0.5;
         marker.color.b = 0.2;
         marker.color.a = 1.0;
         marker.scale.x = 0.07;
-        marker.points.resize(points_in_plane.len(),
-            geometry_msgs::Point::default());
+        marker
+            .points
+            .resize(points_in_plane.len(), geometry_msgs::Point::default());
         for (ind, pt3) in points_in_plane.iter().enumerate() {
             marker.points[ind].x = pt3.x;
             marker.points[ind].y = pt3.y;

@@ -1,21 +1,15 @@
 /// Take in a camera info and target frame and find the intersection of the boundary
 /// of the camera fov and the xy plane in the target frame, publish out as a marker and polygon
 /// based on camera_info_to_plane.py/.cpp and renamed to avoid rosrun confusion with the C++ node
-
 use roslibrust::ros1::{NodeHandle, Publisher};
 use std::collections::HashMap;
-use tf_roslibrust::{
-    TfError,
-    TfListener,
-    tf_util,
-};
+use tf_roslibrust::transforms::{geometry_msgs, sensor_msgs, visualization_msgs};
+use tf_roslibrust::{tf_util, TfError, TfListener};
 use tokio::time::Duration;
 use vimjay::camera_info_edge_points_plane_intersection;
-use tf_roslibrust::transforms::{geometry_msgs, sensor_msgs, visualization_msgs};
 
 #[tokio::main]
 async fn main() -> Result<(), anyhow::Error> {
-
     // need to have leading slash on node name and topic to function properly
     // so figure out namespace then prefix it to name and topics
 
@@ -25,7 +19,10 @@ async fn main() -> Result<(), anyhow::Error> {
     param_str.insert("output_frame".to_string(), "map".to_string());
     param_str.insert("max_count".to_string(), "8".to_string());
     // need extra leading _ for name and ns
-    param_str.insert("_name".to_string(), "camera_fov_plane_intersection".to_string());
+    param_str.insert(
+        "_name".to_string(),
+        "camera_fov_plane_intersection".to_string(),
+    );
     param_str.insert("_ns".to_string(), "".to_string());
 
     // TODO(lucasw) can an existing rust arg handling library handle the ':=' ros cli args?
@@ -65,22 +62,23 @@ async fn main() -> Result<(), anyhow::Error> {
     let num_per_edge: u8 = 1;
 
     // TODO(lucasw) look for a '__name:=' argument
-    let full_node_name = &format!(
-        "/{}/{}",
-        &ns,
-        &param_str["_name"],
-        ).replace("//", "/");
+    let full_node_name = &format!("/{}/{}", &ns, &param_str["_name"],).replace("//", "/");
     println!("{}", format!("full ns and node name: {full_node_name}"));
 
-    let nh = NodeHandle::new(&std::env::var("ROS_MASTER_URI")?, full_node_name)
-        .await?;
+    let nh = NodeHandle::new(&std::env::var("ROS_MASTER_URI")?, full_node_name).await?;
 
     // TODO(lucasw) remember leading ns or the message won't transmit
     let latching = false;
-    let polygon_pub: Publisher<geometry_msgs::PolygonStamped> = nh.advertise(&format!("{}/footprint", ns.as_str()), 3, latching).await?;
-    let marker_pub: Publisher<visualization_msgs::MarkerArray> = nh.advertise(&format!("{}/marker_array", ns.as_str()), 3, latching).await?;
+    let polygon_pub: Publisher<geometry_msgs::PolygonStamped> = nh
+        .advertise(&format!("{}/footprint", ns.as_str()), 3, latching)
+        .await?;
+    let marker_pub: Publisher<visualization_msgs::MarkerArray> = nh
+        .advertise(&format!("{}/marker_array", ns.as_str()), 3, latching)
+        .await?;
 
-    let mut camera_info_sub = nh.subscribe::<sensor_msgs::CameraInfo>(&format!("{}/camera_info", ns.as_str()), 30).await?;
+    let mut camera_info_sub = nh
+        .subscribe::<sensor_msgs::CameraInfo>(&format!("{}/camera_info", ns.as_str()), 30)
+        .await?;
 
     let listener = TfListener::new(&nh).await;
 
@@ -113,8 +111,11 @@ async fn main() -> Result<(), anyhow::Error> {
                     }
 
                     let update_rv = camera_info_edge_points_plane_intersection(
-                        &listener, &camera_info,
-                        &num_per_edge, &target_frame, &output_frame,
+                        &listener,
+                        &camera_info,
+                        &num_per_edge,
+                        &target_frame,
+                        &output_frame,
                         max_count,
                     );
                     match update_rv {
@@ -124,7 +125,7 @@ async fn main() -> Result<(), anyhow::Error> {
                             polygon_pub.publish(&polygon).await?;
                             marker_pub.publish(&marker_array).await?;
                             break;
-                        },
+                        }
                         Err(err) => match err {
                             // expect the tf to arrive soon
                             // the 'future' here means that the lookup is later than available
@@ -136,19 +137,19 @@ async fn main() -> Result<(), anyhow::Error> {
                                 // future any longer, or it was too far in the future
                                 // and should have given up immediately
                                 tokio::time::sleep(Duration::from_millis(20)).await;
-                            },
+                            }
                             _ => {
                                 println!("lookup error {err:?}");
                                 break;
-                            },
+                            }
                         },
                     }
                 }
-            },
+            }
             Some(Err(error)) => {
                 // TODO(lucasw) return the error normally
                 panic!("{error}");
-            },
+            }
             None => (),
         }
     }
