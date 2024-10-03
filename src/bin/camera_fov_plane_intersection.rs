@@ -11,7 +11,7 @@ use tf_roslibrust::{
 };
 use tokio::time::Duration;
 use vimjay::camera_info_edge_points_plane_intersection;
-use tf_roslibrust::transforms::{sensor_msgs, visualization_msgs};
+use tf_roslibrust::transforms::{geometry_msgs, sensor_msgs, visualization_msgs};
 
 #[tokio::main]
 async fn main() -> Result<(), anyhow::Error> {
@@ -77,6 +77,7 @@ async fn main() -> Result<(), anyhow::Error> {
 
     // TODO(lucasw) remember leading ns or the message won't transmit
     let latching = false;
+    let polygon_pub: Publisher<geometry_msgs::PolygonStamped> = nh.advertise(&format!("{}/footprint", ns.as_str()), 3, latching).await?;
     let marker_pub: Publisher<visualization_msgs::MarkerArray> = nh.advertise(&format!("{}/marker_array", ns.as_str()), 3, latching).await?;
 
     let mut camera_info_sub = nh.subscribe::<sensor_msgs::CameraInfo>(&format!("{}/camera_info", ns.as_str()), 30).await?;
@@ -117,9 +118,10 @@ async fn main() -> Result<(), anyhow::Error> {
                         max_count,
                     );
                     match update_rv {
-                        Ok(marker_array) => {
+                        Ok((polygon, marker_array)) => {
                             let tdiff = tf_util::duration_now() - t0;
-                            print!(" {:.3}s elapsed ", tf_util::duration_to_f64(tdiff));
+                            // print!(" {:.3}s elapsed ", tf_util::duration_to_f64(tdiff));
+                            polygon_pub.publish(&polygon).await?;
                             marker_pub.publish(&marker_array).await?;
                             break;
                         },

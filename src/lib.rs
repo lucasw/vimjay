@@ -182,13 +182,15 @@ pub fn camera_info_to_plane(
 */
 
 pub fn camera_info_edge_points_plane_intersection(
+    // TODO(lucasw) instead of taking a TfListener, make a LookupTransform trait that
+    // TfListener and TfBuffer both implement
     listener: &TfListener,
     camera_info: &sensor_msgs::CameraInfo,
     num_per_edge: &u8,
     target_frame: &str,
     output_frame: &str,
     max_count: u32,
-) -> Result<visualization_msgs::MarkerArray, TfError> {
+) -> Result<(geometry_msgs::PolygonStamped, visualization_msgs::MarkerArray), TfError> {
     // let t0 = tf_util::duration_now();
 
     let res0 = listener.lookup_transform(
@@ -200,15 +202,13 @@ pub fn camera_info_edge_points_plane_intersection(
     let camera_frame_to_target_plane = isometry_from_transform(&camera_frame_to_target_plane_tfs.transform);
     // println!("{camera_frame_to_target_plane}");
 
-    /*
     let res1 = listener.lookup_transform(
         &output_frame,
         &target_frame,
         Some(camera_info.header.stamp.clone()),
     );
     let target_to_output_tfs = res1?;
-    let target_to_output = isometry_from_transform(&camera_frame_to_target_plane_tfs.transform);
-    */
+    let target_to_output = isometry_from_transform(&target_to_output_tfs.transform);
 
     let t1 = tf_util::duration_now();
 
@@ -241,6 +241,7 @@ pub fn camera_info_edge_points_plane_intersection(
     let z0 = pt0.z;
 
     let mut points_in_plane = Vec::new();
+    let mut points_in_output_frame = Vec::new();
 
     // TODO(lucasw) ought to return this
     let mut _is_full = true;
@@ -262,9 +263,25 @@ pub fn camera_info_edge_points_plane_intersection(
         // this should be 0.0
         let z2 = z0 + (z1 - z0) * intersect_distance;
 
-        points_in_plane.push(Point3::new(x2, y2, z2));
+        let point_in_target = Point3::new(x2, y2, z2);
+        points_in_output_frame.push(target_to_output * point_in_target);
+        points_in_plane.push(point_in_target);
         // used_points2d_in_camera.push_back(points2d_in_camera[ind]);
     }
+
+    let polygon = {
+        let mut polygon = geometry_msgs::PolygonStamped::default();
+        polygon.header = camera_info.header.clone();
+        polygon.header.frame_id = output_frame.to_string();
+        for pt in points_in_output_frame {
+            polygon.polygon.points.push(geometry_msgs::Point32 {
+                x: pt.x as f32,
+                y: pt.y as f32,
+                z: pt.z as f32,
+            });
+        }
+        polygon
+    };
 
     let mut marker_array = visualization_msgs::MarkerArray::default();
     {
@@ -296,5 +313,5 @@ pub fn camera_info_edge_points_plane_intersection(
     //     tf_util::duration_to_f64(t2 - t1),
     // );
 
-    Ok(marker_array)
+    Ok((polygon, marker_array))
 }
