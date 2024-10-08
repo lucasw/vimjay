@@ -2,8 +2,9 @@
 /// of the camera fov and the xy plane in the target frame, publish out as a marker and polygon
 /// based on camera_info_to_plane.py/.cpp and renamed to avoid rosrun confusion with the C++ node
 use nalgebra::{Point3, Rotation, Rotation3};
+use std::sync::{Arc, Mutex};
 use tf_roslibrust::transforms::{geometry_msgs, sensor_msgs, visualization_msgs};
-use tf_roslibrust::{tf_util, transforms::isometry_from_transform, LookupTransform, TfError};
+use tf_roslibrust::{transforms::isometry_from_transform, LookupTransform, TfError, TfListener};
 
 /// adapted from https://github.com/opencv/opencv/blob/4.x/modules/calib3d/src/undistort.dispatch.cpp
 pub fn undistort_points(
@@ -188,6 +189,51 @@ pub fn camera_info_to_plane(
 }
 */
 
+/// special case, can't get a mutex guard into the trait below
+pub fn camera_info_edge_points_plane_intersection_arc_mutex(
+    // TODO(lucasw) instead of taking a TfListener, make a LookupTransform trait that
+    // TfListener and TfBuffer both implement
+    listener: &Arc<Mutex<TfListener>>,
+    camera_info: &sensor_msgs::CameraInfo,
+    num_per_edge: &u8,
+    target_frame: &str,
+    output_frame: &str,
+    max_count: u32,
+) -> Result<
+    (
+        geometry_msgs::PolygonStamped,
+        visualization_msgs::MarkerArray,
+    ),
+    TfError,
+> {
+    // let t0 = tf_util::duration_now();
+
+    // TODO(lucasw) return error if the lock fails
+    let res0 = listener.lock().unwrap().lookup_transform(
+        &target_frame,
+        camera_info.header.frame_id.as_str(),
+        Some(camera_info.header.stamp.clone()),
+    );
+    let camera_frame_to_target_plane_tfs = res0?;
+
+    let res1 = listener.lock().unwrap().lookup_transform(
+        &output_frame,
+        &target_frame,
+        Some(camera_info.header.stamp.clone()),
+    );
+    let target_to_output_tfs = res1?;
+
+    camera_info_edge_points_plane_intersection_with_tfs(
+        &camera_frame_to_target_plane_tfs,
+        &target_to_output_tfs,
+        camera_info,
+        num_per_edge,
+        target_frame,
+        output_frame,
+        max_count,
+    )
+}
+
 pub fn camera_info_edge_points_plane_intersection(
     // TODO(lucasw) instead of taking a TfListener, make a LookupTransform trait that
     // TfListener and TfBuffer both implement
@@ -212,9 +258,6 @@ pub fn camera_info_edge_points_plane_intersection(
         Some(camera_info.header.stamp.clone()),
     );
     let camera_frame_to_target_plane_tfs = res0?;
-    let camera_frame_to_target_plane =
-        isometry_from_transform(&camera_frame_to_target_plane_tfs.transform);
-    // println!("{camera_frame_to_target_plane}");
 
     let res1 = listener.lookup_transform(
         &output_frame,
@@ -222,9 +265,39 @@ pub fn camera_info_edge_points_plane_intersection(
         Some(camera_info.header.stamp.clone()),
     );
     let target_to_output_tfs = res1?;
-    let target_to_output = isometry_from_transform(&target_to_output_tfs.transform);
 
-    let _t1 = tf_util::duration_now();
+    camera_info_edge_points_plane_intersection_with_tfs(
+        &camera_frame_to_target_plane_tfs,
+        &target_to_output_tfs,
+        camera_info,
+        num_per_edge,
+        target_frame,
+        output_frame,
+        max_count,
+    )
+}
+
+pub fn camera_info_edge_points_plane_intersection_with_tfs(
+    // TODO(lucasw) instead of taking a TfListener, make a LookupTransform trait that
+    // TfListener and TfBuffer both implement
+    camera_frame_to_target_plane_tfs: &geometry_msgs::TransformStamped,
+    target_to_output_tfs: &geometry_msgs::TransformStamped,
+    camera_info: &sensor_msgs::CameraInfo,
+    num_per_edge: &u8,
+    target_frame: &str,
+    output_frame: &str,
+    max_count: u32,
+) -> Result<
+    (
+        geometry_msgs::PolygonStamped,
+        visualization_msgs::MarkerArray,
+    ),
+    TfError,
+> {
+    let camera_frame_to_target_plane =
+        isometry_from_transform(&camera_frame_to_target_plane_tfs.transform);
+    // println!("{camera_frame_to_target_plane}");
+    let target_to_output = isometry_from_transform(&target_to_output_tfs.transform);
 
     // println!("have tf {:.3}s old",
     //     tf_util::duration_to_f64(t1 - tf_util::stamp_to_duration(&camera_info.header.stamp)));
