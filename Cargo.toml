@@ -1,6 +1,6 @@
 [package]
 name = "vimjay"
-version = "0.3.0"
+version = "0.3.1"
 edition = "2021"
 rust-version = "1.75"
 license = "BSD 3-Clause"
@@ -36,3 +36,4 @@ branch = "get_rx_msg_def"
 [dependencies.tf_roslibrust]
 git = "https://github.com/lucasw/tf_roslibrust.git"
 branch = "roslibrust"
+version = "0.2.2"

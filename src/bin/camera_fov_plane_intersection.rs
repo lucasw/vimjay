@@ -120,7 +120,7 @@ async fn main() -> Result<(), anyhow::Error> {
                     );
                     match update_rv {
                         Ok((polygon, marker_array)) => {
-                            let tdiff = tf_util::duration_now() - t0;
+                            let _tdiff = tf_util::duration_now() - t0;
                             // print!(" {:.3}s elapsed ", tf_util::duration_to_f64(tdiff));
                             polygon_pub.publish(&polygon).await?;
                             marker_pub.publish(&marker_array).await?;
@@ -130,7 +130,7 @@ async fn main() -> Result<(), anyhow::Error> {
                             // expect the tf to arrive soon
                             // the 'future' here means that the lookup is later than available
                             // transforms in the tf buffer
-                            TfError::AttemptedLookUpInFuture(_, _) => {
+                            TfError::AttemptedLookupInFuture(_, _, _) => {
                                 print!("-");
                                 // keep looping until time runs out-
                                 // but in that case the lookup is either not in the

@@ -3,7 +3,7 @@
 /// based on camera_info_to_plane.py/.cpp and renamed to avoid rosrun confusion with the C++ node
 use nalgebra::{Point3, Rotation, Rotation3};
 use tf_roslibrust::transforms::{geometry_msgs, sensor_msgs, visualization_msgs};
-use tf_roslibrust::{tf_util, transforms::isometry_from_transform, TfError, TfListener};
+use tf_roslibrust::{tf_util, transforms::isometry_from_transform, LookupTransform, TfError};
 
 /// adapted from https://github.com/opencv/opencv/blob/4.x/modules/calib3d/src/undistort.dispatch.cpp
 pub fn undistort_points(
@@ -191,7 +191,7 @@ pub fn camera_info_to_plane(
 pub fn camera_info_edge_points_plane_intersection(
     // TODO(lucasw) instead of taking a TfListener, make a LookupTransform trait that
     // TfListener and TfBuffer both implement
-    listener: &TfListener,
+    listener: &impl LookupTransform,
     camera_info: &sensor_msgs::CameraInfo,
     num_per_edge: &u8,
     target_frame: &str,
@@ -224,7 +224,7 @@ pub fn camera_info_edge_points_plane_intersection(
     let target_to_output_tfs = res1?;
     let target_to_output = isometry_from_transform(&target_to_output_tfs.transform);
 
-    let t1 = tf_util::duration_now();
+    let _t1 = tf_util::duration_now();
 
     // println!("have tf {:.3}s old",
     //     tf_util::duration_to_f64(t1 - tf_util::stamp_to_duration(&camera_info.header.stamp)));
