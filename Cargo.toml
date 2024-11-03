@@ -24,16 +24,11 @@ git = "https://github.com/lucasw/roslibrust"
 branch = "get_rx_msg_def"
 features = ["ros1"]
 
-[dependencies.roslibrust_codegen]
-git = "https://github.com/lucasw/roslibrust"
-branch = "get_rx_msg_def"
-
-[dependencies.roslibrust_codegen_macro]
-git = "https://github.com/lucasw/roslibrust"
-branch = "get_rx_msg_def"
+[dependencies.roslibrust_util]
+git = "https://github.com/lucasw/tf_roslibrust"
+version = "0.1.0"
 
 # cargo update tf_roslibrust to get latest version in this branch
 [dependencies.tf_roslibrust]
-git = "https://github.com/lucasw/tf_roslibrust.git"
-branch = "roslibrust"
-version = "0.2.2"
+git = "https://github.com/lucasw/tf_roslibrust"
+version = "0.2.4"
