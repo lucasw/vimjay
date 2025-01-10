@@ -21,14 +21,14 @@ tokio = "1.38.0"
 
 [dependencies.roslibrust]
 git = "https://github.com/lucasw/roslibrust"
-branch = "get_rx_msg_def"
+branch = "get_rx_msg_def_v0_12"
 features = ["ros1"]
 
 [dependencies.roslibrust_util]
 git = "https://github.com/lucasw/tf_roslibrust"
-version = "0.1.0"
+version = "0.2.0"
 
 # cargo update tf_roslibrust to get latest version in this branch
 [dependencies.tf_roslibrust]
 git = "https://github.com/lucasw/tf_roslibrust"
-version = "0.2.4"
+version = "0.2.5"
